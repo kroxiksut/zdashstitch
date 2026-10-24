@@ -14,7 +14,11 @@ use zdashstitch_core::formats::{
 use zip::{CompressionMethod, ZipWriter, write::SimpleFileOptions};
 
 fn root() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..")
+    Path::new(env!("CARGO_MANIFEST_DIR"))
+        .ancestors()
+        .nth(2)
+        .unwrap_or_else(|| panic!("core crate must be nested under the workspace root"))
+        .to_path_buf()
 }
 
 fn project_path() -> PathBuf {

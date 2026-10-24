@@ -35,6 +35,7 @@ There are no fixed version numbers or dates for the directions below. Order is c
 
 - Candidate order from current needs: 7.0 LTS, 6.0 LTS, 8.0, then a separate feasibility assessment for 5.4/5.0.
 - Each generation gets its own API adapter, export parser profile, capability matrix, fixtures and contract tests.
+- Reintroduce macOS CI, packaging and real-Mac acceptance during this multi-version compatibility stage; macOS is not built or supported by the MVP.
 - `core`, portable projects and the UI remain version-neutral; unsupported behavior fails closed.
 
 **Acceptance signal:** the same portable project produces a verified result or an explicit compatibility refusal, never silent feature loss.

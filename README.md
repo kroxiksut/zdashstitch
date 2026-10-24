@@ -68,7 +68,7 @@ Passing a schema test does not satisfy any live Zabbix gate.
 
 Adapters for Zabbix 7.0/6.0/8.0/5.x, template dashboards, automatic bidirectional synchronization, a community catalog, built-in AI/MCP, arbitrary CSS/JS/PHP, server-side Custom Widgets, a shared multi-user service and an end-user CLI/TUI are excluded. See the [post-MVP roadmap](ROADMAP.md).
 
-**Target platforms:** Windows 10+ and tested Linux desktops with a browser. macOS will initially be an experimental CI build target and is not yet a supported MVP platform. The planned implementation is Rust + Axum on local loopback with a Svelte/TypeScript UI.
+**Target platforms:** Windows 10+ and tested Linux desktops with a browser. macOS builds and support are deferred until the post-MVP multi-version Zabbix work. The planned implementation is Rust + Axum on local loopback with a Svelte/TypeScript UI.
 
 ## Offline design and data boundaries
 
