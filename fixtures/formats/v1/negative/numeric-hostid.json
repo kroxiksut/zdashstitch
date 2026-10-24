@@ -1,0 +1,15 @@
+{
+  "format": "zdashstitch.local-bindings/v1",
+  "storage_scope": "local_only",
+  "project_id": "db-pilot",
+  "connection_id": "corp",
+  "deployment_id": "pilot",
+  "roles": {
+    "pg_nodes": [
+      {
+        "slot_id": "pg_a",
+        "hostid": 101
+      }
+    ]
+  }
+}

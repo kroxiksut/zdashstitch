@@ -1,0 +1,16 @@
+format: zdashstitch.metrics/v1
+catalog_id: keeper
+export_profile: portable_with_public_keys
+source:
+  kind: manual
+  template_name: Keeper Example
+diagnostics: []
+metrics:
+- id: availability
+  name: Доступность
+  selector:
+    kind: key
+    value: example.keeper.up
+  value_type: numeric_unsigned
+  units: ''
+  origin: template_item

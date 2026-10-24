@@ -1,0 +1,79 @@
+[
+  {
+    "dashboardid": "1",
+    "name": "Synthetic dependency dashboard",
+    "userid": "1",
+    "private": "1",
+    "display_period": "30",
+    "auto_start": "0",
+    "pages": [
+      {
+        "dashboard_pageid": "10",
+        "name": "Known and unknown",
+        "display_period": "0",
+        "widgets": [
+          {
+            "widgetid": "100",
+            "type": "item",
+            "name": "Synthetic item",
+            "x": "0",
+            "y": "0",
+            "width": "12",
+            "height": "3",
+            "view_mode": "0",
+            "fields": [
+              {"type": "4", "name": "itemid", "value": "10101"},
+              {"type": "1", "name": "reference", "value": "ABCDE"}
+            ]
+          },
+          {
+            "widgetid": "101",
+            "type": "svggraph",
+            "name": "Synthetic graph",
+            "x": "12",
+            "y": "0",
+            "width": "36",
+            "height": "5",
+            "view_mode": "0",
+            "fields": [
+              {"type": "4", "name": "ds.0.itemids.0", "value": "20202"},
+              {"type": "1", "name": "ds.0.itemids.1._reference", "value": "ABCDE._itemid"},
+              {"type": "1", "name": "reference", "value": "FGHIJ"}
+            ]
+          },
+          {
+            "widgetid": "102",
+            "type": "graph",
+            "name": "Synthetic classic graph",
+            "x": "0",
+            "y": "5",
+            "width": "36",
+            "height": "5",
+            "view_mode": "0",
+            "fields": [
+              {"type": "6", "name": "graphid", "value": "30303"}
+            ]
+          },
+          {
+            "widgetid": "103",
+            "type": "vendor.private",
+            "name": "Preserved unknown widget",
+            "x": "36",
+            "y": "5",
+            "width": "12",
+            "height": "3",
+            "view_mode": "0",
+            "fields": [
+              {"type": "4", "name": "opaque_item", "value": "40404"},
+              {"type": "99", "value": {"opaque": true}}
+            ],
+            "vendor_extension": {"must_survive": true}
+          }
+        ]
+      }
+    ],
+    "users": [],
+    "userGroups": [],
+    "unknown_dashboard_property": {"must_survive": true}
+  }
+]

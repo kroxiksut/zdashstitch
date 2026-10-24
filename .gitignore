@@ -1,0 +1,83 @@
+# Python reference checks
+__pycache__/
+.pytest_cache/
+*.py[cod]
+.venv/
+venv/
+
+# Rust / frontend build artifacts
+/target/
+/node_modules/
+/dist/
+/ui/dist/
+/ui/node_modules/
+**/*.rs.bk
+**/mutants.out*/
+*.pdb
+
+# Local agent instructions and working task state
+/CLAUDE.md
+/TASKS_RU.md
+/TASKS_GIT_RU.md
+/.agents/
+/.claude/
+/.codex/
+/.cargo/
+
+# Imported source material used only for one-time migration
+/temp/
+
+# Local superseded concepts and audit snapshots (non-normative)
+/docs/history/
+
+# Private runtime state (never commit)
+.env
+.env.*
+!.env.example
+*.local.yaml
+*.local.yml
+*.local.json
+local-state/
+local-bindings/
+private-snapshots/
+private-diagnostics/
+secrets/
+credentials/
+private-keys/
+*.sqlite
+*.sqlite3
+*.db
+*.key
+*.pem
+*.p12
+*.pfx
+*.kbx
+*.age
+*.credentials
+*.vault-password
+*.log
+*.ndjson
+
+# Local lab / VM state and captures
+/.research-local/
+/.vm-local/
+/.vagrant/
+*.qcow2
+*.vdi
+*.vmdk
+*.ova
+*.ovf
+*.box
+*.iso
+*.pcap
+*.pcapng
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*.code-workspace
+*.swp
+*.swo
+*~

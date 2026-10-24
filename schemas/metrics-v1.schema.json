@@ -1,0 +1,355 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zdashstitch.example/schemas/metrics-v1.schema.json",
+  "title": "ZDashstitch metric catalog v1",
+  "type": "object",
+  "required": [
+    "format",
+    "catalog_id",
+    "export_profile",
+    "source",
+    "diagnostics",
+    "metrics"
+  ],
+  "properties": {
+    "format": {
+      "const": "zdashstitch.metrics/v1"
+    },
+    "catalog_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+    },
+    "export_profile": {
+      "enum": [
+        "portable_with_public_keys",
+        "redacted_aliases"
+      ]
+    },
+    "source": {
+      "type": "object",
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "template_export",
+            "zabbix_api",
+            "manual"
+          ]
+        },
+        "export_format_version": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*\\.[0-9]+(?:\\.[0-9]+)?(?:[A-Za-z][A-Za-z0-9._-]*)?$"
+        },
+        "source_server_version": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*\\.[0-9]+(?:\\.[0-9]+)?(?:[A-Za-z][A-Za-z0-9._-]*)?$"
+        },
+        "zabbix_version": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*\\.[0-9]+(?:\\.[0-9]+)?(?:[A-Za-z][A-Za-z0-9._-]*)?$",
+          "deprecated": true
+        },
+        "template_name": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "template_uuid": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{32}$"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "template_export"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "anyOf": [
+              {
+                "required": [
+                  "export_format_version"
+                ]
+              },
+              {
+                "required": [
+                  "zabbix_version"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "zabbix_api"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "anyOf": [
+              {
+                "required": [
+                  "source_server_version"
+                ]
+              },
+              {
+                "required": [
+                  "zabbix_version"
+                ]
+              }
+            ],
+            "not": {
+              "required": [
+                "export_format_version"
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "manual"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "export_format_version"
+                  ]
+                },
+                {
+                  "required": [
+                    "source_server_version"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "not": {
+            "allOf": [
+              {
+                "required": [
+                  "zabbix_version"
+                ]
+              },
+              {
+                "anyOf": [
+                  {
+                    "required": [
+                      "export_format_version"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "source_server_version"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "additionalProperties": false
+    },
+    "diagnostics": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "missing_parent_template",
+          "unresolved_macros",
+          "lld_requires_instance",
+          "source_partial"
+        ]
+      }
+    },
+    "metrics": {
+      "type": "array",
+      "maxItems": 20000,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "selector",
+          "value_type",
+          "units",
+          "origin"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "selector": {
+            "oneOf": [
+              {
+                "type": "object",
+                "required": [
+                  "kind",
+                  "value"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "key"
+                  },
+                  "value": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 512
+                  }
+                },
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "required": [
+                  "kind",
+                  "value"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "alias"
+                  },
+                  "value": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                  }
+                },
+                "additionalProperties": false
+              }
+            ]
+          },
+          "value_type": {
+            "enum": [
+              "numeric_float",
+              "numeric_unsigned",
+              "character",
+              "text",
+              "log",
+              "binary"
+            ]
+          },
+          "units": {
+            "type": "string",
+            "maxLength": 32
+          },
+          "origin": {
+            "enum": [
+              "template_item",
+              "host_item",
+              "lld_prototype",
+              "discovered_item"
+            ]
+          },
+          "uuid": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{32}$"
+          },
+          "diagnostics": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "missing_parent_template",
+                "unresolved_macros",
+                "lld_requires_instance",
+                "source_partial"
+              ]
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "export_profile": {
+            "const": "redacted_aliases"
+          }
+        },
+        "required": [
+          "export_profile"
+        ]
+      },
+      "then": {
+        "properties": {
+          "metrics": {
+            "items": {
+              "properties": {
+                "selector": {
+                  "properties": {
+                    "kind": {
+                      "const": "alias"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "export_profile": {
+            "const": "portable_with_public_keys"
+          }
+        },
+        "required": [
+          "export_profile"
+        ]
+      },
+      "then": {
+        "properties": {
+          "metrics": {
+            "items": {
+              "properties": {
+                "selector": {
+                  "properties": {
+                    "kind": {
+                      "const": "key"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "additionalProperties": false
+}

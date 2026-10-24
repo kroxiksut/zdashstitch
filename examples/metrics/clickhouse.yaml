@@ -1,0 +1,16 @@
+format: zdashstitch.metrics/v1
+catalog_id: ch
+export_profile: portable_with_public_keys
+source:
+  kind: manual
+  template_name: ClickHouse Example
+diagnostics: []
+metrics:
+- id: queries
+  name: Запросы
+  selector:
+    kind: key
+    value: example.ch.queries
+  value_type: numeric_unsigned
+  units: qps
+  origin: template_item

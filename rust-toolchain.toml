@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# Initial implementation baseline imported from the owner's proven Rust setup.
+# The application workspace itself is created only by P0-01 after R0-01.
+[toolchain]
+channel = "1.94.1"
+profile = "minimal"
+components = ["rustfmt", "clippy"]

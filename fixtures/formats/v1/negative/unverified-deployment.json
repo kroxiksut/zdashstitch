@@ -1,0 +1,13 @@
+{
+  "format": "zdashstitch.deployment-state/v1",
+  "storage_scope": "local_only",
+  "project_id": "db-pilot",
+  "connection_id": "corp",
+  "deployment_id": "pilot",
+  "adapter_id": "zabbix74",
+  "target_server_version": "7.4.3",
+  "server_identity_fingerprint": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+  "status": "unknown_outcome",
+  "last_verified_at": "2026-10-23T10:00:00Z",
+  "dashboards": []
+}

@@ -1,0 +1,34 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+[package]
+name = "zdashstitch-core"
+version = "0.0.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+autotests = false
+
+[[test]]
+name = "format_parity"
+path = "tests/format_parity.rs"
+
+[[test]]
+name = "portable_package_io"
+path = "tests/portable_io.rs"
+
+[dependencies]
+cap-fs-ext.workspace = true
+cap-std.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+serde_yaml_ng.workspace = true
+thiserror.workspace = true
+time.workspace = true
+zip.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
+
+[lints]
+workspace = true

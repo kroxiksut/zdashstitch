@@ -1,0 +1,4 @@
+# Python is a pre-implementation reference/test dependency, not product runtime.
+PyYAML==6.0.3
+jsonschema==4.26.0
+pytest==9.1.1

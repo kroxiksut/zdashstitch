@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: CC-BY-4.0
+
+format: zdashstitch.metrics/v1
+catalog_id: legacy
+export_profile: portable_with_public_keys
+source:
+  kind: template_export
+  zabbix_version: '6.0'
+  template_name: Synthetic legacy catalog
+diagnostics: []
+metrics: []

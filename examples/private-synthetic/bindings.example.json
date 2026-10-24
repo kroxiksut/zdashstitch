@@ -1,0 +1,44 @@
+{
+  "format": "zdashstitch.local-bindings/v1",
+  "storage_scope": "local_only",
+  "project_id": "db-pilot",
+  "connection_id": "corp",
+  "deployment_id": "pilot",
+  "roles": {
+    "pg_nodes": [
+      {
+        "slot_id": "pg_a",
+        "hostid": "101"
+      },
+      {
+        "slot_id": "pg_b",
+        "hostid": "102"
+      }
+    ],
+    "ch_nodes": [
+      {
+        "slot_id": "ch_a",
+        "hostid": "201"
+      }
+    ],
+    "keeper_nodes": [
+      {
+        "slot_id": "keeper_a",
+        "hostid": "301"
+      }
+    ],
+    "proxy_nodes": [
+      {
+        "slot_id": "proxy_a",
+        "hostid": "401"
+      }
+    ],
+    "system_nodes": [
+      {
+        "slot_id": "os_a",
+        "hostid": "501"
+      }
+    ]
+  },
+  "metric_overrides": []
+}

@@ -1,0 +1,16 @@
+format: zdashstitch.metrics/v1
+catalog_id: haproxy
+export_profile: portable_with_public_keys
+source:
+  kind: manual
+  template_name: HAProxy Example
+diagnostics: []
+metrics:
+- id: sessions
+  name: Сеансы
+  selector:
+    kind: key
+    value: example.haproxy.sessions
+  value_type: numeric_unsigned
+  units: sessions
+  origin: template_item

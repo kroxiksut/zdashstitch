@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: CC-BY-4.0
+
+format: zdashstitch.metrics/v1
+catalog_id: duplicate
+export_profile: portable_with_public_keys
+source:
+  kind: manual
+diagnostics: []
+metrics:
+  - id: metric_a
+    name: Synthetic metric A
+    selector: {kind: key, value: synthetic.a}
+    value_type: numeric_unsigned
+    units: ''
+    origin: template_item
+  - id: metric_a
+    name: Synthetic metric A duplicate
+    selector: {kind: key, value: synthetic.a.duplicate}
+    value_type: numeric_unsigned
+    units: ''
+    origin: template_item

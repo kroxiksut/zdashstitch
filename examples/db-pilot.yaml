@@ -1,0 +1,110 @@
+format: zdashstitch.project/v1
+project_id: db-pilot
+catalogs:
+  - id: pg
+    file: metrics/postgresql.yaml
+  - id: ch
+    file: metrics/clickhouse.yaml
+  - id: keeper
+    file: metrics/keeper.yaml
+  - id: haproxy
+    file: metrics/haproxy.yaml
+  - id: linux
+    file: metrics/linux.yaml
+  - id: backup
+    file: metrics/backup.yaml
+roles:
+  pg_nodes:
+    cardinality: many
+  ch_nodes:
+    cardinality: many
+  keeper_nodes:
+    cardinality: many
+  proxy_nodes:
+    cardinality: many
+  system_nodes:
+    cardinality: many
+  backup_nodes:
+    cardinality: many
+dashboards:
+  - id: db-pilot
+    name: DB Pilot
+    kind: global
+    pages:
+      - id: postgresql
+        name: PostgreSQL
+        widgets:
+          - id: pg-database-size
+            type: graph
+            title: PostgreSQL — размер БД
+            expansion: series_per_host
+            series:
+              - metric: {catalog: pg, metric: database_size}
+                hosts: {role: pg_nodes, selection: all}
+                color: '#477BDE'
+            layout: {mode: auto, w: 36, h: 5}
+          - id: pg-database-size-values
+            type: item_value
+            title: Размер БД
+            expansion: widget_per_host
+            metric: {catalog: pg, metric: database_size}
+            hosts: {role: pg_nodes, selection: all}
+            layout: {mode: auto, w: 12, h: 3}
+      - id: clickhouse
+        name: ClickHouse
+        widgets:
+          - id: ch-queries
+            type: graph
+            title: ClickHouse — запросы
+            expansion: series_per_host
+            series:
+              - metric: {catalog: ch, metric: queries}
+                hosts: {role: ch_nodes, selection: all}
+                color: '#476FB3'
+            layout: {mode: auto, w: 36, h: 5}
+          - id: proxy-sessions
+            type: graph
+            title: HAProxy — сеансы
+            expansion: series_per_host
+            series:
+              - metric: {catalog: haproxy, metric: sessions}
+                hosts: {role: proxy_nodes, selection: all}
+                color: '#39A48C'
+            layout: {mode: auto, w: 36, h: 5}
+          - id: ch-system-memory
+            type: graph
+            title: ClickHouse — память ОС
+            expansion: series_per_host
+            series:
+              - metric: {catalog: linux, metric: memory_used}
+                hosts: {role: ch_nodes, selection: all}
+                color: '#E68A2E'
+            layout: {mode: auto, w: 36, h: 5}
+          - id: keeper-state
+            type: item_value
+            title: Состояние Keeper
+            expansion: widget_per_host
+            metric: {catalog: keeper, metric: availability}
+            hosts: {role: keeper_nodes, selection: all}
+            layout: {mode: auto, w: 12, h: 3}
+      - id: operating-system
+        name: ОС
+        widgets:
+          - id: os-memory
+            type: graph
+            title: Использование памяти
+            expansion: series_per_host
+            series:
+              - metric: {catalog: linux, metric: memory_used}
+                hosts: {role: system_nodes, selection: all}
+            layout: {mode: auto, w: 36, h: 5}
+      - id: backup
+        name: Backup
+        widgets:
+          - id: backup-last-success-age
+            type: item_value
+            title: Время с последней успешной копии
+            expansion: widget_per_host
+            metric: {catalog: backup, metric: last_success_age}
+            hosts: {role: backup_nodes, selection: all}
+            layout: {mode: auto, w: 12, h: 3}

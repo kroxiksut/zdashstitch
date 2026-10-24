@@ -1,0 +1,145 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Private deployment state — last VERIFIED state only",
+  "type": "object",
+  "required": [
+    "format",
+    "storage_scope",
+    "project_id",
+    "connection_id",
+    "deployment_id",
+    "adapter_id",
+    "target_server_version",
+    "server_identity_fingerprint",
+    "status",
+    "last_verified_at",
+    "dashboards"
+  ],
+  "properties": {
+    "format": {
+      "const": "zdashstitch.deployment-state/v1"
+    },
+    "storage_scope": {
+      "const": "local_only"
+    },
+    "project_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+    },
+    "connection_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+    },
+    "deployment_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+    },
+    "adapter_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+    },
+    "target_server_version": {
+      "type": "string",
+      "pattern": "^[1-9][0-9]*\\.[0-9]+(?:\\.[0-9]+)?(?:[A-Za-z][A-Za-z0-9._-]*)?$"
+    },
+    "server_identity_fingerprint": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "status": {
+      "const": "verified"
+    },
+    "last_verified_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_operation_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "dashboards": {
+      "type": "array",
+      "maxItems": 16,
+      "items": {
+        "type": "object",
+        "required": [
+          "logical_id",
+          "dashboardid",
+          "fingerprint",
+          "pages"
+        ],
+        "properties": {
+          "logical_id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+          },
+          "dashboardid": {
+            "type": "string",
+            "pattern": "^[0-9]+$"
+          },
+          "fingerprint": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "pages": {
+            "type": "array",
+            "maxItems": 32,
+            "items": {
+              "type": "object",
+              "required": [
+                "logical_id",
+                "dashboard_pageid",
+                "widgets"
+              ],
+              "properties": {
+                "logical_id": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                },
+                "dashboard_pageid": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                },
+                "widgets": {
+                  "type": "array",
+                  "maxItems": 256,
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "logical_id",
+                      "widgetid"
+                    ],
+                    "properties": {
+                      "logical_id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                      },
+                      "slot_id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                      },
+                      "widgetid": {
+                        "type": "string",
+                        "pattern": "^[0-9]+$"
+                      },
+                      "reference": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 255
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

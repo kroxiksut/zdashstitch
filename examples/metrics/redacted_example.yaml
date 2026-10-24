@@ -1,0 +1,16 @@
+format: zdashstitch.metrics/v1
+catalog_id: secret_pg
+export_profile: redacted_aliases
+source:
+  kind: manual
+diagnostics:
+- source_partial
+metrics:
+- id: size
+  name: Размер базы
+  selector:
+    kind: alias
+    value: metric_size
+  value_type: numeric_unsigned
+  units: B
+  origin: template_item

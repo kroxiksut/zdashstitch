@@ -1,0 +1,16 @@
+format: zdashstitch.metrics/v1
+catalog_id: linux
+export_profile: portable_with_public_keys
+source:
+  kind: manual
+  template_name: Linux Example
+diagnostics: []
+metrics:
+- id: memory_used
+  name: Использовано памяти
+  selector:
+    kind: key
+    value: example.linux.memused
+  value_type: numeric_unsigned
+  units: B
+  origin: template_item

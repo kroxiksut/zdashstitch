@@ -1,0 +1,16 @@
+format: zdashstitch.metrics/v1
+catalog_id: pg
+export_profile: portable_with_public_keys
+source:
+  kind: manual
+  template_name: PostgreSQL Example
+diagnostics: []
+metrics:
+- id: database_size
+  name: Размер базы
+  selector:
+    kind: key
+    value: example.pg.dbsize
+  value_type: numeric_unsigned
+  units: B
+  origin: template_item

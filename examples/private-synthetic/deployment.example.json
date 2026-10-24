@@ -1,0 +1,41 @@
+{
+  "format": "zdashstitch.deployment-state/v1",
+  "storage_scope": "local_only",
+  "project_id": "db-pilot",
+  "connection_id": "corp",
+  "deployment_id": "pilot",
+  "adapter_id": "zabbix74",
+  "target_server_version": "7.4.3",
+  "server_identity_fingerprint": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+  "status": "verified",
+  "last_verified_at": "2026-10-23T10:00:00Z",
+  "dashboards": [
+    {
+      "logical_id": "db-pilot",
+      "dashboardid": "999",
+      "fingerprint": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "pages": [
+        {
+          "logical_id": "postgresql",
+          "dashboard_pageid": "1001",
+          "widgets": [
+            {
+              "logical_id": "pg-database-size",
+              "widgetid": "3001"
+            },
+            {
+              "logical_id": "pg-database-size-values",
+              "slot_id": "pg_a",
+              "widgetid": "3002"
+            },
+            {
+              "logical_id": "pg-database-size-values",
+              "slot_id": "pg_b",
+              "widgetid": "3003"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

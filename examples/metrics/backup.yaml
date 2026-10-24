@@ -1,0 +1,16 @@
+format: zdashstitch.metrics/v1
+catalog_id: backup
+export_profile: portable_with_public_keys
+source:
+  kind: manual
+  template_name: Backup Example
+diagnostics: []
+metrics:
+- id: last_success_age
+  name: Время с последней успешной резервной копии
+  selector:
+    kind: key
+    value: example.backup.last_success.age
+  value_type: numeric_unsigned
+  units: s
+  origin: template_item

@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Private local bindings",
+  "type": "object",
+  "required": [
+    "format",
+    "storage_scope",
+    "project_id",
+    "connection_id",
+    "deployment_id",
+    "roles"
+  ],
+  "properties": {
+    "format": {
+      "const": "zdashstitch.local-bindings/v1"
+    },
+    "storage_scope": {
+      "const": "local_only"
+    },
+    "project_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+    },
+    "connection_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+    },
+    "deployment_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+    },
+    "roles": {
+      "type": "object",
+      "minProperties": 1,
+      "patternProperties": {
+        "^[a-z][a-z0-9_-]{1,63}$": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 256,
+          "items": {
+            "type": "object",
+            "required": [
+              "slot_id",
+              "hostid"
+            ],
+            "properties": {
+              "slot_id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+              },
+              "hostid": {
+                "type": "string",
+                "pattern": "^[0-9]+$"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "metric_overrides": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "catalog",
+          "metric",
+          "slot_id",
+          "itemid"
+        ],
+        "properties": {
+          "catalog": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+          },
+          "metric": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+          },
+          "slot_id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+          },
+          "itemid": {
+            "type": "string",
+            "pattern": "^[0-9]+$"
+          },
+          "role": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
