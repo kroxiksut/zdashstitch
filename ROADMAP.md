@@ -6,7 +6,7 @@
 
 ## Baseline: MVP 0.1.0
 
-The baseline is a local Rust/Axum/Svelte GUI for global dashboards on **Zabbix 7.4 only**. It must prove offline project creation, portable YAML/data-only ZIP, Create/Append/Clone/ReplaceHost operations, explicit preview and a closed verified publisher. See the [README](README.md#planned-mvp-010) for scope, exclusions and quality gates.
+The baseline is a local Rust/Axum/Svelte GUI for global dashboards on **Zabbix 7.4 only**. It must prove offline creation of a typed dashboard project or page project, portable YAML/data-only ZIP, Create/Append/Clone/ReplaceHost operations, explicit preview and a closed verified publisher. The existing multi-dashboard `project/v1` remains a legacy container until O-026 is decided. See the [README](README.md#planned-mvp-010) for scope, exclusions and quality gates.
 
 ## How priorities are chosen
 
@@ -24,7 +24,7 @@ There are no fixed version numbers or dates for the directions below. Order is c
 
 ## F-01 — multi-dashboard operations and repeatable maintenance
 
-- Apply a logical project to several explicitly selected dashboards or environments.
+- Apply an explicitly selected typed project/recipe to several dashboards or environments without turning that project into a multi-dashboard workspace.
 - Compare desired and actual state, detect manual changes and resolve conflicts.
 - Support grouped metric/host/layout changes without claiming atomicity across Zabbix API calls.
 - Extend history and recovery on top of verified `DeploymentState`, identity mapping and the MVP operation journal.

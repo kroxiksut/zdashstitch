@@ -29,6 +29,7 @@ venv/
 
 # Local superseded concepts and audit snapshots (non-normative)
 /docs/history/
+IMPLEMENTATION_LOG.md
 
 # Private runtime state (never commit)
 .env

@@ -263,6 +263,25 @@ async fn snapshot_preserves_raw_unknowns_and_reports_dependencies_without_write_
     assert_eq!(summary.unknown_widgets, 1);
     assert_eq!(summary.supported_for_modification, 0);
     assert!(summary.unknown_widget_types.contains("vendor.private"));
+    assert_eq!(summary.widgets_by_type.get("svggraph"), Some(&1));
+    assert_eq!(summary.widgets_by_type.len(), 4);
+    let svggraph_fields = summary
+        .field_types_by_widget_type
+        .get("svggraph")
+        .unwrap_or_else(|| panic!("svggraph field types must be counted"));
+    assert_eq!(svggraph_fields.get(&4), Some(&1));
+    assert_eq!(svggraph_fields.get(&1), Some(&2));
+    let unknown_fields = summary
+        .field_types_by_widget_type
+        .get("vendor.private")
+        .unwrap_or_else(|| panic!("unknown widget field types must be counted"));
+    assert_eq!(unknown_fields.get(&99), Some(&1));
+    assert_eq!(summary.pages_per_dashboard, vec![1]);
+    assert_eq!(summary.widgets_per_page, vec![4]);
+    assert_eq!(summary.max_fields_per_widget, 3);
+    assert_eq!(summary.max_dashboard_name_chars, 30);
+    assert_eq!(summary.max_page_name_chars, 17);
+    assert_eq!(summary.max_widget_name_chars, 24);
 
     {
         let captured = calls

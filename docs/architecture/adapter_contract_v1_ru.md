@@ -2,9 +2,11 @@
 
 **Основание:** ADR-011. **Статус:** эскиз публичного контракта Rust для разработки P0, не готовый исполняемый код. Подлежит уточнению на реальном API 7.4.
 
+**Поправка O-025/O-026:** `PortableProject` ниже — legacy `project/v1` container. Будущий core contract обязан принимать typed Dashboard/Page project либо Dashboard/Page Workcopy и передавать в application отдельные source, target и operation scope; adapter по-прежнему не решает, какой объект является целью.
+
 ## 1. Разделение ответственности
 
-- Core хранит `PortableProject`, `MetricCatalog`, `HostRole`, `LogicalWidget`, `Layout`. Не знает `dashboardid`, `itemid`, `field.name`, HTTP и ветку Zabbix.
+- Core хранит typed Dashboard/Page project, legacy `PortableProject` migration boundary, `MetricCatalog`, `HostRole`, `LogicalWidget`, `Layout`. Не знает `dashboardid`, `itemid`, `field.name`, HTTP и ветку Zabbix.
 - Application хранит намерение пользователя (`CreateDashboard`, `AppendPage`, `AppendWidgets`, `CloneDashboard`, `ReplaceHost`), выбор целей, `ResolutionOutcome`, `PublishPlan` и журнал. Отдельно вычисляет семантические требования операции.
 - Zabbix transport выполняет JSON-RPC, TLS и ошибки связи. Transport не интерпретирует содержимое страниц и не решает, что можно редактировать.
 - Версионный адаптер знает сырые DTO своей ветки, извлекает зависимости, сообщает возможности и строит запрос для единой операции публикации.
@@ -90,7 +92,7 @@ struct CompatibilityReport {
 1. Вызываем `apiinfo.version` без авторизации и определяем версию API.
 2. Ищем адаптер с явно зарегистрированной совместимой веткой и проверенными возможностями.
 3. Аутентифицируемся способом, разрешённым этим адаптером (пользователь/токен; MFA учитывать).
-4. Для выбранного действия формируем `CompatibilityReport` по **содержимому целевой панели и проекта**, а не только по номеру версии.
+4. Для выбранного действия формируем `CompatibilityReport` по **явным source/target, root kind, operation scope и содержимому целевого Dashboard/Page**, а не только по номеру версии.
 5. Если хотя бы один необходимый виджет/тип зависимости или операция не имеет статуса `Verified`, запись блокируется. Устаревшие типы не переводить молча.
 6. Если между предпросмотром и отправкой обнаружилась смена версии или конфигурации, исходный план недействителен.
 

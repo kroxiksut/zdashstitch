@@ -76,6 +76,10 @@ pub enum DependencyKind {
     Item,
     Graph,
     Host,
+    /// Host name or mask stored as a string, e.g. `svggraph` `ds.N.hosts.N`.
+    HostPattern,
+    /// Item name or mask stored as a string, e.g. `svggraph` `ds.N.items.N`.
+    ItemPattern,
     WidgetReferenceDefinition,
     WidgetReference,
     Unknown,
@@ -109,6 +113,10 @@ pub struct WidgetClassification {
     pub widget_index: usize,
     pub widget_type: String,
     pub state: DependencyState,
+    /// Number of `fields` entries, including ones without a usable type.
+    pub field_count: usize,
+    /// Count of fields per numeric Zabbix field type; untyped fields are skipped.
+    pub field_types: BTreeMap<i64, usize>,
 }
 
 #[derive(Clone, Eq, PartialEq)]
@@ -118,8 +126,17 @@ pub struct DashboardSnapshotAnalysis {
     pub widget_count: usize,
     pub widgets: Vec<WidgetClassification>,
     pub dependencies: Vec<SnapshotDependency>,
+    /// Widget count of every page, in page order.
+    pub widgets_per_page: Vec<usize>,
+    /// Name lengths in Unicode scalar values; the names themselves are not kept.
+    pub dashboard_name_chars: usize,
+    pub max_page_name_chars: usize,
+    pub max_widget_name_chars: usize,
 }
 
+/// Aggregated, content-free view of many dashboards. It holds counts, widget
+/// type identifiers, numeric field types and name lengths only, so it can be
+/// reported without disclosing names, hosts, items or other object contents.
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct SnapshotSummary {
     pub dashboard_count: usize,
@@ -132,6 +149,16 @@ pub struct SnapshotSummary {
     pub unknown_dependencies: usize,
     pub unknown_widgets: usize,
     pub unknown_widget_types: BTreeSet<String>,
+    pub widgets_by_type: BTreeMap<String, usize>,
+    pub field_types_by_widget_type: BTreeMap<String, BTreeMap<i64, usize>>,
+    /// Sorted ascending, one entry per dashboard.
+    pub pages_per_dashboard: Vec<usize>,
+    /// Sorted ascending, one entry per page.
+    pub widgets_per_page: Vec<usize>,
+    pub max_fields_per_widget: usize,
+    pub max_dashboard_name_chars: usize,
+    pub max_page_name_chars: usize,
+    pub max_widget_name_chars: usize,
 }
 
 impl SnapshotSummary {
@@ -143,7 +170,33 @@ impl SnapshotSummary {
         for analysis in analyses {
             summary.page_count += analysis.page_count;
             summary.widget_count += analysis.widget_count;
+            summary.pages_per_dashboard.push(analysis.page_count);
+            summary
+                .widgets_per_page
+                .extend(analysis.widgets_per_page.iter().copied());
+            summary.max_dashboard_name_chars = summary
+                .max_dashboard_name_chars
+                .max(analysis.dashboard_name_chars);
+            summary.max_page_name_chars = summary
+                .max_page_name_chars
+                .max(analysis.max_page_name_chars);
+            summary.max_widget_name_chars = summary
+                .max_widget_name_chars
+                .max(analysis.max_widget_name_chars);
             for widget in &analysis.widgets {
+                *summary
+                    .widgets_by_type
+                    .entry(widget.widget_type.clone())
+                    .or_default() += 1;
+                summary.max_fields_per_widget =
+                    summary.max_fields_per_widget.max(widget.field_count);
+                let field_types = summary
+                    .field_types_by_widget_type
+                    .entry(widget.widget_type.clone())
+                    .or_default();
+                for (field_type, count) in &widget.field_types {
+                    *field_types.entry(*field_type).or_default() += count;
+                }
                 if widget.state == DependencyState::Unknown {
                     summary.unknown_widgets += 1;
                     summary
@@ -166,8 +219,17 @@ impl SnapshotSummary {
                 }
             }
         }
+        summary.pages_per_dashboard.sort_unstable();
+        summary.widgets_per_page.sort_unstable();
         summary
     }
+}
+
+fn name_chars(value: &Value) -> usize {
+    value
+        .get("name")
+        .and_then(Value::as_str)
+        .map_or(0, |name| name.chars().count())
 }
 
 fn analyze(dashboard: &Value) -> Result<DashboardSnapshotAnalysis> {
@@ -176,10 +238,15 @@ fn analyze(dashboard: &Value) -> Result<DashboardSnapshotAnalysis> {
     let mut widgets_out = Vec::new();
     let mut dependencies = Vec::new();
     let mut widget_count = 0usize;
+    let mut widgets_per_page = Vec::with_capacity(pages.len());
+    let mut max_page_name_chars = 0usize;
+    let mut max_widget_name_chars = 0usize;
 
     for (page_index, page) in pages.iter().enumerate() {
         let widgets = require_array(page, "widgets", "dashboard page")?;
         widget_count = widget_count.saturating_add(widgets.len());
+        widgets_per_page.push(widgets.len());
+        max_page_name_chars = max_page_name_chars.max(name_chars(page));
         for (widget_index, widget) in widgets.iter().enumerate() {
             let widget_type = require_string(widget, "type", "dashboard widget")?.to_owned();
             let known_widget = matches!(widget_type.as_str(), "item" | "svggraph" | "graph");
@@ -188,14 +255,24 @@ fn analyze(dashboard: &Value) -> Result<DashboardSnapshotAnalysis> {
             } else {
                 DependencyState::Unknown
             };
+            max_widget_name_chars = max_widget_name_chars.max(name_chars(widget));
+
+            let fields = require_array(widget, "fields", "dashboard widget")?;
+            let mut field_types = BTreeMap::new();
+            for field in fields {
+                if let Some(field_type) = field.get("type").and_then(value_as_i64) {
+                    *field_types.entry(field_type).or_default() += 1;
+                }
+            }
             widgets_out.push(WidgetClassification {
                 page_index,
                 widget_index,
                 widget_type: widget_type.clone(),
                 state: widget_state,
+                field_count: fields.len(),
+                field_types,
             });
 
-            let fields = require_array(widget, "fields", "dashboard widget")?;
             for field in fields {
                 let Some(field_name) = field.get("name").and_then(Value::as_str) else {
                     dependencies.push(unknown_dependency(
@@ -210,7 +287,7 @@ fn analyze(dashboard: &Value) -> Result<DashboardSnapshotAnalysis> {
                 };
                 let field_type = field.get("type").and_then(value_as_i64);
                 let value = field.get("value").cloned().unwrap_or(Value::Null);
-                let kind = classify_field(field_name, field_type, &value);
+                let kind = classify_field(&widget_type, field_name, field_type, &value);
                 let Some(kind) = kind else { continue };
                 let state = if known_widget && kind != DependencyKind::Unknown {
                     DependencyState::DiscoveredReadOnly
@@ -237,12 +314,27 @@ fn analyze(dashboard: &Value) -> Result<DashboardSnapshotAnalysis> {
         widget_count,
         widgets: widgets_out,
         dependencies,
+        widgets_per_page,
+        dashboard_name_chars: name_chars(dashboard),
+        max_page_name_chars,
+        max_widget_name_chars,
     })
 }
 
-fn classify_field(name: &str, field_type: Option<i64>, value: &Value) -> Option<DependencyKind> {
+fn classify_field(
+    widget_type: &str,
+    name: &str,
+    field_type: Option<i64>,
+    value: &Value,
+) -> Option<DependencyKind> {
     if name == "reference" {
         return Some(DependencyKind::WidgetReferenceDefinition);
+    }
+    if widget_type == "svggraph"
+        && field_type == Some(1)
+        && let Some(kind) = classify_svggraph_pattern(name)
+    {
+        return Some(kind);
     }
     if name.ends_with("._reference") || value.as_str().is_some_and(is_widget_reference_value) {
         return Some(DependencyKind::WidgetReference);
@@ -252,6 +344,23 @@ fn classify_field(name: &str, field_type: Option<i64>, value: &Value) -> Option<
         Some(4) => Some(DependencyKind::Item),
         Some(6) => Some(DependencyKind::Graph),
         Some(5 | 7) => Some(DependencyKind::Unknown),
+        _ => None,
+    }
+}
+
+/// Recognises the string source fields of `svggraph` in Zabbix 7.4:
+/// `ds.<n>.hosts.<m>`, `ds.<n>.items.<m>` and `problemhosts.<m>`.
+fn classify_svggraph_pattern(name: &str) -> Option<DependencyKind> {
+    let is_index = |part: &str| !part.is_empty() && part.bytes().all(|byte| byte.is_ascii_digit());
+    let parts: Vec<&str> = name.split('.').collect();
+    match parts.as_slice() {
+        ["ds", set, "hosts", index] if is_index(set) && is_index(index) => {
+            Some(DependencyKind::HostPattern)
+        }
+        ["ds", set, "items", index] if is_index(set) && is_index(index) => {
+            Some(DependencyKind::ItemPattern)
+        }
+        ["problemhosts", index] if is_index(index) => Some(DependencyKind::HostPattern),
         _ => None,
     }
 }
@@ -323,4 +432,65 @@ fn require_array<'a>(value: &'a Value, key: &str, context: &str) -> Result<&'a V
         .get(key)
         .and_then(Value::as_array)
         .ok_or_else(|| ZabbixError::SnapshotShape(format!("{context} has no array {key}")))
+}
+
+#[cfg(test)]
+mod tests {
+    use serde_json::json;
+
+    use super::{DependencyKind, DependencyState, analyze};
+
+    #[test]
+    fn svggraph_string_patterns_are_reported_as_read_only_dependencies() {
+        let dashboard = json!({
+            "dashboardid": "1",
+            "name": "Synthetic",
+            "pages": [{"name": "", "widgets": [{
+                "type": "svggraph",
+                "name": "",
+                "fields": [
+                    {"type": "1", "name": "ds.0.hosts.0", "value": "synthetic-host-*"},
+                    {"type": "1", "name": "ds.0.items.0", "value": "CPU *"},
+                    {"type": "1", "name": "problemhosts.0", "value": "synthetic-host-1"},
+                    {"type": "1", "name": "ds.0.color", "value": "FF465C"},
+                    {"type": "1", "name": "ds.x.hosts.0", "value": "not an index"}
+                ]
+            }]}]
+        });
+        let analysis =
+            analyze(&dashboard).unwrap_or_else(|error| panic!("analysis must succeed: {error}"));
+        let kinds: Vec<_> = analysis
+            .dependencies
+            .iter()
+            .map(|dependency| (dependency.field_name.as_str(), dependency.kind))
+            .collect();
+        assert_eq!(
+            kinds,
+            vec![
+                ("ds.0.hosts.0", DependencyKind::HostPattern),
+                ("ds.0.items.0", DependencyKind::ItemPattern),
+                ("problemhosts.0", DependencyKind::HostPattern),
+            ]
+        );
+        assert!(
+            analysis
+                .dependencies
+                .iter()
+                .all(|dependency| dependency.state == DependencyState::DiscoveredReadOnly)
+        );
+    }
+
+    #[test]
+    fn string_fields_of_other_widgets_are_not_treated_as_patterns() {
+        let dashboard = json!({
+            "dashboardid": "1",
+            "pages": [{"widgets": [{
+                "type": "tophosts",
+                "fields": [{"type": "1", "name": "ds.0.hosts.0", "value": "x"}]
+            }]}]
+        });
+        let analysis =
+            analyze(&dashboard).unwrap_or_else(|error| panic!("analysis must succeed: {error}"));
+        assert!(analysis.dependencies.is_empty());
+    }
 }

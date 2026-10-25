@@ -11,6 +11,8 @@ This directory contains product requirements, accepted decisions, architecture c
 | Understand the product and MVP | [`../README.md`](../README.md), [`product/PROJECT_GOALS.md`](product/PROJECT_GOALS.md), [`product/USE_CASES.md`](product/USE_CASES.md) |
 | Understand future directions | [`../ROADMAP.md`](../ROADMAP.md) |
 | Implement safely | [`../AGENTS.md`](../AGENTS.md), [`DOC_GOVERNANCE.md`](DOC_GOVERNANCE.md), ADRs and architecture contracts below |
+| Understand Dashboard/Page/Widget, workcopies and typed projects | [`architecture/domain_model_v1_ru.md`](architecture/domain_model_v1_ru.md), O-025/O-026 in [`../OPEN_DECISIONS.md`](../OPEN_DECISIONS.md) |
+| Implement or translate the UI | [`architecture/ui_i18n_theme_contract_v1_ru.md`](architecture/ui_i18n_theme_contract_v1_ru.md), [`../CONTRIBUTING.md`](../CONTRIBUTING.md) |
 | Trace MVP goals to implementation gates | [`MVP_TRACEABILITY.md`](MVP_TRACEABILITY.md) |
 | Understand current unresolved gaps | [`traceability_v06.md`](traceability_v06.md), [`../OPEN_DECISIONS.md`](../OPEN_DECISIONS.md) |
 | Validate portable formats | [`../schemas/`](../schemas/), [`architecture/format_contract_v1_ru.md`](architecture/format_contract_v1_ru.md), [`../tests/`](../tests/) |
@@ -28,8 +30,18 @@ The maintainer's current execution queue is local and intentionally ignored as `
 ### Architecture
 
 - [`architecture/ARCHITECTURE_MAP.md`](architecture/ARCHITECTURE_MAP.md) — component boundaries and data flow.
+- [`architecture/domain_model_v1_ru.md`](architecture/domain_model_v1_ru.md) — Dashboard/Page/Widget, snapshot/workcopy, Dashboard/Page projects, and the legacy `project/v1` conflict (Russian).
 - [`architecture/format_contract_v1_ru.md`](architecture/format_contract_v1_ru.md) — portable/local data contracts.
 - [`architecture/adapter_contract_v1_ru.md`](architecture/adapter_contract_v1_ru.md) — versioned Zabbix adapter and safe publishing boundary.
+- [`architecture/ui_i18n_theme_contract_v1_ru.md`](architecture/ui_i18n_theme_contract_v1_ru.md) — user-visible message boundary, translation contributions and light/dark theme rules.
+
+### Design (P1 working material)
+
+- [`design/P1-00A-visual-audit.md`](design/P1-00A-visual-audit.md) — audit of the current scaffold, brand direction, required surfaces, gaps, and risks.
+- [`design/P1-00B-foundations.md`](design/P1-00B-foundations.md) — typography, spacing, density, and separation of application layout from the Zabbix 72×64 grid; partial until P1-IN-02.
+- [`design/P1-00C-tokens-and-themes.md`](design/P1-00C-tokens-and-themes.md) — semantic tokens and `light`/`dark`/`system`/high-contrast mappings for design review.
+- [`design/P1-00G-accessibility-platform.md`](design/P1-00G-accessibility-platform.md) — focus, keyboard, landmarks, errors, targets, reflow, motion, forced-colors, and Windows/Linux acceptance contract.
+- [`design/backend_inputs_ru.md`](design/backend_inputs_ru.md) — backend inputs for design P1-IN-01—09: connection errors, widgets and fields, resolver statuses, 7.4.16 write matrix, template exports, latency, local session, permissions, file selection (Russian).
 
 ### Decisions
 
@@ -42,14 +54,14 @@ The maintainer's current execution queue is local and intentionally ignored as `
 ### Governance and evidence
 
 - [`DOC_GOVERNANCE.md`](DOC_GOVERNANCE.md) — document authority and status rules.
-- [`MVP_TRACEABILITY.md`](MVP_TRACEABILITY.md) — R0 mapping from product use cases to P0–P5 tasks, G0–G5 gates and acceptance evidence.
+- [`MVP_TRACEABILITY.md`](MVP_TRACEABILITY.md) — R0 mapping, renumbered on 2026-10-24, from product use cases to P0–P6 tasks, G0–G6 gates and acceptance evidence.
 - [`traceability_v06.md`](traceability_v06.md) — unresolved findings and coverage matrix.
 - [`../IMPLEMENTATION_LOG.md`](../IMPLEMENTATION_LOG.md) — factual completed work and evidence.
 - [`../OPEN_DECISIONS.md`](../OPEN_DECISIONS.md) — decisions requiring owner or laboratory confirmation.
 
 ## Language status
 
-The public README, roadmap and this documentation map are bilingual. Most detailed product, ADR and architecture documents currently exist in Russian only; their filenames are kept stable until an approved English translation exists. JSON Schemas, synthetic data and source code are language-neutral where practical.
+The public README, roadmap and this documentation map are bilingual. Most detailed product, ADR and architecture documents currently exist in Russian only; their filenames are kept stable until an approved English translation exists. Runtime UI localization is a separate contract: English is the source catalog, Russian is complete for MVP, and additional languages may be contributed independently. JSON Schemas, synthetic data and source code are language-neutral where practical.
 
 ## Authority when documents disagree
 

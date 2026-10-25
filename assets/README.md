@@ -15,7 +15,10 @@ These files define the project's intended visual direction. They are concept art
 - `brand/mascot/stezhik-compare.png` — mapping/comparison concept.
 - `brand/mascot/stezhik-inspect.png` — inspection/validation concept.
 - `brand/mascot/stezhik-success.png` — successful completion concept.
+- `icons/THIRD_PARTY.md` — provenance and MIT notice for the Tabler outline set used by interface, status and tray icons on all platforms. This directory is third-party material, not original ZDashstitch artwork.
 
 Do not treat pixel positions, labels or controls in this artwork as a UI contract. Preserve the dark teal robot, black face panel, orange luminous eyes/smile and the Stezhik identity unless the owner approves a new visual direction.
 
 Original project visuals are covered by `CC-BY-4.0` as described in [`LICENSING.md`](../LICENSING.md). Any third-party material must be identified separately and keeps its own terms.
+
+Interface, status and tray icons are never invented for ZDashstitch. Use the Tabler Icons outline set and keep [`icons/THIRD_PARTY.md`](icons/THIRD_PARTY.md) with source and distributions. The ZDashstitch logo and Stezhik artwork remain in-house assets and are not part of Tabler Icons.

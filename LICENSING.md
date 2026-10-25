@@ -9,7 +9,7 @@ Original ZDashstitch source code and code-like material are offered, at the reci
 - [MIT License](LICENSE-MIT);
 - [Apache License 2.0](LICENSE-APACHE).
 
-This category includes source files, code blocks, shell commands, configuration examples, schemas, machine-readable examples and test fixtures. The recipient may choose either license; compliance with both at once is not required. Use the SPDX expression `MIT OR Apache-2.0` in source-code metadata and headers.
+This category includes source files, runtime localization catalogs, code blocks, shell commands, configuration examples, schemas, machine-readable examples and test fixtures. The recipient may choose either license; compliance with both at once is not required. Use the SPDX expression `MIT OR Apache-2.0` in source-code metadata and headers.
 
 ## Documentation and original visuals
 
@@ -22,6 +22,17 @@ For a Markdown file containing both prose and code blocks, the documentation lic
 ## Contributions
 
 Unless agreed otherwise before inclusion, incoming source code and code-like contributions follow `MIT OR Apache-2.0`; incoming documentation prose, original diagrams and original visuals follow `CC-BY-4.0`. Contributors retain their copyright. See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Third-party interface icons
+
+### Tabler Icons (all platforms)
+
+- **Author:** Tabler / Paweł Kuna and contributors
+- **Licence:** MIT
+- **Home page:** <https://tabler.io/icons>
+- **Details and licence text:** [`assets/icons/THIRD_PARTY.md`](assets/icons/THIRD_PARTY.md)
+
+The interface, status and tray icons come from the Tabler outline set. Its MIT licence requires the copyright and permission notice to travel with substantial copies; repository and application distributions therefore retain the notice above and expose it in the in-app Licenses window. The application's own logo and Stezhik artwork are in-house and are not part of Tabler Icons.
 
 ## Boundaries
 

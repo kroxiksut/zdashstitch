@@ -18,6 +18,11 @@ jobs:
         with:
           toolchain: 1.94.1
           components: rustfmt, clippy
+      # Prebuilt, checksum-verified binary; configuration in .config/nextest.toml.
+      - name: Install cargo-nextest
+        uses: taiki-e/install-action@ab6895351a88b908e96a4697860d4ffea5e57dbe # v2
+        with:
+          tool: cargo-nextest
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
@@ -28,7 +33,9 @@ jobs:
           python-version: '3.11'
       - run: cargo fmt --all -- --check
       - run: cargo clippy --workspace --all-targets -- -D warnings
-      - run: cargo test --workspace
+      - run: cargo nextest run --workspace
+      # nextest does not run doctests.
+      - run: cargo test --workspace --doc
       - run: npm ci
         working-directory: ui
       - run: npm run check

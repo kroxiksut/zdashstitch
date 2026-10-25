@@ -55,7 +55,7 @@ async fn permitted_zabbix_7_4_inventory_is_readable() {
         .unwrap_or_else(|error| panic!("laboratory dependency analysis failed: {error}"));
     let summary = SnapshotSummary::from_analyses(&analyses);
     println!(
-        "dashboard snapshot: dashboards={}, pages={}, widgets={}, dependencies={}, items={}, graphs={}, hosts={}, reference_definitions={}, references={}, unknown_widgets={}, unknown_dependencies={}, writable_dependencies={}",
+        "dashboard snapshot: dashboards={}, pages={}, widgets={}, dependencies={}, items={}, graphs={}, hosts={}, host_patterns={}, item_patterns={}, reference_definitions={}, references={}, unknown_widgets={}, unknown_dependencies={}, writable_dependencies={}",
         summary.dashboard_count,
         summary.page_count,
         summary.widget_count,
@@ -63,11 +63,28 @@ async fn permitted_zabbix_7_4_inventory_is_readable() {
         count(&summary, DependencyKind::Item),
         count(&summary, DependencyKind::Graph),
         count(&summary, DependencyKind::Host),
+        count(&summary, DependencyKind::HostPattern),
+        count(&summary, DependencyKind::ItemPattern),
         count(&summary, DependencyKind::WidgetReferenceDefinition),
         count(&summary, DependencyKind::WidgetReference),
         summary.unknown_widgets,
         summary.unknown_dependencies,
         summary.supported_for_modification,
+    );
+    // Content-free aggregates for design input P1-IN-02.
+    println!("widgets_by_type: {:?}", summary.widgets_by_type);
+    println!(
+        "field_types_by_widget_type: {:?}",
+        summary.field_types_by_widget_type
+    );
+    println!("pages_per_dashboard: {:?}", summary.pages_per_dashboard);
+    println!("widgets_per_page: {:?}", summary.widgets_per_page);
+    println!(
+        "max_fields_per_widget={}, max_name_chars: dashboard={}, page={}, widget={}",
+        summary.max_fields_per_widget,
+        summary.max_dashboard_name_chars,
+        summary.max_page_name_chars,
+        summary.max_widget_name_chars,
     );
     assert!(!snapshots.is_empty());
     assert_eq!(summary.supported_for_modification, 0);
