@@ -1,0 +1,155 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 1600 1000" fill="#17213a" role="img" aria-labelledby="title desc">
+  <title id="title">ZDashstitch — экспорт: проверка значений</title>
+  <desc id="desc">Светлый макет проверки чувствительных значений перед обезличенным экспортом: найденные значения по классам с местом и уверенностью, замена выбранного значения на привязку к роли или псевдоним с предпросмотром «было — станет» во всех местах, повторная проверка и подтверждение остаточного риска.</desc>
+  <defs>
+    <!-- Tabler Icons outline v3.49.0 (MIT), see assets/icons/THIRD_PARTY.md -->
+    <symbol id="ti-circle-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M9 12l2 2l4 -4"/></symbol>
+    <symbol id="ti-alert-triangle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0"/><path d="M12 16h.01"/></symbol>
+    <symbol id="ti-circle-dashed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.56 3.69a9 9 0 0 0 -2.92 1.95"/><path d="M3.69 8.56a9 9 0 0 0 -.69 3.44"/><path d="M3.69 15.44a9 9 0 0 0 1.95 2.92"/><path d="M8.56 20.31a9 9 0 0 0 3.44 .69"/><path d="M15.44 20.31a9 9 0 0 0 2.92 -1.95"/><path d="M20.31 15.44a9 9 0 0 0 .69 -3.44"/><path d="M20.31 8.56a9 9 0 0 0 -1.95 -2.92"/><path d="M15.44 3.69a9 9 0 0 0 -3.44 -.69"/></symbol>
+    <symbol id="ti-circle-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M10 10l4 4m0 -4l-4 4"/></symbol>
+    <symbol id="ti-info-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M12 9h.01"/><path d="M11 12h1v4h1"/></symbol>
+    <symbol id="ti-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5l10 -10"/></symbol>
+    <symbol id="ti-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"/><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"/></symbol>
+    <symbol id="ti-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065"/><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/></symbol>
+    <style>
+      text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+      .muted{fill:#667085}.white{fill:#ffffff}.small{font-size:14px}.xs{font-size:12px}.label{font-size:13px;font-weight:700;letter-spacing:.08em}
+      .title{font-size:24px;font-weight:750}.h3{font-size:17px;font-weight:700}.body{font-size:16px}.button{font-size:15px;font-weight:700}
+      .nav{font-size:17px}.badge{font-size:13px;font-weight:650}.row{font-size:15px;font-weight:650}
+      .mono{font-family:ui-monospace,"Cascadia Mono",Consolas,monospace;font-size:13px;fill:#344054}
+    </style>
+  </defs>
+  <rect width="1600" height="1000" fill="#f5f7fb"/>
+
+  <!-- App bar: global navigation (P1-01B §1) -->
+  <rect width="1600" height="72" fill="#ffffff" stroke="#e4e7ec"/>
+  <image href="../../../../assets/brand/icons/stezhik-head-1024.png" x="32" y="18" width="36" height="36" preserveAspectRatio="xMidYMid meet"/>
+  <text x="80" y="45" font-size="20" font-weight="750">ZDashstitch</text>
+  <text x="232" y="44" font-size="15" font-weight="500" fill="#475467">Начало</text>
+  <text x="318" y="44" font-size="15" font-weight="700" fill="#1d3f86">Черновики</text>
+  <rect x="318" y="67" width="80" height="4" rx="2" fill="#3156a3"/>
+  <text x="430" y="44" font-size="15" font-weight="500" fill="#475467">Панели в Zabbix</text>
+  <text x="582" y="44" font-size="15" font-weight="500" fill="#475467">Библиотека</text>
+  <text x="702" y="44" font-size="15" font-weight="500" fill="#475467">Подключения</text>
+  <rect x="1288" y="19" width="120" height="34" rx="17" fill="#eef4ff"/>
+  <text x="1348" y="41" font-size="14" text-anchor="middle" fill="#3156a3">Автономно</text>
+  <rect x="1424" y="18" width="144" height="36" rx="8" fill="#ffffff" stroke="#c9d3ea"/>
+  <use href="#ti-settings" x="1438" y="27" width="18" height="18" color="#475467"/>
+  <text x="1464" y="41" font-size="15" font-weight="600" fill="#17213a">Настройки</text>
+
+  <!-- Workspace -->
+  <!-- Title -->
+  <text x="48" y="92" class="xs muted">Черновики  /  Базы данных: сводная  /  Экспорт</text>
+  <text x="48" y="124" class="title">Экспорт «Базы данных: сводная»</text>
+  <text x="48" y="152" class="small muted">Обезличенный пакет. Значения проверяются на этом компьютере и никуда не отправляются.</text>
+  <rect x="48" y="172" width="159" height="34" rx="17" fill="#ffffff" stroke="#d0d5dd"/>
+  <use href="#ti-circle-check" x="58" y="180" width="18" height="18" color="#1f6b43"/>
+  <text x="82" y="194" class="small" fill="#1f6b43" font-weight="600">Цель и состав</text>
+  <rect x="215" y="172" width="195" height="34" rx="17" fill="#eef4ff" stroke="#3156a3"/>
+  <text x="234" y="194" class="small" fill="#1d3f86" text-anchor="middle" font-weight="700">2</text>
+  <text x="249" y="194" class="small" fill="#1d3f86" font-weight="700">Проверка значений</text>
+  <rect x="418" y="172" width="132" height="34" rx="17" fill="#ffffff" stroke="#e4e7ec"/>
+  <text x="437" y="194" class="small" fill="#667085" text-anchor="middle" font-weight="700">3</text>
+  <text x="452" y="194" class="small" fill="#667085" font-weight="500">Сохранение</text>
+  <rect x="48" y="222" width="900" height="610" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <rect x="72" y="238" width="78" height="32" rx="16" fill="#243746" stroke="#243746"/>
+  <text x="111.0" y="259" class="small" fill="#ffffff" text-anchor="middle" font-weight="650">Все 7</text>
+  <rect x="158" y="238" width="92" height="32" rx="16" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="204.0" y="259" class="small" text-anchor="middle" font-weight="600">Точно 3</text>
+  <rect x="258" y="238" width="116" height="32" rx="16" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="316.0" y="259" class="small" text-anchor="middle" font-weight="600">Возможно 3</text>
+  <rect x="382" y="238" width="140" height="32" rx="16" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="452.0" y="259" class="small" text-anchor="middle" font-weight="600">Не проверено 1</text>
+  <rect x="72" y="284" width="852" height="34" rx="6" fill="#f8fafc" stroke="#eef0f4"/>
+  <text x="104" y="306" class="xs muted" font-weight="700">ЗНАЧЕНИЕ</text>
+  <text x="300" y="306" class="xs muted" font-weight="700">ВИД</text>
+  <text x="470" y="306" class="xs muted" font-weight="700">ГДЕ</text>
+  <text x="720" y="306" class="xs muted" font-weight="700">РЕШЕНИЕ</text>
+  <rect x="72" y="324" width="852" height="50" rx="8" fill="#eef4ff" stroke="#3156a3" stroke-width="2"/>
+  <use href="#ti-circle-check" x="82" y="340" width="18" height="18" color="#1f6b43"/>
+  <text x="104" y="355" class="mono">pg-a-01</text>
+  <text x="300" y="355" class="small">имя узла сети · точно</text>
+  <text x="470" y="355" class="small muted">«Connections», ряд 1 · ещё 2</text>
+  <text x="720" y="355" class="small" font-weight="600">роль «PostgreSQL», слот 1</text>
+  <line x1="72" y1="430" x2="924" y2="430" stroke="#eef0f4"/>
+  <use href="#ti-circle-check" x="82" y="396" width="18" height="18" color="#1f6b43"/>
+  <text x="104" y="411" class="mono">ch-a-01</text>
+  <text x="300" y="411" class="small">имя узла сети · точно</text>
+  <text x="470" y="411" class="small muted">«Queries per second» · ещё 3</text>
+  <text x="720" y="411" class="small" font-weight="600">роль «ClickHouse», слот 1</text>
+  <line x1="72" y1="486" x2="924" y2="486" stroke="#eef0f4"/>
+  <use href="#ti-alert-triangle" x="82" y="452" width="18" height="18" color="#8a4b00"/>
+  <text x="104" y="467" class="mono">grafana.corp…</text>
+  <text x="300" y="467" class="small">адрес (URL) · точно</text>
+  <text x="470" y="467" class="small muted">«Ссылка на Grafana» · URL</text>
+  <text x="720" y="467" class="small" font-weight="600">убрать виджет</text>
+  <line x1="72" y1="542" x2="924" y2="542" stroke="#eef0f4"/>
+  <use href="#ti-alert-triangle" x="82" y="508" width="18" height="18" color="#8a4b00"/>
+  <text x="104" y="523" class="mono">pg-a-*</text>
+  <text x="300" y="523" class="small">маска узлов · возможно</text>
+  <text x="470" y="523" class="small muted">«Disk I/O», ряд 2</text>
+  <text x="720" y="523" class="small" font-weight="600">псевдоним «db-*»</text>
+  <line x1="72" y1="598" x2="924" y2="598" stroke="#eef0f4"/>
+  <use href="#ti-alert-triangle" x="82" y="564" width="18" height="18" color="#8a4b00"/>
+  <text x="104" y="579" class="mono">Prod</text>
+  <text x="300" y="579" class="small">окружение · возможно</text>
+  <text x="470" y="579" class="small muted">имя «Prod: replication lag»</text>
+  <text x="720" y="579" class="small" font-weight="600">оставить</text>
+  <line x1="72" y1="654" x2="924" y2="654" stroke="#eef0f4"/>
+  <use href="#ti-alert-triangle" x="82" y="620" width="18" height="18" color="#8a4b00"/>
+  <text x="104" y="635" class="mono">proddb</text>
+  <text x="300" y="635" class="small">база в ключе · возможно</text>
+  <text x="470" y="635" class="small muted">pgsql.db.size[proddb]</text>
+  <text x="720" y="635" class="small" font-weight="600">оставить (ключ)</text>
+  <line x1="72" y1="710" x2="924" y2="710" stroke="#eef0f4"/>
+  <use href="#ti-circle-dashed" x="82" y="676" width="18" height="18" color="#98a2b3"/>
+  <text x="104" y="691" class="mono">ds.0.vendor_hint</text>
+  <text x="300" y="691" class="small">неизвестное поле</text>
+  <text x="470" y="691" class="small muted">«Queries per second»</text>
+  <text x="720" y="691" class="small" font-weight="600">показано, не изменяется</text>
+  <text x="72" y="738" class="xs muted">Значения в отчёте и журнале не сохраняются целиком; найденное не отправляется в сеть.</text>
+  <rect x="968" y="222" width="584" height="610" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="992" y="256" class="label muted">ЗАМЕНА «pg-a-01»</text>
+  <circle cx="1002" cy="282" r="9" fill="#ffffff" stroke="#3156a3" stroke-width="2"/>
+  <circle cx="1002" cy="282" r="4.5" fill="#3156a3"/>
+  <text x="1020" y="288" class="body" font-weight="650">Привязка к роли</text>
+  <text x="1020" y="310" class="xs muted">ряд будет искать узлы роли — лучший вариант для узла сети</text>
+  <rect x="1020" y="322" width="508" height="40" rx="8" fill="#ffffff" stroke="#7a8d9b"/>
+  <text x="1034" y="348" class="body">Роль «PostgreSQL», слот 1</text>
+  <use href="#ti-chevron-down" x="1498" y="333" width="18" height="18" color="#475467"/>
+  <circle cx="1002" cy="390" r="9" fill="#ffffff" stroke="#7a8d9b" stroke-width="2"/>
+  <text x="1020" y="396" class="body">Псевдоним</text>
+  <rect x="1144" y="376" width="384" height="36" rx="8" fill="#ffffff" stroke="#7a8d9b"/>
+  <text x="1156" y="400" class="small muted">host-1</text>
+  <circle cx="1002" cy="434" r="9" fill="#ffffff" stroke="#7a8d9b" stroke-width="2"/>
+  <text x="1020" y="440" class="body">Оставить как есть</text>
+  <text x="992" y="484" class="label muted">БЫЛО — СТАНЕТ · 3 МЕСТА</text>
+  <rect x="992" y="500" width="536" height="62" rx="8" fill="#f8fafc" stroke="#eef0f4"/>
+  <text x="1006" y="522" class="xs muted">«Connections» · ds.0.hosts.0</text>
+  <text x="1006" y="546" class="mono">pg-a-01</text>
+  <text x="1110" y="546" class="small muted">→</text>
+  <text x="1136" y="546" class="small" font-weight="600">роль PostgreSQL · слот 1</text>
+  <rect x="992" y="568" width="536" height="62" rx="8" fill="#f8fafc" stroke="#eef0f4"/>
+  <text x="1006" y="590" class="xs muted">«TPS» · ds.0.hosts.0</text>
+  <text x="1006" y="614" class="mono">pg-a-01</text>
+  <text x="1110" y="614" class="small muted">→</text>
+  <text x="1136" y="614" class="small" font-weight="600">роль PostgreSQL · слот 1</text>
+  <rect x="992" y="636" width="536" height="62" rx="8" fill="#f8fafc" stroke="#eef0f4"/>
+  <text x="1006" y="658" class="xs muted">«Cache hit ratio» · ds.1.hosts.0</text>
+  <text x="1006" y="682" class="mono">pg-a-01</text>
+  <text x="1110" y="682" class="small muted">→</text>
+  <text x="1136" y="682" class="small" font-weight="600">роль PostgreSQL · слот 1</text>
+  <rect x="992" y="710" width="260" height="38" rx="10" fill="#3156a3" stroke="#3156a3"/>
+  <text x="1122" y="734" class="button white" text-anchor="middle">Применить ко всем 3</text>
+  <rect x="1264" y="710" width="264" height="38" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <use href="#ti-refresh" x="1280" y="720.0" width="18" height="18" color="#17213a"/>
+  <text x="1408" y="734" class="button" text-anchor="middle">Проверить пакет снова</text>
+  <text x="992" y="776" class="xs muted">Черновик не меняется: замены действуют только на пакет.</text>
+  <rect x="48" y="860" width="20" height="20" rx="4" fill="#ffffff" stroke="#7a8d9b" stroke-width="2"/>
+  <text x="78" y="876" class="small" font-weight="650">Понимаю: пакет не гарантированно обезличен; передаю по правилам организации.</text>
+  <text x="78" y="896" class="xs muted">Решение принято по всем 7 значениям; 2 возможных оставлены как есть сознательно.</text>
+  <rect x="1184" y="852" width="120" height="42" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="1244" y="878" class="button" text-anchor="middle">Назад</text>
+  <rect x="1316" y="852" width="236" height="42" rx="10" fill="#f2f4f7" stroke="#e4e7ec"/>
+  <text x="1434" y="878" class="button" fill="#98a2b3" text-anchor="middle">Далее: сохранение</text>
+</svg>

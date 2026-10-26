@@ -4,14 +4,29 @@
 //!
 //! Planning, confirmation and the closed dashboard publication boundary.
 
+mod compatibility;
+pub mod connections;
+mod generated_message_ids;
 mod publisher;
+mod settings;
 
 use zdashstitch_core::ProductStage;
 use zdashstitch_zabbix::{Result as ZabbixResult, SnapshotSummary, VersionedDashboardSnapshot};
 
+pub use compatibility::{
+    CompatibilityKnowledge, CompatibilityNotice, CompatibilityNoticeLevel,
+    DraftCompatibilityReport, DraftWidgetField, DraftWidgetUsage, PortableWidgetCreateError,
+    analyze_draft_compatibility, analyze_project_compatibility,
+    validate_portable_widget_for_create,
+};
+pub use generated_message_ids::MessageId;
 pub use publisher::{
     CapabilityCheck, CompatibilityReport, ConfirmedPlan, JournalState, PlanError, PlanPreview,
     PublishReport, VerifiedPlan, build_verified_plan, publish_confirmed_plan,
+};
+pub use settings::{
+    AppSettings, LocalePreference, ReducedMotionPreference, SettingsError, SettingsLoadError,
+    SettingsStore, SettingsWarning, ThemePreference, check_storage_root,
 };
 
 /// Non-sensitive status presented by the local HTTP shell.

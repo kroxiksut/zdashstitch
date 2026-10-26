@@ -19,10 +19,25 @@ describe('local API boundary', () => {
     const health = await loadHealth(fetcher);
 
     expect(fetcher).toHaveBeenCalledWith(HEALTH_ENDPOINT, {
-      headers: { Accept: 'application/json' },
+      credentials: 'same-origin',
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
       method: 'GET'
     });
     expect(HEALTH_ENDPOINT.startsWith('/api/')).toBe(true);
     expect(health.zabbix_writes_enabled).toBe(false);
+  });
+
+  it('keeps backend error details data-only', async () => {
+    const fetcher = vi.fn(async () =>
+      new Response(JSON.stringify({ code: 'http.security.session_invalid', params: {} }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      })
+    );
+
+    await expect(loadHealth(fetcher)).rejects.toMatchObject({
+      status: 401,
+      response: { code: 'http.security.session_invalid', params: {} }
+    });
   });
 });

@@ -1,0 +1,26 @@
+{
+  "nav.start": {
+    "message": "Start",
+    "placeholders": {}
+  },
+  "nav.drafts": {
+    "message": "Drafts",
+    "placeholders": {}
+  },
+  "nav.server": {
+    "message": "Dashboards in Zabbix",
+    "placeholders": {}
+  },
+  "nav.library": {
+    "message": "Library",
+    "placeholders": {}
+  },
+  "nav.connections": {
+    "message": "Connections",
+    "placeholders": {}
+  },
+  "nav.settings": {
+    "message": "Settings",
+    "placeholders": {}
+  }
+}

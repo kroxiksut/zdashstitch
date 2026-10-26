@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 1600 1000" fill="#17213a" role="img" aria-labelledby="title desc">
+  <title id="title">ZDashstitch — привязки: итог преобразования</title>
+  <desc id="desc">Светлый макет итога клонирования перед публикацией: новое имя, то же подключение, оригинал не меняется, сводка изменённых, неизменных и оставшихся на исходных узлах ссылок, нерешённое, переход к публикации без записи на этом шаге.</desc>
+  <defs>
+    <!-- Tabler Icons outline v3.49.0 (MIT), see assets/icons/THIRD_PARTY.md -->
+    <symbol id="ti-circle-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M9 12l2 2l4 -4"/></symbol>
+    <symbol id="ti-alert-triangle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0"/><path d="M12 16h.01"/></symbol>
+    <symbol id="ti-circle-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M10 10l4 4m0 -4l-4 4"/></symbol>
+    <symbol id="ti-info-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M12 9h.01"/><path d="M11 12h1v4h1"/></symbol>
+    <symbol id="ti-minus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l14 0"/></symbol>
+    <symbol id="ti-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065"/><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/></symbol>
+    <style>
+      text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+      .muted{fill:#667085}.white{fill:#ffffff}.small{font-size:14px}.xs{font-size:12px}.label{font-size:13px;font-weight:700;letter-spacing:.08em}
+      .title{font-size:24px;font-weight:750}.h3{font-size:17px;font-weight:700}.body{font-size:16px}.button{font-size:15px;font-weight:700}
+      .nav{font-size:17px}.badge{font-size:13px;font-weight:650}.row{font-size:15px;font-weight:650}
+      .mono{font-family:ui-monospace,"Cascadia Mono",Consolas,monospace;font-size:13px;fill:#344054}
+    </style>
+  </defs>
+  <rect width="1600" height="1000" fill="#f5f7fb"/>
+
+  <!-- App bar: global navigation (P1-01B §1) -->
+  <rect width="1600" height="72" fill="#ffffff" stroke="#e4e7ec"/>
+  <image href="../../../../assets/brand/icons/stezhik-head-1024.png" x="32" y="18" width="36" height="36" preserveAspectRatio="xMidYMid meet"/>
+  <text x="80" y="45" font-size="20" font-weight="750">ZDashstitch</text>
+  <text x="232" y="44" font-size="15" font-weight="500" fill="#475467">Начало</text>
+  <text x="318" y="44" font-size="15" font-weight="700" fill="#1d3f86">Черновики</text>
+  <rect x="318" y="67" width="80" height="4" rx="2" fill="#3156a3"/>
+  <text x="430" y="44" font-size="15" font-weight="500" fill="#475467">Панели в Zabbix</text>
+  <text x="582" y="44" font-size="15" font-weight="500" fill="#475467">Библиотека</text>
+  <text x="702" y="44" font-size="15" font-weight="500" fill="#475467">Подключения</text>
+  <rect x="1138" y="19" width="270" height="34" rx="17" fill="#eef4ff"/>
+  <text x="1273" y="41" font-size="14" text-anchor="middle" fill="#3156a3">Только чтение · Лаборатория 7.4</text>
+  <rect x="1424" y="18" width="144" height="36" rx="8" fill="#ffffff" stroke="#c9d3ea"/>
+  <use href="#ti-settings" x="1438" y="27" width="18" height="18" color="#475467"/>
+  <text x="1464" y="41" font-size="15" font-weight="600" fill="#17213a">Настройки</text>
+
+  <!-- Workspace -->
+  <rect x="0" y="72" width="260" height="928" fill="#ffffff" stroke="#e4e7ec"/>
+  <text x="28" y="116" class="label muted">ПАНЕЛЬ</text>
+  <text x="36" y="164" class="nav">Обзор</text>
+  <text x="36" y="212" class="nav">Структура</text>
+  <rect x="16" y="232" width="228" height="46" rx="10" fill="#eef4ff" stroke="#eef4ff"/>
+  <text x="36" y="262" class="nav" fill="#1d3f86" font-weight="700">Привязки</text>
+  <text x="36" y="308" class="nav">Проверки</text>
+  <text x="36" y="356" class="nav">Публикация</text>
+  <line x1="20" y1="392" x2="240" y2="392" stroke="#e4e7ec"/>
+  <text x="28" y="428" class="label muted">ПРОИСХОЖДЕНИЕ</text>
+  <text x="28" y="458" class="body" font-weight="650">Копия с сервера</text>
+  <text x="28" y="484" class="small" fill="#667085">«Базы данных: Prod»</text>
+  <text x="28" y="508" class="small" fill="#667085">Лаборатория 7.4</text>
+  <text x="28" y="532" class="small" fill="#667085">снимок 25.10.2026, 14:02</text>
+  <text x="28" y="556" class="small" fill="#667085">3 страницы · 19 виджетов</text>
+  <!-- Title -->
+  <text x="292" y="92" font-size="13" fill="#667085">Черновики  /  Базы данных: Prod  /  Привязки</text>
+  <rect x="1444" y="100" width="100" height="28" rx="14" fill="#fff4e5"/>
+  <text x="1494" y="119" font-size="13" font-weight="650" text-anchor="middle" fill="#8a4b00">Изменена</text>
+  <text x="292" y="124" class="title">Клонировать панель: итог</text>
+  <rect x="292" y="146" width="105" height="34" rx="17" fill="#ffffff" stroke="#d0d5dd"/>
+  <use href="#ti-circle-check" x="302" y="154" width="18" height="18" color="#1f6b43"/>
+  <text x="326" y="168" class="small" fill="#1f6b43" font-weight="600">Область</text>
+  <rect x="405" y="146" width="141" height="34" rx="17" fill="#ffffff" stroke="#d0d5dd"/>
+  <use href="#ti-circle-check" x="415" y="154" width="18" height="18" color="#1f6b43"/>
+  <text x="439" y="168" class="small" fill="#1f6b43" font-weight="600">Зависимости</text>
+  <rect x="554" y="146" width="150" height="34" rx="17" fill="#ffffff" stroke="#d0d5dd"/>
+  <use href="#ti-circle-check" x="564" y="154" width="18" height="18" color="#1f6b43"/>
+  <text x="588" y="168" class="small" fill="#1f6b43" font-weight="600">Целевые узлы</text>
+  <rect x="712" y="146" width="150" height="34" rx="17" fill="#ffffff" stroke="#d0d5dd"/>
+  <use href="#ti-circle-check" x="722" y="154" width="18" height="18" color="#1f6b43"/>
+  <text x="746" y="168" class="small" fill="#1f6b43" font-weight="600">Соответствия</text>
+  <rect x="870" y="146" width="87" height="34" rx="17" fill="#ffffff" stroke="#d0d5dd"/>
+  <use href="#ti-circle-check" x="880" y="154" width="18" height="18" color="#1f6b43"/>
+  <text x="904" y="168" class="small" fill="#1f6b43" font-weight="600">Серии</text>
+  <rect x="965" y="146" width="78" height="34" rx="17" fill="#eef4ff" stroke="#3156a3"/>
+  <text x="984" y="168" class="small" fill="#1d3f86" text-anchor="middle" font-weight="700">6</text>
+  <text x="999" y="168" class="small" fill="#1d3f86" font-weight="700">Итог</text>
+  <rect x="292" y="196" width="1252" height="100" rx="14" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="316" y="228" class="label muted">НОВАЯ ПАНЕЛЬ</text>
+  <rect x="316" y="240" width="360" height="40" rx="8" fill="#ffffff" stroke="#3156a3" stroke-width="2"/>
+  <text x="330" y="266" class="body">Базы данных: Pilot</text>
+  <text x="700" y="252" class="small">Подключение: Лаборатория 7.4 (то же)</text>
+  <text x="700" y="274" class="small muted">Исходная «Базы данных: Prod» не изменяется.</text>
+  <text x="1520" y="252" class="small" text-anchor="end">Копируется вся структура:</text>
+  <text x="1520" y="274" class="small muted" text-anchor="end">3 страницы, 19 виджетов, связи виджетов</text>
+  <rect x="292" y="312" width="820" height="596" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="316" y="346" class="label muted">ЧТО ПРОИЗОЙДЁТ С ССЫЛКАМИ</text>
+  <use href="#ti-circle-check" x="316" y="368" width="20" height="20" color="#1f6b43"/>
+  <text x="346" y="384" class="body" font-weight="700">Изменятся: 40 ссылок в 14 виджетах</text>
+  <text x="346" y="410" class="small muted">pg-a-01 → pg-b-01, pg-a-02 → pg-b-02, ch-a-01 → ch-b-01, ch-a-02 → ch-b-02</text>
+  <text x="346" y="432" class="small muted">3 графика получат третий ряд pg-b-03</text>
+  <text x="346" y="454" class="small muted">2 маски: pg-a-* → pg-b-*, ClickHouse: * без изменений имени</text>
+  <use href="#ti-minus" x="316" y="490" width="20" height="20" color="#98a2b3"/>
+  <text x="346" y="506" class="body" font-weight="700">Не меняются: 2 ссылки (выбрано «оставить исходный»)</text>
+  <text x="346" y="532" class="small muted">Zabbix server в «Problems» и «Server health»</text>
+  <use href="#ti-alert-triangle" x="316" y="568" width="20" height="20" color="#8a4b00"/>
+  <text x="346" y="584" class="body" fill="#8a4b00" font-weight="700">Останутся на исходных узлах: 4 виджета · подтверждено</text>
+  <text x="346" y="610" class="small muted">Top queries, Slow queries, Problems (фильтр), Disk I/O (ряд 2)</text>
+  <use href="#ti-circle-x" x="316" y="646" width="20" height="20" color="#a32935"/>
+  <text x="346" y="662" class="body" fill="#a32935" font-weight="700">Не решено: 0</text>
+  <text x="346" y="688" class="small muted">Блокировок нет: можно переходить к публикации.</text>
+  <text x="316" y="726" class="xs muted">Сравнение по виджетам и полям — в «Публикации», шаг «Изменения».</text>
+  <rect x="1132" y="312" width="412" height="596" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="1156" y="346" class="label muted">СОХРАНЕНО В ЧЕРНОВИКЕ</text>
+  <text x="1156" y="374" class="small">Соответствия узлов и элементов данных,</text>
+  <text x="1156" y="396" class="small">решения по шаблонам и порядок слотов —</text>
+  <text x="1156" y="418" class="small">как операции копии, только на этом</text>
+  <text x="1156" y="440" class="small">компьютере.</text>
+  <use href="#ti-info-circle" x="1156" y="476" width="18" height="18" color="#667085"/>
+  <text x="1182" y="490" class="xs muted">Идентификаторы Zabbix и подключение</text>
+  <text x="1182" y="508" class="xs muted">в файлы экспорта не попадают.</text>
+  <text x="1182" y="526" class="xs muted">При смене подключения, прав или снимка</text>
+  <text x="1182" y="544" class="xs muted">соответствия проверяются заново.</text>
+  <text x="1156" y="594" class="label muted">ДАЛЬШЕ</text>
+  <text x="1156" y="620" class="small">«Публикация»: владелец и доступ,</text>
+  <text x="1156" y="642" class="small">проверки, сравнение и подтверждение.</text>
+  <text x="1156" y="664" class="small">На этом шаге сервер не меняется.</text>
+  <rect x="260" y="924" width="1340" height="76" fill="#ffffff" stroke="#e4e7ec"/>
+  <rect x="292" y="941" width="120" height="42" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="352" y="967" class="button" text-anchor="middle">Назад</text>
+  <rect x="1364" y="941" width="180" height="42" rx="10" fill="#3156a3" stroke="#3156a3"/>
+  <text x="1454" y="967" class="button white" text-anchor="middle">К публикации</text>
+  <rect x="1152" y="941" width="200" height="42" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="1252" y="967" class="button" text-anchor="middle">Сохранить черновик</text>
+</svg>

@@ -21,6 +21,8 @@ jobs:
       - name: Validate synthetic examples
         run: |
           python tools/validate.py examples/db-pilot.yaml
+          python tools/validate.py examples/dashboard-v2.yaml
+          python tools/validate.py examples/page-v2.yaml
           python tools/validate.py --package examples/db-pilot-package.zip
       - name: Run reference tests
         run: python -m pytest -q

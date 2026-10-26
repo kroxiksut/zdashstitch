@@ -1,0 +1,16 @@
+format: zdashstitch.metrics/v1
+catalog_id: binary
+export_profile: portable_with_public_keys
+source:
+  kind: manual
+  template_name: Binary Example
+diagnostics: []
+metrics:
+- id: payload
+  name: Binary payload
+  selector:
+    kind: key
+    value: example.binary.payload
+  value_type: binary
+  units: ""
+  origin: template_item

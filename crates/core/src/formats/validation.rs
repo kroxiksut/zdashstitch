@@ -6,8 +6,9 @@ use std::{
 };
 
 use super::{
-    Cardinality, FormatError, ItemExpansion, Layout, MetricCatalog, PortableProject, Result,
-    Selection, ValueType, Widget,
+    Cardinality, Dashboard, DashboardKind, FormatError, ItemExpansion, Layout, MetricCatalog,
+    PortableProject, ProjectFormat, ProjectRoot, Result, Selection, TypedProject, ValueType,
+    Widget, ZabbixWidgetFieldValue,
 };
 
 pub trait Validate {
@@ -19,6 +20,13 @@ pub fn validate_project(
     catalogs: &BTreeMap<String, MetricCatalog>,
 ) -> Result<()> {
     project.validate()?;
+    validate_project_content(project, catalogs)
+}
+
+fn validate_project_content(
+    project: &PortableProject,
+    catalogs: &BTreeMap<String, MetricCatalog>,
+) -> Result<()> {
     ensure(
         catalogs.len() == project.catalogs.len()
             && project
@@ -69,35 +77,67 @@ pub fn validate_project(
             )?;
             let mut rectangles = Vec::new();
             for widget in &page.widgets {
+                if let Widget::Zabbix { fields, .. } = widget {
+                    for field in fields {
+                        match &field.value {
+                            ZabbixWidgetFieldValue::Host {
+                                role,
+                                selection,
+                                slot_id,
+                            } => {
+                                validate_host_relationship(
+                                    &project.roles,
+                                    role,
+                                    *selection,
+                                    slot_id.as_deref(),
+                                )?;
+                                ensure_single_reference(&project.roles, role, *selection)?;
+                            }
+                            ZabbixWidgetFieldValue::Metric {
+                                catalog,
+                                metric,
+                                hosts,
+                            } => {
+                                validate_host_relationship(
+                                    &project.roles,
+                                    &hosts.role,
+                                    hosts.selection,
+                                    hosts.slot_id.as_deref(),
+                                )?;
+                                ensure_single_reference(
+                                    &project.roles,
+                                    &hosts.role,
+                                    hosts.selection,
+                                )?;
+                                let value_type = metrics
+                                    .get(catalog.as_str())
+                                    .and_then(|entries| entries.get(metric.as_str()))
+                                    .copied()
+                                    .ok_or_else(|| {
+                                        FormatError::validation(
+                                            "unknown_metric",
+                                            format!("unknown metric {catalog}/{metric}"),
+                                        )
+                                    })?;
+                                // Zabbix item fields (type 4) render one item value; binary
+                                // items are unsupported there, as for item_value widgets.
+                                ensure(
+                                    field.field_type != 4 || value_type != ValueType::Binary,
+                                    "binary_item_value",
+                                    "binary metrics are unsupported in item fields",
+                                )?;
+                            }
+                            _ => {}
+                        }
+                    }
+                }
                 for (metric, hosts) in widget.references() {
-                    let role = project.roles.get(&hosts.role).ok_or_else(|| {
-                        FormatError::validation(
-                            "unknown_role",
-                            format!("unknown role {}", hosts.role),
-                        )
-                    })?;
-                    if hosts.selection == Selection::One {
-                        ensure(
-                            role.cardinality == Cardinality::One,
-                            "one_requires_singleton",
-                            "one selector requires one cardinality; use a named slot for many",
-                        )?;
-                    }
-                    if hosts.selection == Selection::Slot {
-                        let slot = hosts.slot_id.as_deref().ok_or_else(|| {
-                            FormatError::validation(
-                                "slot_required",
-                                "slot selection requires slot_id",
-                            )
-                        })?;
-                        ensure(
-                            role.slots
-                                .as_ref()
-                                .is_some_and(|slots| slots.iter().any(|item| item == slot)),
-                            "unknown_role_slot",
-                            format!("unknown role slot {slot}"),
-                        )?;
-                    }
+                    validate_host_relationship(
+                        &project.roles,
+                        &hosts.role,
+                        hosts.selection,
+                        hosts.slot_id.as_deref(),
+                    )?;
                     let value_type = metrics
                         .get(metric.catalog.as_str())
                         .and_then(|catalog| catalog.get(metric.metric.as_str()))
@@ -119,6 +159,7 @@ pub fn validate_project(
                             "binary_item_value",
                             "binary item_value is unsupported by MVP",
                         )?,
+                        Widget::Zabbix { .. } => {}
                     }
                 }
 
@@ -162,6 +203,80 @@ pub fn validate_project(
                 }
             }
         }
+    }
+    Ok(())
+}
+
+pub fn validate_typed_project(
+    project: &TypedProject,
+    catalogs: &BTreeMap<String, MetricCatalog>,
+) -> Result<()> {
+    project.validate()?;
+    let dashboards = match &project.root {
+        ProjectRoot::Dashboard(dashboard) => vec![dashboard.clone()],
+        ProjectRoot::Page(page) => vec![Dashboard {
+            id: "page-root".to_owned(),
+            name: "Page root".to_owned(),
+            kind: DashboardKind::Global,
+            pages: vec![page.clone()],
+        }],
+    };
+    let compatibility_view = PortableProject {
+        format: ProjectFormat::V1,
+        project_id: project.project_id.clone(),
+        catalogs: project.catalogs.clone(),
+        roles: project.roles.clone(),
+        dashboards,
+    };
+    validate_project_content(&compatibility_view, catalogs)
+}
+
+fn validate_host_relationship(
+    roles: &BTreeMap<String, super::Role>,
+    role_name: &str,
+    selection: Selection,
+    slot_id: Option<&str>,
+) -> Result<()> {
+    let role = roles.get(role_name).ok_or_else(|| {
+        FormatError::validation("unknown_role", format!("unknown role {role_name}"))
+    })?;
+    if selection == Selection::One {
+        ensure(
+            role.cardinality == Cardinality::One,
+            "one_requires_singleton",
+            "one selector requires one cardinality; use a named slot for many",
+        )?;
+    }
+    if selection == Selection::Slot {
+        let slot = slot_id.ok_or_else(|| {
+            FormatError::validation("slot_required", "slot selection requires slot_id")
+        })?;
+        ensure(
+            role.slots
+                .as_ref()
+                .is_some_and(|slots| slots.iter().any(|item| item == slot)),
+            "unknown_role_slot",
+            format!("unknown role slot {slot}"),
+        )?;
+    }
+    Ok(())
+}
+
+/// A field entry of a generic `type: zabbix` widget holds exactly one Zabbix object,
+/// so `selection: all` is only accepted when the role is statically a single host.
+fn ensure_single_reference(
+    roles: &BTreeMap<String, super::Role>,
+    role_name: &str,
+    selection: Selection,
+) -> Result<()> {
+    if selection == Selection::All {
+        ensure(
+            roles
+                .get(role_name)
+                .is_some_and(|role| role.cardinality == Cardinality::One),
+            "widget_single_reference_multi",
+            "a widget field references one object; select one host or a named slot",
+        )?;
     }
     Ok(())
 }

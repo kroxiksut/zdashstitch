@@ -1,0 +1,98 @@
+{
+  "compatibility.empty_draft": {
+    "message": "В черновике нет виджетов, поэтому совместимость с Zabbix определить нельзя.",
+    "placeholders": {}
+  },
+  "compatibility.unknown_widget_type": {
+    "message": "Совместимость для типа виджета {widget_type} неизвестна.",
+    "placeholders": {"widget_type": "technical"}
+  },
+  "compatibility.unknown_widget_field": {
+    "message": "Совместимость поля {field} типа {field_type} в виджете {widget_type} неизвестна.",
+    "placeholders": {
+      "widget_type": "technical",
+      "field": "technical",
+      "field_type": "technical"
+    }
+  },
+  "compatibility.no_common_range": {
+    "message": "У виджетов нет общего поддерживаемого диапазона версий Zabbix.",
+    "placeholders": {}
+  },
+  "compatibility.calculated_range": {
+    "message": "Рассчитанная совместимость с Zabbix начинается с {minimum}; верхняя исключающая граница — {maximum_exclusive}.",
+    "placeholders": {
+      "minimum": "technical",
+      "maximum_exclusive": "technical_optional"
+    }
+  },
+  "compatibility.declared_mismatch": {
+    "message": "Рассчитанная совместимость ({minimum}–{maximum_exclusive}) отличается от заявленного диапазона ({declared_minimum}–{declared_maximum_exclusive}).",
+    "placeholders": {
+      "minimum": "technical",
+      "maximum_exclusive": "technical_optional",
+      "declared_minimum": "technical",
+      "declared_maximum_exclusive": "technical_optional"
+    }
+  },
+  "http.security.invalid_host": {
+    "message": "В запросе указан недопустимый локальный узел.",
+    "placeholders": {}
+  },
+  "http.security.bootstrap_invalid": {
+    "message": "Одноразовая ссылка запуска недействительна или устарела.",
+    "placeholders": {}
+  },
+  "http.security.invalid_origin": {
+    "message": "Запрос поступил не из локального приложения.",
+    "placeholders": {}
+  },
+  "http.security.session_invalid": {
+    "message": "Локальный сеанс недействителен. Перезапустите приложение.",
+    "placeholders": {}
+  },
+  "http.security.csrf_invalid": {
+    "message": "Не удалось проверить запрос. Перезагрузите приложение и повторите попытку.",
+    "placeholders": {}
+  },
+  "http.security.invalid_content_type": {
+    "message": "Тип содержимого запроса не поддерживается.",
+    "placeholders": {}
+  },
+  "http.security.body_too_large": {
+    "message": "Размер запроса превышает допустимый предел.",
+    "placeholders": {}
+  },
+  "http.security.upload_count_exceeded": {
+    "message": "В загрузке слишком много файлов.",
+    "placeholders": {}
+  },
+  "http.security.api_not_found": {
+    "message": "Запрошенный локальный адрес API не существует.",
+    "placeholders": {}
+  },
+  "http.transfer.invalid": {
+    "message": "Передача файла через браузер недействительна или устарела.",
+    "placeholders": {}
+  },
+  "http.transfer.invalid_path": {
+    "message": "Путь загружаемого файла недопустим.",
+    "placeholders": {}
+  },
+  "http.transfer.duplicate_file": {
+    "message": "В загрузке один и тот же путь файла указан несколько раз.",
+    "placeholders": {}
+  },
+  "http.transfer.total_too_large": {
+    "message": "Общий размер файлов для передачи через браузер превышает предел.",
+    "placeholders": {}
+  },
+  "http.transfer.too_many": {
+    "message": "Слишком много передач через браузер ожидают завершения. Завершите существующую передачу или повторите её.",
+    "placeholders": {}
+  },
+  "http.transfer.unavailable": {
+    "message": "Не удалось подготовить передачу файла через браузер.",
+    "placeholders": {}
+  }
+}

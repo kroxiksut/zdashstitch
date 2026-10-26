@@ -1,0 +1,130 @@
+{
+  "widget.type.actionlog": {
+    "message": "Action log",
+    "placeholders": {}
+  },
+  "widget.type.clock": {
+    "message": "Clock",
+    "placeholders": {}
+  },
+  "widget.type.discovery": {
+    "message": "Discovery status",
+    "placeholders": {}
+  },
+  "widget.type.favgraphs": {
+    "message": "Favorite graphs",
+    "placeholders": {}
+  },
+  "widget.type.favmaps": {
+    "message": "Favorite maps",
+    "placeholders": {}
+  },
+  "widget.type.gauge": {
+    "message": "Gauge",
+    "placeholders": {}
+  },
+  "widget.type.geomap": {
+    "message": "Geomap",
+    "placeholders": {}
+  },
+  "widget.type.graph": {
+    "message": "Graph (classic)",
+    "placeholders": {}
+  },
+  "widget.type.graphprototype": {
+    "message": "Graph prototype",
+    "placeholders": {}
+  },
+  "widget.type.honeycomb": {
+    "message": "Honeycomb",
+    "placeholders": {}
+  },
+  "widget.type.hostavail": {
+    "message": "Host availability",
+    "placeholders": {}
+  },
+  "widget.type.hostcard": {
+    "message": "Host card",
+    "placeholders": {}
+  },
+  "widget.type.hostnavigator": {
+    "message": "Host navigator",
+    "placeholders": {}
+  },
+  "widget.type.item": {
+    "message": "Item value",
+    "placeholders": {}
+  },
+  "widget.type.itemcard": {
+    "message": "Item card",
+    "placeholders": {}
+  },
+  "widget.type.itemhistory": {
+    "message": "Item history",
+    "placeholders": {}
+  },
+  "widget.type.itemnavigator": {
+    "message": "Item navigator",
+    "placeholders": {}
+  },
+  "widget.type.map": {
+    "message": "Map",
+    "placeholders": {}
+  },
+  "widget.type.navtree": {
+    "message": "Map navigation tree",
+    "placeholders": {}
+  },
+  "widget.type.piechart": {
+    "message": "Pie chart",
+    "placeholders": {}
+  },
+  "widget.type.problemhosts": {
+    "message": "Problem hosts",
+    "placeholders": {}
+  },
+  "widget.type.problems": {
+    "message": "Problems",
+    "placeholders": {}
+  },
+  "widget.type.problemsbysv": {
+    "message": "Problems by severity",
+    "placeholders": {}
+  },
+  "widget.type.slareport": {
+    "message": "SLA report",
+    "placeholders": {}
+  },
+  "widget.type.svggraph": {
+    "message": "Graph",
+    "placeholders": {}
+  },
+  "widget.type.systeminfo": {
+    "message": "System information",
+    "placeholders": {}
+  },
+  "widget.type.tophosts": {
+    "message": "Top hosts",
+    "placeholders": {}
+  },
+  "widget.type.topitems": {
+    "message": "Top items",
+    "placeholders": {}
+  },
+  "widget.type.toptriggers": {
+    "message": "Top triggers",
+    "placeholders": {}
+  },
+  "widget.type.trigover": {
+    "message": "Trigger overview",
+    "placeholders": {}
+  },
+  "widget.type.url": {
+    "message": "URL",
+    "placeholders": {}
+  },
+  "widget.type.web": {
+    "message": "Web monitoring",
+    "placeholders": {}
+  }
+}

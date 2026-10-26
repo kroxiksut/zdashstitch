@@ -1,0 +1,24 @@
+format: zdashstitch.project/v2
+project_id: clock-page
+kind: page
+declared_compatibility:
+  minimum: 7.4.0
+provenance:
+  kind: local
+catalogs: []
+roles: {}
+root:
+  id: clock-page
+  name: Часы
+  widgets:
+    - id: local-clock
+      type: zabbix
+      widget_type: clock
+      name: Время
+      registry_state: known
+      fields:
+        - name: time_type
+          field_type: 0
+          registry_state: known
+          value: {kind: integer, value: 0}
+      layout: {mode: fixed, x: 0, y: 0, w: 18, h: 4}

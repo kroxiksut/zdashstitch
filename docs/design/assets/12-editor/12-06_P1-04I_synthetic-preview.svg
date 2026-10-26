@@ -1,0 +1,178 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 1600 1000" fill="#17213a" role="img" aria-labelledby="title desc">
+  <title id="title">ZDashstitch — предпросмотр с синтетическими данными</title>
+  <desc id="desc">Светлый макет предпросмотра страницы «ClickHouse» черновика «Базы данных: сводная» с включённой синтетикой: графики с синтетическими рядами и меткой «Синтетика», линия порога триггера, ряд «нет данных для синтетики», значение элемента данных, карточки без данных для типов без синтетики, пояснение, основания по виджетам и обозначения.</desc>
+  <defs>
+    <!-- Tabler Icons outline v3.49.0 (MIT), see assets/icons/THIRD_PARTY.md -->
+    <symbol id="ti-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5l10 -10"/></symbol>
+    <symbol id="ti-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6l6 -6"/></symbol>
+    <symbol id="ti-info-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M12 9h.01"/><path d="M11 12h1v4h1"/></symbol>
+    <symbol id="ti-ban" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M5.7 5.7l12.6 12.6"/></symbol>
+    <symbol id="ti-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065"/><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/></symbol>
+    <style>
+      text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+      .muted{fill:#667085}.white{fill:#ffffff}.small{font-size:14px}.xs{font-size:12px}.label{font-size:13px;font-weight:700;letter-spacing:.08em}
+      .title{font-size:24px;font-weight:750}.h3{font-size:17px;font-weight:700}.body{font-size:16px}.button{font-size:15px;font-weight:700}
+      .nav{font-size:17px}.badge{font-size:13px;font-weight:650}.row{font-size:15px;font-weight:650}
+      .mono{font-family:ui-monospace,"Cascadia Mono",Consolas,monospace;font-size:13px;fill:#344054}
+    </style>
+  </defs>
+  <rect width="1600" height="1000" fill="#f5f7fb"/>
+
+  <!-- App bar: global navigation (P1-01B §1) -->
+  <rect width="1600" height="72" fill="#ffffff" stroke="#e4e7ec"/>
+  <image href="../../../../assets/brand/icons/stezhik-head-1024.png" x="32" y="18" width="36" height="36" preserveAspectRatio="xMidYMid meet"/>
+  <text x="80" y="45" font-size="20" font-weight="750">ZDashstitch</text>
+  <text x="232" y="44" font-size="15" font-weight="500" fill="#475467">Начало</text>
+  <text x="318" y="44" font-size="15" font-weight="700" fill="#1d3f86">Черновики</text>
+  <rect x="318" y="67" width="80" height="4" rx="2" fill="#3156a3"/>
+  <text x="430" y="44" font-size="15" font-weight="500" fill="#475467">Панели в Zabbix</text>
+  <text x="582" y="44" font-size="15" font-weight="500" fill="#475467">Библиотека</text>
+  <text x="702" y="44" font-size="15" font-weight="500" fill="#475467">Подключения</text>
+  <rect x="1288" y="19" width="120" height="34" rx="17" fill="#eef4ff"/>
+  <text x="1348" y="41" font-size="14" text-anchor="middle" fill="#3156a3">Автономно</text>
+  <rect x="1424" y="18" width="144" height="36" rx="8" fill="#ffffff" stroke="#c9d3ea"/>
+  <use href="#ti-settings" x="1438" y="27" width="18" height="18" color="#475467"/>
+  <text x="1464" y="41" font-size="15" font-weight="600" fill="#17213a">Настройки</text>
+
+  <!-- Workspace -->
+  <rect x="0" y="72" width="260" height="928" fill="#ffffff" stroke="#e4e7ec"/>
+  <text x="28" y="116" class="label muted">ПАНЕЛЬ</text>
+  <text x="36" y="164" class="nav">Обзор</text>
+  <rect x="16" y="184" width="228" height="46" rx="10" fill="#eef4ff" stroke="#eef4ff"/>
+  <text x="36" y="214" class="nav" fill="#1d3f86" font-weight="700">Структура</text>
+  <text x="36" y="260" class="nav">Привязки</text>
+  <text x="36" y="308" class="nav">Проверки</text>
+  <text x="36" y="356" class="nav">Публикация</text>
+  <line x1="20" y1="392" x2="240" y2="392" stroke="#e4e7ec"/>
+  <text x="28" y="428" class="label muted">ПРОИСХОЖДЕНИЕ</text>
+  <text x="28" y="458" class="body" font-weight="650">Локальная</text>
+  <text x="28" y="484" class="small" fill="#667085">собрана из 3 страниц</text>
+  <text x="28" y="508" class="small" fill="#667085">19 виджетов</text>
+  <!-- Title -->
+  <text x="292" y="92" font-size="13" fill="#667085">Черновики  /  Базы данных: сводная  /  Структура  /  Предпросмотр</text>
+  <rect x="1414" y="100" width="130" height="28" rx="14" fill="#f2f4f7"/>
+  <text x="1479" y="119" font-size="13" font-weight="650" text-anchor="middle" fill="#344054">Не проверена</text>
+  <rect x="1304" y="100" width="100" height="28" rx="14" fill="#fff4e5"/>
+  <text x="1354" y="119" font-size="13" font-weight="650" text-anchor="middle" fill="#8a4b00">Изменена</text>
+  <text x="292" y="124" class="title">Базы данных: сводная</text>
+  <text x="292" y="154" class="small muted">Предпросмотр страницы «ClickHouse» · 5 виджетов · сетка Zabbix 72 колонки</text>
+  <rect x="292" y="172" width="1252" height="534" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <rect x="316" y="190" width="20" height="20" rx="4" fill="#3156a3"/>
+  <use href="#ti-check" x="319" y="193" width="14" height="14" color="#ffffff"/>
+  <text x="346" y="206" class="body">Показать синтетические данные</text>
+  <rect x="880" y="184" width="270" height="34" rx="8" fill="#ffffff" stroke="#7a8d9b"/>
+  <text x="894" y="210" class="body">Период: последний 1 час</text>
+  <use href="#ti-chevron-down" x="1120" y="195" width="18" height="18" color="#475467"/>
+  <rect x="1166" y="184" width="354" height="34" rx="8" fill="#ffffff" stroke="#7a8d9b"/>
+  <text x="1180" y="210" class="body">Ширина экрана: 1920 px</text>
+  <use href="#ti-chevron-down" x="1490" y="195" width="18" height="18" color="#475467"/>
+  <rect x="316" y="240" width="1204" height="439.0" fill="#f8fafc" stroke="#d0d5dd"/>
+  <line x1="416.3" y1="240" x2="416.3" y2="679.0" stroke="#eaecf0"/>
+  <line x1="516.7" y1="240" x2="516.7" y2="679.0" stroke="#eaecf0"/>
+  <line x1="617.0" y1="240" x2="617.0" y2="679.0" stroke="#eaecf0"/>
+  <line x1="717.3" y1="240" x2="717.3" y2="679.0" stroke="#eaecf0"/>
+  <line x1="817.7" y1="240" x2="817.7" y2="679.0" stroke="#eaecf0"/>
+  <line x1="918.0" y1="240" x2="918.0" y2="679.0" stroke="#eaecf0"/>
+  <line x1="1018.3" y1="240" x2="1018.3" y2="679.0" stroke="#eaecf0"/>
+  <line x1="1118.7" y1="240" x2="1118.7" y2="679.0" stroke="#eaecf0"/>
+  <line x1="1219.0" y1="240" x2="1219.0" y2="679.0" stroke="#eaecf0"/>
+  <line x1="1319.3" y1="240" x2="1319.3" y2="679.0" stroke="#eaecf0"/>
+  <line x1="1419.7" y1="240" x2="1419.7" y2="679.0" stroke="#eaecf0"/>
+  <line x1="316" y1="283.9" x2="1520" y2="283.9" stroke="#eaecf0"/>
+  <line x1="316" y1="327.8" x2="1520" y2="327.8" stroke="#eaecf0"/>
+  <line x1="316" y1="371.7" x2="1520" y2="371.7" stroke="#eaecf0"/>
+  <line x1="316" y1="415.6" x2="1520" y2="415.6" stroke="#eaecf0"/>
+  <line x1="316" y1="459.5" x2="1520" y2="459.5" stroke="#eaecf0"/>
+  <line x1="316" y1="503.4" x2="1520" y2="503.4" stroke="#eaecf0"/>
+  <line x1="316" y1="547.3" x2="1520" y2="547.3" stroke="#eaecf0"/>
+  <line x1="316" y1="591.2" x2="1520" y2="591.2" stroke="#eaecf0"/>
+  <line x1="316" y1="635.1" x2="1520" y2="635.1" stroke="#eaecf0"/>
+  <rect x="319.0" y="243.0" width="596.0" height="213.5" rx="6" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="329.0" y="262.0" class="small" font-weight="700">Connections</text>
+  <text x="422.6" y="262.0" class="xs muted">График</text>
+  <rect x="835.0" y="249.0" width="72" height="18" rx="9" fill="#fff4e5"/>
+  <text x="871.0" y="262.0" font-size="11" text-anchor="middle" fill="#8a4b00">Синтетика</text>
+  <line x1="375.0" y1="402.5" x2="901.0" y2="402.5" stroke="#d0d5dd"/>
+  <text x="367.0" y="406.5" class="xs muted" text-anchor="end">0</text>
+  <line x1="375.0" y1="344.7" x2="901.0" y2="344.7" stroke="#f2f4f7"/>
+  <text x="367.0" y="348.7" class="xs muted" text-anchor="end">60</text>
+  <line x1="375.0" y1="287.0" x2="901.0" y2="287.0" stroke="#f2f4f7"/>
+  <text x="367.0" y="291.0" class="xs muted" text-anchor="end">120</text>
+  <text x="375.0" y="419.5" class="xs muted" text-anchor="start">13:00</text>
+  <text x="506.5" y="419.5" class="xs muted" text-anchor="middle">13:15</text>
+  <text x="638.0" y="419.5" class="xs muted" text-anchor="middle">13:30</text>
+  <text x="769.5" y="419.5" class="xs muted" text-anchor="middle">13:45</text>
+  <text x="901.0" y="419.5" class="xs muted" text-anchor="end">14:00</text>
+  <polyline points="375.0,324.5 383.8,323.7 392.5,324.2 401.3,325.1 410.1,325.4 418.8,324.7 427.6,323.2 436.4,321.9 445.1,321.7 453.9,323.2 462.7,326.5 471.4,330.6 480.2,334.3 489.0,336.5 497.7,336.5 506.5,334.6 515.3,331.7 524.0,329.0 532.8,327.5 541.6,327.6 550.3,328.9 559.1,330.6 567.9,331.6 576.6,331.4 585.4,330.3 594.2,328.9 602.9,328.6 611.7,330.2 620.5,333.9 629.2,339.3 638.0,345.3 646.8,350.5 655.5,354.0 664.3,355.5 673.1,355.4 681.8,354.9 690.6,354.8 699.4,355.7 708.1,357.4 716.9,358.9 725.7,359.3 734.4,357.8 743.2,354.4 752.0,349.8 760.7,345.2 769.5,341.7 778.3,340.4 787.0,341.0 795.8,342.8 804.6,344.8 813.3,345.9 822.1,345.6 830.9,344.1 839.6,342.4 848.4,341.3 857.2,341.6 865.9,343.1 874.7,345.1 883.5,346.3 892.2,345.9 901.0,343.1" fill="none" stroke="#3b82c4" stroke-width="1.8"/>
+  <polyline points="375.0,375.4 383.8,375.5 392.5,374.4 401.3,372.7 410.1,371.0 418.8,370.1 427.6,370.2 436.4,371.4 445.1,373.1 453.9,374.9 462.7,376.2 471.4,376.8 480.2,376.9 489.0,377.1 497.7,377.9 506.5,379.5 515.3,381.8 524.0,384.4 532.8,386.4 541.6,387.4 550.3,387.0 559.1,385.5 567.9,383.3 576.6,381.2 585.4,379.7 594.2,379.0 602.9,378.6 611.7,378.2 620.5,377.3 629.2,375.7 638.0,373.5 646.8,371.3 655.5,369.6 664.3,369.0 673.1,369.7 681.8,371.1 690.6,372.8 699.4,374.1 708.1,374.4 716.9,373.7 725.7,372.4 734.4,371.0 743.2,370.1 752.0,369.8 760.7,370.1 769.5,370.3 778.3,370.0 787.0,368.7 795.8,366.6 804.6,364.1 813.3,361.9 822.1,360.6 830.9,360.6 839.6,361.7 848.4,363.7 857.2,365.7 865.9,367.2 874.7,368.1 883.5,368.6 892.2,369.1 901.0,370.1" fill="none" stroke="#8b5cf6" stroke-width="1.8"/>
+  <rect x="333.0" y="435.4791666666667" width="12" height="4" rx="2" fill="#3b82c4"/>
+  <text x="353.0" y="444.4791666666667" class="xs">TCP connections · ClickHouse, слот 1</text>
+  <rect x="619.0" y="435.4791666666667" width="12" height="4" rx="2" fill="#8b5cf6"/>
+  <text x="639.0" y="444.4791666666667" class="xs">HTTP connections · ClickHouse, слот 1</text>
+  <rect x="921.0" y="243.0" width="596.0" height="213.5" rx="6" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="931.0" y="262.0" class="small" font-weight="700">Queries per second</text>
+  <text x="1077.8" y="262.0" class="xs muted">График</text>
+  <rect x="1437.0" y="249.0" width="72" height="18" rx="9" fill="#fff4e5"/>
+  <text x="1473.0" y="262.0" font-size="11" text-anchor="middle" fill="#8a4b00">Синтетика</text>
+  <line x1="977.0" y1="402.5" x2="1503.0" y2="402.5" stroke="#d0d5dd"/>
+  <text x="969.0" y="406.5" class="xs muted" text-anchor="end">0</text>
+  <line x1="977.0" y1="344.7" x2="1503.0" y2="344.7" stroke="#f2f4f7"/>
+  <text x="969.0" y="348.7" class="xs muted" text-anchor="end">250</text>
+  <line x1="977.0" y1="287.0" x2="1503.0" y2="287.0" stroke="#f2f4f7"/>
+  <text x="969.0" y="291.0" class="xs muted" text-anchor="end">500</text>
+  <text x="969.0" y="275.0" class="xs muted" text-anchor="end">rps</text>
+  <text x="977.0" y="419.5" class="xs muted" text-anchor="start">13:00</text>
+  <text x="1108.5" y="419.5" class="xs muted" text-anchor="middle">13:15</text>
+  <text x="1240.0" y="419.5" class="xs muted" text-anchor="middle">13:30</text>
+  <text x="1371.5" y="419.5" class="xs muted" text-anchor="middle">13:45</text>
+  <text x="1503.0" y="419.5" class="xs muted" text-anchor="end">14:00</text>
+  <line x1="977.0" y1="310.1" x2="1503.0" y2="310.1" stroke="#a32935" stroke-dasharray="6 4" stroke-width="1.4"/>
+  <text x="1499.0" y="305.1" class="xs" fill="#a32935" text-anchor="end">Порог триггера: 400 rps</text>
+  <polyline points="977.0,330.3 985.8,334.1 994.5,337.6 1003.3,339.9 1012.1,340.5 1020.8,340.1 1029.6,339.3 1038.4,339.2 1047.1,340.1 1055.9,342.0 1064.7,344.2 1073.4,345.6 1082.2,345.5 1091.0,343.7 1099.7,340.9 1108.5,338.2 1117.3,336.5 1126.0,336.8 1134.8,339.0 1143.6,342.6 1152.3,346.5 1161.1,349.7 1169.9,351.7 1178.6,352.7 1187.4,353.4 1196.2,354.7 1204.9,357.1 1213.7,360.6 1222.5,364.6 1231.2,367.9 1240.0,369.6 1248.8,369.1 1257.5,366.5 1266.3,362.8 1275.1,359.0 1283.8,356.2 1292.6,354.8 1301.4,354.5 1310.1,354.6 1318.9,354.1 1327.7,352.5 1336.4,349.9 1345.2,346.9 1354.0,344.7 1362.7,344.0 1371.5,345.1 1380.3,347.6 1389.0,350.5 1397.8,352.7 1406.6,353.2 1415.3,351.9 1424.1,349.1 1432.9,345.9 1441.6,343.2 1450.4,341.6 1459.2,341.0 1467.9,340.7 1476.7,339.9 1485.5,337.9 1494.2,334.5 1503.0,330.4" fill="none" stroke="#3b82c4" stroke-width="1.8"/>
+  <rect x="935.0" y="435.4791666666667" width="12" height="4" rx="2" fill="#3b82c4"/>
+  <text x="955.0" y="444.4791666666667" class="xs">Queries per second · ClickHouse, слот 1</text>
+  <use href="#ti-info-circle" x="1221.0" y="433.4791666666667" width="14" height="14" color="#667085"/>
+  <text x="1241.0" y="444.4791666666667" class="xs" fill="#475467">Inserts* — нет данных для синтетики</text>
+  <rect x="319.0" y="462.5" width="395.3" height="125.7" rx="6" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="329.0" y="481.5" class="small" font-weight="700">Replication lag</text>
+  <text x="453.0" y="481.5" class="xs muted">Значение</text>
+  <rect x="634.3" y="468.5" width="72" height="18" rx="9" fill="#fff4e5"/>
+  <text x="670.3" y="481.5" font-size="11" text-anchor="middle" fill="#8a4b00">Синтетика</text>
+  <text x="516.7" y="543.3" class="title" text-anchor="middle">0,8 с</text>
+  <text x="516.7" y="578.2" class="xs muted" text-anchor="middle">ClickHouse, слот 1</text>
+  <rect x="720.3" y="462.5" width="395.3" height="125.7" rx="6" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="730.3" y="481.5" class="small" font-weight="700">Disk usage</text>
+  <text x="816.3" y="481.5" class="xs muted">Радиальный датчик</text>
+  <text x="730.3" y="514.5" class="small">мин. 0 · макс. 100 · %</text>
+  <text x="730.3" y="540.5" class="xs muted">Показано без данных: тип и основные настройки</text>
+  <rect x="1121.7" y="462.5" width="395.3" height="125.7" rx="6" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="1131.7" y="481.5" class="small" font-weight="700">Top queries</text>
+  <text x="1225.3" y="481.5" class="xs muted">Топ узлов сети</text>
+  <text x="1131.7" y="514.5" class="small">столбцов: 3 · узлов: 10</text>
+  <text x="1131.7" y="540.5" class="xs muted">Показано без данных: тип и основные настройки</text>
+  <text x="316" y="696.9583333333334" class="xs muted">Показано строк: 10 из 64. Часы и другие типы без синтетики данных не показывают.</text>
+  <rect x="292" y="716" width="1252" height="46" rx="10" fill="#fff8ed" stroke="#f3d3a6"/>
+  <use href="#ti-info-circle" x="308" y="730" width="18" height="18" color="#8a4b00"/>
+  <text x="334" y="744" class="small" fill="#5c3a00" font-weight="650">Синтетические данные — не значения из Zabbix. В файлы, экспорт и публикацию не попадают.</text>
+  <rect x="292" y="774" width="820" height="134" rx="14" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="316" y="800" class="label muted">НА ЧЁМ ПОСТРОЕНА СИНТЕТИКА</text>
+  <text x="316" y="824" class="small" font-weight="650">Connections</text>
+  <text x="480" y="824" class="small muted">целое без знака, без единиц · шаг 1 мин</text>
+  <text x="316" y="846" class="small" font-weight="650">Queries per second</text>
+  <text x="480" y="846" class="small muted">дробное, rps · порог 400 — значение макроса шаблона по умолчанию</text>
+  <text x="316" y="868" class="small" font-weight="650">Inserts*</text>
+  <text x="480" y="868" class="small muted">шаблон элементов не совпал ни с одной метрикой каталога</text>
+  <text x="316" y="890" class="small" font-weight="650">Replication lag</text>
+  <text x="480" y="890" class="small muted">дробное, s · задержка: малое основание, редкие пики</text>
+  <rect x="1132" y="774" width="412" height="134" rx="14" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="1156" y="800" class="label muted">ОБОЗНАЧЕНИЯ</text>
+  <rect x="1156" y="810" width="82" height="26" rx="13" fill="#fff4e5"/>
+  <text x="1197" y="828" class="badge" text-anchor="middle" fill="#8a4b00">Синтетика</text>
+  <text x="1250" y="828" class="xs muted">синтетические значения</text>
+  <line x1="1156" y1="850" x2="1236" y2="850" stroke="#a32935" stroke-dasharray="6 4" stroke-width="1.4"/>
+  <text x="1250" y="854" class="xs muted">порог триггера из шаблона</text>
+  <use href="#ti-info-circle" x="1156" y="866" width="14" height="14" color="#667085"/>
+  <text x="1176" y="878" class="xs muted">нет данных: ряд не придумывается</text>
+  <use href="#ti-ban" x="1156" y="886" width="14" height="14" color="#8a4b00"/>
+  <text x="1176" y="898" class="xs muted">тип неизвестен: каркас «Изменение не поддерживается»</text>
+</svg>

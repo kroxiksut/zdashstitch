@@ -1,0 +1,34 @@
+{
+  "object.kind.dashboard": {
+    "message": "Панель",
+    "placeholders": {}
+  },
+  "object.kind.page": {
+    "message": "Страница",
+    "placeholders": {}
+  },
+  "object.origin.local": {
+    "message": "Локальная",
+    "placeholders": {}
+  },
+  "object.origin.server_copy": {
+    "message": "Копия с сервера",
+    "placeholders": {}
+  },
+  "dashboards.summary.pages_widgets": {
+    "message": "{pages, plural, one {# страница} few {# страницы} many {# страниц} other {# страницы}}, {widgets, plural, one {# виджет} few {# виджета} many {# виджетов} other {# виджета}}",
+    "placeholders": {"pages": "number", "widgets": "number"}
+  },
+  "object.page.untitled": {
+    "message": "Без названия",
+    "placeholders": {}
+  },
+  "object.page.numbered": {
+    "message": "{number}. {name}",
+    "placeholders": {"number": "number", "name": "text"}
+  },
+  "object.page.widget_count": {
+    "message": "{count, plural, one {# виджет} few {# виджета} many {# виджетов} other {# виджета}}",
+    "placeholders": {"count": "number"}
+  }
+}

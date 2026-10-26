@@ -1,0 +1,6 @@
+{
+  "locale": "en",
+  "source_locale": "en",
+  "fallback_locale": "en",
+  "namespaces": ["common", "errors", "startup", "nav", "objects", "drafts", "checks", "settings", "shell", "widgets"]
+}

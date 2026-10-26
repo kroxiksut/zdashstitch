@@ -27,9 +27,11 @@ venv/
 # Imported source material used only for one-time migration
 /temp/
 
+# Local review screenshots (Playwright output)
+/output/
+
 # Local superseded concepts and audit snapshots (non-normative)
 /docs/history/
-IMPLEMENTATION_LOG.md
 
 # Private runtime state (never commit)
 .env

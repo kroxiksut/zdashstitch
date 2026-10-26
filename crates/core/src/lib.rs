@@ -6,6 +6,9 @@
 //! dashboard editing behavior. Domain models arrive in P0-02.
 
 pub mod formats;
+mod version;
+
+pub use version::{Version, VersionParseError, VersionRange};
 
 /// Honest implementation stage reported by the local shell.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]

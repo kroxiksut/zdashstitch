@@ -1,0 +1,153 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 1600 1000" fill="#17213a" role="img" aria-labelledby="title desc">
+  <title id="title">ZDashstitch — настройки: рабочие каталоги, перенос хранилища</title>
+  <desc id="desc">Светлый макет раздела «Рабочие каталоги» с открытым диалогом переноса корня хранилища: текущий путь, состав и размеры, свободное место, автосохранение; проверки нового расположения, предупреждение о несохранённом черновике, выбор между переносом данных и новым пустым хранилищем, прежняя копия не удаляется.</desc>
+  <defs>
+    <!-- Tabler Icons outline v3.49.0 (MIT), see assets/icons/THIRD_PARTY.md -->
+    <symbol id="ti-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2"/></symbol>
+    <symbol id="ti-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 9.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667l0 -8.666"/><path d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1"/></symbol>
+    <symbol id="ti-circle-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M9 12l2 2l4 -4"/></symbol>
+    <symbol id="ti-alert-triangle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0"/><path d="M12 16h.01"/></symbol>
+    <symbol id="ti-info-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M12 9h.01"/><path d="M11 12h1v4h1"/></symbol>
+    <symbol id="ti-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/></symbol>
+    <symbol id="ti-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6l6 -6"/></symbol>
+    <symbol id="ti-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065"/><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/></symbol>
+    <style>
+      text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+      .muted{fill:#667085}.white{fill:#ffffff}.small{font-size:14px}.xs{font-size:12px}.label{font-size:13px;font-weight:700;letter-spacing:.08em}
+      .title{font-size:24px;font-weight:750}.h3{font-size:17px;font-weight:700}.body{font-size:16px}.button{font-size:15px;font-weight:700}
+      .nav{font-size:17px}.badge{font-size:13px;font-weight:650}.row{font-size:15px;font-weight:650}
+      .mono{font-family:ui-monospace,"Cascadia Mono",Consolas,monospace;font-size:13px;fill:#344054}
+    </style>
+  </defs>
+  <rect width="1600" height="1000" fill="#f5f7fb"/>
+
+  <!-- App bar: global navigation (P1-01B §1) -->
+  <rect width="1600" height="72" fill="#ffffff" stroke="#e4e7ec"/>
+  <image href="../../../../assets/brand/icons/stezhik-head-1024.png" x="32" y="18" width="36" height="36" preserveAspectRatio="xMidYMid meet"/>
+  <text x="80" y="45" font-size="20" font-weight="750">ZDashstitch</text>
+  <text x="232" y="44" font-size="15" font-weight="500" fill="#475467">Начало</text>
+  <text x="318" y="44" font-size="15" font-weight="500" fill="#475467">Черновики</text>
+  <text x="430" y="44" font-size="15" font-weight="500" fill="#475467">Панели в Zabbix</text>
+  <text x="582" y="44" font-size="15" font-weight="500" fill="#475467">Библиотека</text>
+  <text x="702" y="44" font-size="15" font-weight="500" fill="#475467">Подключения</text>
+  <rect x="1288" y="19" width="120" height="34" rx="17" fill="#eef4ff"/>
+  <text x="1348" y="41" font-size="14" text-anchor="middle" fill="#3156a3">Автономно</text>
+  <rect x="1424" y="18" width="144" height="36" rx="8" fill="#eef4ff" stroke="#3156a3"/>
+  <use href="#ti-settings" x="1438" y="27" width="18" height="18" color="#1d3f86"/>
+  <text x="1464" y="41" font-size="15" font-weight="700" fill="#1d3f86">Настройки</text>
+
+  <!-- Workspace -->
+  <rect x="0" y="72" width="260" height="928" fill="#ffffff" stroke="#e4e7ec"/>
+  <text x="28" y="116" class="label muted">НАСТРОЙКИ</text>
+  <text x="32" y="163" class="body">Общие</text>
+  <text x="32" y="209" class="body">Внешний вид</text>
+  <rect x="16" y="228" width="228" height="42" rx="10" fill="#eef4ff" stroke="#eef4ff"/>
+  <text x="32" y="255" class="body" fill="#1d3f86" font-weight="700">Рабочие каталоги</text>
+  <text x="32" y="301" class="body">Редактор</text>
+  <text x="32" y="347" class="small">Подключения и сертификаты</text>
+  <text x="32" y="393" class="body">Безопасность и экспорт</text>
+  <text x="32" y="439" class="body">Диагностика</text>
+  <text x="32" y="485" class="body">О программе и лицензии</text>
+  <line x1="20" y1="520" x2="240" y2="520" stroke="#e4e7ec"/>
+  <text x="28" y="552" class="small muted">Пароли и токены здесь</text>
+  <text x="28" y="574" class="small muted">не хранятся и не показываются.</text>
+  <!-- Title -->
+  <text x="292" y="120" class="title">Рабочие каталоги</text>
+  <text x="292" y="150" class="small muted">Где хранятся черновики, копии, снимки, журнал и библиотека.</text>
+  <rect x="1224" y="96" width="320" height="40" rx="8" fill="#ffffff" stroke="#c9d3ea"/>
+  <use href="#ti-search" x="1238" y="107" width="18" height="18" color="#667085"/>
+  <text x="1266" y="121" class="small muted">Поиск настроек</text>
+  <rect x="292" y="166" width="820" height="520" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="316" y="200" class="label muted">КОРЕНЬ ХРАНИЛИЩА</text>
+  <rect x="1000" y="182" width="88" height="26" rx="13" fill="#ecfdf3"/>
+  <text x="1044" y="200" class="badge" text-anchor="middle" fill="#1f6b43">Доступно</text>
+  <use href="#ti-folder" x="316" y="214" width="20" height="20" color="#475467"/>
+  <text x="346" y="230" class="mono">C:\Users\admin\AppData\Local\ZDashstitch</text>
+  <rect x="316" y="248" width="160" height="36" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="396" y="271" class="button" text-anchor="middle">Открыть папку</text>
+  <rect x="486" y="248" width="180" height="36" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <use href="#ti-copy" x="502" y="257.0" width="18" height="18" color="#17213a"/>
+  <text x="588" y="271" class="button" text-anchor="middle">Копировать путь</text>
+  <rect x="676" y="248" width="230" height="36" rx="10" fill="#3156a3" stroke="#3156a3"/>
+  <text x="791" y="271" class="button white" text-anchor="middle">Изменить расположение…</text>
+  <text x="316" y="320" class="label muted">СОСТАВ</text>
+  <line x1="316" y1="370" x2="1088" y2="370" stroke="#eef0f4"/>
+  <text x="316" y="360" class="small" font-weight="600">Черновики</text>
+  <text x="560" y="360" class="small muted">7</text>
+  <text x="1088" y="360" class="small" text-anchor="end">3,1 МБ</text>
+  <line x1="316" y1="406" x2="1088" y2="406" stroke="#eef0f4"/>
+  <text x="316" y="396" class="small" font-weight="600">Рабочие копии</text>
+  <text x="560" y="396" class="small muted">3</text>
+  <text x="1088" y="396" class="small" text-anchor="end">1,2 МБ</text>
+  <line x1="316" y1="442" x2="1088" y2="442" stroke="#eef0f4"/>
+  <text x="316" y="432" class="small" font-weight="600">Снимки</text>
+  <text x="560" y="432" class="small muted">9</text>
+  <text x="1088" y="432" class="small" text-anchor="end">4,8 МБ</text>
+  <line x1="316" y1="478" x2="1088" y2="478" stroke="#eef0f4"/>
+  <text x="316" y="468" class="small" font-weight="600">Журнал операций</text>
+  <text x="560" y="468" class="small muted">14 записей</text>
+  <text x="1088" y="468" class="small" text-anchor="end">0,1 МБ</text>
+  <line x1="316" y1="514" x2="1088" y2="514" stroke="#eef0f4"/>
+  <text x="316" y="504" class="small" font-weight="600">Библиотека</text>
+  <text x="560" y="504" class="small muted">6 каталогов, 2 страницы</text>
+  <text x="1088" y="504" class="small" text-anchor="end">2,4 МБ</text>
+  <text x="316" y="546" class="small">Занято 11,6 МБ · свободно на диске 118 ГБ</text>
+  <rect x="316" y="566" width="260" height="36" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="446" y="589" class="button" text-anchor="middle">Очистить неиспользуемое…</text>
+  <text x="316" y="628" class="xs muted">Черновики, копии, библиотека и незавершённые операции не удаляются никогда.</text>
+  <rect x="1132" y="166" width="412" height="520" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="1156" y="200" class="label muted">АВТОСОХРАНЕНИЕ</text>
+  <rect x="1156" y="216" width="40" height="22" rx="11" fill="#3156a3" stroke="#3156a3" stroke-width="2"/>
+  <circle cx="1182" cy="227" r="7" fill="#ffffff"/>
+  <text x="1208" y="233" class="body" font-weight="650">Автосохранение</text>
+  <text x="1156" y="278" class="small muted">Сохранять не реже чем раз в</text>
+  <rect x="1156" y="288" width="200" height="38" rx="8" fill="#ffffff" stroke="#7a8d9b"/>
+  <text x="1170" y="314" class="body">30 секунд</text>
+  <use href="#ti-chevron-down" x="1326" y="299" width="18" height="18" color="#475467"/>
+  <text x="1156" y="356" class="small">После 2 секунд без правки черновик</text>
+  <text x="1156" y="378" class="small">сохраняется сам. Публикацией это не является.</text>
+  <text x="1156" y="420" class="xs muted">При выключении несохранённые изменения</text>
+  <text x="1156" y="438" class="xs muted">пропадут при сбое приложения или компьютера.</text>
+  <!-- Dialog -->
+  <rect x="0" y="72" width="1600" height="928" fill="#17213a" fill-opacity=".45"/>
+  <rect x="420" y="120" width="760" height="820" rx="16" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="456" y="168" class="title">Перенос хранилища</text>
+  <text x="456" y="200" class="small muted">Новое расположение — выбрано в системном диалоге:</text>
+  <rect x="456" y="212" width="688" height="40" rx="8" fill="#f8fafc" stroke="#d0d5dd"/>
+  <use href="#ti-folder" x="468" y="222" width="20" height="20" color="#475467"/>
+  <text x="498" y="238" class="mono">D:\ZDashstitch-data</text>
+  <text x="456" y="290" class="label muted">ПРОВЕРКА НОВОГО РАСПОЛОЖЕНИЯ</text>
+  <use href="#ti-circle-check" x="456" y="306" width="18" height="18" color="#1f6b43"/>
+  <text x="484" y="320" class="small">Локальный диск, не сетевая папка</text>
+  <use href="#ti-circle-check" x="456" y="340" width="18" height="18" color="#1f6b43"/>
+  <text x="484" y="354" class="small">Запись разрешена; символьных ссылок в пути нет</text>
+  <use href="#ti-circle-check" x="456" y="374" width="18" height="18" color="#1f6b43"/>
+  <text x="484" y="388" class="small">Папка пуста</text>
+  <use href="#ti-circle-check" x="456" y="408" width="18" height="18" color="#1f6b43"/>
+  <text x="484" y="422" class="small">Места хватает: нужно 13 МБ, свободно 412 ГБ</text>
+  <use href="#ti-circle-check" x="456" y="442" width="18" height="18" color="#1f6b43"/>
+  <text x="484" y="456" class="small">Незавершённых операций публикации нет</text>
+  <use href="#ti-alert-triangle" x="456" y="476" width="18" height="18" color="#8a4b00"/>
+  <text x="484" y="490" class="small" fill="#8a4b00" font-weight="650">Не сохранён 1 черновик: «Базы данных: сводная»</text>
+  <rect x="984" y="466" width="160" height="34" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="1064" y="488" class="button" text-anchor="middle">Сохранить все</text>
+  <text x="456" y="532" class="label muted">ЧТО СДЕЛАТЬ</text>
+  <rect x="456" y="548" width="688" height="82" rx="10" fill="#eef4ff" stroke="#3156a3" stroke-width="2"/>
+  <circle cx="478" cy="574" r="9" fill="#ffffff" stroke="#3156a3" stroke-width="2"/>
+  <circle cx="478" cy="574" r="4.5" fill="#3156a3"/>
+  <text x="498" y="579" class="body" font-weight="700">Перенести данные сюда</text>
+  <text x="498" y="603" class="small muted">Данные копируются, копия проверяется, затем приложение переключается на неё.</text>
+  <rect x="456" y="642" width="688" height="70" rx="10" fill="#ffffff" stroke="#e4e7ec"/>
+  <circle cx="478" cy="668" r="9" fill="#ffffff" stroke="#7a8d9b" stroke-width="2"/>
+  <text x="498" y="673" class="body" font-weight="650">Начать новое пустое хранилище</text>
+  <text x="498" y="695" class="small muted">Прежние черновики останутся в прежнем месте.</text>
+  <rect x="456" y="730" width="688" height="66" rx="10" fill="#f5f8ff" stroke="#c9d3ea"/>
+  <use href="#ti-info-circle" x="470" y="744" width="18" height="18" color="#1d3f86"/>
+  <text x="496" y="758" class="small" fill="#344054">Прежняя копия остаётся на месте; удалить её можно отдельно после проверки.</text>
+  <text x="496" y="780" class="small" fill="#344054">Во время переноса правка черновиков и публикация недоступны.</text>
+  <text x="1144" y="888" class="xs muted" text-anchor="end">Сначала сохраните черновики</text>
+  <rect x="880" y="834" width="120" height="42" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="940" y="860" class="button" text-anchor="middle">Отмена</text>
+  <rect x="1012" y="834" width="132" height="42" rx="10" fill="#f2f4f7" stroke="#e4e7ec"/>
+  <text x="1078" y="860" class="button" fill="#98a2b3" text-anchor="middle">Перенести</text>
+</svg>

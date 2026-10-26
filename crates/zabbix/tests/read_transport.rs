@@ -57,6 +57,18 @@ async fn rpc(
         "apiinfo.version" => json!({ "jsonrpc": "2.0", "result": "7.4.3", "id": id }),
         "user.login" => json!({ "jsonrpc": "2.0", "result": "session-secret", "id": id }),
         "user.logout" => json!({ "jsonrpc": "2.0", "result": true, "id": id }),
+        "user.checkAuthentication"
+            if authorization.is_none()
+                && (body["params"]["token"] == "api-secret"
+                    || body["params"]["sessionid"] == "session-secret") =>
+        {
+            json!({
+                "jsonrpc": "2.0",
+                "result": {"userid": "3", "username": "lab-user", "type": "3",
+                           "sessionid": "must-not-be-kept", "secret": "must-not-be-kept"},
+                "id": id
+            })
+        }
         "graph.get" => json!({
             "jsonrpc": "2.0",
             "error": { "code": -32500, "message": "Application error.", "data": "No permissions to referred object" },
@@ -147,21 +159,23 @@ async fn api_token_is_only_sent_as_bearer_and_inventory_diagnoses_permissions() 
     let captured = calls
         .lock()
         .unwrap_or_else(std::sync::PoisonError::into_inner);
-    assert_eq!(
-        captured
-            .first()
-            .and_then(|call| call.authorization.as_deref()),
-        None
-    );
+    assert_eq!(captured[0].body["method"], "apiinfo.version");
+    assert_eq!(captured[0].authorization.as_deref(), None);
+    // The token is verified at once, in the body and without the header that
+    // Zabbix 7.4 rejects for this method (P1-IN-01).
+    assert_eq!(captured[1].body["method"], "user.checkAuthentication");
+    assert_eq!(captured[1].authorization.as_deref(), None);
+    assert_eq!(captured[1].body["params"]["token"], "api-secret");
     assert!(
         captured
             .iter()
-            .skip(1)
+            .skip(2)
             .all(|call| call.authorization.as_deref() == Some("Bearer api-secret"))
     );
     assert!(
         captured
             .iter()
+            .skip(2)
             .all(|call| !call.body.to_string().contains("api-secret"))
     );
     task.abort();
@@ -186,19 +200,36 @@ async fn username_password_creates_and_explicitly_closes_a_session() {
     let captured = calls
         .lock()
         .unwrap_or_else(std::sync::PoisonError::into_inner);
-    assert_eq!(captured.len(), 3);
-    assert_eq!(captured[0].body["method"], "apiinfo.version");
-    assert_eq!(captured[1].body["method"], "user.login");
+    let methods: Vec<&str> = captured
+        .iter()
+        .map(|call| call.body["method"].as_str().unwrap_or_default())
+        .collect();
+    assert_eq!(
+        methods,
+        [
+            "apiinfo.version",
+            "user.login",
+            "user.get",
+            "user.checkAuthentication",
+            "user.logout"
+        ]
+    );
     assert_eq!(captured[1].body["params"]["username"], "lab-user");
     assert_eq!(captured[1].body["params"]["password"], "login-secret");
-    assert_eq!(captured[2].body["method"], "user.logout");
+    // The probe call after user.login carries the session as a bearer token.
     assert_eq!(
         captured[2].authorization.as_deref(),
+        Some("Bearer session-secret")
+    );
+    assert_eq!(captured[3].authorization.as_deref(), None);
+    assert_eq!(
+        captured[4].authorization.as_deref(),
         Some("Bearer session-secret")
     );
     assert!(
         captured
             .iter()
+            .filter(|call| call.body["method"] != "user.checkAuthentication")
             .all(|call| !call.body.to_string().contains("session-secret"))
     );
     task.abort();
@@ -308,6 +339,7 @@ fn endpoint_and_registry_fail_closed() {
     assert!(ZabbixEndpoint::parse("file:///tmp/api").is_err());
     assert!(ZabbixEndpoint::parse("https://user:secret@example.test/api_jsonrpc.php").is_err());
     assert!(ZabbixEndpoint::parse("https://example.test/api_jsonrpc.php#fragment").is_err());
+    assert!(ZabbixEndpoint::parse("https://example.test/zabbix?x=1").is_err());
     let unsupported: ZabbixVersion = "7.0.19"
         .parse()
         .unwrap_or_else(|error| panic!("version must parse: {error}"));

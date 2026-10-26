@@ -1,0 +1,50 @@
+{
+  "settings.title": {
+    "message": "Settings",
+    "placeholders": {}
+  },
+  "settings.general.title": {
+    "message": "General",
+    "placeholders": {}
+  },
+  "settings.appearance.title": {
+    "message": "Appearance",
+    "placeholders": {}
+  },
+  "settings.workspace.title": {
+    "message": "Working folders",
+    "placeholders": {}
+  },
+  "settings.editor.title": {
+    "message": "Editor",
+    "placeholders": {}
+  },
+  "settings.connections.title": {
+    "message": "Connections and certificates",
+    "placeholders": {}
+  },
+  "settings.security.title": {
+    "message": "Security and export",
+    "placeholders": {}
+  },
+  "diagnostics.title": {
+    "message": "Diagnostics",
+    "placeholders": {}
+  },
+  "about.title": {
+    "message": "About and licenses",
+    "placeholders": {}
+  },
+  "settings.search.placeholder": {
+    "message": "Search settings",
+    "placeholders": {}
+  },
+  "settings.nav.no_secrets": {
+    "message": "Passwords and tokens are not stored or shown here.",
+    "placeholders": {}
+  },
+  "settings.storage.network_warning": {
+    "message": "Network storage: if the connection drops, changes may not be saved, and publishing to Zabbix stays unavailable until the journal is written.",
+    "placeholders": {}
+  }
+}

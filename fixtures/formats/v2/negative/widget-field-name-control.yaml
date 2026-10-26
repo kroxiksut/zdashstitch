@@ -1,0 +1,19 @@
+format: zdashstitch.project/v2
+project_id: widget-field-name
+kind: page
+declared_compatibility: {minimum: 7.4.0}
+provenance: {kind: local}
+catalogs: []
+roles: {}
+root:
+  id: widget-field-name
+  name: Negative case
+  widgets:
+    - id: zabbix-widget
+      type: zabbix
+      widget_type: clock
+      name: Widget
+      registry_state: known
+      fields:
+        - {name: "time\ttype", field_type: 0, registry_state: known, value: {kind: integer, value: 0}}
+      layout: {mode: auto, w: 18, h: 4}

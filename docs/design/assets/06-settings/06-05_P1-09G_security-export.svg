@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 1600 1000" fill="#17213a" role="img" aria-labelledby="title desc">
+  <title id="title">ZDashstitch — настройки: безопасность и экспорт</title>
+  <desc id="desc">Светлый макет раздела «Безопасность и экспорт»: «Завершить сессию», политика экспорта (папка, существующий файл, вид пакета, доверенный перенос недоступен, проверка чувствительных значений всегда), подтверждения, которые нельзя отключить, и приватность без телеметрии.</desc>
+  <defs>
+    <!-- Tabler Icons outline v3.49.0 (MIT), see assets/icons/THIRD_PARTY.md -->
+    <symbol id="ti-logout" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2"/><path d="M9 12h12l-3 -3"/><path d="M18 15l3 -3"/></symbol>
+    <symbol id="ti-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6"/><path d="M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0"/><path d="M8 11v-4a4 4 0 1 1 8 0v4"/></symbol>
+    <symbol id="ti-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2"/></symbol>
+    <symbol id="ti-info-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M12 9h.01"/><path d="M11 12h1v4h1"/></symbol>
+    <symbol id="ti-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/></symbol>
+    <symbol id="ti-circle-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M9 12l2 2l4 -4"/></symbol>
+    <symbol id="ti-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065"/><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/></symbol>
+    <style>
+      text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+      .muted{fill:#667085}.white{fill:#ffffff}.small{font-size:14px}.xs{font-size:12px}.label{font-size:13px;font-weight:700;letter-spacing:.08em}
+      .title{font-size:24px;font-weight:750}.h3{font-size:17px;font-weight:700}.body{font-size:16px}.button{font-size:15px;font-weight:700}
+      .nav{font-size:17px}.badge{font-size:13px;font-weight:650}.row{font-size:15px;font-weight:650}
+      .mono{font-family:ui-monospace,"Cascadia Mono",Consolas,monospace;font-size:13px;fill:#344054}
+    </style>
+  </defs>
+  <rect width="1600" height="1000" fill="#f5f7fb"/>
+
+  <!-- App bar: global navigation (P1-01B §1) -->
+  <rect width="1600" height="72" fill="#ffffff" stroke="#e4e7ec"/>
+  <image href="../../../../assets/brand/icons/stezhik-head-1024.png" x="32" y="18" width="36" height="36" preserveAspectRatio="xMidYMid meet"/>
+  <text x="80" y="45" font-size="20" font-weight="750">ZDashstitch</text>
+  <text x="232" y="44" font-size="15" font-weight="500" fill="#475467">Начало</text>
+  <text x="318" y="44" font-size="15" font-weight="500" fill="#475467">Черновики</text>
+  <text x="430" y="44" font-size="15" font-weight="500" fill="#475467">Панели в Zabbix</text>
+  <text x="582" y="44" font-size="15" font-weight="500" fill="#475467">Библиотека</text>
+  <text x="702" y="44" font-size="15" font-weight="500" fill="#475467">Подключения</text>
+  <rect x="1288" y="19" width="120" height="34" rx="17" fill="#eef4ff"/>
+  <text x="1348" y="41" font-size="14" text-anchor="middle" fill="#3156a3">Автономно</text>
+  <rect x="1424" y="18" width="144" height="36" rx="8" fill="#eef4ff" stroke="#3156a3"/>
+  <use href="#ti-settings" x="1438" y="27" width="18" height="18" color="#1d3f86"/>
+  <text x="1464" y="41" font-size="15" font-weight="700" fill="#1d3f86">Настройки</text>
+
+  <!-- Workspace -->
+  <rect x="0" y="72" width="260" height="928" fill="#ffffff" stroke="#e4e7ec"/>
+  <text x="28" y="116" class="label muted">НАСТРОЙКИ</text>
+  <text x="32" y="163" class="body">Общие</text>
+  <text x="32" y="209" class="body">Внешний вид</text>
+  <text x="32" y="255" class="body">Рабочие каталоги</text>
+  <text x="32" y="301" class="body">Редактор</text>
+  <text x="32" y="347" class="small">Подключения и сертификаты</text>
+  <rect x="16" y="366" width="228" height="42" rx="10" fill="#eef4ff" stroke="#eef4ff"/>
+  <text x="32" y="393" class="body" fill="#1d3f86" font-weight="700">Безопасность и экспорт</text>
+  <text x="32" y="439" class="body">Диагностика</text>
+  <text x="32" y="485" class="body">О программе и лицензии</text>
+  <line x1="20" y1="520" x2="240" y2="520" stroke="#e4e7ec"/>
+  <text x="28" y="552" class="small muted">Пароли и токены здесь</text>
+  <text x="28" y="574" class="small muted">не хранятся и не показываются.</text>
+  <!-- Title -->
+  <text x="292" y="120" class="title">Безопасность и экспорт</text>
+  <text x="292" y="150" class="small muted">Локальный сеанс, правила экспорта, подтверждения и приватность.</text>
+  <rect x="1224" y="96" width="320" height="40" rx="8" fill="#ffffff" stroke="#c9d3ea"/>
+  <use href="#ti-search" x="1238" y="107" width="18" height="18" color="#667085"/>
+  <text x="1266" y="121" class="small muted">Поиск настроек</text>
+  <rect x="292" y="166" width="820" height="132" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="316" y="200" class="label muted">ЛОКАЛЬНЫЙ СЕАНС</text>
+  <text x="316" y="228" class="small">Завершает сеанс во всех вкладках и стирает секреты Zabbix из памяти.</text>
+  <text x="316" y="250" class="small">Сохранённые черновики остаются на диске.</text>
+  <rect x="868" y="212" width="220" height="42" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <use href="#ti-logout" x="884" y="224.0" width="18" height="18" color="#a32935"/>
+  <text x="990" y="238" class="button" fill="#a32935" text-anchor="middle">Завершить сессию</text>
+  <text x="868" y="280" class="xs muted">Недоступно во время записи в Zabbix</text>
+  <rect x="292" y="314" width="820" height="486" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="316" y="348" class="label muted">ЭКСПОРТ</text>
+  <text x="316" y="380" class="small muted">Папка для экспорта</text>
+  <circle cx="328" cy="404" r="9" fill="#ffffff" stroke="#3156a3" stroke-width="2"/>
+  <circle cx="328" cy="404" r="4.5" fill="#3156a3"/>
+  <text x="346" y="409" class="small" font-weight="650">Спрашивать каждый раз</text>
+  <text x="560" y="409" class="xs muted">диалог откроется в последней папке этого сеанса</text>
+  <circle cx="328" cy="436" r="9" fill="#ffffff" stroke="#7a8d9b" stroke-width="2"/>
+  <text x="346" y="441" class="small">Всегда эта папка:</text>
+  <rect x="480" y="422" width="420" height="36" rx="8" fill="#f2f4f7" stroke="#e4e7ec"/>
+  <text x="494" y="445" class="small" fill="#98a2b3">не выбрана</text>
+  <rect x="912" y="422" width="150" height="36" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <use href="#ti-folder" x="928" y="431.0" width="18" height="18" color="#17213a"/>
+  <text x="999" y="445" class="button" text-anchor="middle">Выбрать…</text>
+  <text x="316" y="494" class="small muted">Если файл уже есть</text>
+  <circle cx="328" cy="518" r="9" fill="#ffffff" stroke="#3156a3" stroke-width="2"/>
+  <circle cx="328" cy="518" r="4.5" fill="#3156a3"/>
+  <text x="346" y="523" class="small" font-weight="650">Спросить</text>
+  <circle cx="500" cy="518" r="9" fill="#ffffff" stroke="#7a8d9b" stroke-width="2"/>
+  <text x="518" y="523" class="small">Сохранить под новым именем</text>
+  <text x="316" y="552" class="xs muted">Существующий файл никогда не перезаписывается молча.</text>
+  <text x="316" y="594" class="small muted">Вид пакета</text>
+  <text x="316" y="618" class="body" font-weight="650">Переносимый пакет только с данными</text>
+  <text x="316" y="656" class="small muted">Доверенный перенос</text>
+  <rect x="316" y="666" width="330" height="26" rx="13" fill="#f2f4f7"/>
+  <text x="481" y="684" class="badge" text-anchor="middle" fill="#344054">Недоступен до утверждения формата (O-011)</text>
+  <rect x="316" y="712" width="772" height="56" rx="8" fill="#f8fafc" stroke="#eaecf0"/>
+  <use href="#ti-lock" x="330" y="730" width="18" height="18" color="#475467"/>
+  <text x="358" y="736" class="small" font-weight="650">Чувствительные значения всегда проверяются перед экспортом</text>
+  <text x="358" y="756" class="xs muted">Нельзя отключить: защищает данные или сервер</text>
+  <rect x="1132" y="166" width="412" height="486" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="1156" y="200" class="label muted">НЕЛЬЗЯ ОТКЛЮЧИТЬ</text>
+  <use href="#ti-lock" x="1156" y="222" width="18" height="18" color="#475467"/>
+  <text x="1184" y="236" class="small">Разрешить запись панелей</text>
+  <use href="#ti-lock" x="1156" y="256" width="18" height="18" color="#475467"/>
+  <text x="1184" y="270" class="small">Подтвердить запись в Zabbix</text>
+  <use href="#ti-lock" x="1156" y="290" width="18" height="18" color="#475467"/>
+  <text x="1184" y="304" class="small">Закрыть без сверки</text>
+  <use href="#ti-lock" x="1156" y="324" width="18" height="18" color="#475467"/>
+  <text x="1184" y="338" class="small">Проверка перед экспортом</text>
+  <use href="#ti-lock" x="1156" y="358" width="18" height="18" color="#475467"/>
+  <text x="1184" y="372" class="small">Перенос и удаление хранилища</text>
+  <use href="#ti-lock" x="1156" y="392" width="18" height="18" color="#475467"/>
+  <text x="1184" y="406" class="small">Сброс настроек</text>
+  <use href="#ti-lock" x="1156" y="426" width="18" height="18" color="#475467"/>
+  <text x="1184" y="440" class="small">Завершить сессию</text>
+  <text x="1156" y="480" class="xs muted">Остальные подтверждения (удаление</text>
+  <text x="1156" y="498" class="xs muted">страницы, массовые действия) —</text>
+  <text x="1156" y="516" class="xs muted">в разделе «Редактор».</text>
+  <rect x="1132" y="668" width="412" height="132" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="1156" y="702" class="label muted">ПРИВАТНОСТЬ</text>
+  <use href="#ti-circle-check" x="1156" y="718" width="18" height="18" color="#1f6b43"/>
+  <text x="1184" y="732" class="small">Телеметрии и отправки данных в сеть нет.</text>
+  <text x="1184" y="752" class="small">Приложение обращается только к серверам</text>
+  <text x="1184" y="772" class="small">Zabbix из ваших профилей подключений.</text>
+</svg>

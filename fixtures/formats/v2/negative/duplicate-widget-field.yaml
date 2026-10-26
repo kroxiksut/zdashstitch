@@ -1,0 +1,20 @@
+format: zdashstitch.project/v2
+project_id: duplicate-field
+kind: page
+declared_compatibility: {minimum: 7.4.0}
+provenance: {kind: local}
+catalogs: []
+roles: {}
+root:
+  id: duplicate-field
+  name: Duplicate field
+  widgets:
+    - id: clock-widget
+      type: zabbix
+      widget_type: clock
+      name: Clock
+      registry_state: known
+      fields:
+        - {name: time_type, field_type: 0, registry_state: known, value: {kind: integer, value: 0}}
+        - {name: time_type, field_type: 0, registry_state: known, value: {kind: integer, value: 1}}
+      layout: {mode: auto, w: 18, h: 4}

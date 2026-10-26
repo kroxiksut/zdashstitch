@@ -3,7 +3,7 @@
 use std::{env, error::Error, net::Ipv4Addr, path::PathBuf};
 
 use tokio::net::TcpListener;
-use zdashstitch_local_server::{build_router, default_ui_dir};
+use zdashstitch_local_server::{LocalSecurity, build_router, default_ui_dir};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -13,10 +13,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .unwrap_or_else(default_ui_dir);
     let listener = TcpListener::bind((Ipv4Addr::LOCALHOST, port)).await?;
     let address = listener.local_addr()?;
+    let initial = LocalSecurity::initialize(address.port())?;
+    let bootstrap_url = initial.security.bootstrap_url(&initial.code);
 
-    println!("ZDashstitch scaffold: http://{address}");
+    println!("Bootstrap URL: {bootstrap_url}");
     println!("UI directory: {}", ui_dir.display());
-    axum::serve(listener, build_router(ui_dir))
+    axum::serve(listener, build_router(ui_dir, initial.security))
         .with_graceful_shutdown(shutdown_signal())
         .await?;
     Ok(())

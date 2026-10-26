@@ -1,0 +1,173 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 1600 1000" fill="#17213a" role="img" aria-labelledby="title desc">
+  <title id="title">ZDashstitch — публикация: назначение и доступ, Super admin</title>
+  <desc id="desc">Светлый макет шага «Назначение» при клонировании панели учётной записью Super admin: контекст операции, единственное допустимое действие «Создать новую панель», имя новой панели, выбор владельца, общий доступ с копией доступа исходной панели и списком получателей.</desc>
+  <defs>
+    <!-- Tabler Icons outline v3.49.0 (MIT), see assets/icons/THIRD_PARTY.md -->
+    <symbol id="ti-circle-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M9 12l2 2l4 -4"/></symbol>
+    <symbol id="ti-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6l6 -6"/></symbol>
+    <symbol id="ti-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5l10 -10"/></symbol>
+    <symbol id="ti-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5l0 14"/><path d="M5 12l14 0"/></symbol>
+    <symbol id="ti-info-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M12 9h.01"/><path d="M11 12h1v4h1"/></symbol>
+    <symbol id="ti-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6"/><path d="M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0"/><path d="M8 11v-4a4 4 0 1 1 8 0v4"/></symbol>
+    <symbol id="ti-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"/><path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M21 21v-2a4 4 0 0 0 -3 -3.85"/></symbol>
+    <symbol id="ti-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6l-12 12"/><path d="M6 6l12 12"/></symbol>
+    <symbol id="ti-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065"/><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/></symbol>
+    <style>
+      text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+      .muted{fill:#667085}.white{fill:#ffffff}.small{font-size:14px}.xs{font-size:12px}.label{font-size:13px;font-weight:700;letter-spacing:.08em}
+      .title{font-size:24px;font-weight:750}.h3{font-size:17px;font-weight:700}.body{font-size:16px}.button{font-size:15px;font-weight:700}
+      .nav{font-size:17px}.badge{font-size:13px;font-weight:650}.row{font-size:15px;font-weight:650}
+      .mono{font-family:ui-monospace,"Cascadia Mono",Consolas,monospace;font-size:13px;fill:#344054}
+    </style>
+  </defs>
+  <rect width="1600" height="1000" fill="#f5f7fb"/>
+
+  <!-- App bar: global navigation (P1-01B §1) -->
+  <rect width="1600" height="72" fill="#ffffff" stroke="#e4e7ec"/>
+  <image href="../../../../assets/brand/icons/stezhik-head-1024.png" x="32" y="18" width="36" height="36" preserveAspectRatio="xMidYMid meet"/>
+  <text x="80" y="45" font-size="20" font-weight="750">ZDashstitch</text>
+  <text x="232" y="44" font-size="15" font-weight="500" fill="#475467">Начало</text>
+  <text x="318" y="44" font-size="15" font-weight="700" fill="#1d3f86">Черновики</text>
+  <rect x="318" y="67" width="80" height="4" rx="2" fill="#3156a3"/>
+  <text x="430" y="44" font-size="15" font-weight="500" fill="#475467">Панели в Zabbix</text>
+  <text x="582" y="44" font-size="15" font-weight="500" fill="#475467">Библиотека</text>
+  <text x="702" y="44" font-size="15" font-weight="500" fill="#475467">Подключения</text>
+  <rect x="1128" y="19" width="280" height="34" rx="17" fill="#fff4e5"/>
+  <text x="1268" y="41" font-size="14" text-anchor="middle" fill="#8a4b00">Чтение-запись · Лаборатория 7.4</text>
+  <rect x="1424" y="18" width="144" height="36" rx="8" fill="#ffffff" stroke="#c9d3ea"/>
+  <use href="#ti-settings" x="1438" y="27" width="18" height="18" color="#475467"/>
+  <text x="1464" y="41" font-size="15" font-weight="600" fill="#17213a">Настройки</text>
+
+  <!-- Workspace -->
+  <rect x="0" y="72" width="260" height="928" fill="#ffffff" stroke="#e4e7ec"/>
+  <text x="28" y="116" class="label muted">ПАНЕЛЬ</text>
+  <text x="36" y="164" class="nav">Обзор</text>
+  <text x="36" y="212" class="nav">Структура</text>
+  <text x="36" y="260" class="nav">Привязки</text>
+  <text x="36" y="308" class="nav">Проверки</text>
+  <rect x="16" y="328" width="228" height="46" rx="10" fill="#eef4ff"/>
+  <text x="36" y="358" class="nav" font-weight="700" fill="#1d3f86">Публикация</text>
+  <line x1="20" y1="392" x2="240" y2="392" stroke="#e4e7ec"/>
+  <text x="28" y="428" class="label muted">ПРОИСХОЖДЕНИЕ</text>
+  <text x="28" y="458" class="body" font-weight="650">Копия с сервера</text>
+  <text x="28" y="484" class="small" fill="#667085">«Базы данных: Prod»</text>
+  <text x="28" y="508" class="small" fill="#667085">Лаборатория 7.4</text>
+  <text x="28" y="532" class="small" fill="#667085">снимок 25.10.2026, 14:02</text>
+  <text x="28" y="556" class="small" fill="#667085">3 страницы · 19 виджетов</text>
+  <!-- Title -->
+  <text x="292" y="92" font-size="13" fill="#667085">Черновики  /  Базы данных: Prod  /  Публикация</text>
+  <rect x="1374" y="100" width="170" height="28" rx="14" fill="#ecfdf3"/>
+  <text x="1459" y="119" font-size="13" font-weight="650" text-anchor="middle" fill="#1f6b43">Сохранена локально</text>
+  <text x="292" y="124" class="title">Предпросмотр и публикация</text>
+  <!-- Publication steps -->
+  <rect x="292" y="146" width="150" height="36" rx="18" fill="#eef4ff" stroke="#3156a3"/>
+  <text x="313" y="169" class="small" text-anchor="middle" fill="#1d3f86" font-weight="700">1</text>
+  <text x="330" y="169" class="small" fill="#1d3f86" font-weight="700">Назначение</text>
+  <rect x="452" y="146" width="136" height="36" rx="18" fill="#ffffff" stroke="#e4e7ec"/>
+  <text x="473" y="169" class="small" text-anchor="middle" fill="#667085" font-weight="700">2</text>
+  <text x="490" y="169" class="small" fill="#667085" font-weight="500">Проверки</text>
+  <rect x="598" y="146" width="142" height="36" rx="18" fill="#ffffff" stroke="#e4e7ec"/>
+  <text x="619" y="169" class="small" text-anchor="middle" fill="#667085" font-weight="700">3</text>
+  <text x="636" y="169" class="small" fill="#667085" font-weight="500">Изменения</text>
+  <rect x="750" y="146" width="176" height="36" rx="18" fill="#ffffff" stroke="#e4e7ec"/>
+  <text x="771" y="169" class="small" text-anchor="middle" fill="#667085" font-weight="700">4</text>
+  <text x="788" y="169" class="small" fill="#667085" font-weight="500">Подтверждение</text>
+  <rect x="936" y="146" width="206" height="36" rx="18" fill="#ffffff" stroke="#e4e7ec"/>
+  <text x="957" y="169" class="small" text-anchor="middle" fill="#667085" font-weight="700">5</text>
+  <text x="974" y="169" class="small" fill="#667085" font-weight="500">Запись и проверка</text>
+  <!-- Operation context (P1-08A) -->
+  <rect x="292" y="196" width="1252" height="112" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="316" y="224" class="label muted">ОПЕРАЦИЯ</text>
+  <text x="316" y="248" class="body" font-weight="650">Клонировать панель</text>
+  <text x="316" y="267" class="xs muted">узлы сети группы Prod → Pilot</text>
+  <text x="566" y="224" class="label muted">ИСТОЧНИК (БАЗА)</text>
+  <text x="566" y="248" class="body" font-weight="650">«Базы данных: Prod»</text>
+  <text x="566" y="267" class="xs muted">снимок 25.10.2026, 14:02</text>
+  <text x="856" y="224" class="label muted">ЦЕЛЬ</text>
+  <text x="856" y="248" class="body" font-weight="650">Новая панель</text>
+  <text x="856" y="267" class="xs muted">в том же подключении</text>
+  <text x="1146" y="224" class="label muted">ПОДКЛЮЧЕНИЕ</text>
+  <text x="1146" y="248" class="body" font-weight="650">Лаборатория 7.4</text>
+  <text x="1146" y="267" class="xs muted">Zabbix 7.4.16 · чтение-запись</text>
+  <text x="1376" y="224" class="label muted">ОБЛАСТЬ</text>
+  <text x="1376" y="248" class="body" font-weight="650">Вся панель</text>
+  <text x="1376" y="267" class="xs muted">3 страницы · 19 виджетов</text>
+  <line x1="316" y1="276" x2="1520" y2="276" stroke="#eef0f4"/>
+  <text x="316" y="298" class="small">Ожидаемый результат: новая панель «Базы данных: Pilot» с узлами сети группы Pilot. Исходная панель не изменяется.</text>
+  <rect x="292" y="324" width="760" height="584" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="316" y="358" class="label muted">ДЕЙСТВИЕ</text>
+  <rect x="316" y="374" width="712" height="76" rx="12" fill="#eef4ff" stroke="#3156a3" stroke-width="2"/>
+  <circle cx="342" cy="400" r="9" fill="#ffffff" stroke="#3156a3" stroke-width="2"/>
+  <circle cx="342" cy="400" r="4.5" fill="#3156a3"/>
+  <text x="364" y="406" class="body" font-weight="700">Создать новую панель</text>
+  <text x="364" y="430" class="small muted">Новая глобальная панель в этом подключении. Исходная панель не изменяется.</text>
+  <rect x="316" y="462" width="712" height="76" rx="12" fill="#ffffff" stroke="#e4e7ec"/>
+  <circle cx="342" cy="488" r="9" fill="#ffffff" stroke="#d0d5dd" stroke-width="2"/>
+  <text x="364" y="494" class="body" fill="#98a2b3" font-weight="700">Обновить существующую панель</text>
+  <text x="364" y="518" class="small muted">Недоступно для клонирования: исходная панель остаётся как есть.</text>
+  <text x="316" y="580" class="label muted">ИМЯ НОВОЙ ПАНЕЛИ</text>
+  <rect x="316" y="594" width="440" height="40" rx="8" fill="#ffffff" stroke="#3156a3" stroke-width="2"/>
+  <text x="330" y="620" class="body">Базы данных: Pilot</text>
+  <use href="#ti-circle-check" x="770" y="604" width="20" height="20" color="#1f6b43"/>
+  <text x="798" y="619" class="small" fill="#1f6b43">Среди видимых панелей свободно</text>
+  <text x="316" y="662" class="small muted">Имя панели уникально на всём сервере, включая панели, которые вам не видны.</text>
+  <text x="316" y="684" class="small muted">Окончательно это проверяет сервер при записи.</text>
+  <text x="316" y="732" class="label muted">ПОДКЛЮЧЕНИЕ</text>
+  <text x="316" y="760" class="body">Лаборатория 7.4 — то же, что у исходной панели</text>
+  <text x="316" y="784" class="small muted">Клонирование выполняется внутри одного подключения.</text>
+  <text x="316" y="832" class="label muted">НЕ ИЗМЕНЯЕТСЯ</text>
+  <text x="316" y="860" class="body">Исходная панель «Базы данных: Prod», её владелец и доступ.</text>
+  <text x="316" y="884" class="small muted">Узлы сети, шаблоны и элементы данных не изменяются никогда.</text>
+  <rect x="1072" y="324" width="472" height="584" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="1096" y="358" class="label muted">ВЛАДЕЛЕЦ И ДОСТУП</text>
+  <text x="1096" y="390" class="small muted">Владелец</text>
+  <rect x="1096" y="400" width="424" height="40" rx="8" fill="#ffffff" stroke="#7a8d9b"/>
+  <text x="1110" y="426" class="body">dash-admin (вы)</text>
+  <use href="#ti-chevron-down" x="1490" y="411" width="18" height="18" color="#475467"/>
+  <text x="1096" y="462" class="xs muted">Выбор владельца доступен только Super admin.</text>
+  <text x="1096" y="498" class="small muted">Тип доступа</text>
+  <rect x="1096" y="508" width="212" height="38" rx="8" fill="#ffffff" stroke="#8f9da8"/>
+  <use href="#ti-lock" x="1128" y="518" width="18" height="18" color="#475467"/>
+  <text x="1154" y="533" class="button">Личная</text>
+  <rect x="1308" y="508" width="212" height="38" rx="8" fill="#243746" stroke="#243746"/>
+  <use href="#ti-users" x="1340" y="518" width="18" height="18" color="#ffffff"/>
+  <text x="1366" y="533" class="button white">Общая</text>
+  <rect x="1096" y="566" width="20" height="20" rx="4" fill="#3156a3"/>
+  <use href="#ti-check" x="1099" y="569" width="14" height="14" color="#ffffff"/>
+  <text x="1126" y="582" class="body">Скопировать доступ исходной панели</text>
+  <text x="1126" y="604" class="xs muted">Super admin видит весь список доступа исходной панели.</text>
+  <rect x="1096" y="624" width="424" height="44" rx="8" fill="#ffffff" stroke="#eaecf0"/>
+  <use href="#ti-users" x="1108" y="636" width="18" height="18" color="#475467"/>
+  <text x="1134" y="651" class="small" font-weight="600">Группа «DB admins»</text>
+  <rect x="1328" y="630" width="150" height="32" rx="6" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="1340" y="651" class="small">Чтение-запись</text>
+  <use href="#ti-chevron-down" x="1454" y="638" width="14" height="14" color="#475467"/>
+  <use href="#ti-x" x="1490" y="637" width="18" height="18" color="#667085"><title>Убрать получателя</title></use>
+  <rect x="1096" y="676" width="424" height="44" rx="8" fill="#ffffff" stroke="#eaecf0"/>
+  <use href="#ti-users" x="1108" y="688" width="18" height="18" color="#475467"/>
+  <text x="1134" y="703" class="small" font-weight="600">Группа «NOC»</text>
+  <rect x="1328" y="682" width="150" height="32" rx="6" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="1340" y="703" class="small">Только чтение</text>
+  <use href="#ti-chevron-down" x="1454" y="690" width="14" height="14" color="#475467"/>
+  <use href="#ti-x" x="1490" y="689" width="18" height="18" color="#667085"><title>Убрать получателя</title></use>
+  <rect x="1096" y="728" width="424" height="44" rx="8" fill="#ffffff" stroke="#eaecf0"/>
+  <use href="#ti-users" x="1108" y="740" width="18" height="18" color="#475467"/>
+  <text x="1134" y="755" class="small" font-weight="600">Пользователь «oncall»</text>
+  <rect x="1328" y="734" width="150" height="32" rx="6" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="1340" y="755" class="small">Только чтение</text>
+  <use href="#ti-chevron-down" x="1454" y="742" width="14" height="14" color="#475467"/>
+  <use href="#ti-x" x="1490" y="741" width="18" height="18" color="#667085"><title>Убрать получателя</title></use>
+  <use href="#ti-plus" x="1096" y="786" width="18" height="18" color="#3156a3"/>
+  <text x="1122" y="800" class="small" fill="#3156a3" font-weight="650">Добавить пользователя или группу</text>
+  <use href="#ti-info-circle" x="1096" y="822" width="18" height="18" color="#667085"/>
+  <text x="1122" y="836" class="xs muted">Получатели — только из видимых учётной записи</text>
+  <text x="1122" y="852" class="xs muted">подключения (user.get, usergroup.get).</text>
+  <!-- Persistent action bar -->
+  <rect x="260" y="924" width="1340" height="76" fill="#ffffff" stroke="#e4e7ec"/>
+  <rect x="292" y="941" width="190" height="42" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="387" y="967" class="button" text-anchor="middle">Назад к привязкам</text>
+  <rect x="1354" y="941" width="190" height="42" rx="10" fill="#3156a3" stroke="#3156a3"/>
+  <text x="1449" y="967" class="button white" text-anchor="middle">Далее: проверки</text>
+  <rect x="1142" y="941" width="200" height="42" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="1242" y="967" class="button" text-anchor="middle">Сохранить черновик</text>
+</svg>

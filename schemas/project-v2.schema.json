@@ -1,0 +1,3309 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zdashstitch.example/schemas/project-v2.schema.json",
+  "title": "ZDashstitch typed portable project v2",
+  "type": "object",
+  "required": [
+    "format",
+    "project_id",
+    "kind",
+    "declared_compatibility",
+    "provenance",
+    "catalogs",
+    "roles",
+    "root"
+  ],
+  "properties": {
+    "format": {
+      "const": "zdashstitch.project/v2"
+    },
+    "project_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+    },
+    "kind": {
+      "enum": [
+        "dashboard",
+        "page"
+      ]
+    },
+    "declared_compatibility": {
+      "type": "object",
+      "required": [
+        "minimum"
+      ],
+      "properties": {
+        "minimum": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*\\.[0-9]+(?:\\.[0-9]+)?(?:[A-Za-z][A-Za-z0-9._-]*)?$"
+        },
+        "maximum_exclusive": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*\\.[0-9]+(?:\\.[0-9]+)?(?:[A-Za-z][A-Za-z0-9._-]*)?$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "provenance": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "const": "local"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "legacy_format",
+            "source_project_id",
+            "source_dashboard_id"
+          ],
+          "properties": {
+            "kind": {
+              "const": "migrated_v1"
+            },
+            "legacy_format": {
+              "const": "zdashstitch.project/v1"
+            },
+            "source_project_id": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+            },
+            "source_dashboard_id": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+            },
+            "source_page_id": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "const": "server_snapshot"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "catalogs": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 32,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "file"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+          },
+          "file": {
+            "type": "string",
+            "pattern": "^metrics/[a-z][a-z0-9_-]{1,63}\\.ya?ml$"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "roles": {
+      "type": "object",
+      "minProperties": 0,
+      "maxProperties": 64,
+      "patternProperties": {
+        "^[a-z][a-z0-9_-]{1,63}$": {
+          "type": "object",
+          "required": [
+            "cardinality"
+          ],
+          "properties": {
+            "cardinality": {
+              "enum": [
+                "one",
+                "many"
+              ]
+            },
+            "description": {
+              "type": "string",
+              "maxLength": 300
+            },
+            "slots": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 256,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "root": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "id",
+            "name",
+            "kind",
+            "pages"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "kind": {
+              "const": "global"
+            },
+            "pages": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 32,
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "name",
+                  "widgets"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "widgets": {
+                    "type": "array",
+                    "maxItems": 256,
+                    "items": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "required": [
+                            "id",
+                            "type",
+                            "title",
+                            "expansion",
+                            "series",
+                            "layout"
+                          ],
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                            },
+                            "type": {
+                              "const": "graph"
+                            },
+                            "title": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 200
+                            },
+                            "expansion": {
+                              "const": "series_per_host"
+                            },
+                            "series": {
+                              "type": "array",
+                              "minItems": 1,
+                              "maxItems": 32,
+                              "items": {
+                                "type": "object",
+                                "required": [
+                                  "metric",
+                                  "hosts"
+                                ],
+                                "properties": {
+                                  "metric": {
+                                    "type": "object",
+                                    "required": [
+                                      "catalog",
+                                      "metric"
+                                    ],
+                                    "properties": {
+                                      "catalog": {
+                                        "type": "string",
+                                        "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                      },
+                                      "metric": {
+                                        "type": "string",
+                                        "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                      }
+                                    },
+                                    "additionalProperties": false
+                                  },
+                                  "hosts": {
+                                    "type": "object",
+                                    "required": [
+                                      "role",
+                                      "selection"
+                                    ],
+                                    "properties": {
+                                      "role": {
+                                        "type": "string",
+                                        "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                      },
+                                      "selection": {
+                                        "enum": [
+                                          "all",
+                                          "one",
+                                          "slot"
+                                        ]
+                                      },
+                                      "slot_id": {
+                                        "type": "string",
+                                        "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                      }
+                                    },
+                                    "allOf": [
+                                      {
+                                        "if": {
+                                          "properties": {
+                                            "selection": {
+                                              "const": "slot"
+                                            }
+                                          },
+                                          "required": [
+                                            "selection"
+                                          ]
+                                        },
+                                        "then": {
+                                          "required": [
+                                            "slot_id"
+                                          ]
+                                        },
+                                        "else": {
+                                          "not": {
+                                            "required": [
+                                              "slot_id"
+                                            ]
+                                          }
+                                        }
+                                      }
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  "color": {
+                                    "type": "string",
+                                    "pattern": "^#[0-9a-fA-F]{6}$"
+                                  }
+                                },
+                                "additionalProperties": false
+                              }
+                            },
+                            "layout": {
+                              "oneOf": [
+                                {
+                                  "type": "object",
+                                  "required": [
+                                    "mode",
+                                    "w",
+                                    "h"
+                                  ],
+                                  "properties": {
+                                    "mode": {
+                                      "const": "auto"
+                                    },
+                                    "w": {
+                                      "type": "integer",
+                                      "minimum": 1,
+                                      "maximum": 72
+                                    },
+                                    "h": {
+                                      "type": "integer",
+                                      "minimum": 1,
+                                      "maximum": 64
+                                    }
+                                  },
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "object",
+                                  "required": [
+                                    "mode",
+                                    "x",
+                                    "y",
+                                    "w",
+                                    "h"
+                                  ],
+                                  "properties": {
+                                    "mode": {
+                                      "const": "fixed"
+                                    },
+                                    "x": {
+                                      "type": "integer",
+                                      "minimum": 0,
+                                      "maximum": 71
+                                    },
+                                    "y": {
+                                      "type": "integer",
+                                      "minimum": 0,
+                                      "maximum": 63
+                                    },
+                                    "w": {
+                                      "type": "integer",
+                                      "minimum": 1,
+                                      "maximum": 72
+                                    },
+                                    "h": {
+                                      "type": "integer",
+                                      "minimum": 1,
+                                      "maximum": 64
+                                    }
+                                  },
+                                  "additionalProperties": false
+                                }
+                              ]
+                            }
+                          },
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "required": [
+                            "id",
+                            "type",
+                            "title",
+                            "expansion",
+                            "metric",
+                            "hosts",
+                            "layout"
+                          ],
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                            },
+                            "type": {
+                              "const": "item_value"
+                            },
+                            "title": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 200
+                            },
+                            "expansion": {
+                              "enum": [
+                                "single",
+                                "widget_per_host"
+                              ]
+                            },
+                            "metric": {
+                              "type": "object",
+                              "required": [
+                                "catalog",
+                                "metric"
+                              ],
+                              "properties": {
+                                "catalog": {
+                                  "type": "string",
+                                  "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                },
+                                "metric": {
+                                  "type": "string",
+                                  "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                }
+                              },
+                              "additionalProperties": false
+                            },
+                            "hosts": {
+                              "type": "object",
+                              "required": [
+                                "role",
+                                "selection"
+                              ],
+                              "properties": {
+                                "role": {
+                                  "type": "string",
+                                  "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                },
+                                "selection": {
+                                  "enum": [
+                                    "all",
+                                    "one",
+                                    "slot"
+                                  ]
+                                },
+                                "slot_id": {
+                                  "type": "string",
+                                  "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                }
+                              },
+                              "allOf": [
+                                {
+                                  "if": {
+                                    "properties": {
+                                      "selection": {
+                                        "const": "slot"
+                                      }
+                                    },
+                                    "required": [
+                                      "selection"
+                                    ]
+                                  },
+                                  "then": {
+                                    "required": [
+                                      "slot_id"
+                                    ]
+                                  },
+                                  "else": {
+                                    "not": {
+                                      "required": [
+                                        "slot_id"
+                                      ]
+                                    }
+                                  }
+                                }
+                              ],
+                              "additionalProperties": false
+                            },
+                            "layout": {
+                              "oneOf": [
+                                {
+                                  "type": "object",
+                                  "required": [
+                                    "mode",
+                                    "w",
+                                    "h"
+                                  ],
+                                  "properties": {
+                                    "mode": {
+                                      "const": "auto"
+                                    },
+                                    "w": {
+                                      "type": "integer",
+                                      "minimum": 1,
+                                      "maximum": 72
+                                    },
+                                    "h": {
+                                      "type": "integer",
+                                      "minimum": 1,
+                                      "maximum": 64
+                                    }
+                                  },
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "object",
+                                  "required": [
+                                    "mode",
+                                    "x",
+                                    "y",
+                                    "w",
+                                    "h"
+                                  ],
+                                  "properties": {
+                                    "mode": {
+                                      "const": "fixed"
+                                    },
+                                    "x": {
+                                      "type": "integer",
+                                      "minimum": 0,
+                                      "maximum": 71
+                                    },
+                                    "y": {
+                                      "type": "integer",
+                                      "minimum": 0,
+                                      "maximum": 63
+                                    },
+                                    "w": {
+                                      "type": "integer",
+                                      "minimum": 1,
+                                      "maximum": 72
+                                    },
+                                    "h": {
+                                      "type": "integer",
+                                      "minimum": 1,
+                                      "maximum": 64
+                                    }
+                                  },
+                                  "additionalProperties": false
+                                }
+                              ]
+                            }
+                          },
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "required": [
+                            "id",
+                            "type",
+                            "widget_type",
+                            "name",
+                            "registry_state",
+                            "fields",
+                            "layout"
+                          ],
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                            },
+                            "type": {
+                              "const": "zabbix"
+                            },
+                            "widget_type": {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9._-]{0,127}$"
+                            },
+                            "name": {
+                              "type": "string",
+                              "maxLength": 200
+                            },
+                            "registry_state": {
+                              "enum": [
+                                "known",
+                                "unknown"
+                              ]
+                            },
+                            "fields": {
+                              "type": "array",
+                              "maxItems": 1024,
+                              "items": {
+                                "type": "object",
+                                "required": [
+                                  "name",
+                                  "field_type",
+                                  "registry_state",
+                                  "value"
+                                ],
+                                "properties": {
+                                  "name": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 255
+                                  },
+                                  "field_type": {
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "maximum": 65535
+                                  },
+                                  "registry_state": {
+                                    "enum": [
+                                      "known",
+                                      "unknown"
+                                    ]
+                                  },
+                                  "value": {
+                                    "oneOf": [
+                                      {
+                                        "type": "object",
+                                        "required": [
+                                          "kind",
+                                          "value"
+                                        ],
+                                        "properties": {
+                                          "kind": {
+                                            "const": "integer"
+                                          },
+                                          "value": {
+                                            "type": "integer",
+                                            "minimum": -9223372036854775808,
+                                            "maximum": 9223372036854775807
+                                          }
+                                        },
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "required": [
+                                          "kind",
+                                          "value"
+                                        ],
+                                        "properties": {
+                                          "kind": {
+                                            "const": "string"
+                                          },
+                                          "value": {
+                                            "type": "string",
+                                            "maxLength": 16384
+                                          }
+                                        },
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "required": [
+                                          "kind",
+                                          "role",
+                                          "selection"
+                                        ],
+                                        "properties": {
+                                          "kind": {
+                                            "const": "host"
+                                          },
+                                          "role": {
+                                            "type": "string",
+                                            "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                          },
+                                          "selection": {
+                                            "enum": [
+                                              "all",
+                                              "one",
+                                              "slot"
+                                            ]
+                                          },
+                                          "slot_id": {
+                                            "type": "string",
+                                            "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                          }
+                                        },
+                                        "allOf": [
+                                          {
+                                            "if": {
+                                              "properties": {
+                                                "selection": {
+                                                  "const": "slot"
+                                                }
+                                              },
+                                              "required": [
+                                                "selection"
+                                              ]
+                                            },
+                                            "then": {
+                                              "required": [
+                                                "slot_id"
+                                              ]
+                                            },
+                                            "else": {
+                                              "not": {
+                                                "required": [
+                                                  "slot_id"
+                                                ]
+                                              }
+                                            }
+                                          }
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "required": [
+                                          "kind",
+                                          "catalog",
+                                          "metric",
+                                          "hosts"
+                                        ],
+                                        "properties": {
+                                          "kind": {
+                                            "const": "metric"
+                                          },
+                                          "catalog": {
+                                            "type": "string",
+                                            "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                          },
+                                          "metric": {
+                                            "type": "string",
+                                            "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                          },
+                                          "hosts": {
+                                            "type": "object",
+                                            "required": [
+                                              "role",
+                                              "selection"
+                                            ],
+                                            "properties": {
+                                              "role": {
+                                                "type": "string",
+                                                "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                              },
+                                              "selection": {
+                                                "enum": [
+                                                  "all",
+                                                  "one",
+                                                  "slot"
+                                                ]
+                                              },
+                                              "slot_id": {
+                                                "type": "string",
+                                                "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                              }
+                                            },
+                                            "allOf": [
+                                              {
+                                                "if": {
+                                                  "properties": {
+                                                    "selection": {
+                                                      "const": "slot"
+                                                    }
+                                                  },
+                                                  "required": [
+                                                    "selection"
+                                                  ]
+                                                },
+                                                "then": {
+                                                  "required": [
+                                                    "slot_id"
+                                                  ]
+                                                },
+                                                "else": {
+                                                  "not": {
+                                                    "required": [
+                                                      "slot_id"
+                                                    ]
+                                                  }
+                                                }
+                                              }
+                                            ],
+                                            "additionalProperties": false
+                                          }
+                                        },
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "required": [
+                                          "kind",
+                                          "object_kind",
+                                          "display_name"
+                                        ],
+                                        "properties": {
+                                          "kind": {
+                                            "const": "unresolved"
+                                          },
+                                          "object_kind": {
+                                            "enum": [
+                                              "host_group",
+                                              "host",
+                                              "item",
+                                              "item_prototype",
+                                              "graph",
+                                              "graph_prototype",
+                                              "map",
+                                              "service",
+                                              "sla",
+                                              "user",
+                                              "action",
+                                              "media_type",
+                                              "unknown"
+                                            ]
+                                          },
+                                          "display_name": {
+                                            "type": "string",
+                                            "maxLength": 500
+                                          }
+                                        },
+                                        "additionalProperties": false
+                                      }
+                                    ]
+                                  }
+                                },
+                                "allOf": [
+                                  {
+                                    "if": {
+                                      "properties": {
+                                        "field_type": {
+                                          "minimum": 14
+                                        }
+                                      },
+                                      "required": [
+                                        "field_type"
+                                      ]
+                                    },
+                                    "then": {
+                                      "properties": {
+                                        "registry_state": {
+                                          "const": "unknown"
+                                        },
+                                        "value": {
+                                          "properties": {
+                                            "kind": {
+                                              "const": "unresolved"
+                                            },
+                                            "object_kind": {
+                                              "const": "unknown"
+                                            }
+                                          },
+                                          "required": [
+                                            "kind",
+                                            "object_kind"
+                                          ]
+                                        }
+                                      }
+                                    }
+                                  }
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "layout": {
+                              "oneOf": [
+                                {
+                                  "type": "object",
+                                  "required": [
+                                    "mode",
+                                    "w",
+                                    "h"
+                                  ],
+                                  "properties": {
+                                    "mode": {
+                                      "const": "auto"
+                                    },
+                                    "w": {
+                                      "type": "integer",
+                                      "minimum": 1,
+                                      "maximum": 72
+                                    },
+                                    "h": {
+                                      "type": "integer",
+                                      "minimum": 1,
+                                      "maximum": 64
+                                    }
+                                  },
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "object",
+                                  "required": [
+                                    "mode",
+                                    "x",
+                                    "y",
+                                    "w",
+                                    "h"
+                                  ],
+                                  "properties": {
+                                    "mode": {
+                                      "const": "fixed"
+                                    },
+                                    "x": {
+                                      "type": "integer",
+                                      "minimum": 0,
+                                      "maximum": 71
+                                    },
+                                    "y": {
+                                      "type": "integer",
+                                      "minimum": 0,
+                                      "maximum": 63
+                                    },
+                                    "w": {
+                                      "type": "integer",
+                                      "minimum": 1,
+                                      "maximum": 72
+                                    },
+                                    "h": {
+                                      "type": "integer",
+                                      "minimum": 1,
+                                      "maximum": 64
+                                    }
+                                  },
+                                  "additionalProperties": false
+                                }
+                              ]
+                            }
+                          },
+                          "additionalProperties": false
+                        }
+                      ]
+                    }
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "id",
+            "name",
+            "widgets"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "widgets": {
+              "type": "array",
+              "maxItems": 256,
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "type",
+                      "title",
+                      "expansion",
+                      "series",
+                      "layout"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                      },
+                      "type": {
+                        "const": "graph"
+                      },
+                      "title": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200
+                      },
+                      "expansion": {
+                        "const": "series_per_host"
+                      },
+                      "series": {
+                        "type": "array",
+                        "minItems": 1,
+                        "maxItems": 32,
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "metric",
+                            "hosts"
+                          ],
+                          "properties": {
+                            "metric": {
+                              "type": "object",
+                              "required": [
+                                "catalog",
+                                "metric"
+                              ],
+                              "properties": {
+                                "catalog": {
+                                  "type": "string",
+                                  "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                },
+                                "metric": {
+                                  "type": "string",
+                                  "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                }
+                              },
+                              "additionalProperties": false
+                            },
+                            "hosts": {
+                              "type": "object",
+                              "required": [
+                                "role",
+                                "selection"
+                              ],
+                              "properties": {
+                                "role": {
+                                  "type": "string",
+                                  "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                },
+                                "selection": {
+                                  "enum": [
+                                    "all",
+                                    "one",
+                                    "slot"
+                                  ]
+                                },
+                                "slot_id": {
+                                  "type": "string",
+                                  "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                }
+                              },
+                              "allOf": [
+                                {
+                                  "if": {
+                                    "properties": {
+                                      "selection": {
+                                        "const": "slot"
+                                      }
+                                    },
+                                    "required": [
+                                      "selection"
+                                    ]
+                                  },
+                                  "then": {
+                                    "required": [
+                                      "slot_id"
+                                    ]
+                                  },
+                                  "else": {
+                                    "not": {
+                                      "required": [
+                                        "slot_id"
+                                      ]
+                                    }
+                                  }
+                                }
+                              ],
+                              "additionalProperties": false
+                            },
+                            "color": {
+                              "type": "string",
+                              "pattern": "^#[0-9a-fA-F]{6}$"
+                            }
+                          },
+                          "additionalProperties": false
+                        }
+                      },
+                      "layout": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "required": [
+                              "mode",
+                              "w",
+                              "h"
+                            ],
+                            "properties": {
+                              "mode": {
+                                "const": "auto"
+                              },
+                              "w": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 72
+                              },
+                              "h": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 64
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "required": [
+                              "mode",
+                              "x",
+                              "y",
+                              "w",
+                              "h"
+                            ],
+                            "properties": {
+                              "mode": {
+                                "const": "fixed"
+                              },
+                              "x": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 71
+                              },
+                              "y": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 63
+                              },
+                              "w": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 72
+                              },
+                              "h": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 64
+                              }
+                            },
+                            "additionalProperties": false
+                          }
+                        ]
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "type",
+                      "title",
+                      "expansion",
+                      "metric",
+                      "hosts",
+                      "layout"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                      },
+                      "type": {
+                        "const": "item_value"
+                      },
+                      "title": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200
+                      },
+                      "expansion": {
+                        "enum": [
+                          "single",
+                          "widget_per_host"
+                        ]
+                      },
+                      "metric": {
+                        "type": "object",
+                        "required": [
+                          "catalog",
+                          "metric"
+                        ],
+                        "properties": {
+                          "catalog": {
+                            "type": "string",
+                            "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                          },
+                          "metric": {
+                            "type": "string",
+                            "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      "hosts": {
+                        "type": "object",
+                        "required": [
+                          "role",
+                          "selection"
+                        ],
+                        "properties": {
+                          "role": {
+                            "type": "string",
+                            "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                          },
+                          "selection": {
+                            "enum": [
+                              "all",
+                              "one",
+                              "slot"
+                            ]
+                          },
+                          "slot_id": {
+                            "type": "string",
+                            "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                          }
+                        },
+                        "allOf": [
+                          {
+                            "if": {
+                              "properties": {
+                                "selection": {
+                                  "const": "slot"
+                                }
+                              },
+                              "required": [
+                                "selection"
+                              ]
+                            },
+                            "then": {
+                              "required": [
+                                "slot_id"
+                              ]
+                            },
+                            "else": {
+                              "not": {
+                                "required": [
+                                  "slot_id"
+                                ]
+                              }
+                            }
+                          }
+                        ],
+                        "additionalProperties": false
+                      },
+                      "layout": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "required": [
+                              "mode",
+                              "w",
+                              "h"
+                            ],
+                            "properties": {
+                              "mode": {
+                                "const": "auto"
+                              },
+                              "w": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 72
+                              },
+                              "h": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 64
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "required": [
+                              "mode",
+                              "x",
+                              "y",
+                              "w",
+                              "h"
+                            ],
+                            "properties": {
+                              "mode": {
+                                "const": "fixed"
+                              },
+                              "x": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 71
+                              },
+                              "y": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 63
+                              },
+                              "w": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 72
+                              },
+                              "h": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 64
+                              }
+                            },
+                            "additionalProperties": false
+                          }
+                        ]
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "type",
+                      "widget_type",
+                      "name",
+                      "registry_state",
+                      "fields",
+                      "layout"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                      },
+                      "type": {
+                        "const": "zabbix"
+                      },
+                      "widget_type": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9._-]{0,127}$"
+                      },
+                      "name": {
+                        "type": "string",
+                        "maxLength": 200
+                      },
+                      "registry_state": {
+                        "enum": [
+                          "known",
+                          "unknown"
+                        ]
+                      },
+                      "fields": {
+                        "type": "array",
+                        "maxItems": 1024,
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "name",
+                            "field_type",
+                            "registry_state",
+                            "value"
+                          ],
+                          "properties": {
+                            "name": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 255
+                            },
+                            "field_type": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 65535
+                            },
+                            "registry_state": {
+                              "enum": [
+                                "known",
+                                "unknown"
+                              ]
+                            },
+                            "value": {
+                              "oneOf": [
+                                {
+                                  "type": "object",
+                                  "required": [
+                                    "kind",
+                                    "value"
+                                  ],
+                                  "properties": {
+                                    "kind": {
+                                      "const": "integer"
+                                    },
+                                    "value": {
+                                      "type": "integer",
+                                      "minimum": -9223372036854775808,
+                                      "maximum": 9223372036854775807
+                                    }
+                                  },
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "object",
+                                  "required": [
+                                    "kind",
+                                    "value"
+                                  ],
+                                  "properties": {
+                                    "kind": {
+                                      "const": "string"
+                                    },
+                                    "value": {
+                                      "type": "string",
+                                      "maxLength": 16384
+                                    }
+                                  },
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "object",
+                                  "required": [
+                                    "kind",
+                                    "role",
+                                    "selection"
+                                  ],
+                                  "properties": {
+                                    "kind": {
+                                      "const": "host"
+                                    },
+                                    "role": {
+                                      "type": "string",
+                                      "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                    },
+                                    "selection": {
+                                      "enum": [
+                                        "all",
+                                        "one",
+                                        "slot"
+                                      ]
+                                    },
+                                    "slot_id": {
+                                      "type": "string",
+                                      "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                    }
+                                  },
+                                  "allOf": [
+                                    {
+                                      "if": {
+                                        "properties": {
+                                          "selection": {
+                                            "const": "slot"
+                                          }
+                                        },
+                                        "required": [
+                                          "selection"
+                                        ]
+                                      },
+                                      "then": {
+                                        "required": [
+                                          "slot_id"
+                                        ]
+                                      },
+                                      "else": {
+                                        "not": {
+                                          "required": [
+                                            "slot_id"
+                                          ]
+                                        }
+                                      }
+                                    }
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "object",
+                                  "required": [
+                                    "kind",
+                                    "catalog",
+                                    "metric",
+                                    "hosts"
+                                  ],
+                                  "properties": {
+                                    "kind": {
+                                      "const": "metric"
+                                    },
+                                    "catalog": {
+                                      "type": "string",
+                                      "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                    },
+                                    "metric": {
+                                      "type": "string",
+                                      "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                    },
+                                    "hosts": {
+                                      "type": "object",
+                                      "required": [
+                                        "role",
+                                        "selection"
+                                      ],
+                                      "properties": {
+                                        "role": {
+                                          "type": "string",
+                                          "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                        },
+                                        "selection": {
+                                          "enum": [
+                                            "all",
+                                            "one",
+                                            "slot"
+                                          ]
+                                        },
+                                        "slot_id": {
+                                          "type": "string",
+                                          "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                        }
+                                      },
+                                      "allOf": [
+                                        {
+                                          "if": {
+                                            "properties": {
+                                              "selection": {
+                                                "const": "slot"
+                                              }
+                                            },
+                                            "required": [
+                                              "selection"
+                                            ]
+                                          },
+                                          "then": {
+                                            "required": [
+                                              "slot_id"
+                                            ]
+                                          },
+                                          "else": {
+                                            "not": {
+                                              "required": [
+                                                "slot_id"
+                                              ]
+                                            }
+                                          }
+                                        }
+                                      ],
+                                      "additionalProperties": false
+                                    }
+                                  },
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "object",
+                                  "required": [
+                                    "kind",
+                                    "object_kind",
+                                    "display_name"
+                                  ],
+                                  "properties": {
+                                    "kind": {
+                                      "const": "unresolved"
+                                    },
+                                    "object_kind": {
+                                      "enum": [
+                                        "host_group",
+                                        "host",
+                                        "item",
+                                        "item_prototype",
+                                        "graph",
+                                        "graph_prototype",
+                                        "map",
+                                        "service",
+                                        "sla",
+                                        "user",
+                                        "action",
+                                        "media_type",
+                                        "unknown"
+                                      ]
+                                    },
+                                    "display_name": {
+                                      "type": "string",
+                                      "maxLength": 500
+                                    }
+                                  },
+                                  "additionalProperties": false
+                                }
+                              ]
+                            }
+                          },
+                          "allOf": [
+                            {
+                              "if": {
+                                "properties": {
+                                  "field_type": {
+                                    "minimum": 14
+                                  }
+                                },
+                                "required": [
+                                  "field_type"
+                                ]
+                              },
+                              "then": {
+                                "properties": {
+                                  "registry_state": {
+                                    "const": "unknown"
+                                  },
+                                  "value": {
+                                    "properties": {
+                                      "kind": {
+                                        "const": "unresolved"
+                                      },
+                                      "object_kind": {
+                                        "const": "unknown"
+                                      }
+                                    },
+                                    "required": [
+                                      "kind",
+                                      "object_kind"
+                                    ]
+                                  }
+                                }
+                              }
+                            }
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "layout": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "required": [
+                              "mode",
+                              "w",
+                              "h"
+                            ],
+                            "properties": {
+                              "mode": {
+                                "const": "auto"
+                              },
+                              "w": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 72
+                              },
+                              "h": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 64
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "required": [
+                              "mode",
+                              "x",
+                              "y",
+                              "w",
+                              "h"
+                            ],
+                            "properties": {
+                              "mode": {
+                                "const": "fixed"
+                              },
+                              "x": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 71
+                              },
+                              "y": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 63
+                              },
+                              "w": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 72
+                              },
+                              "h": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 64
+                              }
+                            },
+                            "additionalProperties": false
+                          }
+                        ]
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "dashboard"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "root": {
+            "type": "object",
+            "required": [
+              "id",
+              "name",
+              "kind",
+              "pages"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "kind": {
+                "const": "global"
+              },
+              "pages": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 32,
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "name",
+                    "widgets"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                    },
+                    "name": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 200
+                    },
+                    "widgets": {
+                      "type": "array",
+                      "maxItems": 256,
+                      "items": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "required": [
+                              "id",
+                              "type",
+                              "title",
+                              "expansion",
+                              "series",
+                              "layout"
+                            ],
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                              },
+                              "type": {
+                                "const": "graph"
+                              },
+                              "title": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "expansion": {
+                                "const": "series_per_host"
+                              },
+                              "series": {
+                                "type": "array",
+                                "minItems": 1,
+                                "maxItems": 32,
+                                "items": {
+                                  "type": "object",
+                                  "required": [
+                                    "metric",
+                                    "hosts"
+                                  ],
+                                  "properties": {
+                                    "metric": {
+                                      "type": "object",
+                                      "required": [
+                                        "catalog",
+                                        "metric"
+                                      ],
+                                      "properties": {
+                                        "catalog": {
+                                          "type": "string",
+                                          "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                        },
+                                        "metric": {
+                                          "type": "string",
+                                          "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                        }
+                                      },
+                                      "additionalProperties": false
+                                    },
+                                    "hosts": {
+                                      "type": "object",
+                                      "required": [
+                                        "role",
+                                        "selection"
+                                      ],
+                                      "properties": {
+                                        "role": {
+                                          "type": "string",
+                                          "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                        },
+                                        "selection": {
+                                          "enum": [
+                                            "all",
+                                            "one",
+                                            "slot"
+                                          ]
+                                        },
+                                        "slot_id": {
+                                          "type": "string",
+                                          "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                        }
+                                      },
+                                      "allOf": [
+                                        {
+                                          "if": {
+                                            "properties": {
+                                              "selection": {
+                                                "const": "slot"
+                                              }
+                                            },
+                                            "required": [
+                                              "selection"
+                                            ]
+                                          },
+                                          "then": {
+                                            "required": [
+                                              "slot_id"
+                                            ]
+                                          },
+                                          "else": {
+                                            "not": {
+                                              "required": [
+                                                "slot_id"
+                                              ]
+                                            }
+                                          }
+                                        }
+                                      ],
+                                      "additionalProperties": false
+                                    },
+                                    "color": {
+                                      "type": "string",
+                                      "pattern": "^#[0-9a-fA-F]{6}$"
+                                    }
+                                  },
+                                  "additionalProperties": false
+                                }
+                              },
+                              "layout": {
+                                "oneOf": [
+                                  {
+                                    "type": "object",
+                                    "required": [
+                                      "mode",
+                                      "w",
+                                      "h"
+                                    ],
+                                    "properties": {
+                                      "mode": {
+                                        "const": "auto"
+                                      },
+                                      "w": {
+                                        "type": "integer",
+                                        "minimum": 1,
+                                        "maximum": 72
+                                      },
+                                      "h": {
+                                        "type": "integer",
+                                        "minimum": 1,
+                                        "maximum": 64
+                                      }
+                                    },
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "object",
+                                    "required": [
+                                      "mode",
+                                      "x",
+                                      "y",
+                                      "w",
+                                      "h"
+                                    ],
+                                    "properties": {
+                                      "mode": {
+                                        "const": "fixed"
+                                      },
+                                      "x": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "maximum": 71
+                                      },
+                                      "y": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "maximum": 63
+                                      },
+                                      "w": {
+                                        "type": "integer",
+                                        "minimum": 1,
+                                        "maximum": 72
+                                      },
+                                      "h": {
+                                        "type": "integer",
+                                        "minimum": 1,
+                                        "maximum": 64
+                                      }
+                                    },
+                                    "additionalProperties": false
+                                  }
+                                ]
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "required": [
+                              "id",
+                              "type",
+                              "title",
+                              "expansion",
+                              "metric",
+                              "hosts",
+                              "layout"
+                            ],
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                              },
+                              "type": {
+                                "const": "item_value"
+                              },
+                              "title": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "expansion": {
+                                "enum": [
+                                  "single",
+                                  "widget_per_host"
+                                ]
+                              },
+                              "metric": {
+                                "type": "object",
+                                "required": [
+                                  "catalog",
+                                  "metric"
+                                ],
+                                "properties": {
+                                  "catalog": {
+                                    "type": "string",
+                                    "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                  },
+                                  "metric": {
+                                    "type": "string",
+                                    "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                  }
+                                },
+                                "additionalProperties": false
+                              },
+                              "hosts": {
+                                "type": "object",
+                                "required": [
+                                  "role",
+                                  "selection"
+                                ],
+                                "properties": {
+                                  "role": {
+                                    "type": "string",
+                                    "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                  },
+                                  "selection": {
+                                    "enum": [
+                                      "all",
+                                      "one",
+                                      "slot"
+                                    ]
+                                  },
+                                  "slot_id": {
+                                    "type": "string",
+                                    "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                  }
+                                },
+                                "allOf": [
+                                  {
+                                    "if": {
+                                      "properties": {
+                                        "selection": {
+                                          "const": "slot"
+                                        }
+                                      },
+                                      "required": [
+                                        "selection"
+                                      ]
+                                    },
+                                    "then": {
+                                      "required": [
+                                        "slot_id"
+                                      ]
+                                    },
+                                    "else": {
+                                      "not": {
+                                        "required": [
+                                          "slot_id"
+                                        ]
+                                      }
+                                    }
+                                  }
+                                ],
+                                "additionalProperties": false
+                              },
+                              "layout": {
+                                "oneOf": [
+                                  {
+                                    "type": "object",
+                                    "required": [
+                                      "mode",
+                                      "w",
+                                      "h"
+                                    ],
+                                    "properties": {
+                                      "mode": {
+                                        "const": "auto"
+                                      },
+                                      "w": {
+                                        "type": "integer",
+                                        "minimum": 1,
+                                        "maximum": 72
+                                      },
+                                      "h": {
+                                        "type": "integer",
+                                        "minimum": 1,
+                                        "maximum": 64
+                                      }
+                                    },
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "object",
+                                    "required": [
+                                      "mode",
+                                      "x",
+                                      "y",
+                                      "w",
+                                      "h"
+                                    ],
+                                    "properties": {
+                                      "mode": {
+                                        "const": "fixed"
+                                      },
+                                      "x": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "maximum": 71
+                                      },
+                                      "y": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "maximum": 63
+                                      },
+                                      "w": {
+                                        "type": "integer",
+                                        "minimum": 1,
+                                        "maximum": 72
+                                      },
+                                      "h": {
+                                        "type": "integer",
+                                        "minimum": 1,
+                                        "maximum": 64
+                                      }
+                                    },
+                                    "additionalProperties": false
+                                  }
+                                ]
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "required": [
+                              "id",
+                              "type",
+                              "widget_type",
+                              "name",
+                              "registry_state",
+                              "fields",
+                              "layout"
+                            ],
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                              },
+                              "type": {
+                                "const": "zabbix"
+                              },
+                              "widget_type": {
+                                "type": "string",
+                                "pattern": "^[a-z][a-z0-9._-]{0,127}$"
+                              },
+                              "name": {
+                                "type": "string",
+                                "maxLength": 200
+                              },
+                              "registry_state": {
+                                "enum": [
+                                  "known",
+                                  "unknown"
+                                ]
+                              },
+                              "fields": {
+                                "type": "array",
+                                "maxItems": 1024,
+                                "items": {
+                                  "type": "object",
+                                  "required": [
+                                    "name",
+                                    "field_type",
+                                    "registry_state",
+                                    "value"
+                                  ],
+                                  "properties": {
+                                    "name": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 255
+                                    },
+                                    "field_type": {
+                                      "type": "integer",
+                                      "minimum": 0,
+                                      "maximum": 65535
+                                    },
+                                    "registry_state": {
+                                      "enum": [
+                                        "known",
+                                        "unknown"
+                                      ]
+                                    },
+                                    "value": {
+                                      "oneOf": [
+                                        {
+                                          "type": "object",
+                                          "required": [
+                                            "kind",
+                                            "value"
+                                          ],
+                                          "properties": {
+                                            "kind": {
+                                              "const": "integer"
+                                            },
+                                            "value": {
+                                              "type": "integer",
+                                              "minimum": -9223372036854775808,
+                                              "maximum": 9223372036854775807
+                                            }
+                                          },
+                                          "additionalProperties": false
+                                        },
+                                        {
+                                          "type": "object",
+                                          "required": [
+                                            "kind",
+                                            "value"
+                                          ],
+                                          "properties": {
+                                            "kind": {
+                                              "const": "string"
+                                            },
+                                            "value": {
+                                              "type": "string",
+                                              "maxLength": 16384
+                                            }
+                                          },
+                                          "additionalProperties": false
+                                        },
+                                        {
+                                          "type": "object",
+                                          "required": [
+                                            "kind",
+                                            "role",
+                                            "selection"
+                                          ],
+                                          "properties": {
+                                            "kind": {
+                                              "const": "host"
+                                            },
+                                            "role": {
+                                              "type": "string",
+                                              "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                            },
+                                            "selection": {
+                                              "enum": [
+                                                "all",
+                                                "one",
+                                                "slot"
+                                              ]
+                                            },
+                                            "slot_id": {
+                                              "type": "string",
+                                              "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                            }
+                                          },
+                                          "allOf": [
+                                            {
+                                              "if": {
+                                                "properties": {
+                                                  "selection": {
+                                                    "const": "slot"
+                                                  }
+                                                },
+                                                "required": [
+                                                  "selection"
+                                                ]
+                                              },
+                                              "then": {
+                                                "required": [
+                                                  "slot_id"
+                                                ]
+                                              },
+                                              "else": {
+                                                "not": {
+                                                  "required": [
+                                                    "slot_id"
+                                                  ]
+                                                }
+                                              }
+                                            }
+                                          ],
+                                          "additionalProperties": false
+                                        },
+                                        {
+                                          "type": "object",
+                                          "required": [
+                                            "kind",
+                                            "catalog",
+                                            "metric",
+                                            "hosts"
+                                          ],
+                                          "properties": {
+                                            "kind": {
+                                              "const": "metric"
+                                            },
+                                            "catalog": {
+                                              "type": "string",
+                                              "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                            },
+                                            "metric": {
+                                              "type": "string",
+                                              "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                            },
+                                            "hosts": {
+                                              "type": "object",
+                                              "required": [
+                                                "role",
+                                                "selection"
+                                              ],
+                                              "properties": {
+                                                "role": {
+                                                  "type": "string",
+                                                  "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                                },
+                                                "selection": {
+                                                  "enum": [
+                                                    "all",
+                                                    "one",
+                                                    "slot"
+                                                  ]
+                                                },
+                                                "slot_id": {
+                                                  "type": "string",
+                                                  "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                                }
+                                              },
+                                              "allOf": [
+                                                {
+                                                  "if": {
+                                                    "properties": {
+                                                      "selection": {
+                                                        "const": "slot"
+                                                      }
+                                                    },
+                                                    "required": [
+                                                      "selection"
+                                                    ]
+                                                  },
+                                                  "then": {
+                                                    "required": [
+                                                      "slot_id"
+                                                    ]
+                                                  },
+                                                  "else": {
+                                                    "not": {
+                                                      "required": [
+                                                        "slot_id"
+                                                      ]
+                                                    }
+                                                  }
+                                                }
+                                              ],
+                                              "additionalProperties": false
+                                            }
+                                          },
+                                          "additionalProperties": false
+                                        },
+                                        {
+                                          "type": "object",
+                                          "required": [
+                                            "kind",
+                                            "object_kind",
+                                            "display_name"
+                                          ],
+                                          "properties": {
+                                            "kind": {
+                                              "const": "unresolved"
+                                            },
+                                            "object_kind": {
+                                              "enum": [
+                                                "host_group",
+                                                "host",
+                                                "item",
+                                                "item_prototype",
+                                                "graph",
+                                                "graph_prototype",
+                                                "map",
+                                                "service",
+                                                "sla",
+                                                "user",
+                                                "action",
+                                                "media_type",
+                                                "unknown"
+                                              ]
+                                            },
+                                            "display_name": {
+                                              "type": "string",
+                                              "maxLength": 500
+                                            }
+                                          },
+                                          "additionalProperties": false
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "allOf": [
+                                    {
+                                      "if": {
+                                        "properties": {
+                                          "field_type": {
+                                            "minimum": 14
+                                          }
+                                        },
+                                        "required": [
+                                          "field_type"
+                                        ]
+                                      },
+                                      "then": {
+                                        "properties": {
+                                          "registry_state": {
+                                            "const": "unknown"
+                                          },
+                                          "value": {
+                                            "properties": {
+                                              "kind": {
+                                                "const": "unresolved"
+                                              },
+                                              "object_kind": {
+                                                "const": "unknown"
+                                              }
+                                            },
+                                            "required": [
+                                              "kind",
+                                              "object_kind"
+                                            ]
+                                          }
+                                        }
+                                      }
+                                    }
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              },
+                              "layout": {
+                                "oneOf": [
+                                  {
+                                    "type": "object",
+                                    "required": [
+                                      "mode",
+                                      "w",
+                                      "h"
+                                    ],
+                                    "properties": {
+                                      "mode": {
+                                        "const": "auto"
+                                      },
+                                      "w": {
+                                        "type": "integer",
+                                        "minimum": 1,
+                                        "maximum": 72
+                                      },
+                                      "h": {
+                                        "type": "integer",
+                                        "minimum": 1,
+                                        "maximum": 64
+                                      }
+                                    },
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "object",
+                                    "required": [
+                                      "mode",
+                                      "x",
+                                      "y",
+                                      "w",
+                                      "h"
+                                    ],
+                                    "properties": {
+                                      "mode": {
+                                        "const": "fixed"
+                                      },
+                                      "x": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "maximum": 71
+                                      },
+                                      "y": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "maximum": 63
+                                      },
+                                      "w": {
+                                        "type": "integer",
+                                        "minimum": 1,
+                                        "maximum": 72
+                                      },
+                                      "h": {
+                                        "type": "integer",
+                                        "minimum": 1,
+                                        "maximum": 64
+                                      }
+                                    },
+                                    "additionalProperties": false
+                                  }
+                                ]
+                              }
+                            },
+                            "additionalProperties": false
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "page"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "root": {
+            "type": "object",
+            "required": [
+              "id",
+              "name",
+              "widgets"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "widgets": {
+                "type": "array",
+                "maxItems": 256,
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "required": [
+                        "id",
+                        "type",
+                        "title",
+                        "expansion",
+                        "series",
+                        "layout"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                        },
+                        "type": {
+                          "const": "graph"
+                        },
+                        "title": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 200
+                        },
+                        "expansion": {
+                          "const": "series_per_host"
+                        },
+                        "series": {
+                          "type": "array",
+                          "minItems": 1,
+                          "maxItems": 32,
+                          "items": {
+                            "type": "object",
+                            "required": [
+                              "metric",
+                              "hosts"
+                            ],
+                            "properties": {
+                              "metric": {
+                                "type": "object",
+                                "required": [
+                                  "catalog",
+                                  "metric"
+                                ],
+                                "properties": {
+                                  "catalog": {
+                                    "type": "string",
+                                    "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                  },
+                                  "metric": {
+                                    "type": "string",
+                                    "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                  }
+                                },
+                                "additionalProperties": false
+                              },
+                              "hosts": {
+                                "type": "object",
+                                "required": [
+                                  "role",
+                                  "selection"
+                                ],
+                                "properties": {
+                                  "role": {
+                                    "type": "string",
+                                    "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                  },
+                                  "selection": {
+                                    "enum": [
+                                      "all",
+                                      "one",
+                                      "slot"
+                                    ]
+                                  },
+                                  "slot_id": {
+                                    "type": "string",
+                                    "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                  }
+                                },
+                                "allOf": [
+                                  {
+                                    "if": {
+                                      "properties": {
+                                        "selection": {
+                                          "const": "slot"
+                                        }
+                                      },
+                                      "required": [
+                                        "selection"
+                                      ]
+                                    },
+                                    "then": {
+                                      "required": [
+                                        "slot_id"
+                                      ]
+                                    },
+                                    "else": {
+                                      "not": {
+                                        "required": [
+                                          "slot_id"
+                                        ]
+                                      }
+                                    }
+                                  }
+                                ],
+                                "additionalProperties": false
+                              },
+                              "color": {
+                                "type": "string",
+                                "pattern": "^#[0-9a-fA-F]{6}$"
+                              }
+                            },
+                            "additionalProperties": false
+                          }
+                        },
+                        "layout": {
+                          "oneOf": [
+                            {
+                              "type": "object",
+                              "required": [
+                                "mode",
+                                "w",
+                                "h"
+                              ],
+                              "properties": {
+                                "mode": {
+                                  "const": "auto"
+                                },
+                                "w": {
+                                  "type": "integer",
+                                  "minimum": 1,
+                                  "maximum": 72
+                                },
+                                "h": {
+                                  "type": "integer",
+                                  "minimum": 1,
+                                  "maximum": 64
+                                }
+                              },
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "required": [
+                                "mode",
+                                "x",
+                                "y",
+                                "w",
+                                "h"
+                              ],
+                              "properties": {
+                                "mode": {
+                                  "const": "fixed"
+                                },
+                                "x": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 71
+                                },
+                                "y": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 63
+                                },
+                                "w": {
+                                  "type": "integer",
+                                  "minimum": 1,
+                                  "maximum": 72
+                                },
+                                "h": {
+                                  "type": "integer",
+                                  "minimum": 1,
+                                  "maximum": 64
+                                }
+                              },
+                              "additionalProperties": false
+                            }
+                          ]
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "id",
+                        "type",
+                        "title",
+                        "expansion",
+                        "metric",
+                        "hosts",
+                        "layout"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                        },
+                        "type": {
+                          "const": "item_value"
+                        },
+                        "title": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 200
+                        },
+                        "expansion": {
+                          "enum": [
+                            "single",
+                            "widget_per_host"
+                          ]
+                        },
+                        "metric": {
+                          "type": "object",
+                          "required": [
+                            "catalog",
+                            "metric"
+                          ],
+                          "properties": {
+                            "catalog": {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                            },
+                            "metric": {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                            }
+                          },
+                          "additionalProperties": false
+                        },
+                        "hosts": {
+                          "type": "object",
+                          "required": [
+                            "role",
+                            "selection"
+                          ],
+                          "properties": {
+                            "role": {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                            },
+                            "selection": {
+                              "enum": [
+                                "all",
+                                "one",
+                                "slot"
+                              ]
+                            },
+                            "slot_id": {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                            }
+                          },
+                          "allOf": [
+                            {
+                              "if": {
+                                "properties": {
+                                  "selection": {
+                                    "const": "slot"
+                                  }
+                                },
+                                "required": [
+                                  "selection"
+                                ]
+                              },
+                              "then": {
+                                "required": [
+                                  "slot_id"
+                                ]
+                              },
+                              "else": {
+                                "not": {
+                                  "required": [
+                                    "slot_id"
+                                  ]
+                                }
+                              }
+                            }
+                          ],
+                          "additionalProperties": false
+                        },
+                        "layout": {
+                          "oneOf": [
+                            {
+                              "type": "object",
+                              "required": [
+                                "mode",
+                                "w",
+                                "h"
+                              ],
+                              "properties": {
+                                "mode": {
+                                  "const": "auto"
+                                },
+                                "w": {
+                                  "type": "integer",
+                                  "minimum": 1,
+                                  "maximum": 72
+                                },
+                                "h": {
+                                  "type": "integer",
+                                  "minimum": 1,
+                                  "maximum": 64
+                                }
+                              },
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "required": [
+                                "mode",
+                                "x",
+                                "y",
+                                "w",
+                                "h"
+                              ],
+                              "properties": {
+                                "mode": {
+                                  "const": "fixed"
+                                },
+                                "x": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 71
+                                },
+                                "y": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 63
+                                },
+                                "w": {
+                                  "type": "integer",
+                                  "minimum": 1,
+                                  "maximum": 72
+                                },
+                                "h": {
+                                  "type": "integer",
+                                  "minimum": 1,
+                                  "maximum": 64
+                                }
+                              },
+                              "additionalProperties": false
+                            }
+                          ]
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "id",
+                        "type",
+                        "widget_type",
+                        "name",
+                        "registry_state",
+                        "fields",
+                        "layout"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                        },
+                        "type": {
+                          "const": "zabbix"
+                        },
+                        "widget_type": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9._-]{0,127}$"
+                        },
+                        "name": {
+                          "type": "string",
+                          "maxLength": 200
+                        },
+                        "registry_state": {
+                          "enum": [
+                            "known",
+                            "unknown"
+                          ]
+                        },
+                        "fields": {
+                          "type": "array",
+                          "maxItems": 1024,
+                          "items": {
+                            "type": "object",
+                            "required": [
+                              "name",
+                              "field_type",
+                              "registry_state",
+                              "value"
+                            ],
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 255
+                              },
+                              "field_type": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 65535
+                              },
+                              "registry_state": {
+                                "enum": [
+                                  "known",
+                                  "unknown"
+                                ]
+                              },
+                              "value": {
+                                "oneOf": [
+                                  {
+                                    "type": "object",
+                                    "required": [
+                                      "kind",
+                                      "value"
+                                    ],
+                                    "properties": {
+                                      "kind": {
+                                        "const": "integer"
+                                      },
+                                      "value": {
+                                        "type": "integer",
+                                        "minimum": -9223372036854775808,
+                                        "maximum": 9223372036854775807
+                                      }
+                                    },
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "object",
+                                    "required": [
+                                      "kind",
+                                      "value"
+                                    ],
+                                    "properties": {
+                                      "kind": {
+                                        "const": "string"
+                                      },
+                                      "value": {
+                                        "type": "string",
+                                        "maxLength": 16384
+                                      }
+                                    },
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "object",
+                                    "required": [
+                                      "kind",
+                                      "role",
+                                      "selection"
+                                    ],
+                                    "properties": {
+                                      "kind": {
+                                        "const": "host"
+                                      },
+                                      "role": {
+                                        "type": "string",
+                                        "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                      },
+                                      "selection": {
+                                        "enum": [
+                                          "all",
+                                          "one",
+                                          "slot"
+                                        ]
+                                      },
+                                      "slot_id": {
+                                        "type": "string",
+                                        "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                      }
+                                    },
+                                    "allOf": [
+                                      {
+                                        "if": {
+                                          "properties": {
+                                            "selection": {
+                                              "const": "slot"
+                                            }
+                                          },
+                                          "required": [
+                                            "selection"
+                                          ]
+                                        },
+                                        "then": {
+                                          "required": [
+                                            "slot_id"
+                                          ]
+                                        },
+                                        "else": {
+                                          "not": {
+                                            "required": [
+                                              "slot_id"
+                                            ]
+                                          }
+                                        }
+                                      }
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "object",
+                                    "required": [
+                                      "kind",
+                                      "catalog",
+                                      "metric",
+                                      "hosts"
+                                    ],
+                                    "properties": {
+                                      "kind": {
+                                        "const": "metric"
+                                      },
+                                      "catalog": {
+                                        "type": "string",
+                                        "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                      },
+                                      "metric": {
+                                        "type": "string",
+                                        "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                      },
+                                      "hosts": {
+                                        "type": "object",
+                                        "required": [
+                                          "role",
+                                          "selection"
+                                        ],
+                                        "properties": {
+                                          "role": {
+                                            "type": "string",
+                                            "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                          },
+                                          "selection": {
+                                            "enum": [
+                                              "all",
+                                              "one",
+                                              "slot"
+                                            ]
+                                          },
+                                          "slot_id": {
+                                            "type": "string",
+                                            "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                          }
+                                        },
+                                        "allOf": [
+                                          {
+                                            "if": {
+                                              "properties": {
+                                                "selection": {
+                                                  "const": "slot"
+                                                }
+                                              },
+                                              "required": [
+                                                "selection"
+                                              ]
+                                            },
+                                            "then": {
+                                              "required": [
+                                                "slot_id"
+                                              ]
+                                            },
+                                            "else": {
+                                              "not": {
+                                                "required": [
+                                                  "slot_id"
+                                                ]
+                                              }
+                                            }
+                                          }
+                                        ],
+                                        "additionalProperties": false
+                                      }
+                                    },
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "object",
+                                    "required": [
+                                      "kind",
+                                      "object_kind",
+                                      "display_name"
+                                    ],
+                                    "properties": {
+                                      "kind": {
+                                        "const": "unresolved"
+                                      },
+                                      "object_kind": {
+                                        "enum": [
+                                          "host_group",
+                                          "host",
+                                          "item",
+                                          "item_prototype",
+                                          "graph",
+                                          "graph_prototype",
+                                          "map",
+                                          "service",
+                                          "sla",
+                                          "user",
+                                          "action",
+                                          "media_type",
+                                          "unknown"
+                                        ]
+                                      },
+                                      "display_name": {
+                                        "type": "string",
+                                        "maxLength": 500
+                                      }
+                                    },
+                                    "additionalProperties": false
+                                  }
+                                ]
+                              }
+                            },
+                            "allOf": [
+                              {
+                                "if": {
+                                  "properties": {
+                                    "field_type": {
+                                      "minimum": 14
+                                    }
+                                  },
+                                  "required": [
+                                    "field_type"
+                                  ]
+                                },
+                                "then": {
+                                  "properties": {
+                                    "registry_state": {
+                                      "const": "unknown"
+                                    },
+                                    "value": {
+                                      "properties": {
+                                        "kind": {
+                                          "const": "unresolved"
+                                        },
+                                        "object_kind": {
+                                          "const": "unknown"
+                                        }
+                                      },
+                                      "required": [
+                                        "kind",
+                                        "object_kind"
+                                      ]
+                                    }
+                                  }
+                                }
+                              }
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "layout": {
+                          "oneOf": [
+                            {
+                              "type": "object",
+                              "required": [
+                                "mode",
+                                "w",
+                                "h"
+                              ],
+                              "properties": {
+                                "mode": {
+                                  "const": "auto"
+                                },
+                                "w": {
+                                  "type": "integer",
+                                  "minimum": 1,
+                                  "maximum": 72
+                                },
+                                "h": {
+                                  "type": "integer",
+                                  "minimum": 1,
+                                  "maximum": 64
+                                }
+                              },
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "required": [
+                                "mode",
+                                "x",
+                                "y",
+                                "w",
+                                "h"
+                              ],
+                              "properties": {
+                                "mode": {
+                                  "const": "fixed"
+                                },
+                                "x": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 71
+                                },
+                                "y": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 63
+                                },
+                                "w": {
+                                  "type": "integer",
+                                  "minimum": 1,
+                                  "maximum": 72
+                                },
+                                "h": {
+                                  "type": "integer",
+                                  "minimum": 1,
+                                  "maximum": 64
+                                }
+                              },
+                              "additionalProperties": false
+                            }
+                          ]
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "page"
+          },
+          "provenance": {
+            "properties": {
+              "kind": {
+                "const": "migrated_v1"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          }
+        },
+        "required": [
+          "kind",
+          "provenance"
+        ]
+      },
+      "then": {
+        "properties": {
+          "provenance": {
+            "required": [
+              "source_page_id"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "dashboard"
+          },
+          "provenance": {
+            "properties": {
+              "kind": {
+                "const": "migrated_v1"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          }
+        },
+        "required": [
+          "kind",
+          "provenance"
+        ]
+      },
+      "then": {
+        "properties": {
+          "provenance": {
+            "not": {
+              "required": [
+                "source_page_id"
+              ]
+            }
+          }
+        }
+      }
+    }
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 1600 1000" fill="#17213a" role="img" aria-labelledby="title desc">
+  <title id="title">ZDashstitch — экспорт: результат</title>
+  <desc id="desc">Светлый макет результата экспорта: этапы проверки, преобразования, сборки и сверки пройдены, имя и путь файла, контрольная сумма, режим и принятые предупреждения, сводка без значений; пакет никуда не отправлялся.</desc>
+  <defs>
+    <!-- Tabler Icons outline v3.49.0 (MIT), see assets/icons/THIRD_PARTY.md -->
+    <symbol id="ti-circle-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M9 12l2 2l4 -4"/></symbol>
+    <symbol id="ti-alert-triangle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0"/><path d="M12 16h.01"/></symbol>
+    <symbol id="ti-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 9.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667l0 -8.666"/><path d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1"/></symbol>
+    <symbol id="ti-info-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M12 9h.01"/><path d="M11 12h1v4h1"/></symbol>
+    <symbol id="ti-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065"/><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/></symbol>
+    <style>
+      text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+      .muted{fill:#667085}.white{fill:#ffffff}.small{font-size:14px}.xs{font-size:12px}.label{font-size:13px;font-weight:700;letter-spacing:.08em}
+      .title{font-size:24px;font-weight:750}.h3{font-size:17px;font-weight:700}.body{font-size:16px}.button{font-size:15px;font-weight:700}
+      .nav{font-size:17px}.badge{font-size:13px;font-weight:650}.row{font-size:15px;font-weight:650}
+      .mono{font-family:ui-monospace,"Cascadia Mono",Consolas,monospace;font-size:13px;fill:#344054}
+    </style>
+  </defs>
+  <rect width="1600" height="1000" fill="#f5f7fb"/>
+
+  <!-- App bar: global navigation (P1-01B §1) -->
+  <rect width="1600" height="72" fill="#ffffff" stroke="#e4e7ec"/>
+  <image href="../../../../assets/brand/icons/stezhik-head-1024.png" x="32" y="18" width="36" height="36" preserveAspectRatio="xMidYMid meet"/>
+  <text x="80" y="45" font-size="20" font-weight="750">ZDashstitch</text>
+  <text x="232" y="44" font-size="15" font-weight="500" fill="#475467">Начало</text>
+  <text x="318" y="44" font-size="15" font-weight="700" fill="#1d3f86">Черновики</text>
+  <rect x="318" y="67" width="80" height="4" rx="2" fill="#3156a3"/>
+  <text x="430" y="44" font-size="15" font-weight="500" fill="#475467">Панели в Zabbix</text>
+  <text x="582" y="44" font-size="15" font-weight="500" fill="#475467">Библиотека</text>
+  <text x="702" y="44" font-size="15" font-weight="500" fill="#475467">Подключения</text>
+  <rect x="1288" y="19" width="120" height="34" rx="17" fill="#eef4ff"/>
+  <text x="1348" y="41" font-size="14" text-anchor="middle" fill="#3156a3">Автономно</text>
+  <rect x="1424" y="18" width="144" height="36" rx="8" fill="#ffffff" stroke="#c9d3ea"/>
+  <use href="#ti-settings" x="1438" y="27" width="18" height="18" color="#475467"/>
+  <text x="1464" y="41" font-size="15" font-weight="600" fill="#17213a">Настройки</text>
+
+  <!-- Workspace -->
+  <!-- Title -->
+  <text x="48" y="92" class="xs muted">Черновики  /  Базы данных: сводная  /  Экспорт</text>
+  <text x="48" y="124" class="title">Экспорт «Базы данных: сводная»</text>
+  <text x="48" y="152" class="small muted">Обезличенный пакет сохранён.</text>
+  <rect x="48" y="172" width="159" height="34" rx="17" fill="#ffffff" stroke="#d0d5dd"/>
+  <use href="#ti-circle-check" x="58" y="180" width="18" height="18" color="#1f6b43"/>
+  <text x="82" y="194" class="small" fill="#1f6b43" font-weight="600">Цель и состав</text>
+  <rect x="215" y="172" width="195" height="34" rx="17" fill="#ffffff" stroke="#d0d5dd"/>
+  <use href="#ti-circle-check" x="225" y="180" width="18" height="18" color="#1f6b43"/>
+  <text x="249" y="194" class="small" fill="#1f6b43" font-weight="600">Проверка значений</text>
+  <rect x="418" y="172" width="132" height="34" rx="17" fill="#eef4ff" stroke="#3156a3"/>
+  <text x="437" y="194" class="small" fill="#1d3f86" text-anchor="middle" font-weight="700">3</text>
+  <text x="452" y="194" class="small" fill="#1d3f86" font-weight="700">Сохранение</text>
+  <rect x="48" y="222" width="740" height="610" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="72" y="256" class="label muted">ЭТАПЫ</text>
+  <rect x="72" y="272" width="692" height="60" rx="10" fill="#ffffff" stroke="#eef0f4"/>
+  <use href="#ti-circle-check" x="86" y="290" width="22" height="22" color="#1f6b43"/>
+  <text x="122" y="298" class="body" font-weight="700">Проверка значений</text>
+  <text x="122" y="320" class="small muted">7 найдено, 4 заменено, 2 оставлено, 1 неизвестное поле</text>
+  <rect x="72" y="340" width="692" height="60" rx="10" fill="#ffffff" stroke="#eef0f4"/>
+  <use href="#ti-circle-check" x="86" y="358" width="22" height="22" color="#1f6b43"/>
+  <text x="122" y="366" class="body" font-weight="700">Преобразование</text>
+  <text x="122" y="388" class="small muted">замены применены к копии; черновик не изменён</text>
+  <rect x="72" y="408" width="692" height="60" rx="10" fill="#ffffff" stroke="#eef0f4"/>
+  <use href="#ti-circle-check" x="86" y="426" width="22" height="22" color="#1f6b43"/>
+  <text x="122" y="434" class="body" font-weight="700">Проверка формата</text>
+  <text x="122" y="456" class="small muted">project/v2 и 3 каталога метрик — без ошибок</text>
+  <rect x="72" y="476" width="692" height="60" rx="10" fill="#ffffff" stroke="#eef0f4"/>
+  <use href="#ti-circle-check" x="86" y="494" width="22" height="22" color="#1f6b43"/>
+  <text x="122" y="502" class="body" font-weight="700">Сборка пакета</text>
+  <text x="122" y="524" class="small muted">4 файла, сжатие и пути по правилам пакета</text>
+  <rect x="72" y="544" width="692" height="60" rx="10" fill="#ffffff" stroke="#eef0f4"/>
+  <use href="#ti-circle-check" x="86" y="562" width="22" height="22" color="#1f6b43"/>
+  <text x="122" y="570" class="body" font-weight="700">Сверка</text>
+  <text x="122" y="592" class="small muted">пакет прочитан заново и совпал с проверенным содержимым</text>
+  <text x="72" y="632" class="xs muted">Отмена была доступна до записи файла; временный файл удаляется при любой ошибке.</text>
+  <rect x="808" y="222" width="744" height="610" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <rect x="832" y="246" width="696" height="76" rx="12" fill="#ecfdf3" stroke="#a6dcbc"/>
+  <use href="#ti-circle-check" x="848" y="266" width="24" height="24" color="#1f6b43"/>
+  <text x="884" y="280" class="h3" fill="#1f6b43">Сохранено: bazy-dannyh-svodnaya.zip</text>
+  <text x="884" y="304" class="small" fill="#14432a">Обезличенный пакет · 4 файла · 38 КБ</text>
+  <text x="832" y="352" class="small muted">Папка</text>
+  <text x="990" y="352" class="mono">D:\Обмен\ZDashstitch</text>
+  <text x="832" y="382" class="small muted">SHA-256</text>
+  <text x="990" y="382" class="mono">4f1c…9a07</text>
+  <text x="832" y="412" class="small muted">Совместимость</text>
+  <text x="990" y="412" class="small" font-weight="600">Zabbix 7.4.0+</text>
+  <text x="832" y="442" class="small muted">Режим</text>
+  <text x="990" y="442" class="small" font-weight="600">обезличенный, 4 замены</text>
+  <rect x="832" y="476" width="696" height="86" rx="10" fill="#fff8ed" stroke="#f3d3a6"/>
+  <use href="#ti-alert-triangle" x="846" y="490" width="18" height="18" color="#8a4b00"/>
+  <text x="872" y="504" class="small" fill="#8a4b00" font-weight="700">Принятые предупреждения: 2</text>
+  <text x="872" y="528" class="small" fill="#5c3a00">«Prod» в имени виджета и «proddb» в ключе элемента данных оставлены.</text>
+  <text x="832" y="598" class="small muted">Пакет не отправлялся в сеть и не открывался автоматически.</text>
+  <text x="832" y="622" class="small muted">Отчёт содержит состав, режим, контрольные суммы и счётчики — без значений.</text>
+  <rect x="832" y="760" width="210" height="42" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="937" y="786" class="button" text-anchor="middle">Открыть папку</text>
+  <rect x="1054" y="760" width="230" height="42" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <use href="#ti-copy" x="1070" y="772.0" width="18" height="18" color="#17213a"/>
+  <text x="1181" y="786" class="button" text-anchor="middle">Копировать отчёт</text>
+  <rect x="1372" y="852" width="180" height="42" rx="10" fill="#3156a3" stroke="#3156a3"/>
+  <text x="1462" y="878" class="button white" text-anchor="middle">К черновику</text>
+  <rect x="1200" y="852" width="160" height="42" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="1280" y="878" class="button" text-anchor="middle">Ещё экспорт</text>
+</svg>

@@ -1,0 +1,78 @@
+{
+  "common.product_name": {
+    "message": "ZDashstitch",
+    "placeholders": {}
+  },
+  "common.skip_to_content": {
+    "message": "Перейти к основному содержимому",
+    "placeholders": {}
+  },
+  "common.count.items": {
+    "message": "{count, plural, one {# элемент} few {# элемента} many {# элементов} other {# элемента}}",
+    "placeholders": {"count": "number"}
+  },
+  "common.state.coming_later": {
+    "message": "Появится позже",
+    "placeholders": {}
+  },
+  "common.state.offline": {
+    "message": "Автономно",
+    "placeholders": {}
+  },
+  "common.state.read_only": {
+    "message": "Только чтение",
+    "placeholders": {}
+  },
+  "common.state.read_write": {
+    "message": "Чтение-запись",
+    "placeholders": {}
+  },
+  "common.state.edit_unsupported": {
+    "message": "Изменение не поддерживается",
+    "placeholders": {}
+  },
+  "common.state.loading": {
+    "message": "Загрузка…",
+    "placeholders": {}
+  },
+  "common.filter.all": {
+    "message": "Все",
+    "placeholders": {}
+  },
+  "common.filter.with_count": {
+    "message": "{label} {count}",
+    "placeholders": {"label": "text", "count": "number"}
+  },
+  "common.action.copy": {
+    "message": "Копировать",
+    "placeholders": {}
+  },
+  "common.action.open": {
+    "message": "Открыть",
+    "placeholders": {}
+  },
+  "common.action.duplicate": {
+    "message": "Дублировать",
+    "placeholders": {}
+  },
+  "common.action.rename": {
+    "message": "Переименовать",
+    "placeholders": {}
+  },
+  "common.action.delete": {
+    "message": "Удалить",
+    "placeholders": {}
+  },
+  "common.duration.seconds": {
+    "message": "{count, plural, one {# секунда} few {# секунды} many {# секунд} other {# секунды}}",
+    "placeholders": {"count": "number"}
+  },
+  "common.duration.minutes": {
+    "message": "{count, plural, one {# минута} few {# минуты} many {# минут} other {# минуты}}",
+    "placeholders": {"count": "number"}
+  },
+  "common.duration.hours": {
+    "message": "{count, plural, one {# час} few {# часа} many {# часов} other {# часа}}",
+    "placeholders": {"count": "number"}
+  }
+}

@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 1600 1000" fill="#17213a" role="img" aria-labelledby="title desc">
+  <title id="title">ZDashstitch — сделать копию с сервера переносимой</title>
+  <desc id="desc">Светлый макет преобразования копии с сервера в переносимый черновик: выбор корня (вся панель или одна страница), имя нового черновика, отчёт о том, что становится ролями, метриками каталогов, «нужна привязка» или переносится как есть, и что не переносится; копия не меняется.</desc>
+  <defs>
+    <!-- Tabler Icons outline v3.49.0 (MIT), see assets/icons/THIRD_PARTY.md -->
+    <symbol id="ti-circle-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M9 12l2 2l4 -4"/></symbol>
+    <symbol id="ti-alert-triangle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0"/><path d="M12 16h.01"/></symbol>
+    <symbol id="ti-circle-dashed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.56 3.69a9 9 0 0 0 -2.92 1.95"/><path d="M3.69 8.56a9 9 0 0 0 -.69 3.44"/><path d="M3.69 15.44a9 9 0 0 0 1.95 2.92"/><path d="M8.56 20.31a9 9 0 0 0 3.44 .69"/><path d="M15.44 20.31a9 9 0 0 0 2.92 -1.95"/><path d="M20.31 15.44a9 9 0 0 0 .69 -3.44"/><path d="M20.31 8.56a9 9 0 0 0 -1.95 -2.92"/><path d="M15.44 3.69a9 9 0 0 0 -3.44 -.69"/></symbol>
+    <symbol id="ti-ban" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M5.7 5.7l12.6 12.6"/></symbol>
+    <symbol id="ti-info-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M12 9h.01"/><path d="M11 12h1v4h1"/></symbol>
+    <symbol id="ti-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6l6 -6"/></symbol>
+    <symbol id="ti-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065"/><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/></symbol>
+    <style>
+      text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+      .muted{fill:#667085}.white{fill:#ffffff}.small{font-size:14px}.xs{font-size:12px}.label{font-size:13px;font-weight:700;letter-spacing:.08em}
+      .title{font-size:24px;font-weight:750}.h3{font-size:17px;font-weight:700}.body{font-size:16px}.button{font-size:15px;font-weight:700}
+      .nav{font-size:17px}.badge{font-size:13px;font-weight:650}.row{font-size:15px;font-weight:650}
+      .mono{font-family:ui-monospace,"Cascadia Mono",Consolas,monospace;font-size:13px;fill:#344054}
+    </style>
+  </defs>
+  <rect width="1600" height="1000" fill="#f5f7fb"/>
+
+  <!-- App bar: global navigation (P1-01B §1) -->
+  <rect width="1600" height="72" fill="#ffffff" stroke="#e4e7ec"/>
+  <image href="../../../../assets/brand/icons/stezhik-head-1024.png" x="32" y="18" width="36" height="36" preserveAspectRatio="xMidYMid meet"/>
+  <text x="80" y="45" font-size="20" font-weight="750">ZDashstitch</text>
+  <text x="232" y="44" font-size="15" font-weight="500" fill="#475467">Начало</text>
+  <text x="318" y="44" font-size="15" font-weight="700" fill="#1d3f86">Черновики</text>
+  <rect x="318" y="67" width="80" height="4" rx="2" fill="#3156a3"/>
+  <text x="430" y="44" font-size="15" font-weight="500" fill="#475467">Панели в Zabbix</text>
+  <text x="582" y="44" font-size="15" font-weight="500" fill="#475467">Библиотека</text>
+  <text x="702" y="44" font-size="15" font-weight="500" fill="#475467">Подключения</text>
+  <rect x="1288" y="19" width="120" height="34" rx="17" fill="#eef4ff"/>
+  <text x="1348" y="41" font-size="14" text-anchor="middle" fill="#3156a3">Автономно</text>
+  <rect x="1424" y="18" width="144" height="36" rx="8" fill="#ffffff" stroke="#c9d3ea"/>
+  <use href="#ti-settings" x="1438" y="27" width="18" height="18" color="#475467"/>
+  <text x="1464" y="41" font-size="15" font-weight="600" fill="#17213a">Настройки</text>
+
+  <!-- Workspace -->
+  <!-- Title -->
+  <text x="48" y="92" class="xs muted">Черновики  /  Базы данных: Prod  /  Сделать переносимой</text>
+  <text x="48" y="124" class="title">Сделать «Базы данных: Prod» переносимой</text>
+  <text x="48" y="152" class="small muted">Создаётся новый локальный черновик; копия с сервера и её привязки остаются как есть.</text>
+  <rect x="48" y="176" width="520" height="656" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="72" y="210" class="label muted">ЧТО ПРЕОБРАЗОВАТЬ</text>
+  <rect x="72" y="226" width="472" height="58" rx="10" fill="#eef4ff" stroke="#3156a3" stroke-width="2"/>
+  <circle cx="96" cy="255" r="9" fill="#ffffff" stroke="#3156a3" stroke-width="2"/>
+  <circle cx="96" cy="255" r="4.5" fill="#3156a3"/>
+  <text x="116" y="261" class="body" font-weight="650">Всю панель: 3 страницы, 19 виджетов</text>
+  <rect x="72" y="292" width="472" height="58" rx="10" fill="#ffffff" stroke="#e4e7ec"/>
+  <circle cx="96" cy="321" r="9" fill="#ffffff" stroke="#7a8d9b" stroke-width="2"/>
+  <text x="116" y="327" class="body">Одну страницу</text>
+  <text x="72" y="384" class="label muted">ИМЯ НОВОГО ЧЕРНОВИКА</text>
+  <rect x="72" y="398" width="472" height="40" rx="8" fill="#ffffff" stroke="#3156a3" stroke-width="2"/>
+  <text x="86" y="424" class="body">Базы данных: шаблон</text>
+  <text x="72" y="476" class="label muted">ПРОИСХОЖДЕНИЕ</text>
+  <text x="72" y="502" class="small">Новый черновик помнит только, что он сделан из копии</text>
+  <text x="72" y="524" class="small">с сервера — без адреса сервера, ID и имени</text>
+  <text x="72" y="546" class="small">подключения. Цель публикации не задаётся.</text>
+  <rect x="72" y="586" width="472" height="112" rx="10" fill="#f5f8ff" stroke="#c9d3ea"/>
+  <use href="#ti-info-circle" x="86" y="600" width="18" height="18" color="#1d3f86"/>
+  <text x="112" y="614" class="small" fill="#344054">Экспортировать новый черновик можно сразу;</text>
+  <text x="112" y="636" class="small" fill="#344054">перед публикацией узлы сети снова подбираются</text>
+  <text x="112" y="658" class="small" fill="#344054">в «Привязках» по ролям.</text>
+  <text x="112" y="680" class="small" fill="#344054">Метрики без каталога — после импорта шаблона.</text>
+  <rect x="588" y="176" width="964" height="656" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="612" y="210" class="label muted">ОТЧЁТ ПРЕОБРАЗОВАНИЯ</text>
+  <rect x="612" y="226" width="916" height="34" rx="6" fill="#f8fafc" stroke="#eef0f4"/>
+  <text x="648" y="248" class="xs muted" font-weight="700">ЧТО</text>
+  <text x="880" y="248" class="xs muted" font-weight="700">СТАНЕТ</text>
+  <text x="1240" y="248" class="xs muted" font-weight="700">СКОЛЬКО</text>
+  <line x1="612" y1="328" x2="1528" y2="328" stroke="#eef0f4"/>
+  <use href="#ti-circle-check" x="622" y="279" width="18" height="18" color="#1f6b43"/>
+  <text x="648" y="294" class="small" font-weight="650">Узлы сети</text>
+  <text x="880" y="294" class="small">роли «PostgreSQL» (2 слота), «ClickHouse» (2),</text>
+  <text x="880" y="314" class="small">«Zabbix server» (1)</text>
+  <text x="1240" y="294" class="small" font-weight="600">5 узлов</text>
+  <line x1="612" y1="376" x2="1528" y2="376" stroke="#eef0f4"/>
+  <use href="#ti-circle-check" x="622" y="345" width="18" height="18" color="#1f6b43"/>
+  <text x="648" y="360" class="small" font-weight="650">Элементы данных</text>
+  <text x="880" y="360" class="small">метрики каталогов: по ключу 18, по имени 20</text>
+  <text x="1240" y="360" class="small" font-weight="600">38 из 42 ссылок</text>
+  <line x1="612" y1="424" x2="1528" y2="424" stroke="#eef0f4"/>
+  <use href="#ti-alert-triangle" x="622" y="393" width="18" height="18" color="#8a4b00"/>
+  <text x="648" y="408" class="small" font-weight="650">Элементы LLD</text>
+  <text x="880" y="408" class="small">метрика-прототип; экземпляр — при привязке</text>
+  <text x="1240" y="408" class="small" font-weight="600">3</text>
+  <line x1="612" y1="490" x2="1528" y2="490" stroke="#eef0f4"/>
+  <use href="#ti-alert-triangle" x="622" y="441" width="18" height="18" color="#8a4b00"/>
+  <text x="648" y="456" class="small" font-weight="650">Без каталога</text>
+  <text x="880" y="456" class="small">«нужна привязка»: импортируйте шаблон</text>
+  <text x="880" y="476" class="small">«Zabbix server health»</text>
+  <text x="1240" y="456" class="small" font-weight="600">1</text>
+  <line x1="612" y1="538" x2="1528" y2="538" stroke="#eef0f4"/>
+  <use href="#ti-alert-triangle" x="622" y="507" width="18" height="18" color="#8a4b00"/>
+  <text x="648" y="522" class="small" font-weight="650">Классические графики</text>
+  <text x="880" y="522" class="small">«нужна привязка» к графику по имени</text>
+  <text x="1240" y="522" class="small" font-weight="600">2</text>
+  <line x1="612" y1="586" x2="1528" y2="586" stroke="#eef0f4"/>
+  <use href="#ti-circle-dashed" x="622" y="555" width="18" height="18" color="#98a2b3"/>
+  <text x="648" y="570" class="small" font-weight="650">Маски узлов</text>
+  <text x="880" y="570" class="small">строки как есть; проверка при экспорте</text>
+  <text x="1240" y="570" class="small" font-weight="600">2</text>
+  <line x1="612" y1="634" x2="1528" y2="634" stroke="#eef0f4"/>
+  <use href="#ti-circle-dashed" x="622" y="603" width="18" height="18" color="#98a2b3"/>
+  <text x="648" y="618" class="small" font-weight="650">Неизвестные поля и типы</text>
+  <text x="880" y="618" class="small">как есть, с пометкой, без изменения (O-034)</text>
+  <text x="1240" y="618" class="small" font-weight="600">4 поля</text>
+  <line x1="612" y1="682" x2="1528" y2="682" stroke="#eef0f4"/>
+  <use href="#ti-circle-check" x="622" y="651" width="18" height="18" color="#1f6b43"/>
+  <text x="648" y="666" class="small" font-weight="650">Связи виджетов</text>
+  <text x="880" y="666" class="small">сохраняются</text>
+  <text x="1240" y="666" class="small" font-weight="600">6</text>
+  <line x1="612" y1="730" x2="1528" y2="730" stroke="#eef0f4"/>
+  <use href="#ti-ban" x="622" y="699" width="18" height="18" color="#98a2b3"/>
+  <text x="648" y="714" class="small" font-weight="650">Владелец и доступ, снимки</text>
+  <text x="880" y="714" class="small">не переносятся: остаются у копии</text>
+  <text x="1240" y="714" class="small" font-weight="600">—</text>
+  <text x="612" y="756" class="xs muted">Ничего не теряется молча: всё, что не стало ролью или метрикой, помечено и видно в «Проверках».</text>
+  <rect x="48" y="852" width="120" height="42" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="108" y="878" class="button" text-anchor="middle">Отмена</text>
+  <rect x="1252" y="852" width="300" height="42" rx="10" fill="#3156a3" stroke="#3156a3"/>
+  <text x="1402" y="878" class="button white" text-anchor="middle">Создать переносимый черновик</text>
+</svg>

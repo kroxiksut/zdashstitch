@@ -1,0 +1,82 @@
+{
+  "checks.subtitle": {
+    "message": "Checked on this computer; Zabbix is not queried.",
+    "placeholders": {}
+  },
+  "checks.summary.save_always": {
+    "message": "Save locally — always possible",
+    "placeholders": {}
+  },
+  "checks.summary.export_ready": {
+    "message": "Export to file — possible",
+    "placeholders": {}
+  },
+  "checks.summary.export_blocked": {
+    "message": "{count, plural, one {Export to file — blocked: # issue} other {Export to file — blocked: # issues}}",
+    "placeholders": {"count": "number"}
+  },
+  "checks.summary.publication_ready": {
+    "message": "Publication — possible after server checks",
+    "placeholders": {}
+  },
+  "checks.summary.publication_blocked": {
+    "message": "{count, plural, one {Publication — blocked: # issue} other {Publication — blocked: # issues}}",
+    "placeholders": {"count": "number"}
+  },
+  "checks.empty": {
+    "message": "No issues found in {count} objects",
+    "placeholders": {"count": "number"}
+  },
+  "checks.group.structure": {
+    "message": "Structure and geometry",
+    "placeholders": {}
+  },
+  "checks.group.widgets": {
+    "message": "Widgets and fields",
+    "placeholders": {}
+  },
+  "checks.group.sources": {
+    "message": "Sources and bindings",
+    "placeholders": {}
+  },
+  "checks.group.references": {
+    "message": "Widget links",
+    "placeholders": {}
+  },
+  "checks.group.compatibility": {
+    "message": "Compatibility",
+    "placeholders": {}
+  },
+  "checks.group.passed": {
+    "message": "Passed: {count}",
+    "placeholders": {"count": "number"}
+  },
+  "checks.last_preflight.title": {
+    "message": "Last publication checks",
+    "placeholders": {}
+  },
+  "checks.last_preflight.none": {
+    "message": "Not run yet",
+    "placeholders": {}
+  },
+  "checks.object_path": {
+    "message": "{page} › {widget}",
+    "placeholders": {"page": "text", "widget": "text"}
+  },
+  "checks.level.warning": {
+    "message": "Warning",
+    "placeholders": {}
+  },
+  "checks.level.blocks_export": {
+    "message": "Blocks export",
+    "placeholders": {}
+  },
+  "checks.level.blocks_publication": {
+    "message": "Blocks publication",
+    "placeholders": {}
+  },
+  "checks.level.blocks_both": {
+    "message": "Blocks export and publication",
+    "placeholders": {}
+  }
+}

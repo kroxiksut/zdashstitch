@@ -1,0 +1,15 @@
+format: zdashstitch.project/v2
+project_id: wrong-page-root
+kind: page
+declared_compatibility: {minimum: 7.4.0}
+provenance: {kind: local}
+catalogs: [{id: linux, file: metrics/linux.yaml}]
+roles: {system_nodes: {cardinality: many}}
+root:
+  id: wrong-page-root
+  name: Wrong page root
+  kind: global
+  pages:
+    - id: page-one
+      name: Page
+      widgets: []

@@ -1,8 +1,8 @@
 # P1-01I — Потоки страниц
 
-Статус: draft для приёмки владельцем. Это design specification, не реализованный экран.
+Статус: принято владельцем 25.10.2026. Это design specification, не реализованный экран.
 
-Проверочный макет: [`assets/P1-01I-assemble-dashboard.svg`](assets/P1-01I-assemble-dashboard.svg) — сборка панели из страниц. Макет выполнен только в светлой теме и содержит один экран.
+Проверочный макет: [`assets/08-structure/08-02_P1-01I_assemble-dashboard.svg`](assets/08-structure/08-02_P1-01I_assemble-dashboard.svg) — сборка панели из страниц. Макет выполнен только в светлой теме и содержит один экран.
 
 ## 1. Решение (O-027)
 

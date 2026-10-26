@@ -1,0 +1,154 @@
+{
+  "startup.meta.description": {
+    "message": "ZDashstitch — local Zabbix dashboard builder",
+    "placeholders": {}
+  },
+  "startup.eyebrow": {
+    "message": "Zabbix dashboard builder",
+    "placeholders": {}
+  },
+  "startup.lead": {
+    "message": "This is the preparatory shell for a local GUI. Dashboard editing and publishing are not implemented yet.",
+    "placeholders": {}
+  },
+  "startup.status.label": {
+    "message": "Local backend status",
+    "placeholders": {}
+  },
+  "startup.status.backend": {
+    "message": "Backend",
+    "placeholders": {}
+  },
+  "startup.status.backend_ready": {
+    "message": "Ready",
+    "placeholders": {}
+  },
+  "startup.status.stage": {
+    "message": "Stage",
+    "placeholders": {}
+  },
+  "startup.status.stage_scaffold": {
+    "message": "Preparatory shell",
+    "placeholders": {}
+  },
+  "startup.status.target": {
+    "message": "Target Zabbix version",
+    "placeholders": {}
+  },
+  "startup.status.target_value": {
+    "message": "{version}",
+    "placeholders": {"version": "technical"}
+  },
+  "startup.status.writes": {
+    "message": "Writing to Zabbix",
+    "placeholders": {}
+  },
+  "startup.status.writes_enabled": {
+    "message": "Enabled",
+    "placeholders": {}
+  },
+  "startup.status.writes_disabled": {
+    "message": "Disabled",
+    "placeholders": {}
+  },
+  "startup.loading": {
+    "message": "Checking the local backend…",
+    "placeholders": {}
+  },
+  "startup.error.unavailable": {
+    "message": "The local backend is unavailable.",
+    "placeholders": {}
+  },
+  "startup.question": {
+    "message": "What do you want to do with Zabbix dashboards?",
+    "placeholders": {}
+  },
+  "startup.subtitle": {
+    "message": "Create and maintain Zabbix dashboards locally",
+    "placeholders": {}
+  },
+  "startup.server.title": {
+    "message": "Dashboards in Zabbix",
+    "placeholders": {}
+  },
+  "startup.server.help": {
+    "message": "Replace a host, clone a dashboard or take a page.",
+    "placeholders": {}
+  },
+  "startup.action.connect": {
+    "message": "Connect to Zabbix",
+    "placeholders": {}
+  },
+  "startup.local.title": {
+    "message": "Local drafts",
+    "placeholders": {}
+  },
+  "startup.local.help": {
+    "message": "Prepare a dashboard or a page and publish it later.",
+    "placeholders": {}
+  },
+  "startup.local.dashboard_help": {
+    "message": "Several pages and their widgets.",
+    "placeholders": {}
+  },
+  "startup.local.page_help": {
+    "message": "One page and its widgets.",
+    "placeholders": {}
+  },
+  "startup.action.new_dashboard": {
+    "message": "Create dashboard",
+    "placeholders": {}
+  },
+  "startup.action.assemble_dashboard": {
+    "message": "Build from pages",
+    "placeholders": {}
+  },
+  "startup.action.new_page": {
+    "message": "Create page",
+    "placeholders": {}
+  },
+  "startup.action.take_page": {
+    "message": "Take a page",
+    "placeholders": {}
+  },
+  "startup.action.import_files": {
+    "message": "Import files",
+    "placeholders": {}
+  },
+  "startup.recent.title": {
+    "message": "Recent",
+    "placeholders": {}
+  },
+  "startup.recent.empty": {
+    "message": "No local drafts yet",
+    "placeholders": {}
+  },
+  "startup.action.all_drafts": {
+    "message": "All local drafts",
+    "placeholders": {}
+  },
+  "startup.draft.missing": {
+    "message": "This draft is no longer available in local storage.",
+    "placeholders": {}
+  },
+  "startup.kicker": {
+    "message": "Getting started",
+    "placeholders": {}
+  },
+  "startup.intro": {
+    "message": "Local drafts do not need a connection. Changes on the server are made only through a verified plan.",
+    "placeholders": {}
+  },
+  "startup.local.badge": {
+    "message": "No connection needed",
+    "placeholders": {}
+  },
+  "startup.import.help": {
+    "message": "Dashboards, pages, template exports; several files at once",
+    "placeholders": {}
+  },
+  "startup.action.choose_dashboard": {
+    "message": "Choose dashboard",
+    "placeholders": {}
+  }
+}

@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 1600 1000" fill="#17213a" role="img" aria-labelledby="title desc">
+  <title id="title">ZDashstitch — настройки: диагностика</title>
+  <desc id="desc">Светлый макет раздела «Диагностика»: подробность и срок хранения журнала приложения; пакет для поддержки с предпросмотром состава — что входит, что не входит никогда, адреса серверов только по флажку; пакет сохраняется локально и никуда не отправляется.</desc>
+  <defs>
+    <!-- Tabler Icons outline v3.49.0 (MIT), see assets/icons/THIRD_PARTY.md -->
+    <symbol id="ti-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"/><path d="M7 11l5 5l5 -5"/><path d="M12 4l0 12"/></symbol>
+    <symbol id="ti-info-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M12 9h.01"/><path d="M11 12h1v4h1"/></symbol>
+    <symbol id="ti-circle-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M9 12l2 2l4 -4"/></symbol>
+    <symbol id="ti-circle-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M10 10l4 4m0 -4l-4 4"/></symbol>
+    <symbol id="ti-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/></symbol>
+    <symbol id="ti-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6l6 -6"/></symbol>
+    <symbol id="ti-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065"/><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/></symbol>
+    <style>
+      text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+      .muted{fill:#667085}.white{fill:#ffffff}.small{font-size:14px}.xs{font-size:12px}.label{font-size:13px;font-weight:700;letter-spacing:.08em}
+      .title{font-size:24px;font-weight:750}.h3{font-size:17px;font-weight:700}.body{font-size:16px}.button{font-size:15px;font-weight:700}
+      .nav{font-size:17px}.badge{font-size:13px;font-weight:650}.row{font-size:15px;font-weight:650}
+      .mono{font-family:ui-monospace,"Cascadia Mono",Consolas,monospace;font-size:13px;fill:#344054}
+    </style>
+  </defs>
+  <rect width="1600" height="1000" fill="#f5f7fb"/>
+
+  <!-- App bar: global navigation (P1-01B §1) -->
+  <rect width="1600" height="72" fill="#ffffff" stroke="#e4e7ec"/>
+  <image href="../../../../assets/brand/icons/stezhik-head-1024.png" x="32" y="18" width="36" height="36" preserveAspectRatio="xMidYMid meet"/>
+  <text x="80" y="45" font-size="20" font-weight="750">ZDashstitch</text>
+  <text x="232" y="44" font-size="15" font-weight="500" fill="#475467">Начало</text>
+  <text x="318" y="44" font-size="15" font-weight="500" fill="#475467">Черновики</text>
+  <text x="430" y="44" font-size="15" font-weight="500" fill="#475467">Панели в Zabbix</text>
+  <text x="582" y="44" font-size="15" font-weight="500" fill="#475467">Библиотека</text>
+  <text x="702" y="44" font-size="15" font-weight="500" fill="#475467">Подключения</text>
+  <rect x="1288" y="19" width="120" height="34" rx="17" fill="#eef4ff"/>
+  <text x="1348" y="41" font-size="14" text-anchor="middle" fill="#3156a3">Автономно</text>
+  <rect x="1424" y="18" width="144" height="36" rx="8" fill="#eef4ff" stroke="#3156a3"/>
+  <use href="#ti-settings" x="1438" y="27" width="18" height="18" color="#1d3f86"/>
+  <text x="1464" y="41" font-size="15" font-weight="700" fill="#1d3f86">Настройки</text>
+
+  <!-- Workspace -->
+  <rect x="0" y="72" width="260" height="928" fill="#ffffff" stroke="#e4e7ec"/>
+  <text x="28" y="116" class="label muted">НАСТРОЙКИ</text>
+  <text x="32" y="163" class="body">Общие</text>
+  <text x="32" y="209" class="body">Внешний вид</text>
+  <text x="32" y="255" class="body">Рабочие каталоги</text>
+  <text x="32" y="301" class="body">Редактор</text>
+  <text x="32" y="347" class="small">Подключения и сертификаты</text>
+  <text x="32" y="393" class="body">Безопасность и экспорт</text>
+  <rect x="16" y="412" width="228" height="42" rx="10" fill="#eef4ff" stroke="#eef4ff"/>
+  <text x="32" y="439" class="body" fill="#1d3f86" font-weight="700">Диагностика</text>
+  <text x="32" y="485" class="body">О программе и лицензии</text>
+  <line x1="20" y1="520" x2="240" y2="520" stroke="#e4e7ec"/>
+  <text x="28" y="552" class="small muted">Пароли и токены здесь</text>
+  <text x="28" y="574" class="small muted">не хранятся и не показываются.</text>
+  <!-- Title -->
+  <text x="292" y="120" class="title">Диагностика</text>
+  <text x="292" y="150" class="small muted">Журнал приложения и пакет для поддержки. Секретов и полных путей в них нет.</text>
+  <rect x="1224" y="96" width="320" height="40" rx="8" fill="#ffffff" stroke="#c9d3ea"/>
+  <use href="#ti-search" x="1238" y="107" width="18" height="18" color="#667085"/>
+  <text x="1266" y="121" class="small muted">Поиск настроек</text>
+  <rect x="292" y="166" width="1252" height="150" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="316" y="200" class="label muted">ЖУРНАЛ ПРИЛОЖЕНИЯ</text>
+  <text x="316" y="230" class="small muted">Подробность</text>
+  <circle cx="328" cy="254" r="9" fill="#ffffff" stroke="#3156a3" stroke-width="2"/>
+  <circle cx="328" cy="254" r="4.5" fill="#3156a3"/>
+  <text x="346" y="259" class="small" font-weight="650">Обычная: коды и этапы</text>
+  <circle cx="600" cy="254" r="9" fill="#ffffff" stroke="#7a8d9b" stroke-width="2"/>
+  <text x="618" y="259" class="small">Подробная: также время этапов и счётчики</text>
+  <text x="316" y="298" class="small muted">Хранить</text>
+  <rect x="390" y="278" width="150" height="34" rx="8" fill="#ffffff" stroke="#7a8d9b"/>
+  <text x="404" y="304" class="body">7 дней</text>
+  <use href="#ti-chevron-down" x="510" y="289" width="18" height="18" color="#475467"/>
+  <text x="560" y="300" class="xs muted">Сейчас: 1,8 МБ, 7 файлов. Секреты, тела ответов сервера, содержимое файлов и полные пути не пишутся.</text>
+  <rect x="292" y="332" width="1252" height="576" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="316" y="366" class="label muted">ПАКЕТ ДЛЯ ПОДДЕРЖКИ</text>
+  <text x="316" y="392" class="small">Создаётся только по вашему действию, сохраняется на этом компьютере и никуда не отправляется.</text>
+  <text x="316" y="432" class="label muted">ВХОДИТ</text>
+  <use href="#ti-circle-check" x="316" y="448" width="16" height="16" color="#1f6b43"/>
+  <text x="340" y="461" class="small">версия, сборка, ОС и платформа</text>
+  <use href="#ti-circle-check" x="316" y="476" width="16" height="16" color="#1f6b43"/>
+  <text x="340" y="489" class="small">проверенная версия Zabbix и адаптер</text>
+  <use href="#ti-circle-check" x="316" y="504" width="16" height="16" color="#1f6b43"/>
+  <text x="340" y="517" class="small">настройки без пути хранилища (&lt;storage_root&gt;)</text>
+  <use href="#ti-circle-check" x="316" y="532" width="16" height="16" color="#1f6b43"/>
+  <text x="340" y="545" class="small">коды ошибок и этапы за 7 дней</text>
+  <use href="#ti-circle-check" x="316" y="560" width="16" height="16" color="#1f6b43"/>
+  <text x="340" y="573" class="small">состояния операций публикации без имён и ID</text>
+  <use href="#ti-circle-check" x="316" y="588" width="16" height="16" color="#1f6b43"/>
+  <text x="340" y="601" class="small">число объектов и размеры хранилища</text>
+  <text x="760" y="432" class="label muted">НЕ ВХОДИТ НИКОГДА</text>
+  <use href="#ti-circle-x" x="760" y="448" width="16" height="16" color="#a32935"/>
+  <text x="784" y="461" class="small">пароли, токены, сертификаты, cookie сессии</text>
+  <use href="#ti-circle-x" x="760" y="476" width="16" height="16" color="#a32935"/>
+  <text x="784" y="489" class="small">имена панелей, страниц, узлов сети, пользователей</text>
+  <use href="#ti-circle-x" x="760" y="504" width="16" height="16" color="#a32935"/>
+  <text x="784" y="517" class="small">содержимое черновиков, снимков и файлов</text>
+  <use href="#ti-circle-x" x="760" y="532" width="16" height="16" color="#a32935"/>
+  <text x="784" y="545" class="small">тела запросов и ответов Zabbix</text>
+  <use href="#ti-circle-x" x="760" y="560" width="16" height="16" color="#a32935"/>
+  <text x="784" y="573" class="small">полные локальные пути</text>
+  <rect x="316" y="636" width="20" height="20" rx="4" fill="#ffffff" stroke="#7a8d9b" stroke-width="2"/>
+  <text x="346" y="652" class="small" font-weight="650">Включить адреса серверов</text>
+  <text x="346" y="674" class="xs muted">по умолчанию выключено</text>
+  <text x="316" y="716" class="label muted">ФАЙЛЫ ПАКЕТА · zdashstitch-support-2026-10-25.zip</text>
+  <text x="316" y="746" class="mono">manifest.json</text>
+  <text x="506" y="746" class="small muted">состав и версия пакета</text>
+  <text x="316" y="774" class="mono">environment.json</text>
+  <text x="506" y="774" class="small muted">версия, ОС, Zabbix, адаптер</text>
+  <text x="316" y="802" class="mono">settings.yaml</text>
+  <text x="506" y="802" class="small muted">настройки, путь заменён</text>
+  <text x="760" y="746" class="mono">app-log.jsonl</text>
+  <text x="950" y="746" class="small muted">коды и этапы</text>
+  <text x="760" y="774" class="mono">operations.jsonl</text>
+  <text x="950" y="774" class="small muted">состояния операций</text>
+  <text x="760" y="802" class="mono">storage-counts.json</text>
+  <text x="950" y="802" class="small muted">число объектов и размеры</text>
+  <rect x="1244" y="846" width="276" height="42" rx="10" fill="#3156a3" stroke="#3156a3"/>
+  <use href="#ti-download" x="1260" y="858.0" width="18" height="18" color="#ffffff"/>
+  <text x="1394" y="872" class="button white" text-anchor="middle">Сохранить пакет…</text>
+  <text x="316" y="880" class="xs muted">Перед сохранением можно открыть любой файл пакета и посмотреть его содержимое.</text>
+</svg>

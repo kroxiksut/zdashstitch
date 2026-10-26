@@ -6,12 +6,14 @@ verified publish-plan constructor or an external-data disclosure approval.
 """
 from __future__ import annotations
 
+import copy
 import json
 import os
 from pathlib import Path
 import re
 import stat
 import sys
+import unicodedata
 import zipfile
 
 import yaml
@@ -25,6 +27,19 @@ MAX_ARCHIVE_ENTRIES = 33  # project.yaml and up to 32 catalogs
 MAX_COMPRESSION_RATIO = 300
 ARCHIVE_PROJECT = 'project.yaml'
 CATALOG_PATH = re.compile(r'^metrics/[a-z][a-z0-9_-]{1,63}\.ya?ml$')
+WIDGET_TYPE_PATTERN = re.compile(r'^[a-z][a-z0-9._-]{0,127}$')
+FIELD_OBJECT_KINDS = {
+    2: 'host_group', 3: 'host', 4: 'item', 5: 'item_prototype', 6: 'graph',
+    7: 'graph_prototype', 8: 'map', 9: 'service', 10: 'sla', 11: 'user',
+    12: 'action', 13: 'media_type',
+}
+VERSION_PATTERN = re.compile(r'^([1-9][0-9]*)\.([0-9]+)(?:\.([0-9]+))?([A-Za-z][A-Za-z0-9._-]*)?$')
+
+
+class ProjectValidationError(ValueError):
+    def __init__(self, code, message):
+        super().__init__(f'{code}: {message}')
+        self.code = code
 
 
 class StrictLoader(yaml.SafeLoader):
@@ -149,8 +164,194 @@ def validate_catalog(entry):
     return {m['id']: m for m in entry['metrics']}
 
 
+def project_schema_name(project):
+    fmt = project.get('format') if isinstance(project, dict) else None
+    if fmt == 'zdashstitch.project/v1':
+        return 'project-v1.schema.json'
+    if fmt == 'zdashstitch.project/v2':
+        return 'project-v2.schema.json'
+    raise ProjectValidationError('project_format', f'unsupported project format: {fmt!r}')
+
+
+def parsed_version(value):
+    match = VERSION_PATTERN.fullmatch(value) if isinstance(value, str) else None
+    if not match:
+        raise ProjectValidationError('invalid_version', f'invalid version: {value!r}')
+    major, minor, patch, prerelease = match.groups()
+    numeric = (int(major), int(minor), int(patch or 0))
+    # A prerelease sorts before the stable release with the same numeric core.
+    return numeric + ((0, prerelease) if prerelease else (1, ''))
+
+
+def raw_project_widgets(project):
+    """Yield widget mappings from an unvalidated v2 document; malformed parts are skipped."""
+    root = project.get('root')
+    if not isinstance(root, dict):
+        return
+    pages = root.get('pages') if 'pages' in root else [root]
+    for page in pages if isinstance(pages, list) else []:
+        widgets = page.get('widgets') if isinstance(page, dict) else None
+        for widget in widgets if isinstance(widgets, list) else []:
+            if isinstance(widget, dict):
+                yield widget
+
+
+def validate_zabbix_field_shape(field):
+    """Mirror Rust ZabbixWidgetField::validate before JSON Schema so both report one code."""
+    name = field.get('name')
+    if isinstance(name, str):
+        if not 1 <= len(name) <= 255:
+            raise ProjectValidationError('widget_field_name', 'widget field name length must be 1..=255')
+        if any(unicodedata.category(char) == 'Cc' for char in name):
+            raise ProjectValidationError(
+                'widget_field_name', 'widget field name cannot contain control characters'
+            )
+    field_type = field.get('field_type')
+    value = field.get('value')
+    if type(field_type) is not int or not isinstance(value, dict):
+        return
+    if field_type > 13 and field.get('registry_state') != 'unknown':
+        raise ProjectValidationError(
+            'unknown_field_type_state', 'an unknown field type must be marked unknown'
+        )
+    kind = value.get('kind')
+    if kind == 'unresolved' and 2 <= field_type <= 13:
+        if value.get('object_kind') != FIELD_OBJECT_KINDS[field_type]:
+            raise ProjectValidationError(
+                'widget_field_object_kind', 'unresolved object kind does not match field type'
+            )
+    elif not (
+        (kind == 'integer' and field_type == 0)
+        or (kind == 'string' and field_type == 1)
+        or (kind == 'host' and field_type in {2, 3})
+        or (kind == 'metric' and field_type in {4, 5})
+        or (kind == 'unresolved' and field_type > 13 and value.get('object_kind') == 'unknown')
+    ):
+        raise ProjectValidationError(
+            'widget_field_value_kind', 'widget field value kind does not match field type'
+        )
+    text = value.get('value')
+    if kind == 'string' and isinstance(text, str) and len(text) > 16384:
+        raise ProjectValidationError(
+            'widget_field_value', 'widget field string value length must be 0..=16384'
+        )
+
+
+def validate_zabbix_widget_shape(project):
+    """Code-stable limits for generic Zabbix widgets, checked before JSON Schema like Rust."""
+    for widget in raw_project_widgets(project):
+        if widget.get('type') != 'zabbix':
+            continue
+        widget_type = widget.get('widget_type')
+        if isinstance(widget_type, str) and not WIDGET_TYPE_PATTERN.fullmatch(widget_type):
+            raise ProjectValidationError(
+                'widget_type', 'widget type must be a lowercase adapter identifier'
+            )
+        name = widget.get('name')
+        if isinstance(name, str) and len(name) > 200:
+            raise ProjectValidationError('widget_name', 'widget name length must be 0..=200')
+        fields = widget.get('fields')
+        if not isinstance(fields, list):
+            continue
+        if len(fields) > 1024:
+            raise ProjectValidationError(
+                'widget_field_count', 'a widget may contain at most 1024 fields'
+            )
+        for field in fields:
+            if isinstance(field, dict):
+                validate_zabbix_field_shape(field)
+        names = [field.get('name') for field in fields if isinstance(field, dict)]
+        names = [entry for entry in names if isinstance(entry, str)]
+        if len(names) != len(set(names)):
+            raise ProjectValidationError('duplicate_widget_field', 'duplicate widget field name')
+
+
+def validate_project_shape(project, expected_format=None):
+    fmt = project.get('format') if isinstance(project, dict) else None
+    if expected_format is not None and fmt != expected_format:
+        raise ProjectValidationError('project_format', f'expected {expected_format}, got {fmt!r}')
+    project_schema_name(project)
+    if fmt != 'zdashstitch.project/v2':
+        return project
+    kind = project.get('kind')
+    if kind not in {'dashboard', 'page'}:
+        raise ProjectValidationError('unknown_project_kind', f'unknown project kind: {kind!r}')
+    provenance = project.get('provenance')
+    provenance_kind = provenance.get('kind') if isinstance(provenance, dict) else None
+    if provenance_kind not in {'local', 'migrated_v1', 'server_snapshot'}:
+        raise ProjectValidationError(
+            'unknown_provenance_kind', f'unknown provenance kind: {provenance_kind!r}'
+        )
+    root = project.get('root')
+    root_kind = None
+    if isinstance(root, dict):
+        if 'pages' in root:
+            root_kind = 'dashboard'
+        elif 'widgets' in root:
+            root_kind = 'page'
+    if root_kind != kind:
+        raise ProjectValidationError('project_kind_root', 'project kind does not match root object')
+    if provenance_kind == 'migrated_v1':
+        has_page = 'source_page_id' in provenance
+        if kind == 'dashboard' and has_page:
+            raise ProjectValidationError(
+                'dashboard_source_page',
+                'dashboard migration provenance cannot contain source_page_id',
+            )
+        if kind == 'page' and not has_page:
+            raise ProjectValidationError(
+                'page_source_missing', 'page migration provenance requires source_page_id'
+            )
+    compatibility = project.get('declared_compatibility')
+    if isinstance(compatibility, dict) and 'minimum' in compatibility:
+        minimum = parsed_version(compatibility['minimum'])
+        if 'maximum_exclusive' in compatibility:
+            maximum = parsed_version(compatibility['maximum_exclusive'])
+            if minimum >= maximum:
+                raise ProjectValidationError(
+                    'invalid_version_range',
+                    'maximum_exclusive must be greater than minimum',
+                )
+    validate_zabbix_widget_shape(project)
+    return project
+
+
+def project_dashboards(project):
+    if project['format'] == 'zdashstitch.project/v1':
+        return project['dashboards']
+    root = project['root']
+    if project['kind'] == 'dashboard':
+        return [root]
+    return [{'id': 'page-root', 'name': 'Page root', 'kind': 'global', 'pages': [root]}]
+
+
+def validate_portable_host(hosts, roles):
+    role_name = hosts['role']
+    if role_name not in roles:
+        raise ProjectValidationError('unknown_role', f'unknown role {role_name}')
+    role = roles[role_name]
+    selection = hosts['selection']
+    if selection == 'one' and role['cardinality'] != 'one':
+        raise ProjectValidationError(
+            'one_requires_singleton',
+            'one selector requires one cardinality; use a named slot for many',
+        )
+    if selection == 'slot' and hosts['slot_id'] not in role.get('slots', []):
+        raise ProjectValidationError('unknown_role_slot', 'unknown role slot')
+
+
+def validate_single_reference(hosts, roles):
+    """A generic Zabbix widget field holds one object: `all` needs a one-host role."""
+    if hosts['selection'] == 'all' and roles[hosts['role']]['cardinality'] != 'one':
+        raise ProjectValidationError(
+            'widget_single_reference_multi',
+            'a widget field references one object; select one host or a named slot',
+        )
+
+
 def validate_content(project, catalogs):
-    assert_valid(project, schema('project-v1.schema.json'))
+    validate_project_shape(project)
+    assert_valid(project, schema(project_schema_name(project)))
     declared = [c['id'] for c in project['catalogs']]
     if len(declared) != len(set(declared)):
         raise ValueError('Duplicate catalog ID')
@@ -163,7 +364,7 @@ def validate_content(project, catalogs):
             raise ValueError('Catalog ID mismatch')
         catalog_data[spec['id']] = validate_catalog(entry)
     dashids = set()
-    for dash in project['dashboards']:
+    for dash in project_dashboards(project):
         if dash['id'] in dashids:
             raise ValueError('Duplicate dashboard id')
         dashids.add(dash['id'])
@@ -177,7 +378,36 @@ def validate_content(project, catalogs):
                 if w['id'] in widgetids:
                     raise ValueError('Duplicate widget id')
                 widgetids.add(w['id'])
-                references = [(s['metric'], s['hosts']) for s in w['series']] if w['type'] == 'graph' else [(w['metric'], w['hosts'])]
+                if w['type'] == 'zabbix':
+                    # Field shape, type/value agreement and duplicates are checked before
+                    # JSON Schema in validate_zabbix_widget_shape; only cross-file links remain.
+                    for field in w['fields']:
+                        value = field['value']
+                        kind = value['kind']
+                        if kind == 'host':
+                            validate_portable_host(value, project['roles'])
+                            validate_single_reference(value, project['roles'])
+                        elif kind == 'metric':
+                            validate_portable_host(value['hosts'], project['roles'])
+                            validate_single_reference(value['hosts'], project['roles'])
+                            if (
+                                value['catalog'] not in catalog_data
+                                or value['metric'] not in catalog_data[value['catalog']]
+                            ):
+                                raise ProjectValidationError('unknown_metric', 'unknown metric')
+                            metric = catalog_data[value['catalog']][value['metric']]
+                            if field['field_type'] == 4 and metric['value_type'] == 'binary':
+                                raise ProjectValidationError(
+                                    'binary_item_value',
+                                    'binary metrics are unsupported in item fields',
+                                )
+                    references = []
+                else:
+                    references = (
+                        [(s['metric'], s['hosts']) for s in w['series']]
+                        if w['type'] == 'graph'
+                        else [(w['metric'], w['hosts'])]
+                    )
                 for metric, hosts in references:
                     role = hosts['role']
                     if role not in project['roles']:
@@ -216,10 +446,53 @@ def validate_content(project, catalogs):
     return project
 
 
+def migrate_legacy_project(project, kind, dashboard_id, page_id=None):
+    """Explicit, lossless root selection from legacy multi-dashboard project/v1."""
+    assert_valid(project, schema('project-v1.schema.json'))
+    dashboard = next((d for d in project['dashboards'] if d['id'] == dashboard_id), None)
+    if dashboard is None:
+        raise ValueError(f'legacy_root_not_found: dashboard {dashboard_id}')
+    if kind == 'dashboard':
+        if page_id is not None:
+            raise ValueError('legacy_selection: page_id is not valid for dashboard migration')
+        root = copy.deepcopy(dashboard)
+        source_page_id = None
+    elif kind == 'page':
+        if page_id is None:
+            raise ValueError('legacy_selection: page migration requires page_id')
+        root = next((copy.deepcopy(p) for p in dashboard['pages'] if p['id'] == page_id), None)
+        if root is None:
+            raise ValueError(f'legacy_root_not_found: page {dashboard_id}/{page_id}')
+        source_page_id = page_id
+    else:
+        raise ValueError(f'unknown_project_kind: {kind}')
+    provenance = {
+        'kind': 'migrated_v1',
+        'legacy_format': 'zdashstitch.project/v1',
+        'source_project_id': project['project_id'],
+        'source_dashboard_id': dashboard_id,
+    }
+    if source_page_id is not None:
+        provenance['source_page_id'] = source_page_id
+    migrated = {
+        'format': 'zdashstitch.project/v2',
+        'project_id': project['project_id'],
+        'kind': kind,
+        'declared_compatibility': {'minimum': '7.4.0'},
+        'provenance': provenance,
+        'catalogs': copy.deepcopy(project['catalogs']),
+        'roles': copy.deepcopy(project['roles']),
+        'root': root,
+    }
+    assert_valid(migrated, schema('project-v2.schema.json'))
+    return migrated
+
+
 def validate_project(path):
     path = Path(path)
     project = load(path)
-    assert_valid(project, schema('project-v1.schema.json'))
+    validate_project_shape(project)
+    assert_valid(project, schema(project_schema_name(project)))
     catalog_data = {}
     for spec in project['catalogs']:
         rel = spec['file']
@@ -319,7 +592,7 @@ def validate_deployment_state(data, project=None, bindings=None):
     return data
 
 
-def validate_package(path):
+def validate_package(path, expected_format=None):
     path = Path(path)
     # Read package without extraction. No executable files or arbitrary resources.
     if not zipfile.is_zipfile(path):
@@ -358,7 +631,8 @@ def validate_package(path):
         if ARCHIVE_PROJECT not in raw:
             raise ValueError('Package has no project.yaml')
         project = load_bytes(raw[ARCHIVE_PROJECT])
-        assert_valid(project, schema('project-v1.schema.json'))
+        validate_project_shape(project, expected_format)
+        assert_valid(project, schema(project_schema_name(project)))
         needed = {c['file'] for c in project['catalogs']} | {ARCHIVE_PROJECT}
         if names != needed:
             raise ValueError('Missing or unexpected catalog entries')

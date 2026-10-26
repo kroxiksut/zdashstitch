@@ -1,0 +1,26 @@
+{
+  "nav.start": {
+    "message": "Начало",
+    "placeholders": {}
+  },
+  "nav.drafts": {
+    "message": "Черновики",
+    "placeholders": {}
+  },
+  "nav.server": {
+    "message": "Панели в Zabbix",
+    "placeholders": {}
+  },
+  "nav.library": {
+    "message": "Библиотека",
+    "placeholders": {}
+  },
+  "nav.connections": {
+    "message": "Подключения",
+    "placeholders": {}
+  },
+  "nav.settings": {
+    "message": "Настройки",
+    "placeholders": {}
+  }
+}

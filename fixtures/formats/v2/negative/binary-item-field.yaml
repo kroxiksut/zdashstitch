@@ -1,0 +1,19 @@
+format: zdashstitch.project/v2
+project_id: binary-item-field
+kind: page
+declared_compatibility: {minimum: 7.4.0}
+provenance: {kind: local}
+catalogs: [{id: binary, file: metrics/binary.yaml}]
+roles: {database: {cardinality: one}}
+root:
+  id: binary-item-field
+  name: Negative case
+  widgets:
+    - id: zabbix-widget
+      type: zabbix
+      widget_type: item
+      name: Widget
+      registry_state: known
+      fields:
+        - {name: itemid.0, field_type: 4, registry_state: known, value: {kind: metric, catalog: binary, metric: payload, hosts: {role: database, selection: one}}}
+      layout: {mode: auto, w: 18, h: 4}

@@ -1,0 +1,68 @@
+format: zdashstitch.project/v2
+project_id: global-view
+kind: page
+declared_compatibility:
+  minimum: 7.4.0
+provenance:
+  kind: server_snapshot
+catalogs: []
+roles: {}
+root:
+  id: global-view
+  name: Global view
+  widgets:
+    - id: global-clock
+      type: zabbix
+      widget_type: clock
+      name: Время
+      registry_state: known
+      fields: []
+      layout: {mode: fixed, x: 0, y: 0, w: 12, h: 4}
+    - id: global-problems
+      type: zabbix
+      widget_type: problems
+      name: Проблемы
+      registry_state: known
+      fields:
+        - name: groupids.0
+          field_type: 2
+          registry_state: known
+          value: {kind: unresolved, object_kind: host_group, display_name: Production}
+      layout: {mode: fixed, x: 0, y: 4, w: 36, h: 12}
+    - id: global-tophosts
+      type: zabbix
+      widget_type: tophosts
+      name: Топ узлов сети
+      registry_state: known
+      fields:
+        - name: columns.0.item
+          field_type: 1
+          registry_state: known
+          value: {kind: string, value: "system.cpu.load[,avg1]"}
+      layout: {mode: fixed, x: 36, y: 4, w: 36, h: 12}
+    - id: global-gauge
+      type: zabbix
+      widget_type: gauge
+      name: Датчик
+      registry_state: known
+      fields:
+        - name: itemid.0
+          field_type: 4
+          registry_state: unknown
+          value: {kind: unresolved, object_kind: item, display_name: CPU utilization}
+      layout: {mode: fixed, x: 0, y: 16, w: 18, h: 8}
+    - id: global-svggraph
+      type: zabbix
+      widget_type: svggraph
+      name: График
+      registry_state: known
+      fields:
+        - name: ds.0.items.0
+          field_type: 1
+          registry_state: known
+          value: {kind: string, value: "system.cpu.util"}
+        - name: reference
+          field_type: 1
+          registry_state: known
+          value: {kind: string, value: "ABCDE"}
+      layout: {mode: fixed, x: 18, y: 16, w: 54, h: 8}

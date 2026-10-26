@@ -1,0 +1,19 @@
+format: zdashstitch.project/v2
+project_id: integer-item-field
+kind: page
+declared_compatibility: {minimum: 7.4.0}
+provenance: {kind: local}
+catalogs: []
+roles: {}
+root:
+  id: integer-item-field
+  name: Negative case
+  widgets:
+    - id: zabbix-widget
+      type: zabbix
+      widget_type: item
+      name: Widget
+      registry_state: known
+      fields:
+        - {name: itemid.0, field_type: 4, registry_state: known, value: {kind: integer, value: 10101}}
+      layout: {mode: auto, w: 18, h: 4}

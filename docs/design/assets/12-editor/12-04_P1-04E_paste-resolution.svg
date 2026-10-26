@@ -1,0 +1,232 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 1600 1000" fill="#17213a" role="img" aria-labelledby="title desc">
+  <title id="title">ZDashstitch — редактор: вставка виджетов</title>
+  <desc id="desc">Светлый макет вставки трёх виджетов со страницы другой панели на страницу «Keeper и HAProxy»: исходные места заняты — предложены свободные, связи виджетов сохранены, роль узлов сети отсутствует в черновике, тип без изменения копируется как есть; холст показывает места вставки.</desc>
+  <defs>
+    <!-- Tabler Icons outline v3.49.0 (MIT), see assets/icons/THIRD_PARTY.md -->
+    <symbol id="ti-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5l0 14"/><path d="M5 12l14 0"/></symbol>
+    <symbol id="ti-arrow-back-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14l-4 -4l4 -4"/><path d="M5 10h11a4 4 0 1 1 0 8h-1"/></symbol>
+    <symbol id="ti-arrow-forward-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14l4 -4l-4 -4"/><path d="M19 10h-11a4 4 0 1 0 0 8h1"/></symbol>
+    <symbol id="ti-zoom-in" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M7 10l6 0"/><path d="M10 7l0 6"/><path d="M21 21l-6 -6"/></symbol>
+    <symbol id="ti-zoom-out" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M7 10l6 0"/><path d="M21 21l-6 -6"/></symbol>
+    <symbol id="ti-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5l10 -10"/></symbol>
+    <symbol id="ti-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6l6 -6"/></symbol>
+    <symbol id="ti-chevron-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6l-6 6"/></symbol>
+    <symbol id="ti-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/></symbol>
+    <symbol id="ti-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6l-12 12"/><path d="M6 6l12 12"/></symbol>
+    <symbol id="ti-ban" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M5.7 5.7l12.6 12.6"/></symbol>
+    <symbol id="ti-info-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M12 9h.01"/><path d="M11 12h1v4h1"/></symbol>
+    <symbol id="ti-alert-triangle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0"/><path d="M12 16h.01"/></symbol>
+    <symbol id="ti-circle-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M9 12l2 2l4 -4"/></symbol>
+    <symbol id="ti-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 9.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667l0 -8.666"/><path d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1"/></symbol>
+    <symbol id="ti-grip-vertical" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M8 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M8 19a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M14 5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M14 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M14 19a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/></symbol>
+    <symbol id="ti-pencil" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4"/><path d="M13.5 6.5l4 4"/></symbol>
+    <symbol id="ti-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065"/><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/></symbol>
+    <style>
+      text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+      .muted{fill:#667085}.white{fill:#ffffff}.small{font-size:14px}.xs{font-size:12px}.label{font-size:13px;font-weight:700;letter-spacing:.08em}
+      .title{font-size:24px;font-weight:750}.h3{font-size:17px;font-weight:700}.body{font-size:16px}.button{font-size:15px;font-weight:700}
+      .nav{font-size:17px}.badge{font-size:13px;font-weight:650}.row{font-size:15px;font-weight:650}
+      .mono{font-family:ui-monospace,"Cascadia Mono",Consolas,monospace;font-size:13px;fill:#344054}
+    </style>
+  </defs>
+  <rect width="1600" height="1000" fill="#f5f7fb"/>
+
+  <!-- App bar: global navigation (P1-01B §1) -->
+  <rect width="1600" height="72" fill="#ffffff" stroke="#e4e7ec"/>
+  <image href="../../../../assets/brand/icons/stezhik-head-1024.png" x="32" y="18" width="36" height="36" preserveAspectRatio="xMidYMid meet"/>
+  <text x="80" y="45" font-size="20" font-weight="750">ZDashstitch</text>
+  <text x="232" y="44" font-size="15" font-weight="500" fill="#475467">Начало</text>
+  <text x="318" y="44" font-size="15" font-weight="700" fill="#1d3f86">Черновики</text>
+  <rect x="318" y="67" width="80" height="4" rx="2" fill="#3156a3"/>
+  <text x="430" y="44" font-size="15" font-weight="500" fill="#475467">Панели в Zabbix</text>
+  <text x="582" y="44" font-size="15" font-weight="500" fill="#475467">Библиотека</text>
+  <text x="702" y="44" font-size="15" font-weight="500" fill="#475467">Подключения</text>
+  <rect x="1288" y="19" width="120" height="34" rx="17" fill="#eef4ff"/>
+  <text x="1348" y="41" font-size="14" text-anchor="middle" fill="#3156a3">Автономно</text>
+  <rect x="1424" y="18" width="144" height="36" rx="8" fill="#ffffff" stroke="#c9d3ea"/>
+  <use href="#ti-settings" x="1438" y="27" width="18" height="18" color="#475467"/>
+  <text x="1464" y="41" font-size="15" font-weight="600" fill="#17213a">Настройки</text>
+
+  <!-- Workspace -->
+  <rect x="0" y="72" width="260" height="928" fill="#ffffff" stroke="#e4e7ec"/>
+  <text x="24" y="112" class="label muted">ВИДЖЕТЫ СТРАНИЦЫ</text>
+  <text x="24" y="134" class="xs muted">сверху вниз, слева направо</text>
+  <text x="28" y="172" class="small" font-weight="600">Keeper sessions</text>
+  <text x="28" y="192" class="xs muted">График · 0, 0 · 24 × 4</text>
+  <text x="28" y="232" class="small" font-weight="600">Keeper latency</text>
+  <text x="28" y="252" class="xs muted">График · 24, 0 · 24 × 4</text>
+  <text x="28" y="292" class="small" font-weight="600">ZNodes</text>
+  <text x="28" y="312" class="xs muted">Значение элемента данных · 48, 0 · 24 × 4</text>
+  <text x="28" y="352" class="small" font-weight="600">HAProxy backends</text>
+  <text x="28" y="372" class="xs muted">График · 0, 4 · 36 × 5</text>
+  <text x="28" y="412" class="small" font-weight="600">HAProxy errors</text>
+  <text x="28" y="432" class="xs muted">График · 36, 4 · 36 × 5</text>
+  <text x="28" y="472" class="small" font-weight="600">Время</text>
+  <text x="28" y="492" class="xs muted">Часы · 0, 9 · 12 × 1</text>
+  <!-- Title -->
+  <text x="292" y="92" font-size="13" fill="#667085">Черновики  /  Базы данных: сводная  /  Структура  /  Keeper и HAProxy</text>
+  <rect x="1434" y="100" width="110" height="28" rx="14" fill="#ecfdf3"/>
+  <text x="1489" y="119" font-size="13" font-weight="650" text-anchor="middle" fill="#1f6b43">Локальная</text>
+  <rect x="1324" y="100" width="100" height="28" rx="14" fill="#fff4e5"/>
+  <text x="1374" y="119" font-size="13" font-weight="650" text-anchor="middle" fill="#8a4b00">Изменена</text>
+  <text x="292" y="124" class="title">Редактор страницы «Keeper и HAProxy»</text>
+  <rect x="292" y="140" width="132" height="36" rx="8" fill="#f5f7fb" stroke="#d0d5dd"/>
+  <text x="358.0" y="163" class="small" fill="#475467" text-anchor="middle" font-weight="600">PostgreSQL</text>
+  <rect x="432" y="140" width="128" height="36" rx="8" fill="#f5f7fb" stroke="#d0d5dd"/>
+  <text x="496.0" y="163" class="small" fill="#475467" text-anchor="middle" font-weight="600">ClickHouse</text>
+  <rect x="568" y="140" width="176" height="36" rx="8" fill="#ffffff" stroke="#3156a3" stroke-width="2"/>
+  <text x="656.0" y="163" class="small" fill="#1d3f86" text-anchor="middle" font-weight="700">Keeper и HAProxy</text>
+  <rect x="752" y="140" width="36" height="36" rx="8" fill="#ffffff" stroke="#7a8d9b"/>
+  <use href="#ti-plus" x="760" y="148" width="20" height="20" color="#475467"><title>Добавить страницу</title></use>
+  <rect x="292" y="186" width="520" height="704" rx="12" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="312" y="214" class="label muted">МЕСТА ВСТАВКИ</text>
+  <!-- Canvas: 72 columns, integer cells -->
+  <rect x="316" y="246" width="475.2" height="333.0" fill="#ffffff" stroke="#c9d3ea"/>
+  <line x1="322.6" y1="246" x2="322.6" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="329.2" y1="246" x2="329.2" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="335.8" y1="246" x2="335.8" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="342.4" y1="246" x2="342.4" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="349.0" y1="246" x2="349.0" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="355.6" y1="246" x2="355.6" y2="579.0" stroke="#d6dde8"/>
+  <line x1="362.2" y1="246" x2="362.2" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="368.8" y1="246" x2="368.8" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="375.4" y1="246" x2="375.4" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="382.0" y1="246" x2="382.0" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="388.6" y1="246" x2="388.6" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="395.2" y1="246" x2="395.2" y2="579.0" stroke="#d6dde8"/>
+  <line x1="401.8" y1="246" x2="401.8" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="408.4" y1="246" x2="408.4" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="415.0" y1="246" x2="415.0" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="421.6" y1="246" x2="421.6" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="428.2" y1="246" x2="428.2" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="434.8" y1="246" x2="434.8" y2="579.0" stroke="#d6dde8"/>
+  <line x1="441.4" y1="246" x2="441.4" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="448.0" y1="246" x2="448.0" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="454.6" y1="246" x2="454.6" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="461.2" y1="246" x2="461.2" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="467.8" y1="246" x2="467.8" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="474.4" y1="246" x2="474.4" y2="579.0" stroke="#d6dde8"/>
+  <line x1="481.0" y1="246" x2="481.0" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="487.6" y1="246" x2="487.6" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="494.2" y1="246" x2="494.2" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="500.8" y1="246" x2="500.8" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="507.4" y1="246" x2="507.4" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="514.0" y1="246" x2="514.0" y2="579.0" stroke="#d6dde8"/>
+  <line x1="520.6" y1="246" x2="520.6" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="527.2" y1="246" x2="527.2" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="533.8" y1="246" x2="533.8" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="540.4" y1="246" x2="540.4" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="547.0" y1="246" x2="547.0" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="553.6" y1="246" x2="553.6" y2="579.0" stroke="#d6dde8"/>
+  <line x1="560.2" y1="246" x2="560.2" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="566.8" y1="246" x2="566.8" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="573.4" y1="246" x2="573.4" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="580.0" y1="246" x2="580.0" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="586.6" y1="246" x2="586.6" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="593.2" y1="246" x2="593.2" y2="579.0" stroke="#d6dde8"/>
+  <line x1="599.8" y1="246" x2="599.8" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="606.4" y1="246" x2="606.4" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="613.0" y1="246" x2="613.0" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="619.6" y1="246" x2="619.6" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="626.2" y1="246" x2="626.2" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="632.8" y1="246" x2="632.8" y2="579.0" stroke="#d6dde8"/>
+  <line x1="639.4" y1="246" x2="639.4" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="646.0" y1="246" x2="646.0" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="652.6" y1="246" x2="652.6" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="659.2" y1="246" x2="659.2" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="665.8" y1="246" x2="665.8" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="672.4" y1="246" x2="672.4" y2="579.0" stroke="#d6dde8"/>
+  <line x1="679.0" y1="246" x2="679.0" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="685.6" y1="246" x2="685.6" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="692.2" y1="246" x2="692.2" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="698.8" y1="246" x2="698.8" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="705.4" y1="246" x2="705.4" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="712.0" y1="246" x2="712.0" y2="579.0" stroke="#d6dde8"/>
+  <line x1="718.6" y1="246" x2="718.6" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="725.2" y1="246" x2="725.2" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="731.8" y1="246" x2="731.8" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="738.4" y1="246" x2="738.4" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="745.0" y1="246" x2="745.0" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="751.6" y1="246" x2="751.6" y2="579.0" stroke="#d6dde8"/>
+  <line x1="758.2" y1="246" x2="758.2" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="764.8" y1="246" x2="764.8" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="771.4" y1="246" x2="771.4" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="778.0" y1="246" x2="778.0" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="784.6" y1="246" x2="784.6" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="316" y1="264.5" x2="791.2" y2="264.5" stroke="#f0f2f5"/>
+  <line x1="316" y1="283.0" x2="791.2" y2="283.0" stroke="#f0f2f5"/>
+  <line x1="316" y1="301.5" x2="791.2" y2="301.5" stroke="#f0f2f5"/>
+  <line x1="316" y1="320.0" x2="791.2" y2="320.0" stroke="#f0f2f5"/>
+  <line x1="316" y1="338.5" x2="791.2" y2="338.5" stroke="#f0f2f5"/>
+  <line x1="316" y1="357.0" x2="791.2" y2="357.0" stroke="#f0f2f5"/>
+  <line x1="316" y1="375.5" x2="791.2" y2="375.5" stroke="#f0f2f5"/>
+  <line x1="316" y1="394.0" x2="791.2" y2="394.0" stroke="#f0f2f5"/>
+  <line x1="316" y1="412.5" x2="791.2" y2="412.5" stroke="#f0f2f5"/>
+  <line x1="316" y1="431.0" x2="791.2" y2="431.0" stroke="#f0f2f5"/>
+  <line x1="316" y1="449.5" x2="791.2" y2="449.5" stroke="#f0f2f5"/>
+  <line x1="316" y1="468.0" x2="791.2" y2="468.0" stroke="#f0f2f5"/>
+  <line x1="316" y1="486.5" x2="791.2" y2="486.5" stroke="#f0f2f5"/>
+  <line x1="316" y1="505.0" x2="791.2" y2="505.0" stroke="#f0f2f5"/>
+  <line x1="316" y1="523.5" x2="791.2" y2="523.5" stroke="#f0f2f5"/>
+  <line x1="316" y1="542.0" x2="791.2" y2="542.0" stroke="#f0f2f5"/>
+  <line x1="316" y1="560.5" x2="791.2" y2="560.5" stroke="#f0f2f5"/>
+  <rect x="318.0" y="248.0" width="154.4" height="70.0" rx="6" fill="#ffffff" stroke="#b8c2d0" stroke-width="1"/>
+  <text x="326.0" y="266.0" class="xs" font-weight="700">Keeper sessions</text>
+  <rect x="476.4" y="248.0" width="154.4" height="70.0" rx="6" fill="#ffffff" stroke="#b8c2d0" stroke-width="1"/>
+  <text x="484.4" y="266.0" class="xs" font-weight="700">Keeper latency</text>
+  <rect x="634.8" y="248.0" width="154.4" height="70.0" rx="6" fill="#ffffff" stroke="#b8c2d0" stroke-width="1"/>
+  <text x="642.8" y="266.0" class="xs" font-weight="700">ZNodes</text>
+  <rect x="318.0" y="322.0" width="233.6" height="88.5" rx="6" fill="#ffffff" stroke="#b8c2d0" stroke-width="1"/>
+  <text x="326.0" y="340.0" class="xs" font-weight="700">HAProxy backends</text>
+  <rect x="555.6" y="322.0" width="233.6" height="88.5" rx="6" fill="#ffffff" stroke="#b8c2d0" stroke-width="1"/>
+  <text x="563.6" y="340.0" class="xs" font-weight="700">HAProxy errors</text>
+  <rect x="318.0" y="414.5" width="75.2" height="14.5" rx="6" fill="#ffffff" stroke="#b8c2d0" stroke-width="1"/>
+  <rect x="318.0" y="433.0" width="233.6" height="88.5" rx="6" fill="#eef4ff" fill-opacity=".7" stroke="#3156a3" stroke-dasharray="6 4" stroke-width="2"/>
+  <text x="326.0" y="451.0" class="xs" fill="#1d3f86" font-weight="700">Queries per second</text>
+  <text x="326.0" y="467.0" class="xs" fill="#1d3f86">вставка · 0, 10</text>
+  <rect x="555.6" y="433.0" width="154.4" height="51.5" rx="6" fill="#eef4ff" fill-opacity=".7" stroke="#3156a3" stroke-dasharray="6 4" stroke-width="2"/>
+  <text x="563.6" y="451.0" class="xs" fill="#1d3f86" font-weight="700">Replication lag</text>
+  <text x="563.6" y="467.0" class="xs" fill="#1d3f86">вставка · 36, 10</text>
+  <rect x="555.6" y="488.5" width="154.4" height="51.5" rx="6" fill="#eef4ff" fill-opacity=".7" stroke="#3156a3" stroke-dasharray="6 4" stroke-width="2"/>
+  <text x="563.6" y="506.5" class="xs" fill="#1d3f86" font-weight="700">Top queries</text>
+  <text x="563.6" y="522.5" class="xs" fill="#1d3f86">вставка · 36, 13</text>
+  <text x="312" y="600" class="xs muted">Пунктир — новые виджеты. Существующие</text>
+  <text x="312" y="618" class="xs muted">не сдвигаются.</text>
+  <rect x="832" y="140" width="748" height="750" rx="16" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="856" y="182" class="title">Вставить 3 виджета</text>
+  <text x="856" y="210" class="small muted">Из «Базы данных: Prod» → страница «ClickHouse». Источник не меняется.</text>
+  <rect x="856" y="236" width="700" height="90" rx="10" fill="#ffffff" stroke="#e4e7ec"/>
+  <use href="#ti-circle-check" x="872" y="250" width="20" height="20" color="#1f6b43"/>
+  <text x="902" y="266" class="body" font-weight="700">Queries per second</text>
+  <text x="1540" y="266" class="small muted" text-anchor="end">График</text>
+  <text x="902" y="292" class="small">место 36, 0 занято → 0, 10</text>
+  <text x="1540" y="292" class="small" fill="#3156a3" text-anchor="end" font-weight="650">Изменить место</text>
+  <text x="902" y="314" class="xs muted">Связь «период» с Replication lag вставляется вместе</text>
+  <rect x="856" y="336" width="700" height="146" rx="10" fill="#ffffff" stroke="#e4e7ec"/>
+  <use href="#ti-alert-triangle" x="872" y="350" width="20" height="20" color="#8a4b00"/>
+  <text x="902" y="366" class="body" font-weight="700">Replication lag</text>
+  <text x="1540" y="366" class="small muted" text-anchor="end">Значение элемента данных</text>
+  <text x="902" y="392" class="small">место 0, 5 занято → 36, 10</text>
+  <text x="1540" y="392" class="small" fill="#3156a3" text-anchor="end" font-weight="650">Изменить место</text>
+  <text x="902" y="414" class="xs" fill="#8a4b00">Роль узлов «ClickHouse» в этом черновике нет</text>
+  <circle cx="914" cy="444" r="9" fill="#ffffff" stroke="#3156a3" stroke-width="2"/>
+  <circle cx="914" cy="444" r="4.5" fill="#3156a3"/>
+  <text x="934" y="450" class="small">Добавить роль «ClickHouse» (узлы — в «Привязках»)</text>
+  <circle cx="914" cy="468" r="9" fill="#ffffff" stroke="#7a8d9b" stroke-width="2"/>
+  <text x="934" y="474" class="small">Оставить ссылку «нужна привязка»</text>
+  <rect x="856" y="492" width="700" height="90" rx="10" fill="#ffffff" stroke="#e4e7ec"/>
+  <use href="#ti-ban" x="872" y="506" width="20" height="20" color="#8a4b00"/>
+  <text x="902" y="522" class="body" font-weight="700">Top queries</text>
+  <text x="1540" y="522" class="small muted" text-anchor="end">Топ узлов сети</text>
+  <text x="902" y="548" class="small">место 48, 5 занято → 36, 13</text>
+  <text x="1540" y="548" class="small" fill="#3156a3" text-anchor="end" font-weight="650">Изменить место</text>
+  <text x="902" y="570" class="xs muted">Копируется как есть: изменение не поддерживается</text>
+  <text x="856" y="610" class="label muted">ССЫЛКИ МЕЖДУ ВИДЖЕТАМИ</text>
+  <text x="856" y="634" class="small">Значение reference «QPS01» на этой странице уже занято — переименуется</text>
+  <text x="856" y="656" class="small">в «QPS02» у источника и у всех, кто на него ссылается.</text>
+  <text x="856" y="696" class="xs muted">Отменить вставку можно одним Ctrl+Z.</text>
+  <rect x="1268" y="830" width="120" height="42" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="1328" y="856" class="button" text-anchor="middle">Отмена</text>
+  <rect x="1400" y="830" width="156" height="42" rx="10" fill="#3156a3" stroke="#3156a3"/>
+  <text x="1478" y="856" class="button white" text-anchor="middle">Вставить 3</text>
+</svg>

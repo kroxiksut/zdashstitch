@@ -1,0 +1,11 @@
+format: zdashstitch.project/v2
+project_id: wrong-dashboard-root
+kind: dashboard
+declared_compatibility: {minimum: 7.4.0}
+provenance: {kind: local}
+catalogs: [{id: linux, file: metrics/linux.yaml}]
+roles: {system_nodes: {cardinality: many}}
+root:
+  id: page-one
+  name: Page
+  widgets: []

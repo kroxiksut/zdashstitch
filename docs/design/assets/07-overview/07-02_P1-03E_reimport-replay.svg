@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 1600 1000" fill="#17213a" role="img" aria-labelledby="title desc">
+  <title id="title">ZDashstitch — копирование заново: переигрывание правок</title>
+  <desc id="desc">Светлый макет «Обзора» копии с сервера после «Скопировать заново»: происхождение и версии базы, локальные операции переиграны на новой базе — применились, конфликт с изменением на сервере и цель исчезла; ручное решение каждого случая без молчаливого слияния.</desc>
+  <defs>
+    <!-- Tabler Icons outline v3.49.0 (MIT), see assets/icons/THIRD_PARTY.md -->
+    <symbol id="ti-circle-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M9 12l2 2l4 -4"/></symbol>
+    <symbol id="ti-alert-triangle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0"/><path d="M12 16h.01"/></symbol>
+    <symbol id="ti-circle-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M10 10l4 4m0 -4l-4 4"/></symbol>
+    <symbol id="ti-chevron-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6l-6 6"/></symbol>
+    <symbol id="ti-info-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M12 9h.01"/><path d="M11 12h1v4h1"/></symbol>
+    <symbol id="ti-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065"/><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/></symbol>
+    <style>
+      text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+      .muted{fill:#667085}.white{fill:#ffffff}.small{font-size:14px}.xs{font-size:12px}.label{font-size:13px;font-weight:700;letter-spacing:.08em}
+      .title{font-size:24px;font-weight:750}.h3{font-size:17px;font-weight:700}.body{font-size:16px}.button{font-size:15px;font-weight:700}
+      .nav{font-size:17px}.badge{font-size:13px;font-weight:650}.row{font-size:15px;font-weight:650}
+      .mono{font-family:ui-monospace,"Cascadia Mono",Consolas,monospace;font-size:13px;fill:#344054}
+    </style>
+  </defs>
+  <rect width="1600" height="1000" fill="#f5f7fb"/>
+
+  <!-- App bar: global navigation (P1-01B §1) -->
+  <rect width="1600" height="72" fill="#ffffff" stroke="#e4e7ec"/>
+  <image href="../../../../assets/brand/icons/stezhik-head-1024.png" x="32" y="18" width="36" height="36" preserveAspectRatio="xMidYMid meet"/>
+  <text x="80" y="45" font-size="20" font-weight="750">ZDashstitch</text>
+  <text x="232" y="44" font-size="15" font-weight="500" fill="#475467">Начало</text>
+  <text x="318" y="44" font-size="15" font-weight="700" fill="#1d3f86">Черновики</text>
+  <rect x="318" y="67" width="80" height="4" rx="2" fill="#3156a3"/>
+  <text x="430" y="44" font-size="15" font-weight="500" fill="#475467">Панели в Zabbix</text>
+  <text x="582" y="44" font-size="15" font-weight="500" fill="#475467">Библиотека</text>
+  <text x="702" y="44" font-size="15" font-weight="500" fill="#475467">Подключения</text>
+  <rect x="1138" y="19" width="270" height="34" rx="17" fill="#eef4ff"/>
+  <text x="1273" y="41" font-size="14" text-anchor="middle" fill="#3156a3">Только чтение · Лаборатория 7.4</text>
+  <rect x="1424" y="18" width="144" height="36" rx="8" fill="#ffffff" stroke="#c9d3ea"/>
+  <use href="#ti-settings" x="1438" y="27" width="18" height="18" color="#475467"/>
+  <text x="1464" y="41" font-size="15" font-weight="600" fill="#17213a">Настройки</text>
+
+  <!-- Workspace -->
+  <rect x="0" y="72" width="260" height="928" fill="#ffffff" stroke="#e4e7ec"/>
+  <text x="28" y="116" class="label muted">ПАНЕЛЬ</text>
+  <rect x="16" y="136" width="228" height="46" rx="10" fill="#eef4ff"/>
+  <text x="36" y="166" class="nav" font-weight="700" fill="#1d3f86">Обзор</text>
+  <text x="36" y="214" class="nav">Структура</text>
+  <text x="36" y="262" class="nav">Привязки</text>
+  <text x="36" y="310" class="nav">Проверки</text>
+  <text x="36" y="358" class="nav">Публикация</text>
+  <line x1="20" y1="392" x2="240" y2="392" stroke="#e4e7ec"/>
+  <text x="28" y="428" class="label muted">ПРОИСХОЖДЕНИЕ</text>
+  <text x="28" y="458" class="body" font-weight="650">Копия с сервера</text>
+  <text x="28" y="484" class="small muted">«Базы данных: Prod»</text>
+  <text x="28" y="508" class="small muted">Лаборатория 7.4</text>
+  <text x="28" y="532" class="small muted">база: 25.10, 14:02</text>
+  <text x="28" y="556" class="small muted">новая 14:45 — на проверке</text>
+  <!-- Title -->
+  <text x="292" y="92" font-size="13" fill="#667085">Черновики  /  Базы данных: Prod  /  Обзор</text>
+  <rect x="1444" y="100" width="100" height="28" rx="14" fill="#fff4e5"/>
+  <text x="1494" y="119" font-size="13" font-weight="650" text-anchor="middle" fill="#8a4b00">Изменена</text>
+  <rect x="1284" y="100" width="150" height="28" rx="14" fill="#f2f4f7"/>
+  <text x="1359" y="119" font-size="13" font-weight="650" text-anchor="middle" fill="#344054">Копия с сервера</text>
+  <text x="292" y="124" class="title">Базы данных: Prod</text>
+  <rect x="292" y="144" width="1252" height="76" rx="14" fill="#fff8ed" stroke="#f3d3a6"/>
+  <use href="#ti-alert-triangle" x="316" y="164" width="24" height="24" color="#8a4b00"/>
+  <text x="352" y="176" class="h3" fill="#8a4b00">Скопировано заново: 9 из 11 ваших правок применились, 2 требуют решения</text>
+  <text x="352" y="202" class="small" fill="#5c3a00">Ничего не слито молча. Сервер не изменялся; это локальная операция.</text>
+  <rect x="292" y="236" width="400" height="672" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="316" y="270" class="label muted">ВЕРСИИ БАЗЫ</text>
+  <line x1="327" y1="300" x2="327" y2="388" stroke="#d0d5dd" stroke-width="2"/>
+  <circle cx="327" cy="300" r="7" fill="#3156a3"/>
+  <text x="346" y="305" class="small" font-weight="700">25.10, 14:45 — новая</text>
+  <text x="346" y="327" class="xs muted">панель изменена на сервере</text>
+  <circle cx="327" cy="380" r="7" fill="#ffffff" stroke="#7a8d9b" stroke-width="2"/>
+  <text x="346" y="385" class="small">25.10, 14:02 — прежняя</text>
+  <text x="346" y="407" class="xs muted">сохранена; можно вернуться</text>
+  <text x="316" y="456" class="label muted">ПРОИСХОЖДЕНИЕ</text>
+  <text x="316" y="484" class="small muted">Панель</text>
+  <text x="430" y="484" class="small" font-weight="600">«Базы данных: Prod»</text>
+  <text x="316" y="510" class="small muted">Подключение</text>
+  <text x="430" y="510" class="small" font-weight="600">Лаборатория 7.4</text>
+  <text x="316" y="536" class="small muted">Сервер</text>
+  <text x="430" y="536" class="small" font-weight="600">Zabbix 7.4.16</text>
+  <text x="316" y="562" class="small muted">Прочитана</text>
+  <text x="430" y="562" class="small" font-weight="600">25.10.2026, 14:45</text>
+  <use href="#ti-chevron-right" x="312" y="594" width="18" height="18" color="#475467"/>
+  <text x="336" y="608" class="small" font-weight="650">Технические сведения</text>
+  <text x="336" y="628" class="xs muted">отпечатки снимков, идентификатор подключения</text>
+  <use href="#ti-info-circle" x="316" y="664" width="18" height="18" color="#667085"/>
+  <text x="342" y="678" class="xs muted">Правки хранятся как операции над базой,</text>
+  <text x="342" y="696" class="xs muted">поэтому их можно переиграть на новой.</text>
+  <text x="342" y="714" class="xs muted">Секреты и данные узлов сети в</text>
+  <text x="342" y="732" class="xs muted">происхождении не хранятся.</text>
+  <rect x="712" y="236" width="832" height="600" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="736" y="270" class="label muted">ВАШИ ПРАВКИ НА НОВОЙ БАЗЕ</text>
+  <rect x="736" y="286" width="784" height="44" rx="8" fill="#f8fafc" stroke="#eef0f4"/>
+  <use href="#ti-circle-check" x="748" y="298" width="20" height="20" color="#1f6b43"/>
+  <text x="778" y="314" class="small" font-weight="700">Применились: 9</text>
+  <text x="1508" y="314" class="small muted" text-anchor="end">замена узла сети в 9 виджетах</text>
+  <rect x="736" y="342" width="784" height="188" rx="10" fill="#fffaf2" stroke="#f3d3a6"/>
+  <use href="#ti-alert-triangle" x="750" y="356" width="20" height="20" color="#8a4b00"/>
+  <text x="780" y="372" class="small" fill="#8a4b00" font-weight="700">Конфликт · «Queries per second» (График)</text>
+  <text x="780" y="398" class="small">Ваша правка: ds.0.hosts.0  pg-a-01 → pg-b-01</text>
+  <text x="780" y="422" class="small">На сервере то же поле изменено: pg-a-01 → pg-c-01</text>
+  <text x="780" y="450" class="small muted">Решите явно:</text>
+  <rect x="780" y="462" width="230" height="36" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="895" y="485" class="button" text-anchor="middle">Оставить серверное</text>
+  <rect x="1022" y="462" width="210" height="36" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="1127" y="485" class="button" text-anchor="middle">Применить моё</text>
+  <text x="780" y="518" class="xs muted">Выбор попадёт в «Мои изменения» и будет виден перед публикацией.</text>
+  <rect x="736" y="542" width="784" height="150" rx="10" fill="#fff5f5" stroke="#f2b8b5"/>
+  <use href="#ti-circle-x" x="750" y="556" width="20" height="20" color="#a32935"/>
+  <text x="780" y="572" class="small" fill="#a32935" font-weight="700">Цель исчезла · «Disk usage» (Радиальный датчик)</text>
+  <text x="780" y="598" class="small">Виджет удалён на сервере; ваша правка «перенести на страницу 3»</text>
+  <text x="780" y="620" class="small">не к чему применить.</text>
+  <rect x="780" y="636" width="220" height="36" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="890" y="659" class="button" text-anchor="middle">Убрать правку</text>
+  <rect x="1012" y="636" width="260" height="36" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="1142" y="659" class="button" text-anchor="middle">Показать прежнюю базу</text>
+  <text x="736" y="724" class="xs muted">Пока есть нерешённые случаи, принять новую базу нельзя; черновик остаётся на прежней базе.</text>
+  <rect x="712" y="852" width="832" height="56" rx="12" fill="#ffffff" stroke="#e4e7ec"/>
+  <rect x="728" y="859" width="260" height="42" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="858" y="885" class="button" text-anchor="middle">Вернуться к прежней базе</text>
+  <rect x="1284" y="859" width="244" height="42" rx="10" fill="#f2f4f7" stroke="#e4e7ec"/>
+  <text x="1406" y="885" class="button" fill="#98a2b3" text-anchor="middle">Принять новую базу</text>
+</svg>

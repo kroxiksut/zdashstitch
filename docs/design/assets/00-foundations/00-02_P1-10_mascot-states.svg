@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 1600 1000" fill="#17213a" role="img" aria-labelledby="title desc">
+  <title id="title">ZDashstitch — Стежик: состояния и движение</title>
+  <desc id="desc">Раскадровка P1-10: существующие изображения Стежика в пяти разрешённых состояниях с поводом появления, экраном, движением и временем; токены времени; список мест, где персонаж запрещён; поведение при уменьшенной анимации и высокой контрастности.</desc>
+  <defs>
+    <!-- Tabler Icons outline v3.49.0 (MIT), see assets/icons/THIRD_PARTY.md -->
+    <symbol id="ti-circle-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M9 12l2 2l4 -4"/></symbol>
+    <symbol id="ti-ban" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M5.7 5.7l12.6 12.6"/></symbol>
+    <symbol id="ti-info-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M12 9h.01"/><path d="M11 12h1v4h1"/></symbol>
+    <symbol id="ti-alert-triangle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0"/><path d="M12 16h.01"/></symbol>
+    <style>
+      text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+      .muted{fill:#667085}.white{fill:#ffffff}.small{font-size:14px}.xs{font-size:12px}.label{font-size:13px;font-weight:700;letter-spacing:.08em}
+      .title{font-size:24px;font-weight:750}.h3{font-size:17px;font-weight:700}.body{font-size:16px}.button{font-size:15px;font-weight:700}
+      .nav{font-size:17px}.badge{font-size:13px;font-weight:650}.row{font-size:15px;font-weight:650}
+      .mono{font-family:ui-monospace,"Cascadia Mono",Consolas,monospace;font-size:13px;fill:#344054}
+    </style>
+  </defs>
+  <rect width="1600" height="1000" fill="#f5f7fb"/>
+  <text x="48" y="64" class="title">Стежик: где появляется и как движется</text>
+  <text x="48" y="94" class="small muted">P1-10, раскадровка. Используются только готовые изображения assets/brand/mascot; новых изображений нет. Статус всегда передаёт текст интерфейса.</text>
+  <text x="48" y="128" class="label muted">РАЗРЕШЕНО: ПЯТЬ СОСТОЯНИЙ, ТОЛЬКО ГОТОВЫЕ ИЗОБРАЖЕНИЯ</text>
+  <rect x="48" y="144" width="288" height="470" rx="14" fill="#ffffff" stroke="#d0d5dd"/>
+  <rect x="64" y="160" width="256" height="196" rx="10" fill="#eef2f8" stroke="#e4e7ec"/>
+  <image href="../../../../assets/brand/mascot/stezhik-wave.png" x="100" y="166" width="184" height="184" preserveAspectRatio="xMidYMid meet" aria-hidden="true"/>
+  <text x="68" y="386" class="h3">Приветствие</text>
+  <text x="68" y="412" class="small">«Начало» при первом запуске;</text>
+  <text x="68" y="432" class="small">пустые «Черновики»</text>
+  <text x="68" y="466" class="xs muted">Экран</text>
+  <text x="144" y="466" class="xs" font-weight="650">01-01, 02-01</text>
+  <text x="68" y="492" class="xs muted">Движение</text>
+  <text x="144" y="492" class="xs" font-weight="650">вход 320 мс; покачивание</text>
+  <text x="144" y="510" class="xs" font-weight="650">2,4 с × 3, затем статично</text>
+  <rect x="68" y="532" width="248" height="26" rx="13" fill="#eef4ff"/>
+  <text x="192" y="550" class="badge" text-anchor="middle" fill="#1d3f86">декоративно, скрыт от диктора</text>
+  <text x="68" y="590" class="mono">stezhik-wave.png</text>
+  <rect x="352" y="144" width="288" height="470" rx="14" fill="#ffffff" stroke="#d0d5dd"/>
+  <rect x="368" y="160" width="256" height="196" rx="10" fill="#eef2f8" stroke="#e4e7ec"/>
+  <image href="../../../../assets/brand/mascot/stezhik-chart.png" x="404" y="166" width="184" height="184" preserveAspectRatio="xMidYMid meet" aria-hidden="true"/>
+  <text x="372" y="386" class="h3">Долгая безопасная операция</text>
+  <text x="372" y="412" class="small">копирование, импорт, экспорт</text>
+  <text x="372" y="432" class="small">шаблона: этап дольше 2 с</text>
+  <text x="372" y="466" class="xs muted">Экран</text>
+  <text x="448" y="466" class="xs" font-weight="650">03-03, 02-02, 03-02</text>
+  <text x="372" y="492" class="xs muted">Движение</text>
+  <text x="448" y="492" class="xs" font-weight="650">вход 320 мс; покачивание</text>
+  <text x="448" y="510" class="xs" font-weight="650">до 3 циклов, уход 160 мс</text>
+  <rect x="372" y="532" width="248" height="26" rx="13" fill="#f2f4f7"/>
+  <text x="496" y="550" class="badge" text-anchor="middle" fill="#344054">рядом с текстом, смысл — в тексте</text>
+  <text x="372" y="590" class="mono">stezhik-chart.png</text>
+  <rect x="656" y="144" width="288" height="470" rx="14" fill="#ffffff" stroke="#d0d5dd"/>
+  <rect x="672" y="160" width="256" height="196" rx="10" fill="#eef2f8" stroke="#e4e7ec"/>
+  <image href="../../../../assets/brand/mascot/stezhik-compare.png" x="708" y="166" width="184" height="184" preserveAspectRatio="xMidYMid meet" aria-hidden="true"/>
+  <text x="676" y="386" class="h3">Привязки ещё не заданы</text>
+  <text x="676" y="412" class="small">«Привязки»: пустое состояние</text>
+  <text x="676" y="432" class="small">до первого соответствия</text>
+  <text x="676" y="466" class="xs muted">Экран</text>
+  <text x="752" y="466" class="xs" font-weight="650">«Привязки», пусто</text>
+  <text x="676" y="492" class="xs muted">Движение</text>
+  <text x="752" y="492" class="xs" font-weight="650">вход 320 мс</text>
+  <text x="752" y="510" class="xs" font-weight="650">дальше статично</text>
+  <rect x="676" y="532" width="248" height="26" rx="13" fill="#eef4ff"/>
+  <text x="800" y="550" class="badge" text-anchor="middle" fill="#1d3f86">декоративно, скрыт от диктора</text>
+  <text x="676" y="590" class="mono">stezhik-compare.png</text>
+  <rect x="960" y="144" width="288" height="470" rx="14" fill="#ffffff" stroke="#d0d5dd"/>
+  <rect x="976" y="160" width="256" height="196" rx="10" fill="#eef2f8" stroke="#e4e7ec"/>
+  <image href="../../../../assets/brand/mascot/stezhik-inspect.png" x="1012" y="166" width="184" height="184" preserveAspectRatio="xMidYMid meet" aria-hidden="true"/>
+  <text x="980" y="386" class="h3">Находок нет</text>
+  <text x="980" y="412" class="small">«Проверки»: после текста</text>
+  <text x="980" y="432" class="small">«Находок нет»</text>
+  <text x="980" y="466" class="xs muted">Экран</text>
+  <text x="1056" y="466" class="xs" font-weight="650">P1-04F «Проверки»</text>
+  <text x="980" y="492" class="xs muted">Движение</text>
+  <text x="1056" y="492" class="xs" font-weight="650">вход 320 мс</text>
+  <text x="1056" y="510" class="xs" font-weight="650">без повторов</text>
+  <rect x="980" y="532" width="248" height="26" rx="13" fill="#f2f4f7"/>
+  <text x="1104" y="550" class="badge" text-anchor="middle" fill="#344054">рядом с текстом, смысл — в тексте</text>
+  <text x="980" y="590" class="mono">stezhik-inspect.png</text>
+  <rect x="1264" y="144" width="288" height="470" rx="14" fill="#ffffff" stroke="#d0d5dd"/>
+  <rect x="1280" y="160" width="256" height="196" rx="10" fill="#eef2f8" stroke="#e4e7ec"/>
+  <image href="../../../../assets/brand/mascot/stezhik-success.png" x="1316" y="166" width="184" height="184" preserveAspectRatio="xMidYMid meet" aria-hidden="true"/>
+  <text x="1284" y="386" class="h3">Проверено</text>
+  <text x="1284" y="412" class="small">только после итога</text>
+  <text x="1284" y="432" class="small">«Проверено повторным чтением»</text>
+  <text x="1284" y="466" class="xs muted">Экран</text>
+  <text x="1360" y="466" class="xs" font-weight="650">11-07, сверка 11-08</text>
+  <text x="1284" y="492" class="xs muted">Движение</text>
+  <text x="1360" y="492" class="xs" font-weight="650">однократный подъём</text>
+  <text x="1360" y="510" class="xs" font-weight="650">480 мс, не повторяется</text>
+  <rect x="1284" y="532" width="248" height="26" rx="13" fill="#f2f4f7"/>
+  <text x="1408" y="550" class="badge" text-anchor="middle" fill="#344054">рядом с текстом, смысл — в тексте</text>
+  <text x="1284" y="590" class="mono">stezhik-success.png</text>
+  <rect x="48" y="632" width="760" height="320" rx="14" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="72" y="666" class="label muted">ТОКЕНЫ ВРЕМЕНИ</text>
+  <text x="72" y="696" class="mono">--mascot-enter</text>
+  <text x="250" y="696" class="small" font-weight="650">320 мс</text>
+  <text x="372" y="696" class="mono">cubic-bezier(.2, .8, .2, 1)</text>
+  <text x="72" y="716" class="xs muted">появление: прозрачность 0→1, сдвиг вверх 8 px</text>
+  <text x="72" y="742" class="mono">--mascot-idle</text>
+  <text x="250" y="742" class="small" font-weight="650">2400 мс × 3</text>
+  <text x="372" y="742" class="mono">ease-in-out</text>
+  <text x="72" y="762" class="xs muted">покачивание ±4 px по вертикали, затем статично</text>
+  <text x="72" y="788" class="mono">--mascot-success</text>
+  <text x="250" y="788" class="small" font-weight="650">480 мс × 1</text>
+  <text x="372" y="788" class="mono">cubic-bezier(.3, 1.4, .5, 1)</text>
+  <text x="72" y="808" class="xs muted">подъём 6 px и возврат, один раз</text>
+  <text x="72" y="834" class="mono">--mascot-exit</text>
+  <text x="250" y="834" class="small" font-weight="650">160 мс</text>
+  <text x="372" y="834" class="mono">ease-in</text>
+  <text x="72" y="854" class="xs muted">исчезновение при завершении этапа или уходе</text>
+  <text x="72" y="880" class="mono">--mascot-delay</text>
+  <text x="250" y="880" class="small" font-weight="650">2000 мс</text>
+  <text x="372" y="880" class="mono">—</text>
+  <text x="72" y="900" class="xs muted">долгая операция: персонаж не раньше кнопки «Отмена»</text>
+  <text x="72" y="932" class="xs muted">Только transform и opacity; анимация не показывает ход операции и не ждёт её окончания.</text>
+  <rect x="828" y="632" width="724" height="228" rx="14" fill="#fef3f2" stroke="#f2b8b5"/>
+  <use href="#ti-ban" x="848" y="650" width="22" height="22" color="#a32935"/>
+  <text x="880" y="666" class="label" fill="#a32935">ЗАПРЕЩЕНО — ПЕРСОНАЖА НЕТ</text>
+  <text x="852" y="698" class="small" fill="#5c1f1f">•  ошибки, сбой сохранения, отказ импорта</text>
+  <text x="852" y="724" class="small" fill="#5c1f1f">•  конфликт (11-05), неизвестный итог (11-08)</text>
+  <text x="852" y="750" class="small" fill="#5c1f1f">•  подтверждение записи (11-06), «Разрешить</text>
+  <text x="852" y="776" class="small" fill="#5c1f1f">•  запись панелей» (05-04), удаление</text>
+  <text x="1196" y="698" class="small" fill="#5c1f1f">•  этапы записи и повторного чтения</text>
+  <text x="1196" y="724" class="small" fill="#5c1f1f">•  редактор, сравнение, таблицы соответствий</text>
+  <text x="1196" y="750" class="small" fill="#5c1f1f">•  проверки с блокировками, нет связи</text>
+  <text x="1196" y="776" class="small" fill="#5c1f1f">•  диалоги входа, ввод паролей и токенов</text>
+  <text x="852" y="840" class="xs" fill="#5c1f1f">В этих местах нужна сосредоточенность: эмоция персонажа не должна подталкивать к действию.</text>
+  <rect x="828" y="876" width="724" height="76" rx="14" fill="#ffffff" stroke="#d0d5dd"/>
+  <use href="#ti-info-circle" x="848" y="892" width="20" height="20" color="#475467"/>
+  <text x="878" y="906" class="small">Уменьшенная анимация — статичный кадр, без движения. Высокая контрастность — персонажа нет.</text>
+  <text x="878" y="930" class="small">«Показывать Стежика» в «Настройки → Внешний вид»; без него экраны полностью понятны.</text>
+</svg>

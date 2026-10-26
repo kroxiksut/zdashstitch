@@ -14,7 +14,7 @@
 | Messages | [P1-00F](P1-00F-message-inventory.md) | Stable IDs, EN source, RU copy/glossary, parameters and stress set |
 | Accessibility/platform | [P1-00G](P1-00G-accessibility-platform.md) | Focus, names, targets, reflow, contrast, reduced motion and test matrix |
 | Backend evidence | [P1-IN](backend_inputs_ru.md) | Error/status codes, density proxy, latency, file-dialog constraints |
-| Visual sheets | [P1-00H SVG](assets/P1-00H-reference-pack.svg) | Light/dark component sheets and dense table/inspector/diagnostics reference |
+| Visual sheets | [P1-00H SVG](assets/00-foundations/00-01_P1-00H_reference-pack.svg) | Light/dark component sheets and dense table/inspector/diagnostics reference |
 
 При конфликте действуют schema/ADR/architecture contracts по `docs/DOC_GOVERNANCE.md`. Pack не меняет публичный формат, security boundary, supported version или MVP scope.
 
@@ -31,7 +31,7 @@ Each layer is testable without Zabbix writes. No UI layer calls raw Zabbix JSON-
 
 ## 3. Component sheets
 
-Версионируемый визуальный источник: [`assets/P1-00H-reference-pack.svg`](assets/P1-00H-reference-pack.svg). SVG использует системные шрифты и не загружает внешние ресурсы; это макет, а не снимок работающего приложения. Этот уже принятый foundation pack сохраняет парные light/dark component sheets. Для новых feature-screen макетов после решения владельца 24.10.2026 действует другое review-правило: только светлая тема и один экран на SVG; runtime-поддержка `system/light/dark` не отменяется.
+Версионируемый визуальный источник: [`assets/00-foundations/00-01_P1-00H_reference-pack.svg`](assets/00-foundations/00-01_P1-00H_reference-pack.svg). SVG использует системные шрифты и не загружает внешние ресурсы; это макет, а не снимок работающего приложения. Этот уже принятый foundation pack сохраняет парные light/dark component sheets. Для новых feature-screen макетов после решения владельца 24.10.2026 действует другое review-правило: только светлая тема и один экран на SVG; runtime-поддержка `system/light/dark` не отменяется.
 
 ### Light sheet
 
@@ -109,7 +109,7 @@ Every interactive row is checked in `default/hover/pressed/focus/selected/disabl
 Minimum paired examples:
 
 - `disabled`: write unavailable because access mode is read-only; separate action explains how to request `read_write`.
-- `read_only`: unknown widget remains inspectable and copyable.
+- `unsupported` («Изменение не поддерживается»): unknown widget remains inspectable and copyable; «Только чтение» is reserved for the connection mode (P1-00E).
 - `partial`: imported template dashboards listed as unsupported.
 - `conflict`: Base/Local/Remote shown; old plan cannot publish.
 - `unknown_outcome`: publish action absent; reconciliation is primary.
@@ -121,7 +121,7 @@ Minimum paired examples:
 - Features may not draw or import another icon style. Interface/status/tray slots name an icon from Tabler outline; the accessible message ID remains independent. Only the in-house logo/Stezhik may come from `assets/brand/`.
 - New backend codes require mapping to a stable message ID and safe parameter allowlist before a mockup can be accepted.
 - Feature-specific patterns must identify shared primitives and document only their composition/domain guards.
-- Offline preview never imitates real metric values. `read_only` never exposes a hidden server-write action. Unknown/read-only objects remain lossless where contracts require it.
+- Offline preview never passes synthetic values off as real: synthetic data is opt-in, labelled on every widget and never saved, exported or published (O-028). `read_only` never exposes a hidden server-write action. Unknown/read-only objects remain lossless where contracts require it.
 - All publish paths end in read-back verified, known failure/partial failure, or unknown outcome; none infer success from HTTP completion.
 
 ## 9. Open questions and explicit limitations

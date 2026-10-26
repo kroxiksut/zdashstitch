@@ -1,0 +1,130 @@
+{
+  "widget.type.actionlog": {
+    "message": "Журнал действий",
+    "placeholders": {}
+  },
+  "widget.type.clock": {
+    "message": "Часы",
+    "placeholders": {}
+  },
+  "widget.type.discovery": {
+    "message": "Состояние обнаружения",
+    "placeholders": {}
+  },
+  "widget.type.favgraphs": {
+    "message": "Избранные графики",
+    "placeholders": {}
+  },
+  "widget.type.favmaps": {
+    "message": "Избранные карты",
+    "placeholders": {}
+  },
+  "widget.type.gauge": {
+    "message": "Радиальный датчик",
+    "placeholders": {}
+  },
+  "widget.type.geomap": {
+    "message": "Геокарта",
+    "placeholders": {}
+  },
+  "widget.type.graph": {
+    "message": "График (классический)",
+    "placeholders": {}
+  },
+  "widget.type.graphprototype": {
+    "message": "Прототип графиков",
+    "placeholders": {}
+  },
+  "widget.type.honeycomb": {
+    "message": "Сотовый график",
+    "placeholders": {}
+  },
+  "widget.type.hostavail": {
+    "message": "Доступность узлов сети",
+    "placeholders": {}
+  },
+  "widget.type.hostcard": {
+    "message": "Описание хоста",
+    "placeholders": {}
+  },
+  "widget.type.hostnavigator": {
+    "message": "Навигатор по узлам сети",
+    "placeholders": {}
+  },
+  "widget.type.item": {
+    "message": "Значение элемента данных",
+    "placeholders": {}
+  },
+  "widget.type.itemcard": {
+    "message": "Карточка элемента данных",
+    "placeholders": {}
+  },
+  "widget.type.itemhistory": {
+    "message": "История элементов данных",
+    "placeholders": {}
+  },
+  "widget.type.itemnavigator": {
+    "message": "Навигатор по элементам данных",
+    "placeholders": {}
+  },
+  "widget.type.map": {
+    "message": "Карта сети",
+    "placeholders": {}
+  },
+  "widget.type.navtree": {
+    "message": "Дерево навигации карт сетей",
+    "placeholders": {}
+  },
+  "widget.type.piechart": {
+    "message": "Круговая диаграмма",
+    "placeholders": {}
+  },
+  "widget.type.problemhosts": {
+    "message": "Узлы сети с проблемами",
+    "placeholders": {}
+  },
+  "widget.type.problems": {
+    "message": "Проблемы",
+    "placeholders": {}
+  },
+  "widget.type.problemsbysv": {
+    "message": "Проблемы по важности",
+    "placeholders": {}
+  },
+  "widget.type.slareport": {
+    "message": "Отчет SLA",
+    "placeholders": {}
+  },
+  "widget.type.svggraph": {
+    "message": "График",
+    "placeholders": {}
+  },
+  "widget.type.systeminfo": {
+    "message": "Информация о системе",
+    "placeholders": {}
+  },
+  "widget.type.tophosts": {
+    "message": "Топ узлов сети",
+    "placeholders": {}
+  },
+  "widget.type.topitems": {
+    "message": "Часто используемые элементы",
+    "placeholders": {}
+  },
+  "widget.type.toptriggers": {
+    "message": "Топ триггеров",
+    "placeholders": {}
+  },
+  "widget.type.trigover": {
+    "message": "Обзор триггеров",
+    "placeholders": {}
+  },
+  "widget.type.url": {
+    "message": "URL",
+    "placeholders": {}
+  },
+  "widget.type.web": {
+    "message": "Веб-мониторинг",
+    "placeholders": {}
+  }
+}

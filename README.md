@@ -19,7 +19,7 @@
 
 [Русский](README.ru.md) · [Roadmap](ROADMAP.md) · [Documentation](docs/README.md) · [Architecture](docs/architecture/ARCHITECTURE_MAP.md) · [Contributing](CONTRIBUTING.md)
 
-> **Project status (24 October 2026):** P0-01—07 evidence remains complete for the legacy v1 formats, transport and publisher. O-025 reopened the format part of G0 as P0-08: typed dashboard/page projects and legacy `project/v1` migration depend on O-026. The user-facing editor and HTTP/UI publishing flow are **not implemented**.
+> **Project status (25 October 2026):** P0-01—08 are implemented and locally verified. Legacy `project/v1` remains readable; typed `project/v2` stores exactly one `dashboard|page` root, and explicit v1 migration plus DATA-ONLY ZIP round trips are covered by Python/Rust tests. The user-facing editor and HTTP/UI publishing flow are **not implemented**.
 
 ## Why ZDashstitch?
 
@@ -43,7 +43,7 @@ The first release targets **global dashboards on Zabbix 7.4 only**.
 | Area | MVP result |
 |---|---|
 | Offline import | YAML/JSON/XML exports from standard or custom Zabbix 7.4 templates become normalized metric catalogs with explicit diagnostics |
-| Typed offline drafts | A dashboard project or page project opens on another computer without Zabbix or internet access; the existing multi-dashboard `project/v1` container remains legacy until P0-08 implements the decided O-026 format (`project/v2` with `kind: dashboard|page`; a single page is a first-class exchange file, O-027) and migration |
+| Typed offline drafts | A dashboard project or page project opens on another computer without Zabbix or internet access; `project/v2` stores one `dashboard|page` root, while multi-dashboard `project/v1` remains readable and requires explicit root selection for migration |
 | Authentication | API token or username/password where server policy permits `user.login`; no MFA bypasses or stored passwords |
 | Five operations | CreateDashboard, AppendPage, AppendWidgets, CloneDashboard and ReplaceHost for global dashboards |
 | Initial widgets | Create modern Graph (`svggraph`) and Item value (`item`); other widget changes require separate proof |
@@ -102,7 +102,7 @@ P0-01 provides only a runnable shell, not a dashboard editor. Build and local-ru
 
 ## Why Python still exists
 
-Python is a **temporary executable specification**, not a planned product runtime. It deterministically generates the four JSON Schemas, validates portable YAML/data-only ZIP and cross-file invariants, and supplies positive/negative fixtures that the Rust implementation must match.
+Python is a **temporary executable specification**, not a planned product runtime. It deterministically generates the five JSON Schemas, validates portable YAML/data-only ZIP and cross-file invariants, and supplies positive/negative fixtures that the Rust implementation must match.
 
 P0-02 and P0-03 now provide equivalent Rust models, semantic validators and a safe directory/data-only ZIP layer. Python remains developer-only as the single schema generator and an independent regression oracle; it is no longer needed in the normal product workflow and is never shipped with the GUI.
 

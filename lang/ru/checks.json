@@ -1,0 +1,82 @@
+{
+  "checks.subtitle": {
+    "message": "Проверка выполняется на этом компьютере; Zabbix не опрашивается.",
+    "placeholders": {}
+  },
+  "checks.summary.save_always": {
+    "message": "Сохранить локально — можно всегда",
+    "placeholders": {}
+  },
+  "checks.summary.export_ready": {
+    "message": "Экспорт в файл — можно",
+    "placeholders": {}
+  },
+  "checks.summary.export_blocked": {
+    "message": "{count, plural, one {Экспорт в файл — заблокирован: # нарушение} few {Экспорт в файл — заблокирован: # нарушения} many {Экспорт в файл — заблокирован: # нарушений} other {Экспорт в файл — заблокирован: # нарушения}}",
+    "placeholders": {"count": "number"}
+  },
+  "checks.summary.publication_ready": {
+    "message": "Публикация — возможна после проверок на сервере",
+    "placeholders": {}
+  },
+  "checks.summary.publication_blocked": {
+    "message": "{count, plural, one {Публикация — заблокирована: # нарушение} few {Публикация — заблокирована: # нарушения} many {Публикация — заблокирована: # нарушений} other {Публикация — заблокирована: # нарушения}}",
+    "placeholders": {"count": "number"}
+  },
+  "checks.empty": {
+    "message": "Нарушений нет, проверено объектов: {count}",
+    "placeholders": {"count": "number"}
+  },
+  "checks.group.structure": {
+    "message": "Структура и геометрия",
+    "placeholders": {}
+  },
+  "checks.group.widgets": {
+    "message": "Виджеты и поля",
+    "placeholders": {}
+  },
+  "checks.group.sources": {
+    "message": "Источники и привязки",
+    "placeholders": {}
+  },
+  "checks.group.references": {
+    "message": "Связи виджетов",
+    "placeholders": {}
+  },
+  "checks.group.compatibility": {
+    "message": "Совместимость",
+    "placeholders": {}
+  },
+  "checks.group.passed": {
+    "message": "Пройдено: {count}",
+    "placeholders": {"count": "number"}
+  },
+  "checks.last_preflight.title": {
+    "message": "Последние проверки публикации",
+    "placeholders": {}
+  },
+  "checks.last_preflight.none": {
+    "message": "Ещё не выполнялись",
+    "placeholders": {}
+  },
+  "checks.object_path": {
+    "message": "{page} › {widget}",
+    "placeholders": {"page": "text", "widget": "text"}
+  },
+  "checks.level.warning": {
+    "message": "Предупреждение",
+    "placeholders": {}
+  },
+  "checks.level.blocks_export": {
+    "message": "Блокирует экспорт",
+    "placeholders": {}
+  },
+  "checks.level.blocks_publication": {
+    "message": "Блокирует публикацию",
+    "placeholders": {}
+  },
+  "checks.level.blocks_both": {
+    "message": "Блокирует экспорт и публикацию",
+    "placeholders": {}
+  }
+}

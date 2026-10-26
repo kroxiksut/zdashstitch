@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-use crate::{Result, ZabbixError, ZabbixVersion};
+use crate::{Result, WidgetCapabilityRegistry, ZabbixError, ZabbixVersion};
 
 const VERIFIED_DASHBOARD_WRITE_PATCH_MIN: u32 = 16;
 const VERIFIED_DASHBOARD_WRITE_PATCH_MAX: u32 = 16;
@@ -74,5 +74,12 @@ impl AdapterRegistry {
                 reconcile_unknown_outcome: laboratory_contract,
             },
         })
+    }
+
+    pub fn widget_capabilities(version: &ZabbixVersion) -> Result<WidgetCapabilityRegistry> {
+        if !version.is_supported_7_4() {
+            return Err(ZabbixError::UnsupportedVersion(version.to_string()));
+        }
+        Ok(WidgetCapabilityRegistry::v7_4())
     }
 }

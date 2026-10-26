@@ -1,0 +1,98 @@
+{
+  "compatibility.empty_draft": {
+    "message": "The draft has no widgets, so its Zabbix compatibility cannot be determined.",
+    "placeholders": {}
+  },
+  "compatibility.unknown_widget_type": {
+    "message": "Compatibility is unknown for widget type {widget_type}.",
+    "placeholders": {"widget_type": "technical"}
+  },
+  "compatibility.unknown_widget_field": {
+    "message": "Compatibility is unknown for field {field} of type {field_type} in widget {widget_type}.",
+    "placeholders": {
+      "widget_type": "technical",
+      "field": "technical",
+      "field_type": "technical"
+    }
+  },
+  "compatibility.no_common_range": {
+    "message": "The widgets do not have a common supported Zabbix version range.",
+    "placeholders": {}
+  },
+  "compatibility.calculated_range": {
+    "message": "Calculated Zabbix compatibility starts at {minimum}; the exclusive upper bound is {maximum_exclusive}.",
+    "placeholders": {
+      "minimum": "technical",
+      "maximum_exclusive": "technical_optional"
+    }
+  },
+  "compatibility.declared_mismatch": {
+    "message": "Calculated compatibility ({minimum} to {maximum_exclusive}) differs from the declared range ({declared_minimum} to {declared_maximum_exclusive}).",
+    "placeholders": {
+      "minimum": "technical",
+      "maximum_exclusive": "technical_optional",
+      "declared_minimum": "technical",
+      "declared_maximum_exclusive": "technical_optional"
+    }
+  },
+  "http.security.invalid_host": {
+    "message": "The request used an invalid local host.",
+    "placeholders": {}
+  },
+  "http.security.bootstrap_invalid": {
+    "message": "The one-time startup link is invalid or has expired.",
+    "placeholders": {}
+  },
+  "http.security.invalid_origin": {
+    "message": "The request did not come from the local application.",
+    "placeholders": {}
+  },
+  "http.security.session_invalid": {
+    "message": "The local session is invalid. Restart the application.",
+    "placeholders": {}
+  },
+  "http.security.csrf_invalid": {
+    "message": "The request could not be verified. Reload the application and try again.",
+    "placeholders": {}
+  },
+  "http.security.invalid_content_type": {
+    "message": "The request has an unsupported content type.",
+    "placeholders": {}
+  },
+  "http.security.body_too_large": {
+    "message": "The request is larger than the allowed limit.",
+    "placeholders": {}
+  },
+  "http.security.upload_count_exceeded": {
+    "message": "The upload contains too many files.",
+    "placeholders": {}
+  },
+  "http.security.api_not_found": {
+    "message": "The requested local API endpoint does not exist.",
+    "placeholders": {}
+  },
+  "http.transfer.invalid": {
+    "message": "The browser file transfer is invalid or has expired.",
+    "placeholders": {}
+  },
+  "http.transfer.invalid_path": {
+    "message": "The uploaded file path is not permitted.",
+    "placeholders": {}
+  },
+  "http.transfer.duplicate_file": {
+    "message": "The upload contains the same file path more than once.",
+    "placeholders": {}
+  },
+  "http.transfer.total_too_large": {
+    "message": "The browser file transfer exceeds the total size limit.",
+    "placeholders": {}
+  },
+  "http.transfer.too_many": {
+    "message": "Too many browser transfers are waiting. Finish or retry an existing transfer.",
+    "placeholders": {}
+  },
+  "http.transfer.unavailable": {
+    "message": "The browser file transfer could not be initialized.",
+    "placeholders": {}
+  }
+}

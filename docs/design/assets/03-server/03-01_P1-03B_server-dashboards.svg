@@ -1,0 +1,142 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 1600 1000" fill="#17213a" role="img" aria-labelledby="title desc">
+  <title id="title">ZDashstitch — панели в Zabbix</title>
+  <desc id="desc">Светлый макет раздела «Панели в Zabbix»: глобальные панели, видимые учётной записи, с владельцем, типом доступа, размером и долей поддерживаемых виджетов; честная оговорка о правах; сведения о выбранной панели и действия копирования, взятия страницы, клонирования и замены узла сети.</desc>
+  <defs>
+    <!-- Tabler Icons outline v3.49.0 (MIT), see assets/icons/THIRD_PARTY.md -->
+    <symbol id="ti-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/></symbol>
+    <symbol id="ti-info-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M12 9h.01"/><path d="M11 12h1v4h1"/></symbol>
+    <symbol id="ti-circle-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M9 12l2 2l4 -4"/></symbol>
+    <symbol id="ti-ban" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M5.7 5.7l12.6 12.6"/></symbol>
+    <symbol id="ti-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"/><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"/></symbol>
+    <symbol id="ti-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065"/><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/></symbol>
+    <style>
+      text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+      .muted{fill:#667085}.white{fill:#ffffff}.small{font-size:14px}.xs{font-size:12px}.label{font-size:13px;font-weight:700;letter-spacing:.08em}
+      .title{font-size:24px;font-weight:750}.h3{font-size:17px;font-weight:700}.body{font-size:16px}.button{font-size:15px;font-weight:700}
+      .nav{font-size:17px}.badge{font-size:13px;font-weight:650}.row{font-size:15px;font-weight:650}
+      .mono{font-family:ui-monospace,"Cascadia Mono",Consolas,monospace;font-size:13px;fill:#344054}
+    </style>
+  </defs>
+  <rect width="1600" height="1000" fill="#f5f7fb"/>
+
+  <!-- App bar: global navigation (P1-01B §1) -->
+  <rect width="1600" height="72" fill="#ffffff" stroke="#e4e7ec"/>
+  <image href="../../../../assets/brand/icons/stezhik-head-1024.png" x="32" y="18" width="36" height="36" preserveAspectRatio="xMidYMid meet"/>
+  <text x="80" y="45" font-size="20" font-weight="750">ZDashstitch</text>
+  <text x="232" y="44" font-size="15" font-weight="500" fill="#475467">Начало</text>
+  <text x="318" y="44" font-size="15" font-weight="500" fill="#475467">Черновики</text>
+  <text x="430" y="44" font-size="15" font-weight="700" fill="#1d3f86">Панели в Zabbix</text>
+  <rect x="430" y="67" width="120" height="4" rx="2" fill="#3156a3"/>
+  <text x="582" y="44" font-size="15" font-weight="500" fill="#475467">Библиотека</text>
+  <text x="702" y="44" font-size="15" font-weight="500" fill="#475467">Подключения</text>
+  <rect x="1138" y="19" width="270" height="34" rx="17" fill="#eef4ff"/>
+  <text x="1273" y="41" font-size="14" text-anchor="middle" fill="#3156a3">Только чтение · Лаборатория 7.4</text>
+  <rect x="1424" y="18" width="144" height="36" rx="8" fill="#ffffff" stroke="#c9d3ea"/>
+  <use href="#ti-settings" x="1438" y="27" width="18" height="18" color="#475467"/>
+  <text x="1464" y="41" font-size="15" font-weight="600" fill="#17213a">Настройки</text>
+
+  <!-- Workspace -->
+  <!-- Title -->
+  <text x="48" y="124" class="title">Панели в Zabbix</text>
+  <text x="48" y="152" class="small muted">Лаборатория 7.4 · Zabbix 7.4.16 · только чтение. Сервер не изменяется на этом экране.</text>
+  <rect x="1352" y="100" width="200" height="42" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <use href="#ti-refresh" x="1368" y="112.0" width="18" height="18" color="#17213a"/>
+  <text x="1464" y="126" class="button" text-anchor="middle">Обновить список</text>
+  <text x="48" y="196" class="body" fill="#1d3f86" font-weight="700">Панели</text>
+  <rect x="48" y="206" width="70" height="3" rx="1.5" fill="#3156a3"/>
+  <text x="146" y="196" class="body" fill="#475467" font-weight="500">Шаблоны</text>
+  <line x1="48" y1="209" x2="1552" y2="209" stroke="#e4e7ec"/>
+  <rect x="48" y="228" width="78" height="32" rx="16" fill="#243746" stroke="#243746"/>
+  <text x="87.0" y="249" class="small" fill="#ffffff" text-anchor="middle" font-weight="650">Все 5</text>
+  <rect x="134" y="228" width="76" height="32" rx="16" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="172.0" y="249" class="small" text-anchor="middle" font-weight="600">Мои 1</text>
+  <rect x="218" y="228" width="92" height="32" rx="16" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="264.0" y="249" class="small" text-anchor="middle" font-weight="600">Общие 4</text>
+  <rect x="330" y="225" width="300" height="38" rx="8" fill="#ffffff" stroke="#7a8d9b"/>
+  <use href="#ti-search" x="342" y="234" width="20" height="20" color="#667085"/>
+  <text x="372" y="249" class="small muted">Поиск по имени панели</text>
+  <rect x="48" y="280" width="1012" height="628" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <rect x="64" y="296" width="980" height="34" rx="6" fill="#f8fafc" stroke="#eef0f4"/>
+  <text x="78" y="318" class="xs muted" font-weight="700">ИМЯ</text>
+  <text x="330" y="318" class="xs muted" font-weight="700">ВЛАДЕЛЕЦ</text>
+  <text x="500" y="318" class="xs muted" font-weight="700">ДОСТУП</text>
+  <text x="590" y="318" class="xs muted" font-weight="700">СТРАНИЦ</text>
+  <text x="670" y="318" class="xs muted" font-weight="700">ВИДЖЕТОВ</text>
+  <text x="760" y="318" class="xs muted" font-weight="700">ИЗМЕНЕНИЕ</text>
+  <text x="880" y="318" class="xs muted" font-weight="700">У МЕНЯ</text>
+  <rect x="64" y="336" width="980" height="52" rx="8" fill="#eef4ff" stroke="#3156a3" stroke-width="2"/>
+  <text x="78" y="368" class="small" font-weight="650">Базы данных: Prod</text>
+  <text x="330" y="368" class="small" fill="#667085">другой пользователь</text>
+  <text x="500" y="368" class="small">Общая</text>
+  <text x="590" y="368" class="small">3</text>
+  <text x="670" y="368" class="small">19</text>
+  <text x="760" y="368" class="small">14 из 19</text>
+  <text x="880" y="368" class="small muted">копия · 25.10</text>
+  <line x1="64" y1="446" x2="1044" y2="446" stroke="#eef0f4"/>
+  <text x="78" y="426" class="small" font-weight="650">ClickHouse: Pilot</text>
+  <text x="330" y="426" class="small">вы</text>
+  <text x="500" y="426" class="small">Личная</text>
+  <text x="590" y="426" class="small">2</text>
+  <text x="670" y="426" class="small">12</text>
+  <text x="760" y="426" class="small">12 из 12</text>
+  <text x="880" y="426" class="small muted">—</text>
+  <line x1="64" y1="504" x2="1044" y2="504" stroke="#eef0f4"/>
+  <text x="78" y="484" class="small" font-weight="650">Global view</text>
+  <text x="330" y="484" class="small" fill="#667085">другой пользователь</text>
+  <text x="500" y="484" class="small">Общая</text>
+  <text x="590" y="484" class="small">1</text>
+  <text x="670" y="484" class="small">8</text>
+  <text x="760" y="484" class="small">4 из 8</text>
+  <text x="880" y="484" class="small muted">копия · 24.10</text>
+  <line x1="64" y1="562" x2="1044" y2="562" stroke="#eef0f4"/>
+  <text x="78" y="542" class="small" font-weight="650">Zabbix server health</text>
+  <text x="330" y="542" class="small" fill="#667085">другой пользователь</text>
+  <text x="500" y="542" class="small">Общая</text>
+  <text x="590" y="542" class="small">1</text>
+  <text x="670" y="542" class="small">6</text>
+  <text x="760" y="542" class="small">2 из 6</text>
+  <text x="880" y="542" class="small muted">—</text>
+  <line x1="64" y1="620" x2="1044" y2="620" stroke="#eef0f4"/>
+  <text x="78" y="600" class="small" font-weight="650">Сеть ЦОД</text>
+  <text x="330" y="600" class="small" fill="#667085">другой пользователь</text>
+  <text x="500" y="600" class="small">Общая</text>
+  <text x="590" y="600" class="small">2</text>
+  <text x="670" y="600" class="small">14</text>
+  <text x="760" y="600" class="small" fill="#667085">0 из 14</text>
+  <text x="880" y="600" class="small muted">—</text>
+  <use href="#ti-info-circle" x="64" y="650" width="18" height="18" color="#667085"/>
+  <text x="90" y="664" class="xs muted">Показаны панели, видимые учётной записи подключения. Если нужной панели нет, её нет на сервере</text>
+  <text x="90" y="682" class="xs muted">или не хватает прав — Zabbix эти случаи не различает. Имя владельца чужой панели Zabbix не сообщает.</text>
+  <text x="90" y="700" class="xs muted">«Изменение» — сколько виджетов ZDashstitch умеет менять в Zabbix 7.4; остальные копируются как есть.</text>
+  <rect x="1080" y="280" width="472" height="628" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="1104" y="314" class="h3">Базы данных: Prod</text>
+  <text x="1104" y="338" class="xs muted">Владелец — другой пользователь · Общая · 3 страницы · 19 виджетов</text>
+  <text x="1104" y="374" class="label muted">СТРАНИЦЫ</text>
+  <text x="1104" y="402" class="small">1. PostgreSQL</text>
+  <text x="1528" y="402" class="small muted" text-anchor="end">8 виджетов</text>
+  <text x="1104" y="428" class="small">2. ClickHouse</text>
+  <text x="1528" y="428" class="small muted" text-anchor="end">5 виджетов</text>
+  <text x="1104" y="454" class="small">3. Keeper и HAProxy</text>
+  <text x="1528" y="454" class="small muted" text-anchor="end">6 виджетов</text>
+  <text x="1104" y="500" class="label muted">ВИДЖЕТЫ</text>
+  <use href="#ti-circle-check" x="1104" y="512" width="18" height="18" color="#1f6b43"/>
+  <text x="1130" y="526" class="small">Изменение поддерживается: 14</text>
+  <text x="1130" y="546" class="xs muted">График 9, Значение элемента данных 3, Часы 1, Проблемы 1</text>
+  <use href="#ti-ban" x="1104" y="562" width="18" height="18" color="#8a4b00"/>
+  <text x="1130" y="576" class="small">Изменение не поддерживается: 5</text>
+  <text x="1130" y="596" class="xs muted">Топ узлов сети 2, Радиальный датчик 2, Карта сети 1;</text>
+  <text x="1130" y="612" class="xs muted">копируются как есть</text>
+  <line x1="1104" y1="626" x2="1528" y2="626" stroke="#e4e7ec"/>
+  <text x="1104" y="642" class="small">Есть копия от 25.10, 14:02 — изменена локально.</text>
+  <text x="1104" y="664" class="small" fill="#3156a3" font-weight="650">Открыть копию</text>
+  <rect x="1104" y="688" width="424" height="42" rx="10" fill="#3156a3" stroke="#3156a3"/>
+  <text x="1316" y="714" class="button white" text-anchor="middle">Скопировать с сервера</text>
+  <rect x="1104" y="742" width="206" height="42" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="1207" y="768" class="button" text-anchor="middle">Взять страницу</text>
+  <rect x="1322" y="742" width="206" height="42" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="1425" y="768" class="button" text-anchor="middle">Клонировать</text>
+  <rect x="1104" y="796" width="424" height="42" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="1316" y="822" class="button" text-anchor="middle">Заменить узел сети</text>
+  <text x="1104" y="870" class="xs muted">Каждое действие начинается с копии: сервер меняется только</text>
+  <text x="1104" y="888" class="xs muted">из раздела «Публикация» по проверенному плану.</text>
+</svg>

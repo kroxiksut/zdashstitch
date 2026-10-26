@@ -4,8 +4,8 @@ use std::time::SystemTime;
 
 use thiserror::Error;
 use zdashstitch_zabbix::{
-    AuthenticatedClient, CapabilityState, DashboardPublishOutcome, ItemFieldReplacement,
-    PublicationContext, VerifiedDashboardUpdate, VersionedDashboardSnapshot,
+    CapabilityState, DashboardPublishOutcome, ItemFieldReplacement, PublicationContext,
+    ReadWriteGateway, VerifiedDashboardUpdate, VersionedDashboardSnapshot,
     verify_item_field_replacements,
 };
 
@@ -142,7 +142,7 @@ impl VerifiedPlan {
 }
 
 pub async fn publish_confirmed_plan(
-    client: &AuthenticatedClient,
+    client: &ReadWriteGateway,
     plan: ConfirmedPlan,
 ) -> PublishReport {
     let ConfirmedPlan {

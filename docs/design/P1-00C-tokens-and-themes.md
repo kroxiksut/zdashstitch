@@ -30,33 +30,35 @@
 
 Значения ниже предназначены для проверки контраста и visual reference. P2-00 переносит их в канонический token source; компоненты не копируют значения напрямую.
 
+**Палитра обновлена 25.10.2026 (P1-11H, решение D1):** основное действие, ссылки, выделение и информационный статус переведены в синюю гамму принятых проверочных макетов; успех, внимание и ошибка — в цвета макетов. Все пары проверены на WCAG AA тестом `tests/test_ui_tokens.py`; реализация — `ui/src/tokens.css`.
+
 | Semantic token | Light | Dark |
 |---|---|---|
-| `surface.canvas` | `#F4F7FA` | `#0C1218` |
+| `surface.canvas` | `#F5F7FB` | `#0C1218` |
 | `surface.base` | `#FFFFFF` | `#121B24` |
 | `surface.raised` | `#FFFFFF` | `#182430` |
 | `surface.sunken` | `#EAF0F5` | `#0A1016` |
-| `surface.selected` | `#E5F1FA` | `#123348` |
-| `text.primary` | `#132331` | `#F2F6F8` |
-| `text.secondary` | `#405668` | `#BBC8D1` |
-| `text.muted` | `#617587` | `#93A6B4` |
-| `text.link` | `#075E8F` | `#72C7F0` |
+| `surface.selected` | `#EEF4FF` | `#1B2B4A` |
+| `text.primary` | `#17213A` | `#F2F6F8` |
+| `text.secondary` | `#475467` | `#BBC8D1` |
+| `text.muted` | `#667085` | `#93A6B4` |
+| `text.link` | `#3156A3` | `#9DBBF5` |
 | `border.default` | `#7A8D9B` | `#647682` |
 | `border.strong` | `#526675` | `#91A3AF` |
-| `action.primary.bg` | `#006D82` | `#27B3C4` |
-| `action.primary.text` | `#FFFFFF` | `#071518` |
-| `action.primary.hover` | `#00596B` | `#4BC4D2` |
-| `action.primary.pressed` | `#004856` | `#68D0DB` |
+| `action.primary.bg` | `#3156A3` | `#8FB0F0` |
+| `action.primary.text` | `#FFFFFF` | `#0B1630` |
+| `action.primary.hover` | `#284A8F` | `#A6C1F4` |
+| `action.primary.pressed` | `#1F3D7A` | `#BCD1F7` |
 | `focus.ring` | `#6B35D4` | `#C2A7FF` |
 | `focus.offset` | `#FFFFFF` | `#0C1218` |
-| `status.success.surface` | `#E3F5EA` | `#123526` |
-| `status.success.text` | `#165B35` | `#8BE0AE` |
-| `status.info.surface` | `#E4F2FB` | `#123248` |
-| `status.info.text` | `#0B557E` | `#8ED2F5` |
-| `status.warning.surface` | `#FFF1D2` | `#3B2A0D` |
-| `status.warning.text` | `#704700` | `#FFD27A` |
-| `status.danger.surface` | `#FCE7E7` | `#401C20` |
-| `status.danger.text` | `#8A202A` | `#FFADB4` |
+| `status.success.surface` | `#ECFDF3` | `#123526` |
+| `status.success.text` | `#1F6B43` | `#8BE0AE` |
+| `status.info.surface` | `#EEF4FF` | `#17284A` |
+| `status.info.text` | `#1D3F86` | `#A9C3F7` |
+| `status.warning.surface` | `#FFF4E5` | `#3B2A0D` |
+| `status.warning.text` | `#8A4B00` | `#FFD27A` |
+| `status.danger.surface` | `#FEF3F2` | `#401C20` |
+| `status.danger.text` | `#A32935` | `#FFADB4` |
 | `overlay.scrim` | `rgb(9 20 29 / 48%)` | `rgb(0 0 0 / 68%)` |
 | `grid.line` | `#D8E1E8` | `#293844` |
 | `grid.major` | `#B7C6D1` | `#425462` |

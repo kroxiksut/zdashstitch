@@ -9,14 +9,23 @@ license.workspace = true
 publish = false
 
 [dependencies]
+cap-std.workspace = true
+cap-fs-ext.workspace = true
+getrandom.workspace = true
+keyring.workspace = true
+secrecy.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+serde.workspace = true
+serde_yaml_ng.workspace = true
 thiserror.workspace = true
 zdashstitch-core = { path = "../core" }
 zdashstitch-template-import = { path = "../template_import" }
 zdashstitch-zabbix = { path = "../zabbix" }
 
 [dev-dependencies]
-secrecy.workspace = true
-serde_json.workspace = true
+axum.workspace = true
+tempfile.workspace = true
 tokio.workspace = true
 
 [lints]

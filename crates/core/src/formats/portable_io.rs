@@ -13,12 +13,13 @@ use cap_std::{
     ambient_authority,
     fs::{Dir, OpenOptions},
 };
-use serde::de::DeserializeOwned;
+use serde::{Serialize, de::DeserializeOwned};
 use thiserror::Error;
 use zip::{CompressionMethod, DateTime, ZipArchive, ZipWriter, write::SimpleFileOptions};
 
 use super::{
-    FormatError, MetricCatalog, PortableProject, Validate, to_yaml_string, validate_project,
+    CatalogReference, FormatError, MetricCatalog, PortableProject, TypedProject, Validate,
+    to_yaml_string, validate_project, validate_typed_project,
 };
 
 pub const MAX_FILE_BYTES: usize = 2 * 1024 * 1024;
@@ -76,6 +77,19 @@ pub struct PortableBundle {
     pub catalogs: BTreeMap<String, MetricCatalog>,
 }
 
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct TypedPortableBundle {
+    pub project: TypedProject,
+    pub catalogs: BTreeMap<String, MetricCatalog>,
+}
+
+impl TypedPortableBundle {
+    pub fn validate(&self) -> Result<()> {
+        validate_typed_project(&self.project, &self.catalogs)?;
+        Ok(())
+    }
+}
+
 impl PortableBundle {
     pub fn validate(&self) -> Result<()> {
         validate_project(&self.project, &self.catalogs)?;
@@ -83,7 +97,73 @@ impl PortableBundle {
     }
 }
 
+trait ProjectDocument: DeserializeOwned + Serialize + Validate {
+    const FORMAT: &'static str;
+
+    fn catalogs(&self) -> &[CatalogReference];
+
+    fn validate_with_catalogs(
+        &self,
+        catalogs: &BTreeMap<String, MetricCatalog>,
+    ) -> super::Result<()>;
+
+    fn prevalidate(value: &serde_yaml_ng::Value) -> super::Result<()> {
+        validate_project_format(value, Self::FORMAT)
+    }
+}
+
+impl ProjectDocument for PortableProject {
+    const FORMAT: &'static str = "zdashstitch.project/v1";
+
+    fn catalogs(&self) -> &[CatalogReference] {
+        &self.catalogs
+    }
+
+    fn validate_with_catalogs(
+        &self,
+        catalogs: &BTreeMap<String, MetricCatalog>,
+    ) -> super::Result<()> {
+        validate_project(self, catalogs)
+    }
+}
+
+impl ProjectDocument for TypedProject {
+    const FORMAT: &'static str = "zdashstitch.project/v2";
+
+    fn catalogs(&self) -> &[CatalogReference] {
+        &self.catalogs
+    }
+
+    fn validate_with_catalogs(
+        &self,
+        catalogs: &BTreeMap<String, MetricCatalog>,
+    ) -> super::Result<()> {
+        validate_typed_project(self, catalogs)
+    }
+
+    fn prevalidate(value: &serde_yaml_ng::Value) -> super::Result<()> {
+        validate_project_format(value, Self::FORMAT)?;
+        prevalidate_typed_project(value)
+    }
+}
+
 pub fn load_project_file(path: &Path) -> Result<PortableBundle> {
+    let (project, catalogs) = load_project_document(path)?;
+    let bundle = PortableBundle { project, catalogs };
+    bundle.validate()?;
+    Ok(bundle)
+}
+
+pub fn load_typed_project_file(path: &Path) -> Result<TypedPortableBundle> {
+    let (project, catalogs) = load_project_document(path)?;
+    let bundle = TypedPortableBundle { project, catalogs };
+    bundle.validate()?;
+    Ok(bundle)
+}
+
+fn load_project_document<T: ProjectDocument>(
+    path: &Path,
+) -> Result<(T, BTreeMap<String, MetricCatalog>)> {
     let absolute =
         std::path::absolute(path).map_err(|error| PortableIoError::io("project path", error))?;
     let parent = absolute.parent().ok_or_else(|| {
@@ -93,14 +173,12 @@ pub fn load_project_file(path: &Path) -> Result<PortableBundle> {
         .file_name()
         .ok_or_else(|| PortableIoError::policy("project_path", "project path has no file name"))?;
     ensure_simple_file_name(project_name)?;
-
     let root = open_directory_nofollow(parent)?;
     let project_raw = read_relative_regular(&root, Path::new(project_name))?;
-    let project: PortableProject = parse_yaml(&project_raw)?;
-
+    let project: T = parse_project_yaml(&project_raw)?;
     let mut catalogs = BTreeMap::new();
     let mut total = project_raw.len();
-    for reference in &project.catalogs {
+    for reference in project.catalogs() {
         let raw = read_relative_regular(&root, Path::new(&reference.file))?;
         total = total
             .checked_add(raw.len())
@@ -111,13 +189,10 @@ pub fn load_project_file(path: &Path) -> Result<PortableBundle> {
                 "project exceeds total size limit",
             ));
         }
-        let catalog: MetricCatalog = parse_yaml(&raw)?;
-        catalogs.insert(reference.id.clone(), catalog);
+        catalogs.insert(reference.id.clone(), parse_yaml(&raw)?);
     }
-
-    let bundle = PortableBundle { project, catalogs };
-    bundle.validate()?;
-    Ok(bundle)
+    project.validate_with_catalogs(&catalogs)?;
+    Ok((project, catalogs))
 }
 
 pub fn read_package(path: &Path) -> Result<PortableBundle> {
@@ -125,7 +200,26 @@ pub fn read_package(path: &Path) -> Result<PortableBundle> {
     read_package_bytes(&raw)
 }
 
-pub fn read_package_bytes(raw: &[u8]) -> Result<PortableBundle> {
+pub fn read_typed_package(path: &Path) -> Result<TypedPortableBundle> {
+    let raw = read_absolute_regular(path, MAX_ARCHIVE_BYTES)?;
+    read_typed_package_bytes(&raw)
+}
+
+pub fn read_typed_package_bytes(raw: &[u8]) -> Result<TypedPortableBundle> {
+    let (project, catalogs) = read_package_document(raw)?;
+    let bundle = TypedPortableBundle { project, catalogs };
+    bundle.validate()?;
+    Ok(bundle)
+}
+
+pub fn build_typed_package_bytes(bundle: &TypedPortableBundle) -> Result<Vec<u8>> {
+    bundle.validate()?;
+    let raw = build_package_document(&bundle.project, &bundle.catalogs)?;
+    read_typed_package_bytes(&raw)?;
+    Ok(raw)
+}
+
+fn read_archive_entries(raw: &[u8]) -> Result<BTreeMap<String, Vec<u8>>> {
     if raw.len() > MAX_ARCHIVE_BYTES {
         return Err(PortableIoError::policy(
             "archive_size",
@@ -139,7 +233,6 @@ pub fn read_package_bytes(raw: &[u8]) -> Result<PortableBundle> {
             "too many archive entries",
         ));
     }
-
     let mut names = HashSet::new();
     let mut entries = BTreeMap::new();
     let mut total = 0usize;
@@ -223,13 +316,19 @@ pub fn read_package_bytes(raw: &[u8]) -> Result<PortableBundle> {
         }
         entries.insert(name, content);
     }
+    Ok(entries)
+}
 
+fn read_package_document<T: ProjectDocument>(
+    raw: &[u8],
+) -> Result<(T, BTreeMap<String, MetricCatalog>)> {
+    let entries = read_archive_entries(raw)?;
     let project_raw = entries
         .get("project.yaml")
         .ok_or_else(|| PortableIoError::policy("archive_project", "package has no project.yaml"))?;
-    let project: PortableProject = parse_yaml(project_raw)?;
+    let project: T = parse_project_yaml(project_raw)?;
     let needed: HashSet<&str> = std::iter::once("project.yaml")
-        .chain(project.catalogs.iter().map(|entry| entry.file.as_str()))
+        .chain(project.catalogs().iter().map(|entry| entry.file.as_str()))
         .collect();
     if needed.len() != entries.len() || !entries.keys().all(|name| needed.contains(name.as_str())) {
         return Err(PortableIoError::policy(
@@ -237,9 +336,8 @@ pub fn read_package_bytes(raw: &[u8]) -> Result<PortableBundle> {
             "missing or unexpected package entries",
         ));
     }
-
     let mut catalogs = BTreeMap::new();
-    for reference in &project.catalogs {
+    for reference in project.catalogs() {
         let raw = entries.get(&reference.file).ok_or_else(|| {
             PortableIoError::policy(
                 "archive_contents",
@@ -248,29 +346,12 @@ pub fn read_package_bytes(raw: &[u8]) -> Result<PortableBundle> {
         })?;
         catalogs.insert(reference.id.clone(), parse_yaml(raw)?);
     }
-    let bundle = PortableBundle { project, catalogs };
-    bundle.validate()?;
-    Ok(bundle)
+    project.validate_with_catalogs(&catalogs)?;
+    Ok((project, catalogs))
 }
 
-pub fn build_package_bytes(bundle: &PortableBundle) -> Result<Vec<u8>> {
-    bundle.validate()?;
-    let mut files = BTreeMap::new();
-    files.insert(
-        "project.yaml".to_owned(),
-        to_yaml_string(&bundle.project)?.into_bytes(),
-    );
-    for reference in &bundle.project.catalogs {
-        let catalog = bundle.catalogs.get(&reference.id).ok_or_else(|| {
-            PortableIoError::policy("catalog_set", format!("missing catalog {}", reference.id))
-        })?;
-        files.insert(
-            reference.file.clone(),
-            to_yaml_string(catalog)?.into_bytes(),
-        );
-    }
+fn build_archive(files: BTreeMap<String, Vec<u8>>) -> Result<Vec<u8>> {
     enforce_file_limits(files.values().map(Vec::len))?;
-
     let cursor = Cursor::new(Vec::new());
     let mut writer = ZipWriter::new(cursor);
     let options = SimpleFileOptions::default()
@@ -284,13 +365,55 @@ pub fn build_package_bytes(bundle: &PortableBundle) -> Result<Vec<u8>> {
             .write_all(&content)
             .map_err(|error| PortableIoError::io("write archive entry", error))?;
     }
-    let raw = writer.finish()?.into_inner();
+    Ok(writer.finish()?.into_inner())
+}
+
+pub fn read_package_bytes(raw: &[u8]) -> Result<PortableBundle> {
+    let (project, catalogs) = read_package_document(raw)?;
+    let bundle = PortableBundle { project, catalogs };
+    bundle.validate()?;
+    Ok(bundle)
+}
+
+pub fn build_package_bytes(bundle: &PortableBundle) -> Result<Vec<u8>> {
+    bundle.validate()?;
+    let raw = build_package_document(&bundle.project, &bundle.catalogs)?;
     read_package_bytes(&raw)?;
     Ok(raw)
 }
 
+fn build_package_document<T: ProjectDocument>(
+    project: &T,
+    catalogs: &BTreeMap<String, MetricCatalog>,
+) -> Result<Vec<u8>> {
+    let mut files = BTreeMap::new();
+    files.insert(
+        "project.yaml".to_owned(),
+        to_yaml_string(project)?.into_bytes(),
+    );
+    for reference in project.catalogs() {
+        let catalog = catalogs.get(&reference.id).ok_or_else(|| {
+            PortableIoError::policy("catalog_set", format!("missing catalog {}", reference.id))
+        })?;
+        files.insert(
+            reference.file.clone(),
+            to_yaml_string(catalog)?.into_bytes(),
+        );
+    }
+    build_archive(files)
+}
+
 pub fn write_package(bundle: &PortableBundle, destination: &Path) -> Result<()> {
     let raw = build_package_bytes(bundle)?;
+    write_package_raw(&raw, destination)
+}
+
+pub fn write_typed_package(bundle: &TypedPortableBundle, destination: &Path) -> Result<()> {
+    let raw = build_typed_package_bytes(bundle)?;
+    write_package_raw(&raw, destination)
+}
+
+fn write_package_raw(raw: &[u8], destination: &Path) -> Result<()> {
     let absolute = std::path::absolute(destination)
         .map_err(|error| PortableIoError::io("package destination", error))?;
     let parent = absolute.parent().ok_or_else(|| {
@@ -318,7 +441,7 @@ pub fn write_package(bundle: &PortableBundle, destination: &Path) -> Result<()> 
         .open_with(&temp_name, &options)
         .map_err(|error| PortableIoError::io("create package temporary file", error))?;
     let result = (|| {
-        file.write_all(&raw)
+        file.write_all(raw)
             .map_err(|error| PortableIoError::io("write package", error))?;
         file.sync_all()
             .map_err(|error| PortableIoError::io("sync package", error))?;
@@ -346,6 +469,21 @@ fn parse_yaml<T>(raw: &[u8]) -> Result<T>
 where
     T: DeserializeOwned + Validate,
 {
+    let value = parse_yaml_value(raw)?;
+    let parsed: T = serde_yaml_ng::from_value(value).map_err(FormatError::from)?;
+    parsed.validate()?;
+    Ok(parsed)
+}
+
+fn parse_project_yaml<T: ProjectDocument>(raw: &[u8]) -> Result<T> {
+    let value = parse_yaml_value(raw)?;
+    T::prevalidate(&value)?;
+    let parsed: T = serde_yaml_ng::from_value(value).map_err(FormatError::from)?;
+    parsed.validate()?;
+    Ok(parsed)
+}
+
+fn parse_yaml_value(raw: &[u8]) -> Result<serde_yaml_ng::Value> {
     if raw.len() > MAX_FILE_BYTES {
         return Err(PortableIoError::policy("file_size", "file too large"));
     }
@@ -364,9 +502,57 @@ where
             "YAML nesting is too deep",
         ));
     }
-    let parsed: T = serde_yaml_ng::from_value(value).map_err(FormatError::from)?;
-    parsed.validate()?;
-    Ok(parsed)
+    Ok(value)
+}
+
+fn validate_project_format(value: &serde_yaml_ng::Value, expected: &str) -> super::Result<()> {
+    let actual = mapping_string(value, "format");
+    if actual == Some(expected) {
+        Ok(())
+    } else {
+        Err(FormatError::validation(
+            "project_format",
+            format!("expected {expected}, got {}", actual.unwrap_or("missing")),
+        ))
+    }
+}
+
+fn prevalidate_typed_project(value: &serde_yaml_ng::Value) -> super::Result<()> {
+    let kind = mapping_string(value, "kind");
+    if !matches!(kind, Some("dashboard" | "page")) {
+        return Err(FormatError::validation(
+            "unknown_project_kind",
+            format!("unknown project kind {}", kind.unwrap_or("missing")),
+        ));
+    }
+    let provenance = mapping_value(value, "provenance");
+    let provenance_kind = provenance.and_then(|entry| mapping_string(entry, "kind"));
+    if !matches!(
+        provenance_kind,
+        Some("local" | "migrated_v1" | "server_snapshot")
+    ) {
+        return Err(FormatError::validation(
+            "unknown_provenance_kind",
+            format!(
+                "unknown provenance kind {}",
+                provenance_kind.unwrap_or("missing")
+            ),
+        ));
+    }
+    Ok(())
+}
+
+fn mapping_value<'a>(
+    value: &'a serde_yaml_ng::Value,
+    key: &str,
+) -> Option<&'a serde_yaml_ng::Value> {
+    value
+        .as_mapping()?
+        .get(serde_yaml_ng::Value::String(key.to_owned()))
+}
+
+fn mapping_string<'a>(value: &'a serde_yaml_ng::Value, key: &str) -> Option<&'a str> {
+    mapping_value(value, key)?.as_str()
 }
 
 fn yaml_depth(value: &serde_yaml_ng::Value) -> usize {

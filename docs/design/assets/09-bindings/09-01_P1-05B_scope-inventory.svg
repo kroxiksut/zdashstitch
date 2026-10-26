@@ -1,0 +1,189 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 1600 1000" fill="#17213a" role="img" aria-labelledby="title desc">
+  <title id="title">ZDashstitch — привязки: область и зависимости</title>
+  <desc id="desc">Светлый макет начала мастера замены узла сети: выбор намерения и области (вся панель по умолчанию), заменяемый узел сети и инвентаризация его ссылок по страницам и виджетам с видом ссылки и тем, что с ней будет: изменится, останется на старом узле или не поддерживается.</desc>
+  <defs>
+    <!-- Tabler Icons outline v3.49.0 (MIT), see assets/icons/THIRD_PARTY.md -->
+    <symbol id="ti-circle-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M9 12l2 2l4 -4"/></symbol>
+    <symbol id="ti-ban" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M5.7 5.7l12.6 12.6"/></symbol>
+    <symbol id="ti-alert-triangle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0"/><path d="M12 16h.01"/></symbol>
+    <symbol id="ti-info-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M12 9h.01"/><path d="M11 12h1v4h1"/></symbol>
+    <symbol id="ti-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6l6 -6"/></symbol>
+    <symbol id="ti-chevron-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6l-6 6"/></symbol>
+    <symbol id="ti-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065"/><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/></symbol>
+    <style>
+      text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+      .muted{fill:#667085}.white{fill:#ffffff}.small{font-size:14px}.xs{font-size:12px}.label{font-size:13px;font-weight:700;letter-spacing:.08em}
+      .title{font-size:24px;font-weight:750}.h3{font-size:17px;font-weight:700}.body{font-size:16px}.button{font-size:15px;font-weight:700}
+      .nav{font-size:17px}.badge{font-size:13px;font-weight:650}.row{font-size:15px;font-weight:650}
+      .mono{font-family:ui-monospace,"Cascadia Mono",Consolas,monospace;font-size:13px;fill:#344054}
+    </style>
+  </defs>
+  <rect width="1600" height="1000" fill="#f5f7fb"/>
+
+  <!-- App bar: global navigation (P1-01B §1) -->
+  <rect width="1600" height="72" fill="#ffffff" stroke="#e4e7ec"/>
+  <image href="../../../../assets/brand/icons/stezhik-head-1024.png" x="32" y="18" width="36" height="36" preserveAspectRatio="xMidYMid meet"/>
+  <text x="80" y="45" font-size="20" font-weight="750">ZDashstitch</text>
+  <text x="232" y="44" font-size="15" font-weight="500" fill="#475467">Начало</text>
+  <text x="318" y="44" font-size="15" font-weight="700" fill="#1d3f86">Черновики</text>
+  <rect x="318" y="67" width="80" height="4" rx="2" fill="#3156a3"/>
+  <text x="430" y="44" font-size="15" font-weight="500" fill="#475467">Панели в Zabbix</text>
+  <text x="582" y="44" font-size="15" font-weight="500" fill="#475467">Библиотека</text>
+  <text x="702" y="44" font-size="15" font-weight="500" fill="#475467">Подключения</text>
+  <rect x="1138" y="19" width="270" height="34" rx="17" fill="#eef4ff"/>
+  <text x="1273" y="41" font-size="14" text-anchor="middle" fill="#3156a3">Только чтение · Лаборатория 7.4</text>
+  <rect x="1424" y="18" width="144" height="36" rx="8" fill="#ffffff" stroke="#c9d3ea"/>
+  <use href="#ti-settings" x="1438" y="27" width="18" height="18" color="#475467"/>
+  <text x="1464" y="41" font-size="15" font-weight="600" fill="#17213a">Настройки</text>
+
+  <!-- Workspace -->
+  <rect x="0" y="72" width="260" height="928" fill="#ffffff" stroke="#e4e7ec"/>
+  <text x="28" y="116" class="label muted">ПАНЕЛЬ</text>
+  <text x="36" y="164" class="nav">Обзор</text>
+  <text x="36" y="212" class="nav">Структура</text>
+  <rect x="16" y="232" width="228" height="46" rx="10" fill="#eef4ff" stroke="#eef4ff"/>
+  <text x="36" y="262" class="nav" fill="#1d3f86" font-weight="700">Привязки</text>
+  <text x="36" y="308" class="nav">Проверки</text>
+  <text x="36" y="356" class="nav">Публикация</text>
+  <line x1="20" y1="392" x2="240" y2="392" stroke="#e4e7ec"/>
+  <text x="28" y="428" class="label muted">ПРОИСХОЖДЕНИЕ</text>
+  <text x="28" y="458" class="body" font-weight="650">Копия с сервера</text>
+  <text x="28" y="484" class="small" fill="#667085">«Базы данных: Prod»</text>
+  <text x="28" y="508" class="small" fill="#667085">Лаборатория 7.4</text>
+  <text x="28" y="532" class="small" fill="#667085">снимок 25.10.2026, 14:02</text>
+  <text x="28" y="556" class="small" fill="#667085">3 страницы · 19 виджетов</text>
+  <!-- Title -->
+  <text x="292" y="92" font-size="13" fill="#667085">Черновики  /  Базы данных: Prod  /  Привязки</text>
+  <rect x="1374" y="100" width="170" height="28" rx="14" fill="#ecfdf3"/>
+  <text x="1459" y="119" font-size="13" font-weight="650" text-anchor="middle" fill="#1f6b43">Сохранена локально</text>
+  <text x="292" y="124" class="title">Заменить узел сети</text>
+  <rect x="292" y="146" width="105" height="34" rx="17" fill="#ffffff" stroke="#d0d5dd"/>
+  <use href="#ti-circle-check" x="302" y="154" width="18" height="18" color="#1f6b43"/>
+  <text x="326" y="168" class="small" fill="#1f6b43" font-weight="600">Область</text>
+  <rect x="405" y="146" width="141" height="34" rx="17" fill="#eef4ff" stroke="#3156a3"/>
+  <text x="424" y="168" class="small" fill="#1d3f86" text-anchor="middle" font-weight="700">2</text>
+  <text x="439" y="168" class="small" fill="#1d3f86" font-weight="700">Зависимости</text>
+  <rect x="554" y="146" width="132" height="34" rx="17" fill="#ffffff" stroke="#e4e7ec"/>
+  <text x="573" y="168" class="small" fill="#667085" text-anchor="middle" font-weight="700">3</text>
+  <text x="588" y="168" class="small" fill="#667085" font-weight="500">Новый узел</text>
+  <rect x="694" y="146" width="150" height="34" rx="17" fill="#ffffff" stroke="#e4e7ec"/>
+  <text x="713" y="168" class="small" fill="#667085" text-anchor="middle" font-weight="700">4</text>
+  <text x="728" y="168" class="small" fill="#667085" font-weight="500">Соответствия</text>
+  <rect x="852" y="146" width="78" height="34" rx="17" fill="#ffffff" stroke="#e4e7ec"/>
+  <text x="871" y="168" class="small" fill="#667085" text-anchor="middle" font-weight="700">5</text>
+  <text x="886" y="168" class="small" fill="#667085" font-weight="500">Итог</text>
+  <rect x="292" y="196" width="420" height="712" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="316" y="230" class="label muted">НАМЕРЕНИЕ</text>
+  <rect x="316" y="244" width="372" height="54" rx="10" fill="#eef4ff" stroke="#3156a3" stroke-width="2"/>
+  <circle cx="338" cy="271" r="9" fill="#ffffff" stroke="#3156a3" stroke-width="2"/>
+  <circle cx="338" cy="271" r="4.5" fill="#3156a3"/>
+  <text x="358" y="276" class="body" font-weight="700">Заменить узел сети</text>
+  <rect x="316" y="306" width="372" height="54" rx="10" fill="#ffffff" stroke="#e4e7ec"/>
+  <circle cx="338" cy="333" r="9" fill="#ffffff" stroke="#7a8d9b" stroke-width="2"/>
+  <text x="358" y="338" class="body" font-weight="600">Клонировать панель</text>
+  <text x="316" y="396" class="label muted">ОБЛАСТЬ</text>
+  <circle cx="328" cy="420" r="9" fill="#ffffff" stroke="#3156a3" stroke-width="2"/>
+  <circle cx="328" cy="420" r="4.5" fill="#3156a3"/>
+  <text x="346" y="426" class="small" font-weight="600">Вся панель: 3 страницы, 19 виджетов</text>
+  <circle cx="328" cy="452" r="9" fill="#ffffff" stroke="#7a8d9b" stroke-width="2"/>
+  <text x="346" y="458" class="small">Выбранные страницы</text>
+  <circle cx="328" cy="484" r="9" fill="#ffffff" stroke="#7a8d9b" stroke-width="2"/>
+  <text x="346" y="490" class="small">Выбранные виджеты</text>
+  <text x="316" y="530" class="label muted">ЗАМЕНЯЕМЫЙ УЗЕЛ СЕТИ</text>
+  <rect x="316" y="544" width="372" height="40" rx="8" fill="#ffffff" stroke="#7a8d9b"/>
+  <text x="330" y="570" class="body">pg-a-01</text>
+  <use href="#ti-chevron-down" x="658" y="555" width="18" height="18" color="#475467"/>
+  <text x="316" y="606" class="xs muted">Найден в панели: pg-a-01 (24 ссылки), pg-a-02 (8),</text>
+  <text x="316" y="622" class="xs muted">ch-a-01 (5), ch-a-02 (5)</text>
+  <rect x="316" y="650" width="372" height="108" rx="10" fill="#f5f8ff" stroke="#c9d3ea"/>
+  <use href="#ti-info-circle" x="330" y="664" width="18" height="18" color="#1d3f86"/>
+  <text x="356" y="678" class="small" fill="#344054">Меняется только черновик. Исходная</text>
+  <text x="356" y="700" class="small" fill="#344054">панель на сервере не изменится, пока</text>
+  <text x="356" y="722" class="small" fill="#344054">вы не опубликуете проверенный план.</text>
+  <rect x="732" y="196" width="812" height="712" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="756" y="230" class="label muted">ССЫЛКИ НА pg-a-01</text>
+  <rect x="1036" y="212" width="148" height="26" rx="13" fill="#ecfdf3"/>
+  <text x="1110" y="230" class="badge" text-anchor="middle" fill="#1f6b43">Изменятся: 23</text>
+  <rect x="1192" y="212" width="196" height="26" rx="13" fill="#fff4e5"/>
+  <text x="1290" y="230" class="badge" text-anchor="middle" fill="#8a4b00">Останется на старом: 1</text>
+  <rect x="1396" y="212" width="124" height="26" rx="13" fill="#f2f4f7"/>
+  <text x="1458" y="230" class="badge" text-anchor="middle" fill="#344054">Не найдено: 0</text>
+  <rect x="756" y="250" width="764" height="32" rx="6" fill="#f8fafc" stroke="#eef0f4"/>
+  <text x="770" y="271" class="xs muted" font-weight="700">ВИДЖЕТ</text>
+  <text x="990" y="271" class="xs muted" font-weight="700">ТИП</text>
+  <text x="1140" y="271" class="xs muted" font-weight="700">КАК ССЫЛАЕТСЯ</text>
+  <text x="1360" y="271" class="xs muted" font-weight="700">ЧТО БУДЕТ</text>
+  <rect x="756" y="288" width="764" height="34" rx="6" fill="#f5f7fb" stroke="#f5f7fb"/>
+  <use href="#ti-chevron-down" x="764" y="296" width="18" height="18" color="#475467"/>
+  <text x="790" y="310" class="small" font-weight="700">Страница 1. PostgreSQL</text>
+  <text x="1508" y="310" class="small muted" text-anchor="end">4 виджета · 9 ссылок</text>
+  <line x1="756" y1="366" x2="1520" y2="366" stroke="#eef0f4"/>
+  <use href="#ti-circle-check" x="764" y="338" width="18" height="18" color="#1f6b43"/>
+  <text x="790" y="352" class="small" font-weight="600">Connections</text>
+  <text x="990" y="352" class="small muted">График</text>
+  <text x="1140" y="352" class="small">шаблон узла: имя</text>
+  <text x="1360" y="352" class="small">изменится</text>
+  <line x1="756" y1="408" x2="1520" y2="408" stroke="#eef0f4"/>
+  <use href="#ti-circle-check" x="764" y="380" width="18" height="18" color="#1f6b43"/>
+  <text x="790" y="394" class="small" font-weight="600">TPS</text>
+  <text x="990" y="394" class="small muted">График</text>
+  <text x="1140" y="394" class="small">шаблон узла: имя</text>
+  <text x="1360" y="394" class="small">изменится</text>
+  <line x1="756" y1="450" x2="1520" y2="450" stroke="#eef0f4"/>
+  <use href="#ti-circle-check" x="764" y="422" width="18" height="18" color="#1f6b43"/>
+  <text x="790" y="436" class="small" font-weight="600">Cache hit ratio</text>
+  <text x="990" y="436" class="small muted">Значение элемента</text>
+  <text x="1140" y="436" class="small">элемент данных (ID)</text>
+  <text x="1360" y="436" class="small">изменится</text>
+  <line x1="756" y1="492" x2="1520" y2="492" stroke="#eef0f4"/>
+  <use href="#ti-circle-check" x="764" y="464" width="18" height="18" color="#1f6b43"/>
+  <text x="790" y="478" class="small" font-weight="600">Locks</text>
+  <text x="990" y="478" class="small muted">Значение элемента</text>
+  <text x="1140" y="478" class="small">элемент данных (ID)</text>
+  <text x="1360" y="478" class="small">изменится</text>
+  <rect x="756" y="496" width="764" height="34" rx="6" fill="#f5f7fb" stroke="#f5f7fb"/>
+  <use href="#ti-chevron-down" x="764" y="504" width="18" height="18" color="#475467"/>
+  <text x="790" y="518" class="small" font-weight="700">Страница 2. ClickHouse</text>
+  <text x="1508" y="518" class="small muted" text-anchor="end">4 виджета · 8 ссылок</text>
+  <line x1="756" y1="574" x2="1520" y2="574" stroke="#eef0f4"/>
+  <use href="#ti-circle-check" x="764" y="546" width="18" height="18" color="#1f6b43"/>
+  <text x="790" y="560" class="small" font-weight="600">Queries per second</text>
+  <text x="990" y="560" class="small muted">График</text>
+  <text x="1140" y="560" class="small">шаблон узла: имя</text>
+  <text x="1360" y="560" class="small">изменится</text>
+  <line x1="756" y1="616" x2="1520" y2="616" stroke="#eef0f4"/>
+  <use href="#ti-circle-check" x="764" y="588" width="18" height="18" color="#1f6b43"/>
+  <text x="790" y="602" class="small" font-weight="600">Replication lag</text>
+  <text x="990" y="602" class="small muted">Значение элемента</text>
+  <text x="1140" y="602" class="small">элемент данных (ID)</text>
+  <text x="1360" y="602" class="small">изменится</text>
+  <line x1="756" y1="658" x2="1520" y2="658" stroke="#eef0f4"/>
+  <use href="#ti-circle-check" x="764" y="630" width="18" height="18" color="#1f6b43"/>
+  <text x="790" y="644" class="small" font-weight="600">Inserts per second</text>
+  <text x="990" y="644" class="small muted">График</text>
+  <text x="1140" y="644" class="small">шаблон узла: имя</text>
+  <text x="1360" y="644" class="small">изменится</text>
+  <line x1="756" y1="700" x2="1520" y2="700" stroke="#eef0f4"/>
+  <use href="#ti-ban" x="764" y="672" width="18" height="18" color="#8a4b00"/>
+  <text x="790" y="686" class="small" font-weight="600">Top queries</text>
+  <text x="990" y="686" class="small muted">Топ узлов сети</text>
+  <text x="1140" y="686" class="small">узел сети (ID)</text>
+  <text x="1360" y="686" class="small" fill="#8a4b00" font-weight="650">останется на pg-a-01</text>
+  <rect x="756" y="704" width="764" height="34" rx="6" fill="#f5f7fb" stroke="#f5f7fb"/>
+  <use href="#ti-chevron-right" x="764" y="712" width="18" height="18" color="#475467"/>
+  <text x="790" y="726" class="small" font-weight="700">Страница 3. Keeper и HAProxy</text>
+  <text x="1508" y="726" class="small muted" text-anchor="end">4 виджета · 7 ссылок</text>
+  <rect x="756" y="756" width="764" height="104" rx="10" fill="#fffaf2" stroke="#f3d3a6"/>
+  <use href="#ti-alert-triangle" x="770" y="770" width="18" height="18" color="#8a4b00"/>
+  <text x="796" y="784" class="small" fill="#8a4b00" font-weight="700">Останется на pg-a-01: 1 виджет</text>
+  <text x="796" y="808" class="small" fill="#5c3a00">Изменение «Топ узлов сети» не поддерживается: виджет продолжит показывать pg-a-01.</text>
+  <text x="796" y="830" class="small" fill="#5c3a00">Это не блокирует замену, но перед публикацией список нужно подтвердить.</text>
+  <text x="756" y="892" class="xs muted">Шаблон узла сети по имени меняется, только если совпадает с видимым именем pg-a-01 без «*»; маски не меняются.</text>
+  <rect x="260" y="924" width="1340" height="76" fill="#ffffff" stroke="#e4e7ec"/>
+  <rect x="292" y="941" width="120" height="42" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="352" y="967" class="button" text-anchor="middle">Назад</text>
+  <rect x="1334" y="941" width="210" height="42" rx="10" fill="#3156a3" stroke="#3156a3"/>
+  <text x="1439" y="967" class="button white" text-anchor="middle">Далее: новый узел</text>
+  <rect x="1122" y="941" width="200" height="42" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="1222" y="967" class="button" text-anchor="middle">Сохранить черновик</text>
+</svg>

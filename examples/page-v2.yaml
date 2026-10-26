@@ -1,0 +1,29 @@
+format: zdashstitch.project/v2
+project_id: os-page
+kind: page
+declared_compatibility:
+  minimum: 7.4.0
+provenance:
+  kind: migrated_v1
+  legacy_format: zdashstitch.project/v1
+  source_project_id: db-pilot
+  source_dashboard_id: db-pilot
+  source_page_id: operating-system
+catalogs:
+  - id: linux
+    file: metrics/linux.yaml
+roles:
+  system_nodes:
+    cardinality: many
+root:
+  id: operating-system
+  name: ОС
+  widgets:
+    - id: os-memory
+      type: graph
+      title: Использование памяти
+      expansion: series_per_host
+      series:
+        - metric: {catalog: linux, metric: memory_used}
+          hosts: {role: system_nodes, selection: all}
+      layout: {mode: auto, w: 36, h: 5}

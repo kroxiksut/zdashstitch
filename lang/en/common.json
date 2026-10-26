@@ -1,0 +1,78 @@
+{
+  "common.product_name": {
+    "message": "ZDashstitch",
+    "placeholders": {}
+  },
+  "common.skip_to_content": {
+    "message": "Skip to main content",
+    "placeholders": {}
+  },
+  "common.count.items": {
+    "message": "{count, plural, one {# item} other {# items}}",
+    "placeholders": {"count": "number"}
+  },
+  "common.state.coming_later": {
+    "message": "Will be available later",
+    "placeholders": {}
+  },
+  "common.state.offline": {
+    "message": "Offline",
+    "placeholders": {}
+  },
+  "common.state.read_only": {
+    "message": "Read-only",
+    "placeholders": {}
+  },
+  "common.state.read_write": {
+    "message": "Read-write",
+    "placeholders": {}
+  },
+  "common.state.edit_unsupported": {
+    "message": "Editing not supported",
+    "placeholders": {}
+  },
+  "common.state.loading": {
+    "message": "Loading…",
+    "placeholders": {}
+  },
+  "common.filter.all": {
+    "message": "All",
+    "placeholders": {}
+  },
+  "common.filter.with_count": {
+    "message": "{label} {count}",
+    "placeholders": {"label": "text", "count": "number"}
+  },
+  "common.action.copy": {
+    "message": "Copy",
+    "placeholders": {}
+  },
+  "common.action.open": {
+    "message": "Open",
+    "placeholders": {}
+  },
+  "common.action.duplicate": {
+    "message": "Duplicate",
+    "placeholders": {}
+  },
+  "common.action.rename": {
+    "message": "Rename",
+    "placeholders": {}
+  },
+  "common.action.delete": {
+    "message": "Delete",
+    "placeholders": {}
+  },
+  "common.duration.seconds": {
+    "message": "{count, plural, one {# second} other {# seconds}}",
+    "placeholders": {"count": "number"}
+  },
+  "common.duration.minutes": {
+    "message": "{count, plural, one {# minute} other {# minutes}}",
+    "placeholders": {"count": "number"}
+  },
+  "common.duration.hours": {
+    "message": "{count, plural, one {# hour} other {# hours}}",
+    "placeholders": {"count": "number"}
+  }
+}

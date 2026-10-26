@@ -1,0 +1,34 @@
+{
+  "object.kind.dashboard": {
+    "message": "Dashboard",
+    "placeholders": {}
+  },
+  "object.kind.page": {
+    "message": "Page",
+    "placeholders": {}
+  },
+  "object.origin.local": {
+    "message": "Local",
+    "placeholders": {}
+  },
+  "object.origin.server_copy": {
+    "message": "Copy from server",
+    "placeholders": {}
+  },
+  "dashboards.summary.pages_widgets": {
+    "message": "{pages, plural, one {# page} other {# pages}}, {widgets, plural, one {# widget} other {# widgets}}",
+    "placeholders": {"pages": "number", "widgets": "number"}
+  },
+  "object.page.untitled": {
+    "message": "Untitled",
+    "placeholders": {}
+  },
+  "object.page.numbered": {
+    "message": "{number}. {name}",
+    "placeholders": {"number": "number", "name": "text"}
+  },
+  "object.page.widget_count": {
+    "message": "{count, plural, one {# widget} other {# widgets}}",
+    "placeholders": {"count": "number"}
+  }
+}

@@ -1,0 +1,13 @@
+format: zdashstitch.project/v2
+project_id: empty-range
+kind: page
+declared_compatibility:
+  minimum: '7.4'
+  maximum_exclusive: 7.4.0
+provenance: {kind: local}
+catalogs: [{id: linux, file: metrics/linux.yaml}]
+roles: {system_nodes: {cardinality: many}}
+root:
+  id: page-root
+  name: Page
+  widgets: []

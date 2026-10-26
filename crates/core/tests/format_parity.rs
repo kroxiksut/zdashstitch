@@ -3,9 +3,11 @@
 use std::{collections::BTreeMap, fs, path::PathBuf};
 
 use zdashstitch_core::formats::{
-    DeploymentState, FormatError, LocalBindings, MetricCatalog, PortableProject, SourceKind,
-    ValueType, Widget, from_json_str, from_yaml_str, to_json_string, to_yaml_string,
-    validate_project,
+    DeploymentState, FormatError, LegacyRootSelection, LocalBindings, MetricCatalog,
+    PortableProject, ProjectKind, ProjectProvenance, ProjectRoot, SourceKind, TypedProject,
+    ValueType, Widget, ZabbixWidgetFieldValue, from_json_str, from_yaml_str,
+    migrate_legacy_project, to_json_string, to_yaml_string, validate_project,
+    validate_typed_project,
 };
 
 fn root() -> PathBuf {
@@ -247,4 +249,124 @@ fn deployment_relationships_and_string_ids_are_enforced() {
         failure(unknown_slot.validate_against(Some(&project), Some(&bindings))),
         "unknown_deployment_slot",
     );
+}
+
+#[test]
+fn typed_dashboard_and_page_round_trip_with_kind_and_root() {
+    for (relative, expected_kind) in [
+        ("examples/dashboard-v2.yaml", ProjectKind::Dashboard),
+        ("examples/page-v2.yaml", ProjectKind::Page),
+    ] {
+        let project: TypedProject = from_yaml_str(&read(relative))
+            .unwrap_or_else(|error| panic!("typed project must parse: {error}"));
+        assert_eq!(project.kind, expected_kind);
+        let catalog: MetricCatalog = from_yaml_str(&read("examples/metrics/linux.yaml"))
+            .unwrap_or_else(|error| panic!("linux catalog must parse: {error}"));
+        let catalogs = BTreeMap::from([("linux".to_owned(), catalog)]);
+        validate_typed_project(&project, &catalogs)
+            .unwrap_or_else(|error| panic!("typed project must validate: {error}"));
+        let yaml = to_yaml_string(&project)
+            .unwrap_or_else(|error| panic!("typed project must serialize: {error}"));
+        let reopened: TypedProject = from_yaml_str(&yaml)
+            .unwrap_or_else(|error| panic!("typed project must reopen: {error}"));
+        assert_eq!(project, reopened);
+    }
+}
+
+#[test]
+fn generic_and_unknown_zabbix_widgets_round_trip_without_server_ids() {
+    for relative in [
+        "examples/clock-page-v2.yaml",
+        "examples/global-view-v2.yaml",
+        "fixtures/formats/v2/positive/unknown-widget.yaml",
+    ] {
+        let project: TypedProject = from_yaml_str(&read(relative))
+            .unwrap_or_else(|error| panic!("generic project must parse: {error}"));
+        validate_typed_project(&project, &BTreeMap::new())
+            .unwrap_or_else(|error| panic!("generic project must validate: {error}"));
+        let yaml = to_yaml_string(&project)
+            .unwrap_or_else(|error| panic!("generic project must serialize: {error}"));
+        assert!(!yaml.contains("widgetid"));
+        assert_object_fields_hold_no_server_ids(&project.root);
+        let reopened: TypedProject = from_yaml_str(&yaml)
+            .unwrap_or_else(|error| panic!("generic project must reopen: {error}"));
+        assert_eq!(project, reopened);
+    }
+}
+
+/// Fields of Zabbix object types 2..=13 must carry portable references or an unresolved
+/// marker, never a raw integer or string that could be a server object ID.
+fn assert_object_fields_hold_no_server_ids(project_root: &ProjectRoot) {
+    let pages = match project_root {
+        ProjectRoot::Dashboard(dashboard) => dashboard.pages.iter().collect::<Vec<_>>(),
+        ProjectRoot::Page(page) => vec![page],
+    };
+    for widget in pages.iter().flat_map(|page| page.widgets.iter()) {
+        let Widget::Zabbix { fields, .. } = widget else {
+            continue;
+        };
+        for field in fields {
+            if (2..=13).contains(&field.field_type) {
+                assert!(
+                    matches!(
+                        field.value,
+                        ZabbixWidgetFieldValue::Host { .. }
+                            | ZabbixWidgetFieldValue::Metric { .. }
+                            | ZabbixWidgetFieldValue::Unresolved { .. }
+                    ),
+                    "field {} of type {} holds a raw value",
+                    field.name,
+                    field.field_type
+                );
+            }
+        }
+    }
+}
+
+#[test]
+fn legacy_migration_requires_an_explicit_root_and_keeps_source_separate() {
+    let (legacy, catalogs) = project_and_catalogs();
+    let page = migrate_legacy_project(
+        &legacy,
+        &LegacyRootSelection::Page {
+            dashboard_id: "db-pilot".to_owned(),
+            page_id: "clickhouse".to_owned(),
+        },
+    )
+    .unwrap_or_else(|error| panic!("legacy page must migrate: {error}"));
+    assert_eq!(page.kind, ProjectKind::Page);
+    assert!(matches!(&page.root, ProjectRoot::Page(root) if root.id == "clickhouse"));
+    assert!(matches!(
+        &page.provenance,
+        ProjectProvenance::MigratedV1 {
+            source_dashboard_id,
+            source_page_id: Some(source_page_id),
+            ..
+        } if source_dashboard_id == "db-pilot" && source_page_id == "clickhouse"
+    ));
+    validate_typed_project(&page, &catalogs)
+        .unwrap_or_else(|error| panic!("migrated page must validate: {error}"));
+
+    let missing = migrate_legacy_project(
+        &legacy,
+        &LegacyRootSelection::Dashboard {
+            dashboard_id: "missing-dashboard".to_owned(),
+        },
+    )
+    .err()
+    .unwrap_or_else(|| panic!("missing root must fail"));
+    assert_code(missing, "legacy_root_not_found");
+}
+
+#[test]
+fn unknown_typed_kind_and_target_intent_are_not_ignored() {
+    for relative in [
+        "fixtures/formats/v2/negative/unknown-kind.yaml",
+        "fixtures/formats/v2/negative/target-intent.yaml",
+    ] {
+        assert!(
+            from_yaml_str::<TypedProject>(&read(relative)).is_err(),
+            "{relative} must fail"
+        );
+    }
 }

@@ -16,7 +16,7 @@ def test_c2_invalid_colors():
 
 
 def test_b9_all_schemas_generated_without_drift():
-    paths=[ROOT/'schemas'/f for f in ['project-v1.schema.json','metrics-v1.schema.json',
+    paths=[ROOT/'schemas'/f for f in ['project-v1.schema.json','project-v2.schema.json','metrics-v1.schema.json',
                                      'local-bindings-v1.schema.json','deployment-state-v1.schema.json']]
     before=[x.read_bytes() for x in paths]
     result=subprocess.run([sys.executable,str(ROOT/'tools/build_schemas.py')],capture_output=True,text=True)

@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 1600 1000" fill="#17213a" role="img" aria-labelledby="title desc">
+  <title id="title">ZDashstitch — стартовый экран</title>
+  <desc id="desc">Светлый макет стартового экрана: панели в Zabbix, локальные черновики панелей и страниц со сборкой панели из страниц и взятием отдельной страницы, список недавнего с типом и происхождением объекта.</desc>
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="8" stdDeviation="18" flood-color="#17213a" flood-opacity=".08"/></filter>
+    <symbol id="ti-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065"/><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/></symbol>
+    <style>
+      text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+      .muted{fill:#667085}.white{fill:#ffffff}.small{font-size:15px}.label{font-size:13px;font-weight:700;letter-spacing:.08em}
+      .title{font-size:34px;font-weight:750}.card-title{font-size:24px;font-weight:700}.body{font-size:17px}.button{font-size:16px;font-weight:700}
+      .tile-button{font-size:15px;font-weight:700;fill:#3156a3}
+      .row-title{font-size:17px;font-weight:650}.badge{font-size:13px;font-weight:650}
+    </style>
+  </defs>
+  <rect width="1600" height="1000" fill="#f5f7fb"/>
+
+  <!-- App bar: global navigation (P1-01B §1) -->
+  <rect width="1600" height="72" fill="#ffffff" stroke="#e4e7ec"/>
+  <image href="../../../../assets/brand/icons/stezhik-head-1024.png" x="32" y="18" width="36" height="36" preserveAspectRatio="xMidYMid meet"/>
+  <text x="80" y="45" font-size="20" font-weight="750">ZDashstitch</text>
+  <text x="232" y="44" font-size="15" font-weight="700" fill="#1d3f86">Начало</text>
+  <rect x="232" y="67" width="54" height="4" rx="2" fill="#3156a3"/>
+  <text x="318" y="44" font-size="15" font-weight="500" fill="#475467">Черновики</text>
+  <text x="430" y="44" font-size="15" font-weight="500" fill="#475467">Панели в Zabbix</text>
+  <text x="582" y="44" font-size="15" font-weight="500" fill="#475467">Библиотека</text>
+  <text x="702" y="44" font-size="15" font-weight="500" fill="#475467">Подключения</text>
+  <rect x="1148" y="19" width="260" height="34" rx="17" fill="#eef4ff"/>
+  <text x="1278" y="41" font-size="14" text-anchor="middle" fill="#3156a3">Только чтение · Лаборатория 7.4</text>
+  <rect x="1424" y="18" width="144" height="36" rx="8" fill="#ffffff" stroke="#c9d3ea"/>
+  <use href="#ti-settings" x="1438" y="27" width="18" height="18" color="#475467"/>
+  <text x="1464" y="41" font-size="15" font-weight="600" fill="#17213a">Настройки</text>
+
+  <!-- Heading -->
+  <text x="128" y="124" class="label muted">НАЧАЛО РАБОТЫ</text>
+  <text x="128" y="168" class="title">Что вы хотите сделать с панелями Zabbix?</text>
+  <text x="128" y="202" class="body muted">Локальные черновики не требуют подключения. Изменения на сервере — только через проверенный план.</text>
+
+  <!-- Card: dashboards in Zabbix -->
+  <rect x="128" y="232" width="656" height="452" rx="18" fill="#ffffff" stroke="#c9d3ea" stroke-width="2" filter="url(#shadow)"/>
+  <rect x="160" y="264" width="190" height="30" rx="15" fill="#eef4ff"/>
+  <text x="255" y="284" class="badge" text-anchor="middle" fill="#3156a3">Zabbix · только чтение</text>
+  <text x="160" y="334" class="card-title">Панели в Zabbix</text>
+  <text x="160" y="364" class="body muted">Заменить узел сети, клонировать панель или взять одну страницу.</text>
+
+  <rect x="160" y="392" width="592" height="60" rx="10" fill="#f8fafc" stroke="#e4e7ec"/>
+  <text x="180" y="418" class="row-title">DB Production</text>
+  <text x="180" y="440" class="small muted">4 страницы · 38 виджетов · глобальная панель</text>
+  <rect x="160" y="462" width="592" height="60" rx="10" fill="#f8fafc" stroke="#e4e7ec"/>
+  <text x="180" y="488" class="row-title">DB Pilot</text>
+  <text x="180" y="510" class="small muted">3 страницы · 22 виджета · глобальная панель</text>
+  <rect x="160" y="532" width="592" height="60" rx="10" fill="#f8fafc" stroke="#e4e7ec"/>
+  <text x="180" y="558" class="row-title">Linux servers</text>
+  <text x="180" y="580" class="small muted">1 страница · 9 виджетов · глобальная панель</text>
+
+  <rect x="160" y="608" width="260" height="52" rx="10" fill="#3156a3"/>
+  <text x="290" y="640" class="button white" text-anchor="middle">Выбрать панель</text>
+  <rect x="436" y="608" width="240" height="52" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="556" y="640" class="button" text-anchor="middle">Сменить подключение</text>
+
+  <!-- Card: local drafts -->
+  <rect x="816" y="232" width="656" height="452" rx="18" fill="#ffffff" stroke="#d0d5dd" filter="url(#shadow)"/>
+  <rect x="848" y="264" width="160" height="30" rx="15" fill="#ecfdf3"/>
+  <text x="928" y="284" class="badge" text-anchor="middle" fill="#1f6b43">Без подключения</text>
+  <text x="848" y="334" class="card-title">Локальные черновики</text>
+  <text x="848" y="364" class="body muted">Подготовьте панель или страницу и опубликуйте позже.</text>
+
+  <!-- Tile: dashboard -->
+  <rect x="848" y="392" width="288" height="200" rx="12" fill="#f8fafc" stroke="#e4e7ec"/>
+  <text x="868" y="424" class="row-title">Панель</text>
+  <text x="868" y="448" class="small muted">Несколько страниц и их виджеты.</text>
+  <rect x="868" y="468" width="248" height="44" rx="9" fill="#ffffff" stroke="#3156a3" stroke-width="2"/>
+  <text x="992" y="496" class="tile-button" text-anchor="middle">Создать панель</text>
+  <rect x="868" y="524" width="248" height="44" rx="9" fill="#ffffff" stroke="#3156a3" stroke-width="2"/>
+  <text x="992" y="552" class="tile-button" text-anchor="middle">Собрать из страниц</text>
+
+  <!-- Tile: page -->
+  <rect x="1152" y="392" width="288" height="200" rx="12" fill="#f8fafc" stroke="#e4e7ec"/>
+  <text x="1172" y="424" class="row-title">Страница</text>
+  <text x="1172" y="448" class="small muted">Одна страница без всей панели.</text>
+  <rect x="1172" y="468" width="248" height="44" rx="9" fill="#ffffff" stroke="#3156a3" stroke-width="2"/>
+  <text x="1296" y="496" class="tile-button" text-anchor="middle">Создать страницу</text>
+  <rect x="1172" y="524" width="248" height="44" rx="9" fill="#ffffff" stroke="#3156a3" stroke-width="2"/>
+  <text x="1296" y="552" class="tile-button" text-anchor="middle">Взять страницу</text>
+
+  <rect x="848" y="608" width="200" height="52" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="948" y="640" class="button" text-anchor="middle">Импорт файлов</text>
+  <text x="1068" y="632" class="small muted">панели, страницы, экспорт шаблонов;</text>
+  <text x="1068" y="652" class="small muted">можно несколько файлов сразу</text>
+
+  <!-- Recent -->
+  <text x="128" y="738" class="card-title">Недавнее</text>
+  <text x="1472" y="738" class="body" text-anchor="end" fill="#3156a3">Все локальные черновики</text>
+
+  <rect x="128" y="756" width="1344" height="64" rx="10" fill="#ffffff" stroke="#e4e7ec"/>
+  <text x="152" y="795" class="row-title">Базы данных: сводная</text>
+  <rect x="420" y="774" width="92" height="28" rx="14" fill="#eef4ff"/>
+  <text x="466" y="793" class="badge" text-anchor="middle" fill="#3156a3">Панель</text>
+  <rect x="524" y="774" width="158" height="28" rx="14" fill="#ecfdf3"/>
+  <text x="603" y="793" class="badge" text-anchor="middle" fill="#1f6b43">Локальная</text>
+  <text x="720" y="795" class="small muted">собрана из 3 страниц: DB Production, DB Pilot, файл коллеги</text>
+  <text x="1448" y="795" class="small muted" text-anchor="end">сегодня, 12:55</text>
+
+  <rect x="128" y="830" width="1344" height="64" rx="10" fill="#ffffff" stroke="#e4e7ec"/>
+  <text x="152" y="869" class="row-title">ClickHouse overview</text>
+  <rect x="420" y="848" width="92" height="28" rx="14" fill="#eef4ff"/>
+  <text x="466" y="867" class="badge" text-anchor="middle" fill="#3156a3">Страница</text>
+  <rect x="524" y="848" width="158" height="28" rx="14" fill="#f2f4f7"/>
+  <text x="603" y="867" class="badge" text-anchor="middle" fill="#344054">Копия с сервера</text>
+  <text x="720" y="869" class="small muted">взята из панели «DB Production» · изменена локально</text>
+  <text x="1448" y="869" class="small muted" text-anchor="end">сегодня, 12:40</text>
+
+  <rect x="128" y="904" width="1344" height="64" rx="10" fill="#ffffff" stroke="#e4e7ec"/>
+  <text x="152" y="943" class="row-title">Keeper и HAProxy</text>
+  <rect x="420" y="922" width="92" height="28" rx="14" fill="#eef4ff"/>
+  <text x="466" y="941" class="badge" text-anchor="middle" fill="#3156a3">Страница</text>
+  <rect x="524" y="922" width="158" height="28" rx="14" fill="#ecfdf3"/>
+  <text x="603" y="941" class="badge" text-anchor="middle" fill="#1f6b43">Локальная</text>
+  <text x="720" y="943" class="small muted">импортирована из файла · не публиковалась</text>
+  <text x="1448" y="943" class="small muted" text-anchor="end">22.10.2026</text>
+</svg>

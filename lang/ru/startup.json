@@ -1,0 +1,154 @@
+{
+  "startup.meta.description": {
+    "message": "ZDashstitch — локальный конструктор панелей Zabbix",
+    "placeholders": {}
+  },
+  "startup.eyebrow": {
+    "message": "Конструктор панелей Zabbix",
+    "placeholders": {}
+  },
+  "startup.lead": {
+    "message": "Это подготовительный каркас локального интерфейса. Редактирование и публикация панелей пока не реализованы.",
+    "placeholders": {}
+  },
+  "startup.status.label": {
+    "message": "Состояние локальной службы",
+    "placeholders": {}
+  },
+  "startup.status.backend": {
+    "message": "Локальная служба",
+    "placeholders": {}
+  },
+  "startup.status.backend_ready": {
+    "message": "Готова",
+    "placeholders": {}
+  },
+  "startup.status.stage": {
+    "message": "Этап",
+    "placeholders": {}
+  },
+  "startup.status.stage_scaffold": {
+    "message": "Подготовительный каркас",
+    "placeholders": {}
+  },
+  "startup.status.target": {
+    "message": "Целевая версия Zabbix",
+    "placeholders": {}
+  },
+  "startup.status.target_value": {
+    "message": "{version}",
+    "placeholders": {"version": "technical"}
+  },
+  "startup.status.writes": {
+    "message": "Запись в Zabbix",
+    "placeholders": {}
+  },
+  "startup.status.writes_enabled": {
+    "message": "Разрешена",
+    "placeholders": {}
+  },
+  "startup.status.writes_disabled": {
+    "message": "Запрещена",
+    "placeholders": {}
+  },
+  "startup.loading": {
+    "message": "Проверяем локальную службу…",
+    "placeholders": {}
+  },
+  "startup.error.unavailable": {
+    "message": "Локальная служба недоступна.",
+    "placeholders": {}
+  },
+  "startup.question": {
+    "message": "Что вы хотите сделать с панелями Zabbix?",
+    "placeholders": {}
+  },
+  "startup.subtitle": {
+    "message": "Локальное создание и сопровождение панелей Zabbix",
+    "placeholders": {}
+  },
+  "startup.server.title": {
+    "message": "Панели в Zabbix",
+    "placeholders": {}
+  },
+  "startup.server.help": {
+    "message": "Заменить узел сети, клонировать панель или взять страницу.",
+    "placeholders": {}
+  },
+  "startup.action.connect": {
+    "message": "Подключиться к Zabbix",
+    "placeholders": {}
+  },
+  "startup.local.title": {
+    "message": "Локальные черновики",
+    "placeholders": {}
+  },
+  "startup.local.help": {
+    "message": "Подготовьте панель или страницу и опубликуйте позже.",
+    "placeholders": {}
+  },
+  "startup.local.dashboard_help": {
+    "message": "Несколько страниц и их виджеты.",
+    "placeholders": {}
+  },
+  "startup.local.page_help": {
+    "message": "Одна страница и её виджеты.",
+    "placeholders": {}
+  },
+  "startup.action.new_dashboard": {
+    "message": "Создать панель",
+    "placeholders": {}
+  },
+  "startup.action.assemble_dashboard": {
+    "message": "Собрать из страниц",
+    "placeholders": {}
+  },
+  "startup.action.new_page": {
+    "message": "Создать страницу",
+    "placeholders": {}
+  },
+  "startup.action.take_page": {
+    "message": "Взять страницу",
+    "placeholders": {}
+  },
+  "startup.action.import_files": {
+    "message": "Импортировать файлы",
+    "placeholders": {}
+  },
+  "startup.recent.title": {
+    "message": "Недавнее",
+    "placeholders": {}
+  },
+  "startup.recent.empty": {
+    "message": "Локальных черновиков пока нет",
+    "placeholders": {}
+  },
+  "startup.action.all_drafts": {
+    "message": "Все локальные черновики",
+    "placeholders": {}
+  },
+  "startup.draft.missing": {
+    "message": "Черновик больше недоступен в локальном хранилище.",
+    "placeholders": {}
+  },
+  "startup.kicker": {
+    "message": "Начало работы",
+    "placeholders": {}
+  },
+  "startup.intro": {
+    "message": "Локальные черновики не требуют подключения. Изменения на сервере — только через проверенный план.",
+    "placeholders": {}
+  },
+  "startup.local.badge": {
+    "message": "Без подключения",
+    "placeholders": {}
+  },
+  "startup.import.help": {
+    "message": "Панели, страницы, экспорт шаблонов; можно несколько файлов сразу",
+    "placeholders": {}
+  },
+  "startup.action.choose_dashboard": {
+    "message": "Выбрать панель",
+    "placeholders": {}
+  }
+}

@@ -1,0 +1,22 @@
+format: zdashstitch.project/v2
+project_id: wrong-object-kind
+kind: page
+declared_compatibility: {minimum: 7.4.0}
+provenance: {kind: local}
+catalogs: []
+roles: {}
+root:
+  id: wrong-object-kind
+  name: Wrong object kind
+  widgets:
+    - id: problem-widget
+      type: zabbix
+      widget_type: problems
+      name: Problems
+      registry_state: known
+      fields:
+        - name: groupids.0
+          field_type: 2
+          registry_state: known
+          value: {kind: unresolved, object_kind: item, display_name: Not a host group}
+      layout: {mode: auto, w: 36, h: 8}

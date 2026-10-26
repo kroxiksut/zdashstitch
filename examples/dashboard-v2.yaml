@@ -1,0 +1,29 @@
+format: zdashstitch.project/v2
+project_id: db-dashboard
+kind: dashboard
+declared_compatibility:
+  minimum: 7.4.0
+provenance:
+  kind: local
+catalogs:
+  - id: linux
+    file: metrics/linux.yaml
+roles:
+  system_nodes:
+    cardinality: many
+root:
+  id: db-dashboard
+  name: DB Dashboard
+  kind: global
+  pages:
+    - id: operating-system
+      name: ОС
+      widgets:
+        - id: os-memory
+          type: graph
+          title: Использование памяти
+          expansion: series_per_host
+          series:
+            - metric: {catalog: linux, metric: memory_used}
+              hosts: {role: system_nodes, selection: all}
+          layout: {mode: auto, w: 36, h: 5}

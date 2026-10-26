@@ -9,6 +9,7 @@
 3. `success` записи показывается только после требуемого read-back. HTTP 200, завершившийся progress или закрывшийся dialog успехом не являются.
 4. `unknown_outcome` — отдельное блокирующее состояние: повторная запись запрещена, доступно только reconciliation чтением.
 5. `read_only`, `disabled`, `unsupported`, `denied` и `offline` имеют разные причины и действия; общий серый вид без текста запрещён.
+   Метка «Только чтение» (`common.state.read_only`) относится только к режиму подключения. Виджет или ссылка, которые ZDashstitch не умеет изменять, получают «Изменение не поддерживается» (`common.state.edit_unsupported`) либо полный fitness-текст «Распознано, но доступно только для чтения» (`bindings.fitness.read_only`); объект при этом сохраняется без потерь.
 6. Background refresh не крадёт focus, не закрывает dialog и не перезаписывает dirty input.
 
 ## 2. Interactive component state matrix

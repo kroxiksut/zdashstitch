@@ -321,7 +321,7 @@ async fn create_lab_dashboard(writer: &mut LabWriteApi, itemid: &str) -> String 
 }
 
 async fn reset_owned_dashboard(
-    reader: &zdashstitch_zabbix::AuthenticatedClient,
+    reader: &zdashstitch_zabbix::ReadOnlyGateway,
     writer: &mut LabWriteApi,
     dashboardid: &str,
     itemid: &str,
@@ -429,7 +429,7 @@ fn writable_widget(widget: &Value, fields: Option<Value>) -> Value {
 }
 
 async fn find_lab_dashboard(
-    reader: &zdashstitch_zabbix::AuthenticatedClient,
+    reader: &zdashstitch_zabbix::ReadOnlyGateway,
 ) -> Option<VersionedDashboardSnapshot> {
     let mut matching = reader
         .dashboard_snapshots("lab-write-contract")
@@ -446,7 +446,7 @@ async fn find_lab_dashboard(
 }
 
 async fn required_lab_dashboard(
-    reader: &zdashstitch_zabbix::AuthenticatedClient,
+    reader: &zdashstitch_zabbix::ReadOnlyGateway,
 ) -> VersionedDashboardSnapshot {
     find_lab_dashboard(reader)
         .await

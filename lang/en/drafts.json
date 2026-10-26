@@ -1,0 +1,398 @@
+{
+  "drafts.title": {
+    "message": "Drafts",
+    "placeholders": {}
+  },
+  "drafts.subtitle": {
+    "message": "Local dashboards and pages. Stored only on this computer; saving is not publishing.",
+    "placeholders": {}
+  },
+  "drafts.filter.any_origin": {
+    "message": "Any origin",
+    "placeholders": {}
+  },
+  "drafts.filter.server_copies": {
+    "message": "Copies from server",
+    "placeholders": {}
+  },
+  "draft.context.saved": {
+    "message": "Saved locally",
+    "placeholders": {}
+  },
+  "draft.context.dirty": {
+    "message": "Unsaved local changes",
+    "placeholders": {}
+  },
+  "draft.context.source": {
+    "message": "Source: {source}",
+    "placeholders": {"source": "text"}
+  },
+  "draft.context.target": {
+    "message": "Target: {target}",
+    "placeholders": {"target": "text"}
+  },
+  "draft.nav.overview": {
+    "message": "Overview",
+    "placeholders": {}
+  },
+  "draft.nav.structure": {
+    "message": "Structure",
+    "placeholders": {}
+  },
+  "draft.nav.bindings": {
+    "message": "Bindings",
+    "placeholders": {}
+  },
+  "draft.nav.checks": {
+    "message": "Checks",
+    "placeholders": {}
+  },
+  "draft.nav.publication": {
+    "message": "Publication",
+    "placeholders": {}
+  },
+  "draft.structure.grid_help": {
+    "message": "Position \"x, y\" and size \"width × height\" are in Zabbix grid cells.",
+    "placeholders": {}
+  },
+  "draft.structure.page_period_default": {
+    "message": "Default",
+    "placeholders": {}
+  },
+  "draft.structure.widget_geometry": {
+    "message": "{type} · {x}, {y} · {width} × {height}",
+    "placeholders": {"type": "text", "x": "number", "y": "number", "width": "number", "height": "number"}
+  },
+  "draft.structure.action.add_page": {
+    "message": "Add page",
+    "placeholders": {}
+  },
+  "draft.structure.action.paste_page": {
+    "message": "Paste page",
+    "placeholders": {}
+  },
+  "draft.structure.action.move_widget": {
+    "message": "Move to page…",
+    "placeholders": {}
+  },
+  "draft.structure.action.edit_widget": {
+    "message": "Edit",
+    "placeholders": {}
+  },
+  "draft.preview.title": {
+    "message": "Page preview",
+    "placeholders": {}
+  },
+  "draft.preview.screen_width": {
+    "message": "Screen width: {width} px",
+    "placeholders": {"width": "technical"}
+  },
+  "draft.preview.rows_shown": {
+    "message": "Showing {shown} of 64 rows",
+    "placeholders": {"shown": "number"}
+  },
+  "draft.preview.synthetic.toggle": {
+    "message": "Show synthetic data",
+    "placeholders": {}
+  },
+  "draft.compat.label": {
+    "message": "Zabbix {min_version}+",
+    "placeholders": {"min_version": "technical"}
+  },
+  "draft.freshness.not_checked": {
+    "message": "Not checked",
+    "placeholders": {}
+  },
+  "draft.freshness.current": {
+    "message": "Checked at {time}",
+    "placeholders": {"time": "datetime"}
+  },
+  "draft.freshness.stale": {
+    "message": "Out of date, check again",
+    "placeholders": {}
+  },
+  "draft.freshness.conflict": {
+    "message": "Changed on the server",
+    "placeholders": {}
+  },
+  "draft.freshness.source_missing": {
+    "message": "Source not found or not available",
+    "placeholders": {}
+  },
+  "draft.action.check_source": {
+    "message": "Check source",
+    "placeholders": {}
+  },
+  "drafts.column.name": {
+    "message": "Name",
+    "placeholders": {}
+  },
+  "drafts.column.kind": {
+    "message": "Type",
+    "placeholders": {}
+  },
+  "drafts.column.origin": {
+    "message": "Origin",
+    "placeholders": {}
+  },
+  "drafts.column.source": {
+    "message": "Source",
+    "placeholders": {}
+  },
+  "drafts.column.state": {
+    "message": "State",
+    "placeholders": {}
+  },
+  "drafts.filter.dashboards": {
+    "message": "Dashboards",
+    "placeholders": {}
+  },
+  "drafts.filter.pages": {
+    "message": "Pages",
+    "placeholders": {}
+  },
+  "drafts.filter.local": {
+    "message": "Local",
+    "placeholders": {}
+  },
+  "draft.provenance.assembled": {
+    "message": "{count, plural, one {Built from # page} other {Built from # pages}}{sources, select, other {: {sources}}}",
+    "placeholders": {"count": "number", "sources": "text_optional"}
+  },
+  "draft.provenance.taken_from": {
+    "message": "Taken from dashboard “{dashboard}”",
+    "placeholders": {"dashboard": "text"}
+  },
+  "draft.provenance.page_of": {
+    "message": "“{dashboard}”, page {page}",
+    "placeholders": {"dashboard": "text", "page": "number"}
+  },
+  "draft.provenance.imported_file": {
+    "message": "Imported from a file",
+    "placeholders": {}
+  },
+  "draft.provenance.page_file": {
+    "message": "Page file",
+    "placeholders": {}
+  },
+  "draft.provenance.legacy_file": {
+    "message": "Old-format file",
+    "placeholders": {}
+  },
+  "draft.provenance.created_here": {
+    "message": "Created here",
+    "placeholders": {}
+  },
+  "draft.provenance.snapshot": {
+    "message": "{connection} · {time}",
+    "placeholders": {"connection": "text", "time": "datetime"}
+  },
+  "draft.state.modified_locally": {
+    "message": "Changed locally",
+    "placeholders": {}
+  },
+  "draft.state.never_published": {
+    "message": "Not published",
+    "placeholders": {}
+  },
+  "drafts.state.saved": {
+    "message": "Saved",
+    "placeholders": {}
+  },
+  "drafts.state.modified": {
+    "message": "Changed",
+    "placeholders": {}
+  },
+  "drafts.state.changed_on_server": {
+    "message": "Changed on server",
+    "placeholders": {}
+  },
+  "drafts.search.placeholder": {
+    "message": "Search by name",
+    "placeholders": {}
+  },
+  "drafts.action.create": {
+    "message": "Create",
+    "placeholders": {}
+  },
+  "drafts.sort_hint": {
+    "message": "Sorted by last change",
+    "placeholders": {}
+  },
+  "drafts.details.source": {
+    "message": "Source",
+    "placeholders": {}
+  },
+  "drafts.details.connection": {
+    "message": "Connection",
+    "placeholders": {}
+  },
+  "drafts.details.base": {
+    "message": "Base",
+    "placeholders": {}
+  },
+  "drafts.details.base_snapshot": {
+    "message": "Snapshot {time}",
+    "placeholders": {"time": "datetime"}
+  },
+  "drafts.details.freshness": {
+    "message": "Freshness",
+    "placeholders": {}
+  },
+  "drafts.details.changed_on_server_at": {
+    "message": "Changed on server ({time})",
+    "placeholders": {"time": "datetime"}
+  },
+  "drafts.details.local": {
+    "message": "Locally",
+    "placeholders": {}
+  },
+  "drafts.details.created_item": {
+    "message": "“{name}” — created {time}",
+    "placeholders": {"name": "text", "time": "datetime"}
+  },
+  "drafts.created_from_copy": {
+    "message": "Created from this copy",
+    "placeholders": {}
+  },
+  "drafts.action.make_portable": {
+    "message": "Make portable for export…",
+    "placeholders": {}
+  },
+  "drafts.delete.safe": {
+    "message": "Deleting does not touch dashboards on the server. The snapshot is deleted only if nothing else refers to it; the journal entry stays.",
+    "placeholders": {}
+  },
+  "drafts.server_copy_export_hint": {
+    "message": "A copy from server is exported only after it is made portable.",
+    "placeholders": {}
+  },
+  "draft.structure.page_summary": {
+    "message": "{widgets} · {period}",
+    "placeholders": {"widgets": "text", "period": "text"}
+  },
+  "draft.structure.dashboard_properties": {
+    "message": "Dashboard properties",
+    "placeholders": {}
+  },
+  "draft.structure.dashboard_properties_summary": {
+    "message": "Default page display period: {period} · slideshow {slideshow}",
+    "placeholders": {"period": "text", "slideshow": "text"}
+  },
+  "draft.structure.slideshow.on": {
+    "message": "on",
+    "placeholders": {}
+  },
+  "draft.structure.slideshow.off": {
+    "message": "off",
+    "placeholders": {}
+  },
+  "draft.overview.origin": {
+    "message": "Origin",
+    "placeholders": {}
+  },
+  "draft.overview.snapshot_from": {
+    "message": "snapshot of {date}",
+    "placeholders": {"date": "date"}
+  },
+  "draft.overview.grid_rows_used": {
+    "message": "{rows, plural, one {72-column grid, # row used} other {72-column grid, # rows used}}",
+    "placeholders": {"rows": "number"}
+  },
+  "draft.overview.local_changes_note": {
+    "message": "Local changes do not change the dashboard on the server.",
+    "placeholders": {}
+  },
+  "draft.overview.source": {
+    "message": "Source",
+    "placeholders": {}
+  },
+  "draft.overview.snapshot": {
+    "message": "Snapshot",
+    "placeholders": {}
+  },
+  "draft.overview.needs_connection": {
+    "message": "needs a connection",
+    "placeholders": {}
+  },
+  "draft.overview.target": {
+    "message": "Target",
+    "placeholders": {}
+  },
+  "draft.overview.target.none": {
+    "message": "No target dashboard selected",
+    "placeholders": {}
+  },
+  "draft.overview.target.independent": {
+    "message": "Source and target are set independently.",
+    "placeholders": {}
+  },
+  "draft.overview.composition.page": {
+    "message": "Page contents",
+    "placeholders": {}
+  },
+  "draft.overview.composition.dashboard": {
+    "message": "Dashboard contents",
+    "placeholders": {}
+  },
+  "draft.overview.composition.help": {
+    "message": "Sizes are in Zabbix grid cells. Order and moves are in “Structure”.",
+    "placeholders": {}
+  },
+  "draft.overview.widget_size": {
+    "message": "{type} · {width} × {height}",
+    "placeholders": {"type": "text", "width": "number", "height": "number"}
+  },
+  "draft.overview.widget_host": {
+    "message": "host: {host}",
+    "placeholders": {"host": "text"}
+  },
+  "draft.overview.edit_unsupported_note": {
+    "message": "“Editing not supported” means ZDashstitch does not change this type yet; the widget is kept unchanged and shown in the preview.",
+    "placeholders": {}
+  },
+  "draft.overview.selection_note": {
+    "message": "Selected widgets define the scope, for example “Add widgets to page”.",
+    "placeholders": {}
+  },
+  "draft.overview.next_steps": {
+    "message": "Next steps",
+    "placeholders": {}
+  },
+  "draft.overview.step.numbered": {
+    "message": "{number}. {step}",
+    "placeholders": {"number": "number", "step": "text"}
+  },
+  "draft.overview.step.choose_target": {
+    "message": "Choose a target dashboard",
+    "placeholders": {}
+  },
+  "draft.overview.step.choose_target.help": {
+    "message": "Needed for “Add page to dashboard”.",
+    "placeholders": {}
+  },
+  "draft.overview.step.check_bindings": {
+    "message": "Check bindings",
+    "placeholders": {}
+  },
+  "draft.overview.step.check_bindings.help": {
+    "message": "Hosts, items and permissions.",
+    "placeholders": {}
+  },
+  "draft.overview.step.review_plan": {
+    "message": "Review the plan",
+    "placeholders": {}
+  },
+  "draft.overview.step.review_plan.help": {
+    "message": "Writing only by a verified plan.",
+    "placeholders": {}
+  },
+  "intent.append_page": {
+    "message": "Add page to dashboard",
+    "placeholders": {}
+  },
+  "draft.a11y.sections": {
+    "message": "Draft sections",
+    "placeholders": {}
+  }
+}

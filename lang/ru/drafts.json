@@ -1,0 +1,398 @@
+{
+  "drafts.title": {
+    "message": "Черновики",
+    "placeholders": {}
+  },
+  "drafts.subtitle": {
+    "message": "Локальные панели и страницы. Хранятся только на этом компьютере; сохранение — не публикация.",
+    "placeholders": {}
+  },
+  "drafts.filter.any_origin": {
+    "message": "Любое происхождение",
+    "placeholders": {}
+  },
+  "drafts.filter.server_copies": {
+    "message": "Копии с сервера",
+    "placeholders": {}
+  },
+  "draft.context.saved": {
+    "message": "Сохранена локально",
+    "placeholders": {}
+  },
+  "draft.context.dirty": {
+    "message": "Изменена",
+    "placeholders": {}
+  },
+  "draft.context.source": {
+    "message": "Источник: {source}",
+    "placeholders": {"source": "text"}
+  },
+  "draft.context.target": {
+    "message": "Назначение: {target}",
+    "placeholders": {"target": "text"}
+  },
+  "draft.nav.overview": {
+    "message": "Обзор",
+    "placeholders": {}
+  },
+  "draft.nav.structure": {
+    "message": "Структура",
+    "placeholders": {}
+  },
+  "draft.nav.bindings": {
+    "message": "Привязки",
+    "placeholders": {}
+  },
+  "draft.nav.checks": {
+    "message": "Проверки",
+    "placeholders": {}
+  },
+  "draft.nav.publication": {
+    "message": "Публикация",
+    "placeholders": {}
+  },
+  "draft.structure.grid_help": {
+    "message": "Положение «x, y» и размер «ширина × высота» — в клетках сетки.",
+    "placeholders": {}
+  },
+  "draft.structure.page_period_default": {
+    "message": "По умолчанию",
+    "placeholders": {}
+  },
+  "draft.structure.widget_geometry": {
+    "message": "{type} · {x}, {y} · {width} × {height}",
+    "placeholders": {"type": "text", "x": "number", "y": "number", "width": "number", "height": "number"}
+  },
+  "draft.structure.action.add_page": {
+    "message": "Добавить страницу",
+    "placeholders": {}
+  },
+  "draft.structure.action.paste_page": {
+    "message": "Вставить страницу",
+    "placeholders": {}
+  },
+  "draft.structure.action.move_widget": {
+    "message": "Перенести на страницу…",
+    "placeholders": {}
+  },
+  "draft.structure.action.edit_widget": {
+    "message": "Изменить",
+    "placeholders": {}
+  },
+  "draft.preview.title": {
+    "message": "Предпросмотр страницы",
+    "placeholders": {}
+  },
+  "draft.preview.screen_width": {
+    "message": "Ширина экрана: {width} px",
+    "placeholders": {"width": "technical"}
+  },
+  "draft.preview.rows_shown": {
+    "message": "Показано строк: {shown} из 64",
+    "placeholders": {"shown": "number"}
+  },
+  "draft.preview.synthetic.toggle": {
+    "message": "Показать синтетические данные",
+    "placeholders": {}
+  },
+  "draft.compat.label": {
+    "message": "Zabbix {min_version}+",
+    "placeholders": {"min_version": "technical"}
+  },
+  "draft.freshness.not_checked": {
+    "message": "Не проверена",
+    "placeholders": {}
+  },
+  "draft.freshness.current": {
+    "message": "Проверена в {time}",
+    "placeholders": {"time": "datetime"}
+  },
+  "draft.freshness.stale": {
+    "message": "Устарела, проверьте снова",
+    "placeholders": {}
+  },
+  "draft.freshness.conflict": {
+    "message": "Изменена на сервере",
+    "placeholders": {}
+  },
+  "draft.freshness.source_missing": {
+    "message": "Источник не найден или недоступен",
+    "placeholders": {}
+  },
+  "draft.action.check_source": {
+    "message": "Проверить источник",
+    "placeholders": {}
+  },
+  "drafts.column.name": {
+    "message": "Имя",
+    "placeholders": {}
+  },
+  "drafts.column.kind": {
+    "message": "Тип",
+    "placeholders": {}
+  },
+  "drafts.column.origin": {
+    "message": "Происхождение",
+    "placeholders": {}
+  },
+  "drafts.column.source": {
+    "message": "Источник",
+    "placeholders": {}
+  },
+  "drafts.column.state": {
+    "message": "Состояние",
+    "placeholders": {}
+  },
+  "drafts.filter.dashboards": {
+    "message": "Панели",
+    "placeholders": {}
+  },
+  "drafts.filter.pages": {
+    "message": "Страницы",
+    "placeholders": {}
+  },
+  "drafts.filter.local": {
+    "message": "Локальные",
+    "placeholders": {}
+  },
+  "draft.provenance.assembled": {
+    "message": "{count, plural, one {собрана из # страницы} few {собрана из # страниц} many {собрана из # страниц} other {собрана из # страниц}}{sources, select, other {: {sources}}}",
+    "placeholders": {"count": "number", "sources": "text_optional"}
+  },
+  "draft.provenance.taken_from": {
+    "message": "взята из панели «{dashboard}»",
+    "placeholders": {"dashboard": "text"}
+  },
+  "draft.provenance.page_of": {
+    "message": "«{dashboard}», стр. {page}",
+    "placeholders": {"dashboard": "text", "page": "number"}
+  },
+  "draft.provenance.imported_file": {
+    "message": "импортирована из файла",
+    "placeholders": {}
+  },
+  "draft.provenance.page_file": {
+    "message": "файл страницы",
+    "placeholders": {}
+  },
+  "draft.provenance.legacy_file": {
+    "message": "файл старого формата",
+    "placeholders": {}
+  },
+  "draft.provenance.created_here": {
+    "message": "создана здесь",
+    "placeholders": {}
+  },
+  "draft.provenance.snapshot": {
+    "message": "{connection} · {time}",
+    "placeholders": {"connection": "text", "time": "datetime"}
+  },
+  "draft.state.modified_locally": {
+    "message": "изменена локально",
+    "placeholders": {}
+  },
+  "draft.state.never_published": {
+    "message": "не публиковалась",
+    "placeholders": {}
+  },
+  "drafts.state.saved": {
+    "message": "Сохранена",
+    "placeholders": {}
+  },
+  "drafts.state.modified": {
+    "message": "Изменена",
+    "placeholders": {}
+  },
+  "drafts.state.changed_on_server": {
+    "message": "Изменена на сервере",
+    "placeholders": {}
+  },
+  "drafts.search.placeholder": {
+    "message": "Поиск по имени",
+    "placeholders": {}
+  },
+  "drafts.action.create": {
+    "message": "Создать",
+    "placeholders": {}
+  },
+  "drafts.sort_hint": {
+    "message": "Сортировка — по времени изменения",
+    "placeholders": {}
+  },
+  "drafts.details.source": {
+    "message": "Источник",
+    "placeholders": {}
+  },
+  "drafts.details.connection": {
+    "message": "Подключение",
+    "placeholders": {}
+  },
+  "drafts.details.base": {
+    "message": "База",
+    "placeholders": {}
+  },
+  "drafts.details.base_snapshot": {
+    "message": "снимок {time}",
+    "placeholders": {"time": "datetime"}
+  },
+  "drafts.details.freshness": {
+    "message": "Свежесть",
+    "placeholders": {}
+  },
+  "drafts.details.changed_on_server_at": {
+    "message": "изменена на сервере ({time})",
+    "placeholders": {"time": "datetime"}
+  },
+  "drafts.details.local": {
+    "message": "Локально",
+    "placeholders": {}
+  },
+  "drafts.details.created_item": {
+    "message": "«{name}» — создана {time}",
+    "placeholders": {"name": "text", "time": "datetime"}
+  },
+  "drafts.created_from_copy": {
+    "message": "Создано из этой копии",
+    "placeholders": {}
+  },
+  "drafts.action.make_portable": {
+    "message": "Сделать переносимой для экспорта…",
+    "placeholders": {}
+  },
+  "drafts.delete.safe": {
+    "message": "Удаление не трогает панели на сервере. Снимок удаляется, только если на него больше ничего не ссылается; запись журнала остаётся.",
+    "placeholders": {}
+  },
+  "drafts.server_copy_export_hint": {
+    "message": "Копия с сервера экспортируется только после преобразования в переносимую.",
+    "placeholders": {}
+  },
+  "draft.structure.page_summary": {
+    "message": "{widgets} · {period}",
+    "placeholders": {"widgets": "text", "period": "text"}
+  },
+  "draft.structure.dashboard_properties": {
+    "message": "Свойства панели",
+    "placeholders": {}
+  },
+  "draft.structure.dashboard_properties_summary": {
+    "message": "Период страницы по умолчанию: {period} · слайд-шоу {slideshow}",
+    "placeholders": {"period": "text", "slideshow": "text"}
+  },
+  "draft.structure.slideshow.on": {
+    "message": "вкл.",
+    "placeholders": {}
+  },
+  "draft.structure.slideshow.off": {
+    "message": "выкл.",
+    "placeholders": {}
+  },
+  "draft.overview.origin": {
+    "message": "Происхождение",
+    "placeholders": {}
+  },
+  "draft.overview.snapshot_from": {
+    "message": "снимок от {date}",
+    "placeholders": {"date": "date"}
+  },
+  "draft.overview.grid_rows_used": {
+    "message": "{rows, plural, one {Сетка 72 колонки, занята # строка} few {Сетка 72 колонки, занято # строки} many {Сетка 72 колонки, занято # строк} other {Сетка 72 колонки, занято # строки}}",
+    "placeholders": {"rows": "number"}
+  },
+  "draft.overview.local_changes_note": {
+    "message": "Локальные изменения не меняют панель на сервере.",
+    "placeholders": {}
+  },
+  "draft.overview.source": {
+    "message": "Источник",
+    "placeholders": {}
+  },
+  "draft.overview.snapshot": {
+    "message": "Снимок",
+    "placeholders": {}
+  },
+  "draft.overview.needs_connection": {
+    "message": "нужно подключение",
+    "placeholders": {}
+  },
+  "draft.overview.target": {
+    "message": "Назначение",
+    "placeholders": {}
+  },
+  "draft.overview.target.none": {
+    "message": "Целевая панель не выбрана",
+    "placeholders": {}
+  },
+  "draft.overview.target.independent": {
+    "message": "Источник и назначение задаются независимо.",
+    "placeholders": {}
+  },
+  "draft.overview.composition.page": {
+    "message": "Состав страницы",
+    "placeholders": {}
+  },
+  "draft.overview.composition.dashboard": {
+    "message": "Состав панели",
+    "placeholders": {}
+  },
+  "draft.overview.composition.help": {
+    "message": "Размеры — в клетках сетки Zabbix. Порядок и перенос — в разделе «Структура».",
+    "placeholders": {}
+  },
+  "draft.overview.widget_size": {
+    "message": "{type} · {width} × {height}",
+    "placeholders": {"type": "text", "width": "number", "height": "number"}
+  },
+  "draft.overview.widget_host": {
+    "message": "узел сети: {host}",
+    "placeholders": {"host": "text"}
+  },
+  "draft.overview.edit_unsupported_note": {
+    "message": "«Изменение не поддерживается» — ZDashstitch пока не изменяет этот тип; виджет сохраняется без изменений и показывается в предпросмотре.",
+    "placeholders": {}
+  },
+  "draft.overview.selection_note": {
+    "message": "Выбранные виджеты задают область действия, например «Добавить виджеты на страницу».",
+    "placeholders": {}
+  },
+  "draft.overview.next_steps": {
+    "message": "Следующие шаги",
+    "placeholders": {}
+  },
+  "draft.overview.step.numbered": {
+    "message": "{number}. {step}",
+    "placeholders": {"number": "number", "step": "text"}
+  },
+  "draft.overview.step.choose_target": {
+    "message": "Выберите целевую панель",
+    "placeholders": {}
+  },
+  "draft.overview.step.choose_target.help": {
+    "message": "Нужна для «Добавить страницу в панель».",
+    "placeholders": {}
+  },
+  "draft.overview.step.check_bindings": {
+    "message": "Проверьте привязки",
+    "placeholders": {}
+  },
+  "draft.overview.step.check_bindings.help": {
+    "message": "Узлы сети, элементы данных и права.",
+    "placeholders": {}
+  },
+  "draft.overview.step.review_plan": {
+    "message": "Посмотрите план",
+    "placeholders": {}
+  },
+  "draft.overview.step.review_plan.help": {
+    "message": "Запись только по проверенному плану.",
+    "placeholders": {}
+  },
+  "intent.append_page": {
+    "message": "Добавить страницу в панель",
+    "placeholders": {}
+  },
+  "draft.a11y.sections": {
+    "message": "Разделы черновика",
+    "placeholders": {}
+  }
+}

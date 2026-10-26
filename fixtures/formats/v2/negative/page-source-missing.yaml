@@ -1,0 +1,15 @@
+format: zdashstitch.project/v2
+project_id: page-source-missing
+kind: page
+declared_compatibility: {minimum: 7.4.0}
+provenance:
+  kind: migrated_v1
+  legacy_format: zdashstitch.project/v1
+  source_project_id: source-project
+  source_dashboard_id: source-dashboard
+catalogs: [{id: linux, file: metrics/linux.yaml}]
+roles: {system_nodes: {cardinality: many}}
+root:
+  id: page-root
+  name: Page
+  widgets: []

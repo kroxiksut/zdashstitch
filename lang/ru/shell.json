@@ -1,0 +1,34 @@
+{
+  "connection.list.title": {
+    "message": "Подключения",
+    "placeholders": {}
+  },
+  "connection.state.not_connected": {
+    "message": "Не подключено",
+    "placeholders": {}
+  },
+  "server.dashboards.title": {
+    "message": "Панели в Zabbix",
+    "placeholders": {}
+  },
+  "library.title": {
+    "message": "Библиотека",
+    "placeholders": {}
+  },
+  "editor.unavailable_yet": {
+    "message": "Редактор страницы появится в следующей версии.",
+    "placeholders": {}
+  },
+  "publication.requirement.no_connection": {
+    "message": "Для публикации нужно подключение к Zabbix.",
+    "placeholders": {}
+  },
+  "shell.a11y.main_nav": {
+    "message": "Основная навигация",
+    "placeholders": {}
+  },
+  "shell.a11y.breadcrumbs": {
+    "message": "Навигационная цепочка",
+    "placeholders": {}
+  }
+}

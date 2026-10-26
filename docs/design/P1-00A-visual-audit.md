@@ -82,7 +82,7 @@
 - Orange glow хорошо работает как брендовый accent, но не может одновременно означать focus, warning и destructive action.
 - Светлые glass-like карточки из concept art теряют границы в high-contrast и не должны задавать production elevation.
 - Крупный Стежик полезен для welcome/empty/help, но мешает плотным mapping/diff/editor поверхностям; там используется знак или малый contextual asset.
-- Нарисованные графики могут быть приняты за live telemetry. Offline/editor screens обязаны явно обозначать preview/placeholder и не имитировать реальные значения.
+- Нарисованные графики могут быть приняты за live telemetry. Offline/editor screens обязаны явно обозначать preview/placeholder; синтетические значения допустимы только по галке и с меткой «Синтетика» и никогда не выдаются за реальные (O-028, 24.10.2026).
 - Текущий dark-only scaffold нельзя использовать как основание для token mapping. После решения владельца 24.10.2026 новые feature-screen SVG выполняются только в light и по одному экрану на файл; dark/system/high-contrast остаются обязательными для token contract и runtime QA, но не требуют отдельных SVG-макетов.
 
 ## 8. Выход P1-00A

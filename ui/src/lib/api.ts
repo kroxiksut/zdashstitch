@@ -7,13 +7,33 @@ export interface HealthResponse {
   zabbix_writes_enabled: boolean;
 }
 
+export interface ApiErrorResponse {
+  code: string;
+  params: Record<string, string>;
+}
+
+export class ApiFailure extends Error {
+  constructor(
+    readonly status: number,
+    readonly response: ApiErrorResponse | null
+  ) {
+    super('local API request failed');
+    this.name = 'ApiFailure';
+  }
+}
+
 export async function loadHealth(fetcher: typeof fetch = fetch): Promise<HealthResponse> {
   const response = await fetcher(HEALTH_ENDPOINT, {
-    headers: { Accept: 'application/json' },
+    credentials: 'same-origin',
+    headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
     method: 'GET'
   });
   if (!response.ok) {
-    throw new Error(`Local backend returned HTTP ${response.status}`);
+    const contentType = response.headers.get('Content-Type') ?? '';
+    const error = contentType.startsWith('application/json')
+      ? ((await response.json()) as ApiErrorResponse)
+      : null;
+    throw new ApiFailure(response.status, error);
   }
   return (await response.json()) as HealthResponse;
 }

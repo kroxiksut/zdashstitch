@@ -1,0 +1,19 @@
+format: zdashstitch.project/v2
+project_id: unknown-field-type
+kind: page
+declared_compatibility: {minimum: 7.4.0}
+provenance: {kind: local}
+catalogs: []
+roles: {}
+root:
+  id: unknown-field-type
+  name: Negative case
+  widgets:
+    - id: zabbix-widget
+      type: zabbix
+      widget_type: clock
+      name: Widget
+      registry_state: unknown
+      fields:
+        - {name: vendor.flag, field_type: 42, registry_state: known, value: {kind: unresolved, object_kind: unknown, display_name: Vendor}}
+      layout: {mode: auto, w: 18, h: 4}

@@ -6,10 +6,12 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use serde::Deserialize;
 use tempfile::tempdir;
 use zdashstitch_core::formats::{
-    MAX_ARCHIVE_ENTRIES, MAX_FILE_BYTES, build_package_bytes, load_project_file, read_package,
-    read_package_bytes, write_package,
+    MAX_ARCHIVE_ENTRIES, MAX_FILE_BYTES, build_package_bytes, build_typed_package_bytes,
+    load_project_file, load_typed_project_file, read_package, read_package_bytes,
+    read_typed_package, read_typed_package_bytes, write_package, write_typed_package,
 };
 use zip::{CompressionMethod, ZipWriter, write::SimpleFileOptions};
 
@@ -95,6 +97,110 @@ fn directory_and_data_only_zip_round_trip_without_network_or_extraction() {
         })
         .count();
     assert_eq!(leftovers, 0);
+}
+
+#[test]
+fn typed_dashboard_and_page_packages_keep_root_kind() {
+    for relative in [
+        "examples/dashboard-v2.yaml",
+        "examples/page-v2.yaml",
+        "examples/clock-page-v2.yaml",
+        "examples/global-view-v2.yaml",
+        "fixtures/formats/v2/positive/unknown-widget.yaml",
+    ] {
+        let bundle = load_typed_project_file(&root().join(relative))
+            .unwrap_or_else(|error| panic!("typed project must load: {error}"));
+        let kind = bundle.project.kind;
+        let project_root = bundle.project.root.clone();
+        let raw = build_typed_package_bytes(&bundle)
+            .unwrap_or_else(|error| panic!("typed package must build: {error}"));
+        let reopened = read_typed_package_bytes(&raw)
+            .unwrap_or_else(|error| panic!("typed package must reopen: {error}"));
+        assert_eq!(reopened.project.kind, kind);
+        assert_eq!(reopened.project.root, project_root);
+        assert_eq!(reopened, bundle);
+    }
+}
+
+#[test]
+fn typed_package_is_atomically_written_without_overwrite() {
+    let bundle = load_typed_project_file(&root().join("examples/page-v2.yaml"))
+        .unwrap_or_else(|error| panic!("typed project must load: {error}"));
+    let output = tempdir().unwrap_or_else(|error| panic!("cannot create test directory: {error}"));
+    let destination = output.path().join("page.zip");
+    write_typed_package(&bundle, &destination)
+        .unwrap_or_else(|error| panic!("typed package must write: {error}"));
+    assert_eq!(
+        read_typed_package(&destination)
+            .unwrap_or_else(|error| panic!("typed package must reopen: {error}")),
+        bundle
+    );
+    assert_eq!(
+        write_typed_package(&bundle, &destination)
+            .err()
+            .unwrap_or_else(|| panic!("typed package overwrite must fail"))
+            .code(),
+        "destination_exists"
+    );
+}
+
+#[derive(Deserialize)]
+struct NegativeCase {
+    name: String,
+    #[serde(rename = "type")]
+    case_type: String,
+    file: Option<String>,
+    source: Option<String>,
+    reader: Option<String>,
+    code: String,
+}
+
+#[test]
+fn shared_v2_negative_cases_have_stable_codes() {
+    let cases: Vec<NegativeCase> =
+        serde_json::from_str(&read_text("fixtures/formats/v2/negative-cases.json"))
+            .unwrap_or_else(|error| panic!("negative case manifest must parse: {error}"));
+    for case in cases {
+        let error = match case.case_type.as_str() {
+            "document" => load_typed_project_file(
+                &root().join("fixtures/formats/v2").join(
+                    case.file
+                        .as_deref()
+                        .unwrap_or_else(|| panic!("{} has no file", case.name)),
+                ),
+            )
+            .err()
+            .unwrap_or_else(|| panic!("{} must fail", case.name)),
+            "package" => {
+                let source = case
+                    .source
+                    .as_deref()
+                    .unwrap_or_else(|| panic!("{} has no source", case.name));
+                let raw = if source.ends_with("db-pilot.yaml") {
+                    let bundle = load_project_file(&root().join(source))
+                        .unwrap_or_else(|error| panic!("cannot load {source}: {error}"));
+                    build_package_bytes(&bundle)
+                        .unwrap_or_else(|error| panic!("cannot package {source}: {error}"))
+                } else {
+                    let bundle = load_typed_project_file(&root().join(source))
+                        .unwrap_or_else(|error| panic!("cannot load {source}: {error}"));
+                    build_typed_package_bytes(&bundle)
+                        .unwrap_or_else(|error| panic!("cannot package {source}: {error}"))
+                };
+                match case.reader.as_deref() {
+                    Some("v1") => read_package_bytes(&raw)
+                        .err()
+                        .unwrap_or_else(|| panic!("{} must fail", case.name)),
+                    Some("v2") => read_typed_package_bytes(&raw)
+                        .err()
+                        .unwrap_or_else(|| panic!("{} must fail", case.name)),
+                    _ => panic!("{} has an unknown reader", case.name),
+                }
+            }
+            _ => panic!("{} has an unknown case type", case.name),
+        };
+        assert_eq!(error.code(), case.code, "case {}", case.name);
+    }
 }
 
 #[test]
@@ -224,4 +330,9 @@ fn create_file_symlink(target: &Path, link: &Path) -> bool {
 #[cfg(not(any(unix, windows)))]
 fn create_file_symlink(_target: &Path, _link: &Path) -> bool {
     false
+}
+
+fn read_text(relative: &str) -> String {
+    fs::read_to_string(root().join(relative))
+        .unwrap_or_else(|error| panic!("cannot read {relative}: {error}"))
 }

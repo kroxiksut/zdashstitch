@@ -8,10 +8,8 @@ use secrecy::ExposeSecret;
 use serde_json::{Map, Value, json};
 use sha2::{Digest, Sha256};
 
-use crate::{
-    AuthenticatedClient, Result, VersionedDashboardSnapshot, ZabbixCapabilities, ZabbixError,
-    ZabbixVersion,
-};
+use crate::gateway::{ReadWriteGateway, WriteMethod};
+use crate::{Result, VersionedDashboardSnapshot, ZabbixCapabilities, ZabbixError, ZabbixVersion};
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct ItemFieldReplacement {
@@ -235,15 +233,20 @@ pub fn verify_item_field_replacements(
     })
 }
 
-impl AuthenticatedClient {
+impl ReadWriteGateway {
+    /// Publication authority bound to the endpoint, version, credential and
+    /// the current write epoch.
     pub fn publication_context(&self) -> PublicationContext {
+        let session = self.session();
         let mut digest = Sha256::new();
         digest.update(b"zdashstitch-publication-authority-v1\0");
-        digest.update(self.transport.endpoint_identity().as_bytes());
+        digest.update(session.transport.endpoint_identity().as_bytes());
         digest.update(b"\0");
         digest.update(self.capabilities().version.to_string().as_bytes());
         digest.update(b"\0");
-        digest.update(self.token.expose_secret().as_bytes());
+        digest.update(session.token.expose_secret().as_bytes());
+        digest.update(b"\0");
+        digest.update(self.grant.epoch().to_be_bytes());
         let mut binding_fingerprint = String::with_capacity(64);
         for byte in digest.finalize() {
             let _ = write!(&mut binding_fingerprint, "{byte:02x}");
@@ -282,12 +285,14 @@ impl AuthenticatedClient {
             return DashboardPublishOutcome::Conflict;
         }
 
-        let dispatch = self
+        let session = self.session();
+        let dispatch = session
             .transport
-            .call::<Value>(
-                "dashboard.update",
+            .write::<Value>(
+                WriteMethod::DashboardUpdate,
                 update.update_params.clone(),
-                Some(&self.token),
+                &session.token,
+                &self.grant,
             )
             .await;
         let response_known = match dispatch {

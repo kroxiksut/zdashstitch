@@ -1,0 +1,17 @@
+format: zdashstitch.project/v2
+project_id: unknown-kind
+kind: widgets
+declared_compatibility:
+  minimum: 7.4.0
+provenance:
+  kind: local
+catalogs:
+  - id: linux
+    file: metrics/linux.yaml
+roles:
+  system_nodes:
+    cardinality: many
+root:
+  id: page-root
+  name: Page
+  widgets: []

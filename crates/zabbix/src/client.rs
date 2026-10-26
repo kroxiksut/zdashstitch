@@ -1,19 +1,48 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
+use std::fmt;
+
+use secrecy::{ExposeSecret, SecretString};
+use serde::Deserialize;
+use serde_json::json;
+
+use crate::gateway::{AuthMethod, ReadMethod, ReadOnlyGateway, ServerIdentity, Session};
+use crate::taxonomy::{Failure, FailureCode};
 use crate::transport::Transport;
 use crate::{
-    AdapterRegistry, InventoryMethod, InventoryProbe, MethodOutcome, Result,
-    VersionedDashboardSnapshot, ZabbixCapabilities, ZabbixEndpoint, ZabbixError, ZabbixVersion,
+    AdapterRegistry, Result, SessionMethod, TrustAnchors, ZabbixEndpoint, ZabbixError,
+    ZabbixVersion,
 };
-use secrecy::{ExposeSecret, SecretString};
-use serde_json::{Value, json};
 
+/// Credentials passed once from the UI into the Rust process (D-09). `Debug`
+/// never shows the secret.
 pub enum Authentication {
     ApiToken(SecretString),
     UsernamePassword {
         username: String,
         password: SecretString,
     },
+}
+
+impl Authentication {
+    #[must_use]
+    pub const fn method(&self) -> AuthMethod {
+        match self {
+            Self::ApiToken(_) => AuthMethod::ApiToken,
+            Self::UsernamePassword { .. } => AuthMethod::Password,
+        }
+    }
+}
+
+impl fmt::Debug for Authentication {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::ApiToken(_) => formatter.write_str("ApiToken([REDACTED])"),
+            Self::UsernamePassword { .. } => {
+                formatter.write_str("UsernamePassword { password: [REDACTED], .. }")
+            }
+        }
+    }
 }
 
 pub struct ZabbixClient {
@@ -23,181 +52,159 @@ pub struct ZabbixClient {
 #[derive(Clone, Copy, Debug, Default)]
 pub struct VersionDetector;
 
-pub struct AuthenticatedClient {
-    pub(crate) transport: Transport,
-    pub(crate) token: SecretString,
-    login_session: bool,
-    capabilities: ZabbixCapabilities,
+/// Fields of `user.checkAuthentication` needed for identity. The response
+/// also carries `sessionid` and `secret`; they are never deserialized.
+#[derive(Deserialize)]
+struct AuthenticatedUser {
+    userid: String,
+    username: String,
 }
 
 impl ZabbixClient {
+    /// Client that trusts the operating-system certificate store.
     pub fn new(endpoint: ZabbixEndpoint) -> Result<Self> {
+        Self::with_trust(endpoint, &TrustAnchors::system())
+    }
+
+    /// Client that trusts the system store plus explicitly added CA roots.
+    pub fn with_trust(endpoint: ZabbixEndpoint, trust: &TrustAnchors) -> Result<Self> {
         Ok(Self {
-            transport: Transport::new(endpoint)?,
+            transport: Transport::new(endpoint, trust)?,
         })
     }
 
+    pub fn endpoint(&self) -> &ZabbixEndpoint {
+        self.transport.endpoint()
+    }
+
+    /// Unauthenticated `apiinfo.version`: reaches the endpoint, TLS and the
+    /// JSON-RPC API (P1-02D steps 1–2).
     pub async fn detect_version(&self) -> Result<ZabbixVersion> {
         let raw: String = self
             .transport
-            .call("apiinfo.version", json!([]), None)
+            .session(SessionMethod::ApiInfoVersion, json!([]), None)
             .await?;
         raw.parse()
     }
 
-    pub async fn authenticate(self, authentication: Authentication) -> Result<AuthenticatedClient> {
-        let capabilities = AdapterRegistry::resolve(VersionDetector::detect(&self).await?)?;
-        let (token, login_session) = match authentication {
-            Authentication::ApiToken(token) => (token, false),
-            Authentication::UsernamePassword { username, password } => {
-                let token: String = self
+    /// Detects the version and signs in (steps 1–3).
+    pub async fn authenticate(self, authentication: Authentication) -> Result<ReadOnlyGateway> {
+        let version = VersionDetector::detect(&self).await?;
+        self.sign_in(version, authentication).await
+    }
+
+    /// Signs in on an already detected version and verifies the credential on
+    /// the server (P1-IN-01): an API token with `user.checkAuthentication`; a
+    /// password with `user.login`, then a probe call, because MFA and a role
+    /// without API access only show on the first authenticated call.
+    pub async fn sign_in(
+        self,
+        version: ZabbixVersion,
+        authentication: Authentication,
+    ) -> Result<ReadOnlyGateway> {
+        let capabilities = AdapterRegistry::resolve(version.clone())?;
+        let auth_method = authentication.method();
+        let (token, login_session, user) = match authentication {
+            Authentication::ApiToken(token) => {
+                let user: AuthenticatedUser = self
                     .transport
-                    .call(
-                        "user.login",
+                    .session(
+                        SessionMethod::UserCheckAuthentication,
+                        json!({ "token": token.expose_secret() }),
+                        None,
+                    )
+                    .await
+                    .map_err(|error| sign_in_error(error, auth_method, false))?;
+                (token, false, user)
+            }
+            Authentication::UsernamePassword { username, password } => {
+                let session: String = self
+                    .transport
+                    .session(
+                        SessionMethod::UserLogin,
                         json!({ "username": username, "password": password.expose_secret() }),
                         None,
                     )
-                    .await?;
-                (SecretString::from(token), true)
+                    .await
+                    .map_err(|error| sign_in_error(error, auth_method, false))?;
+                let token = SecretString::from(session);
+                match self.verify_login_session(&token).await {
+                    Ok(user) => (token, true, user),
+                    Err(error) => {
+                        // Best effort: a terminated session cannot be closed.
+                        let _: Result<bool> = self
+                            .transport
+                            .session(SessionMethod::UserLogout, json!([]), Some(&token))
+                            .await;
+                        return Err(error);
+                    }
+                }
             }
         };
-        Ok(AuthenticatedClient {
-            transport: self.transport,
-            token,
-            login_session,
-            capabilities,
+        let identity = ServerIdentity::new(
+            self.transport.endpoint(),
+            version,
+            &user.userid,
+            &user.username,
+        );
+        Ok(ReadOnlyGateway {
+            session: Session {
+                transport: self.transport,
+                token,
+                login_session,
+                capabilities,
+                identity,
+                auth_method,
+            },
         })
     }
+
+    async fn verify_login_session(&self, token: &SecretString) -> Result<AuthenticatedUser> {
+        let _: serde_json::Value = self
+            .transport
+            .read(
+                ReadMethod::UserGet,
+                json!({ "output": ["userid"], "limit": 1 }),
+                token,
+            )
+            .await
+            .map_err(|error| sign_in_error(error, AuthMethod::Password, true))?;
+        self.transport
+            .session(
+                SessionMethod::UserCheckAuthentication,
+                json!({ "sessionid": token.expose_secret() }),
+                None,
+            )
+            .await
+            .map_err(|error| sign_in_error(error, AuthMethod::Password, true))
+    }
+}
+
+/// Attributes a server rejection during sign-in to the authentication step.
+/// Transport failures keep their own classification.
+fn sign_in_error(error: ZabbixError, method: AuthMethod, after_login: bool) -> ZabbixError {
+    if !matches!(error, ZabbixError::Api { .. }) {
+        return error;
+    }
+    let failure = error.failure();
+    let code = match (method, failure.code) {
+        // Right after a successful user.login this means an MFA account.
+        (AuthMethod::Password, FailureCode::SessionExpired) if after_login => {
+            FailureCode::MfaSessionTerminated
+        }
+        (AuthMethod::Password, FailureCode::TokenNotAuthorized) => FailureCode::AuthFailed,
+        (AuthMethod::Password, FailureCode::ApiError) if !after_login => FailureCode::AuthFailed,
+        (_, code) => code,
+    };
+    let mut classified = Failure::new(code).with("auth_method", method.as_str());
+    if let Some(api_method) = failure.param("method") {
+        classified = classified.with("method", api_method);
+    }
+    ZabbixError::SignIn(classified)
 }
 
 impl VersionDetector {
     pub async fn detect(client: &ZabbixClient) -> Result<ZabbixVersion> {
         client.detect_version().await
-    }
-}
-
-impl AuthenticatedClient {
-    pub fn capabilities(&self) -> &ZabbixCapabilities {
-        &self.capabilities
-    }
-
-    pub async fn inventory(&self) -> Result<InventoryProbe> {
-        Ok(InventoryProbe {
-            template: self.probe(InventoryMethod::Template).await?,
-            host: self.probe(InventoryMethod::Host).await?,
-            item: self.probe(InventoryMethod::Item).await?,
-            dashboard: self.probe(InventoryMethod::Dashboard).await?,
-            graph: self.probe(InventoryMethod::Graph).await?,
-        })
-    }
-
-    /// Read a bounded list of item identifiers for trusted application-side
-    /// resolution. This is read-only and never returns item values or secrets.
-    pub async fn readable_item_ids(&self, limit: usize) -> Result<Vec<String>> {
-        if !(1..=1_000).contains(&limit) {
-            return Err(ZabbixError::SnapshotShape(
-                "item id read limit must be 1..=1000".to_owned(),
-            ));
-        }
-        let raw: Vec<Value> = self
-            .transport
-            .call(
-                "item.get",
-                json!({"output": ["itemid"], "sortfield": "itemid", "limit": limit}),
-                Some(&self.token),
-            )
-            .await?;
-        raw.into_iter()
-            .map(|item| {
-                item.get("itemid")
-                    .and_then(Value::as_str)
-                    .map(str::to_owned)
-                    .ok_or_else(|| {
-                        ZabbixError::SnapshotShape("item.get returned no string itemid".to_owned())
-                    })
-            })
-            .collect()
-    }
-
-    pub async fn dashboard_snapshots(
-        &self,
-        connection_id: &str,
-    ) -> Result<Vec<VersionedDashboardSnapshot>> {
-        if connection_id.is_empty() || connection_id.len() > 128 {
-            return Err(ZabbixError::SnapshotShape(
-                "connection_id must contain 1..=128 bytes".to_owned(),
-            ));
-        }
-        let raw: Vec<Value> = self
-            .transport
-            .call(
-                "dashboard.get",
-                json!({
-                    "output": "extend",
-                    "selectPages": "extend",
-                    "selectUsers": "extend",
-                    "selectUserGroups": "extend",
-                    "sortfield": "dashboardid"
-                }),
-                Some(&self.token),
-            )
-            .await?;
-        raw.into_iter()
-            .map(|dashboard| {
-                VersionedDashboardSnapshot::from_adapter_raw(
-                    connection_id.to_owned(),
-                    self.capabilities.version.clone(),
-                    dashboard,
-                )
-            })
-            .collect()
-    }
-
-    async fn probe(&self, method: InventoryMethod) -> Result<MethodOutcome> {
-        match self
-            .transport
-            .call::<Value>(
-                method.api_method(),
-                inventory_params(method),
-                Some(&self.token),
-            )
-            .await
-        {
-            Ok(value) => Ok(MethodOutcome::Available(value)),
-            Err(error) if error.is_permission_denied() => Ok(MethodOutcome::PermissionDenied {
-                method: method.api_method(),
-                diagnostic: error.to_string(),
-            }),
-            Err(error) => Err(error),
-        }
-    }
-
-    pub async fn logout(self) -> Result<()> {
-        if self.login_session {
-            let logged_out: bool = self
-                .transport
-                .call("user.logout", json!([]), Some(&self.token))
-                .await?;
-            if !logged_out {
-                return Err(ZabbixError::Authentication(
-                    "user.logout returned false".to_owned(),
-                ));
-            }
-        }
-        Ok(())
-    }
-}
-
-fn inventory_params(method: InventoryMethod) -> Value {
-    match method {
-        InventoryMethod::Template => json!({ "output": ["templateid", "host", "name"] }),
-        InventoryMethod::Host => json!({ "output": ["hostid", "host", "name", "status"] }),
-        InventoryMethod::Item => {
-            json!({ "output": ["itemid", "hostid", "key_", "name", "value_type"], "limit": 1 })
-        }
-        InventoryMethod::Dashboard => {
-            json!({ "output": ["dashboardid", "name", "userid", "private"], "selectPages": "extend" })
-        }
-        InventoryMethod::Graph => json!({ "output": ["graphid", "name"], "limit": 1 }),
     }
 }

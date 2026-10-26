@@ -1,0 +1,18 @@
+format: zdashstitch.project/v2
+project_id: target-leak
+kind: page
+declared_compatibility:
+  minimum: 7.4.0
+provenance:
+  kind: local
+target_dashboard_id: '12345'
+catalogs:
+  - id: linux
+    file: metrics/linux.yaml
+roles:
+  system_nodes:
+    cardinality: many
+root:
+  id: page-root
+  name: Page
+  widgets: []

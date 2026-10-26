@@ -10,10 +10,22 @@ publish = false
 
 [dependencies]
 axum.workspace = true
+cap-fs-ext.workspace = true
+cap-std.workspace = true
+getrandom.workspace = true
 serde.workspace = true
+sha2.workspace = true
+thiserror.workspace = true
 tokio.workspace = true
 tower-http.workspace = true
+unicode-normalization.workspace = true
 zdashstitch-application = { path = "../../crates/application" }
+
+[target.'cfg(target_os = "windows")'.dependencies]
+rfd.workspace = true
+
+[target.'cfg(target_os = "linux")'.dependencies]
+rfd = { workspace = true, features = ["xdg-portal"] }
 
 [dev-dependencies]
 http-body-util.workspace = true

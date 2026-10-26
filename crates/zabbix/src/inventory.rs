@@ -21,6 +21,16 @@ impl InventoryMethod {
             Self::Graph => "graph.get",
         }
     }
+
+    pub(crate) const fn read_method(self) -> crate::ReadMethod {
+        match self {
+            Self::Template => crate::ReadMethod::TemplateGet,
+            Self::Host => crate::ReadMethod::HostGet,
+            Self::Item => crate::ReadMethod::ItemGet,
+            Self::Dashboard => crate::ReadMethod::DashboardGet,
+            Self::Graph => crate::ReadMethod::GraphGet,
+        }
+    }
 }
 
 #[derive(Clone, Debug, PartialEq)]

@@ -1,0 +1,34 @@
+{
+  "connection.list.title": {
+    "message": "Connections",
+    "placeholders": {}
+  },
+  "connection.state.not_connected": {
+    "message": "Not connected",
+    "placeholders": {}
+  },
+  "server.dashboards.title": {
+    "message": "Dashboards in Zabbix",
+    "placeholders": {}
+  },
+  "library.title": {
+    "message": "Library",
+    "placeholders": {}
+  },
+  "editor.unavailable_yet": {
+    "message": "The page editor will appear in a later version.",
+    "placeholders": {}
+  },
+  "publication.requirement.no_connection": {
+    "message": "Publication needs a connection to Zabbix.",
+    "placeholders": {}
+  },
+  "shell.a11y.main_nav": {
+    "message": "Main navigation",
+    "placeholders": {}
+  },
+  "shell.a11y.breadcrumbs": {
+    "message": "Breadcrumbs",
+    "placeholders": {}
+  }
+}

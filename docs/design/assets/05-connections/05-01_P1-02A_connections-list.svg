@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 1600 1000" fill="#17213a" role="img" aria-labelledby="title desc">
+  <title id="title">ZDashstitch — подключения</title>
+  <desc id="desc">Светлый макет списка подключений: активный профиль в режиме только чтения, сохранённый профиль без подключения, профиль с ошибкой последней проверки и предупреждением о HTTP; создание профиля и продолжение без подключения.</desc>
+  <defs>
+    <!-- Tabler Icons outline v3.49.0 (MIT), see assets/icons/THIRD_PARTY.md -->
+    <symbol id="ti-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5l0 14"/><path d="M5 12l14 0"/></symbol>
+    <symbol id="ti-alert-triangle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0"/><path d="M12 16h.01"/></symbol>
+    <symbol id="ti-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065"/><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/></symbol>
+    <style>
+      text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+      .muted{fill:#667085}.white{fill:#ffffff}.small{font-size:14px}.xs{font-size:12px}.label{font-size:13px;font-weight:700;letter-spacing:.08em}
+      .title{font-size:24px;font-weight:750}.h3{font-size:17px;font-weight:700}.body{font-size:16px}.button{font-size:15px;font-weight:700}
+      .badge{font-size:13px;font-weight:650}.mono{font-family:ui-monospace,"Cascadia Mono",Consolas,monospace;font-size:14px;fill:#344054}
+    </style>
+  </defs>
+  <rect width="1600" height="1000" fill="#f5f7fb"/>
+
+  <!-- App bar: global navigation (P1-01B §1) -->
+  <rect width="1600" height="72" fill="#ffffff" stroke="#e4e7ec"/>
+  <image href="../../../../assets/brand/icons/stezhik-head-1024.png" x="32" y="18" width="36" height="36" preserveAspectRatio="xMidYMid meet"/>
+  <text x="80" y="45" font-size="20" font-weight="750">ZDashstitch</text>
+  <text x="232" y="44" font-size="15" font-weight="500" fill="#475467">Начало</text>
+  <text x="318" y="44" font-size="15" font-weight="500" fill="#475467">Черновики</text>
+  <text x="430" y="44" font-size="15" font-weight="500" fill="#475467">Панели в Zabbix</text>
+  <text x="582" y="44" font-size="15" font-weight="500" fill="#475467">Библиотека</text>
+  <text x="702" y="44" font-size="15" font-weight="700" fill="#1d3f86">Подключения</text>
+  <rect x="702" y="67" width="100" height="4" rx="2" fill="#3156a3"/>
+  <rect x="1138" y="19" width="270" height="34" rx="17" fill="#eef4ff"/>
+  <text x="1273" y="41" font-size="14" text-anchor="middle" fill="#3156a3">Только чтение · Лаборатория 7.4</text>
+  <rect x="1424" y="18" width="144" height="36" rx="8" fill="#ffffff" stroke="#c9d3ea"/>
+  <use href="#ti-settings" x="1438" y="27" width="18" height="18" color="#475467"/>
+  <text x="1464" y="41" font-size="15" font-weight="600" fill="#17213a">Настройки</text>
+
+  <!-- Content -->
+  <text x="128" y="124" class="title">Подключения</text>
+  <text x="128" y="154" class="small muted">Профили серверов Zabbix. Локальные черновики работают без подключения.</text>
+  <rect x="1240" y="98" width="232" height="42" rx="10" fill="#3156a3"/>
+  <use href="#ti-plus" x="1258" y="109" width="20" height="20" color="#ffffff"/>
+  <text x="1286" y="125" class="button white">Новое подключение</text>
+  <rect x="128" y="184" width="1344" height="128" rx="16" fill="#ffffff" stroke="#3156a3" stroke-width="2"/>
+  <text x="156" y="224" class="h3">Лаборатория 7.4</text>
+  <rect x="360" y="204" width="220" height="28" rx="14" fill="#ecfdf3"/>
+  <text x="470" y="223" class="badge" text-anchor="middle" fill="#1f6b43">Подключено · только чтение</text>
+  <text x="156" y="258" class="mono">https://zabbix-lab.example.invalid/zabbix/</text>
+  <text x="156" y="288" class="small muted">Zabbix 7.4.16 · проверено сегодня, 14:05 · API-токен в системном хранилище</text>
+  <rect x="1298" y="227" width="150" height="42" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="1373" y="253" class="button" text-anchor="middle">Отключиться</text>
+  <rect x="1166" y="227" width="120" height="42" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="1226" y="253" class="button" text-anchor="middle">Изменить</text>
+  <rect x="128" y="328" width="1344" height="128" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="156" y="368" class="h3">Prod</text>
+  <rect x="228" y="348" width="140" height="28" rx="14" fill="#f2f4f7"/>
+  <text x="298" y="367" class="badge" text-anchor="middle" fill="#344054">Не подключено</text>
+  <text x="156" y="402" class="mono">https://monitoring.example.invalid:8443/</text>
+  <text x="156" y="432" class="small muted">Zabbix 7.4.16 · проверено 24.10.2026 · имя пользователя и пароль, пароль не сохраняется</text>
+  <rect x="1288" y="371" width="160" height="42" rx="10" fill="#3156a3"/>
+  <text x="1368" y="397" class="button white" text-anchor="middle">Подключиться</text>
+  <rect x="1156" y="371" width="120" height="42" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="1216" y="397" class="button" text-anchor="middle">Изменить</text>
+  <rect x="128" y="472" width="1344" height="150" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="156" y="512" class="h3">Pilot</text>
+  <rect x="240" y="492" width="230" height="28" rx="14" fill="#fff4e5"/>
+  <text x="355" y="511" class="badge" text-anchor="middle" fill="#8a4b00">Последняя проверка: ошибка</text>
+  <text x="156" y="546" class="mono">http://zabbix-pilot.example.invalid/zabbix/</text>
+  <text x="156" y="576" class="small muted">Сервер недоступен или не ответил вовремя · 23.10.2026</text>
+  <use href="#ti-alert-triangle" x="156" y="588" width="18" height="18" color="#8a4b00"/>
+  <text x="182" y="602" class="small" fill="#8a4b00">HTTP без шифрования: данные входа передаются открытым текстом</text>
+  <rect x="1318" y="515" width="130" height="42" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="1383" y="541" class="button" text-anchor="middle">Проверить</text>
+  <rect x="1186" y="515" width="120" height="42" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="1246" y="541" class="button" text-anchor="middle">Изменить</text>
+
+  <text x="128" y="674" class="body" font-weight="650" fill="#3156a3">Продолжить без подключения</text>
+  <text x="128" y="702" class="small muted">Пароли и токены не показываются на этом экране и не попадают в файлы, журналы и отчёты.</text>
+</svg>

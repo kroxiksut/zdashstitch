@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 1600 1000" fill="#17213a" role="img" aria-labelledby="title desc">
+  <title id="title">ZDashstitch — обзор черновика страницы</title>
+  <desc id="desc">Светлый макет раздела «Обзор» локальной копии страницы: источник и назначение независимы, состав страницы в клетках сетки Zabbix, следующие шаги до публикации.</desc>
+  <defs>
+    <symbol id="ti-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065"/><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/></symbol>
+    <style>
+      text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+      .muted{fill:#667085}.white{fill:#ffffff}.small{font-size:14px}.label{font-size:13px;font-weight:700;letter-spacing:.08em}
+      .title{font-size:24px;font-weight:750}.h3{font-size:18px;font-weight:700}.body{font-size:16px}.button{font-size:15px;font-weight:700}
+      .nav{font-size:17px}.badge{font-size:13px;font-weight:650}
+      .mono{font-family:ui-monospace,"Cascadia Mono",Consolas,monospace;font-size:13px;fill:#344054}
+    </style>
+  </defs>
+  <rect width="1600" height="1000" fill="#f5f7fb"/>
+
+  <!-- App bar: global navigation (P1-01B §1) -->
+  <rect width="1600" height="72" fill="#ffffff" stroke="#e4e7ec"/>
+  <image href="../../../../assets/brand/icons/stezhik-head-1024.png" x="32" y="18" width="36" height="36" preserveAspectRatio="xMidYMid meet"/>
+  <text x="80" y="45" font-size="20" font-weight="750">ZDashstitch</text>
+  <text x="232" y="44" font-size="15" font-weight="500" fill="#475467">Начало</text>
+  <text x="318" y="44" font-size="15" font-weight="700" fill="#1d3f86">Черновики</text>
+  <rect x="318" y="67" width="80" height="4" rx="2" fill="#3156a3"/>
+  <text x="430" y="44" font-size="15" font-weight="500" fill="#475467">Панели в Zabbix</text>
+  <text x="582" y="44" font-size="15" font-weight="500" fill="#475467">Библиотека</text>
+  <text x="702" y="44" font-size="15" font-weight="500" fill="#475467">Подключения</text>
+  <rect x="1288" y="19" width="120" height="34" rx="17" fill="#eef4ff"/>
+  <text x="1348" y="41" font-size="14" text-anchor="middle" fill="#3156a3">Автономно</text>
+  <rect x="1424" y="18" width="144" height="36" rx="8" fill="#ffffff" stroke="#c9d3ea"/>
+  <use href="#ti-settings" x="1438" y="27" width="18" height="18" color="#475467"/>
+  <text x="1464" y="41" font-size="15" font-weight="600" fill="#17213a">Настройки</text>
+
+  <!-- Workspace navigation -->
+  <rect x="0" y="72" width="260" height="928" fill="#ffffff" stroke="#e4e7ec"/>
+  <text x="28" y="116" class="label muted">СТРАНИЦА</text>
+  <rect x="16" y="134" width="228" height="46" rx="10" fill="#eef4ff"/>
+  <text x="36" y="164" class="nav" font-weight="700" fill="#1d3f86">Обзор</text>
+  <text x="36" y="214" class="nav">Структура</text>
+  <text x="36" y="264" class="nav">Привязки</text>
+  <text x="36" y="312" class="nav">Проверки</text>
+  <text x="36" y="360" class="nav">Публикация</text>
+  <line x1="20" y1="392" x2="240" y2="392" stroke="#e4e7ec"/>
+  <text x="28" y="428" class="label muted">ПРОИСХОЖДЕНИЕ</text>
+  <text x="28" y="458" class="body" font-weight="650">Копия с сервера</text>
+  <text x="28" y="484" class="small muted">снимок от 24.10.2026</text>
+  <text x="28" y="508" class="small muted">5 виджетов</text>
+  <text x="28" y="532" class="small muted">Сетка 72 колонки, занято 8 строк</text>
+
+  <!-- Title -->
+  <text x="292" y="92" font-size="13" fill="#667085">Черновики  /  ClickHouse overview  /  Обзор</text>
+  <rect x="1414" y="100" width="130" height="28" rx="14" fill="#f2f4f7"/>
+  <text x="1479" y="119" font-size="13" font-weight="650" text-anchor="middle" fill="#344054">Не проверена</text>
+  <rect x="1304" y="100" width="100" height="28" rx="14" fill="#fff4e5"/>
+  <text x="1354" y="119" font-size="13" font-weight="650" text-anchor="middle" fill="#8a4b00">Изменена</text>
+  <text x="292" y="120" class="title">ClickHouse overview</text>
+  <rect x="292" y="136" width="92" height="28" rx="14" fill="#eef4ff"/>
+  <text x="338" y="155" class="badge" text-anchor="middle" fill="#3156a3">Страница</text>
+  <rect x="394" y="136" width="158" height="28" rx="14" fill="#f2f4f7"/>
+  <text x="473" y="155" class="badge" text-anchor="middle" fill="#344054">Копия с сервера</text>
+  <text x="566" y="155" class="small muted">Локальные изменения не меняют панель на сервере.</text>
+
+  <!-- Source -->
+  <rect x="292" y="184" width="614" height="176" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="316" y="216" class="label muted">ИСТОЧНИК</text>
+  <text x="316" y="250" class="body muted">Панель</text>
+  <text x="456" y="250" class="h3">DB Production</text>
+  <text x="316" y="283" class="body muted">Страница</text>
+  <text x="456" y="283" class="h3">ClickHouse</text>
+  <text x="316" y="316" class="body muted">Снимок</text>
+  <text x="456" y="316" class="body">24.10.2026, 12:40</text>
+  <rect x="682" y="294" width="200" height="42" rx="10" fill="#f2f4f7" stroke="#e4e7ec"/>
+  <text x="782" y="320" class="button" text-anchor="middle" fill="#98a2b3">Проверить источник</text>
+  <text x="882" y="350" class="small muted" text-anchor="end">нужно подключение</text>
+
+  <!-- Target -->
+  <rect x="930" y="184" width="614" height="176" rx="16" fill="#ffffff" stroke="#f0a35e" stroke-width="2"/>
+  <text x="954" y="216" class="label muted">НАЗНАЧЕНИЕ</text>
+  <text x="954" y="254" class="h3">Целевая панель не выбрана</text>
+  <text x="954" y="284" class="body muted">Источник и назначение задаются независимо.</text>
+  <rect x="954" y="306" width="196" height="42" rx="10" fill="#3156a3"/>
+  <text x="1052" y="332" class="button white" text-anchor="middle">Выбрать панель</text>
+
+  <!-- Structure -->
+  <rect x="292" y="384" width="832" height="520" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="316" y="416" class="label muted">СОСТАВ СТРАНИЦЫ</text>
+  <text x="316" y="444" class="body muted">Размеры — в клетках сетки Zabbix. Порядок и перенос — в разделе «Структура».</text>
+
+  <rect x="316" y="468" width="384" height="118" rx="12" fill="#f8fafc" stroke="#d0d5dd"/>
+  <text x="336" y="500" class="h3">Connections</text>
+  <text x="336" y="528" class="small muted">График · 36 × 5</text>
+  <text x="336" y="560" class="mono">узел сети: ch-prod-01</text>
+  <rect x="716" y="468" width="384" height="118" rx="12" fill="#f8fafc" stroke="#d0d5dd"/>
+  <text x="736" y="500" class="h3">Queries per second</text>
+  <text x="736" y="528" class="small muted">График · 36 × 5</text>
+  <text x="736" y="560" class="mono">узел сети: ch-prod-01</text>
+
+  <rect x="316" y="602" width="252" height="118" rx="12" fill="#f8fafc" stroke="#d0d5dd"/>
+  <text x="336" y="634" class="h3">Replication lag</text>
+  <text x="336" y="660" class="small muted">Значение элемента данных</text>
+  <text x="336" y="682" class="small muted">24 × 3</text>
+  <rect x="584" y="602" width="252" height="118" rx="12" fill="#f8fafc" stroke="#d0d5dd"/>
+  <text x="604" y="634" class="h3">Disk usage</text>
+  <text x="604" y="660" class="small muted">Радиальный датчик · 24 × 3</text>
+  <rect x="604" y="676" width="212" height="26" rx="13" fill="#f2f4f7"/>
+  <text x="710" y="694" class="badge" text-anchor="middle" fill="#344054">Изменение не поддерживается</text>
+  <rect x="852" y="602" width="248" height="118" rx="12" fill="#f8fafc" stroke="#d0d5dd"/>
+  <text x="872" y="634" class="h3">Top queries</text>
+  <text x="872" y="660" class="small muted">Топ узлов сети · 24 × 3</text>
+  <rect x="872" y="676" width="212" height="26" rx="13" fill="#f2f4f7"/>
+  <text x="978" y="694" class="badge" text-anchor="middle" fill="#344054">Изменение не поддерживается</text>
+
+  <rect x="316" y="744" width="784" height="132" rx="12" fill="#f8fafc" stroke="#e4e7ec"/>
+  <text x="336" y="776" class="body">«Изменение не поддерживается» — ZDashstitch пока не изменяет этот тип;</text>
+  <text x="336" y="800" class="body">виджет сохраняется без изменений и показывается в предпросмотре.</text>
+  <text x="336" y="836" class="body muted">Выбранные виджеты задают область действия, например</text>
+  <text x="336" y="860" class="body muted">«Добавить виджеты на страницу».</text>
+
+  <!-- Next steps -->
+  <rect x="1148" y="384" width="396" height="520" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="1172" y="416" class="label muted">СЛЕДУЮЩИЕ ШАГИ</text>
+  <text x="1172" y="458" class="h3">1. Выберите целевую панель</text>
+  <text x="1172" y="484" class="small muted">Нужна для «Добавить страницу в панель».</text>
+  <text x="1172" y="534" class="h3">2. Проверьте привязки</text>
+  <text x="1172" y="560" class="small muted">Узлы сети, элементы данных и права.</text>
+  <text x="1172" y="610" class="h3">3. Посмотрите план</text>
+  <text x="1172" y="636" class="small muted">Запись только по проверенному плану.</text>
+  <rect x="1172" y="700" width="348" height="52" rx="10" fill="#e4e7ec"/>
+  <text x="1346" y="732" class="button" text-anchor="middle" fill="#98a2b3">Добавить страницу в панель</text>
+  <text x="1172" y="776" class="small muted">Недоступно: не выбрана цель, нет проверки.</text>
+  <rect x="1172" y="808" width="348" height="52" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="1346" y="840" class="button" text-anchor="middle">Сохранить локально</text>
+</svg>

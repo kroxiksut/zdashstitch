@@ -26,7 +26,8 @@ async fn verified_plan_publishes_once_and_advances_only_after_read_back() {
             password: SecretString::from(required("ZDASHSTITCH_LAB_PASSWORD")),
         })
         .await
-        .unwrap_or_else(|error| panic!("laboratory authentication failed: {error}"));
+        .unwrap_or_else(|error| panic!("laboratory authentication failed: {error}"))
+        .enable_writes();
     assert_eq!(client.capabilities().version.to_string(), "7.4.16");
 
     let source = unique_contract_dashboard(
@@ -37,6 +38,7 @@ async fn verified_plan_publishes_once_and_advances_only_after_read_back() {
     );
     let (page_index, widget_index, field_name, old_itemid) = item_field(&source);
     let target_itemid = client
+        .reader()
         .readable_item_ids(1_000)
         .await
         .unwrap_or_else(|error| panic!("cannot resolve a replacement item: {error}"))

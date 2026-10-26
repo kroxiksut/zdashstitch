@@ -17,6 +17,53 @@ Agents may download the Tabler outline SVGs required by their current task direc
 
 When actual Tabler SVGs or a Tabler package are added to a distributable artifact, record the pinned upstream package/release or commit, source URLs and included icon names here or in a generated inventory next to this notice. This notice and the MIT text below must travel with the corresponding source and binary distributions and must be exposed by the in-app Licenses window.
 
+### Vendored inventory
+
+| Field | Value |
+|---|---|
+| Release | `v3.49.0` |
+| Commit | `bbed884d15354b5cebf2493371f20dc2d5e83eaf` |
+| Source URL pattern | `https://raw.githubusercontent.com/tabler/tabler-icons/bbed884d15354b5cebf2493371f20dc2d5e83eaf/icons/outline/<name>.svg` |
+| Local path | `assets/icons/tabler/outline/<name>.svg` (upstream files, unchanged) |
+| Validation | no `<script>`, event handlers, `href`/`xlink:href` or `url(...)` references |
+
+| Icon (upstream name) | Used in |
+|---|---|
+| `grip-vertical` | review mockups P1-01I, P1-01B structure: drag handle of a page or widget row |
+| `arrow-up` | review mockups P1-01I, P1-01B structure: move page up |
+| `arrow-down` | review mockups P1-01I, P1-01B structure: move page down |
+| `x` | review mockup P1-01I: remove page from the dashboard |
+| `pencil` | review mockup P1-00H: changed row marker |
+| `alert-triangle` | review mockup P1-00H: row needs a decision |
+| `ban` | review mockup P1-00H: unsupported object |
+| `chevron-down` | review mockup P1-01B structure: expanded tree node, select |
+| `chevron-right` | review mockup P1-01B structure: collapsed tree node |
+| `check` | review mockups P1-01B structure, P1-09A settings: checked checkbox |
+| `settings` | all review mockups: «Настройки» button in the app bar |
+| `search` | review mockup P1-09A settings: settings search field |
+| `circle-check` | review mockup P1-02D: passed check step |
+| `circle-x` | review mockup P1-02D: failed check step |
+| `circle-dashed` | review mockup P1-02D: step not checked |
+| `plus` | review mockup P1-02A: «Новое подключение» |
+| `alert-triangle` | also P1-02A/B/E: HTTP and server-change warnings |
+| `refresh` | review mockups P1-08C/D/G: «Проверить снова», «Проверить результат» |
+| `lock` | review mockup P1-08I: private dashboard |
+| `users` | review mockups P1-08I: shared dashboard, sharing recipients |
+| `external-link` | review mockups P1-08G: «Открыть в Zabbix» |
+| `info-circle` | review mockups P1-08: informational notes |
+| `minus` | review mockup P1-08B: unchanged row marker |
+| `arrow-back-up` | review mockups P1-04: «Отменить» |
+| `arrow-forward-up` | review mockups P1-04: «Повторить» |
+| `zoom-in` | review mockups P1-04: «Увеличить» |
+| `zoom-out` | review mockups P1-04: «Уменьшить» |
+| `folder` | review mockups P1-09D/G: storage root, choose folder |
+| `logout` | review mockup P1-09G: «Завершить сессию» |
+| `download` | review mockup P1-09G: «Сохранить пакет…» |
+| `copy` | review mockup P1-12: «Копировать путь», «Копировать сведения для отчёта» |
+| `arrows-move` | P1-08B diff model: moved page or widget marker (specified, not drawn yet) |
+
+Review mockups in `docs/design/assets/` inline the upstream path data as `<symbol>` elements so the SVG stays self-contained; the path data is not modified.
+
 ### MIT License
 
 Copyright (c) 2020-2026 Paweł Kuna

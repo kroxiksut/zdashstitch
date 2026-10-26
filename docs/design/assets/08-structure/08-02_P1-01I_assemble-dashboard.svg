@@ -1,0 +1,157 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 1600 1000" fill="#17213a" role="img" aria-labelledby="title desc">
+  <title id="title">ZDashstitch — сборка панели из страниц</title>
+  <desc id="desc">Светлый макет сборки новой локальной панели из страниц разных источников: панели в Zabbix, локальной страницы и файла; порядок страниц, свойства панели, переименованные связи виджетов, отклонённая страница панели шаблона и следующий шаг — привязки.</desc>
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="10" stdDeviation="16" flood-color="#17213a" flood-opacity=".14"/></filter>
+    <!-- Tabler Icons outline v3.49.0 (MIT), see assets/icons/THIRD_PARTY.md -->
+    <symbol id="ti-grip-vertical" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M8 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M8 19a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M14 5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M14 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M14 19a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/></symbol>
+    <symbol id="ti-arrow-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5l0 14"/><path d="M18 11l-6 -6"/><path d="M6 11l6 -6"/></symbol>
+    <symbol id="ti-arrow-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5l0 14"/><path d="M18 13l-6 6"/><path d="M6 13l6 6"/></symbol>
+    <symbol id="ti-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6l-12 12"/><path d="M6 6l12 12"/></symbol>
+    <symbol id="ti-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065"/><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/></symbol>
+    <style>
+      text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+      .muted{fill:#667085}.white{fill:#ffffff}.small{font-size:14px}.label{font-size:13px;font-weight:700;letter-spacing:.08em}
+      .title{font-size:24px;font-weight:750}.h3{font-size:17px;font-weight:700}.body{font-size:16px}.button{font-size:15px;font-weight:700}
+      .nav{font-size:17px}.badge{font-size:13px;font-weight:650}
+    </style>
+  </defs>
+  <rect width="1600" height="1000" fill="#f5f7fb"/>
+
+  <!-- App bar: global navigation (P1-01B §1) -->
+  <rect width="1600" height="72" fill="#ffffff" stroke="#e4e7ec"/>
+  <image href="../../../../assets/brand/icons/stezhik-head-1024.png" x="32" y="18" width="36" height="36" preserveAspectRatio="xMidYMid meet"/>
+  <text x="80" y="45" font-size="20" font-weight="750">ZDashstitch</text>
+  <text x="232" y="44" font-size="15" font-weight="500" fill="#475467">Начало</text>
+  <text x="318" y="44" font-size="15" font-weight="700" fill="#1d3f86">Черновики</text>
+  <rect x="318" y="67" width="80" height="4" rx="2" fill="#3156a3"/>
+  <text x="430" y="44" font-size="15" font-weight="500" fill="#475467">Панели в Zabbix</text>
+  <text x="582" y="44" font-size="15" font-weight="500" fill="#475467">Библиотека</text>
+  <text x="702" y="44" font-size="15" font-weight="500" fill="#475467">Подключения</text>
+  <rect x="1258" y="19" width="150" height="34" rx="17" fill="#eef4ff"/>
+  <text x="1333" y="41" font-size="14" text-anchor="middle" fill="#3156a3">Только чтение</text>
+  <rect x="1424" y="18" width="144" height="36" rx="8" fill="#ffffff" stroke="#c9d3ea"/>
+  <use href="#ti-settings" x="1438" y="27" width="18" height="18" color="#475467"/>
+  <text x="1464" y="41" font-size="15" font-weight="600" fill="#17213a">Настройки</text>
+
+  <!-- Workspace navigation -->
+  <rect x="0" y="72" width="260" height="928" fill="#ffffff" stroke="#e4e7ec"/>
+  <text x="28" y="116" class="label muted">ПАНЕЛЬ</text>
+  <text x="36" y="164" class="nav">Обзор</text>
+  <rect x="16" y="184" width="228" height="46" rx="10" fill="#eef4ff"/>
+  <text x="36" y="214" class="nav" font-weight="700" fill="#1d3f86">Структура</text>
+  <text x="36" y="264" class="nav">Привязки</text>
+  <text x="36" y="312" class="nav">Проверки</text>
+  <text x="36" y="360" class="nav">Публикация</text>
+  <line x1="20" y1="392" x2="240" y2="392" stroke="#e4e7ec"/>
+  <text x="28" y="428" class="label muted">ПРОИСХОЖДЕНИЕ</text>
+  <text x="28" y="458" class="body" font-weight="650">Локальная</text>
+  <text x="28" y="484" class="small muted">собрана из 3 страниц</text>
+  <text x="28" y="508" class="small muted">3 источника</text>
+
+  <!-- Title -->
+  <text x="292" y="92" font-size="13" fill="#667085">Черновики  /  Базы данных: сводная  /  Структура</text>
+  <rect x="1414" y="100" width="130" height="28" rx="14" fill="#f2f4f7"/>
+  <text x="1479" y="119" font-size="13" font-weight="650" text-anchor="middle" fill="#344054">Не проверена</text>
+  <rect x="1304" y="100" width="100" height="28" rx="14" fill="#fff4e5"/>
+  <text x="1354" y="119" font-size="13" font-weight="650" text-anchor="middle" fill="#8a4b00">Изменена</text>
+  <text x="292" y="120" class="title">Базы данных: сводная</text>
+  <rect x="292" y="136" width="84" height="28" rx="14" fill="#eef4ff"/>
+  <text x="334" y="155" class="badge" text-anchor="middle" fill="#3156a3">Панель</text>
+  <rect x="386" y="136" width="110" height="28" rx="14" fill="#ecfdf3"/>
+  <text x="441" y="155" class="badge" text-anchor="middle" fill="#1f6b43">Локальная</text>
+  <text x="510" y="155" class="small muted">Сборка панели из страниц. Исходные панели не меняются.</text>
+
+  <!-- Pages list -->
+  <rect x="292" y="184" width="852" height="716" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="316" y="216" class="label muted">СТРАНИЦЫ ПАНЕЛИ</text>
+  <text x="316" y="242" class="small muted">Порядок совпадает с порядком страниц в Zabbix. Перетащите строку или используйте стрелки.</text>
+
+  <!-- row 1 -->
+  <rect x="316" y="262" width="804" height="88" rx="12" fill="#f8fafc" stroke="#e4e7ec"/>
+  <use href="#ti-grip-vertical" x="328" y="296" width="20" height="20" color="#98a2b3"><title>Перетащить страницу</title></use>
+  <text x="362" y="296" class="h3">1. PostgreSQL</text>
+  <text x="362" y="320" class="small muted">из панели «DB Production» · Zabbix · 8 виджетов</text>
+  <rect x="842" y="288" width="160" height="28" rx="14" fill="#ecfdf3"/>
+  <text x="922" y="307" class="badge" text-anchor="middle" fill="#1f6b43">Привязки готовы</text>
+  <use href="#ti-arrow-up" x="1036" y="296" width="20" height="20" color="#667085"><title>Переместить выше</title></use>
+  <use href="#ti-arrow-down" x="1064" y="296" width="20" height="20" color="#667085"><title>Переместить ниже</title></use>
+  <use href="#ti-x" x="1092" y="296" width="20" height="20" color="#667085"><title>Убрать страницу из панели</title></use>
+
+  <!-- row 2 -->
+  <rect x="316" y="362" width="804" height="88" rx="12" fill="#f8fafc" stroke="#e4e7ec"/>
+  <use href="#ti-grip-vertical" x="328" y="396" width="20" height="20" color="#98a2b3"><title>Перетащить страницу</title></use>
+  <text x="362" y="396" class="h3">2. ClickHouse</text>
+  <text x="362" y="420" class="small muted">из панели «DB Pilot» · Zabbix · 6 виджетов</text>
+  <rect x="842" y="388" width="160" height="28" rx="14" fill="#eef4ff"/>
+  <text x="922" y="407" class="badge" text-anchor="middle" fill="#3156a3">2 связи изменены</text>
+  <use href="#ti-arrow-up" x="1036" y="396" width="20" height="20" color="#667085"><title>Переместить выше</title></use>
+  <use href="#ti-arrow-down" x="1064" y="396" width="20" height="20" color="#667085"><title>Переместить ниже</title></use>
+  <use href="#ti-x" x="1092" y="396" width="20" height="20" color="#667085"><title>Убрать страницу из панели</title></use>
+
+  <!-- row 3 -->
+  <rect x="316" y="462" width="804" height="88" rx="12" fill="#f8fafc" stroke="#e4e7ec"/>
+  <use href="#ti-grip-vertical" x="328" y="496" width="20" height="20" color="#98a2b3"><title>Перетащить страницу</title></use>
+  <text x="362" y="496" class="h3">3. Keeper и HAProxy</text>
+  <text x="362" y="520" class="small muted">из файла коллеги «keeper-haproxy.zip» · 5 виджетов</text>
+  <rect x="842" y="488" width="160" height="28" rx="14" fill="#fff4e5"/>
+  <text x="922" y="507" class="badge" text-anchor="middle" fill="#8a4b00">Нужны привязки</text>
+  <use href="#ti-arrow-up" x="1036" y="496" width="20" height="20" color="#667085"><title>Переместить выше</title></use>
+  <use href="#ti-arrow-down" x="1064" y="496" width="20" height="20" color="#667085"><title>Переместить ниже</title></use>
+  <use href="#ti-x" x="1092" y="496" width="20" height="20" color="#667085"><title>Убрать страницу из панели</title></use>
+
+  <!-- add page -->
+  <rect x="316" y="570" width="236" height="46" rx="10" fill="#ffffff" stroke="#3156a3" stroke-width="2"/>
+  <text x="434" y="599" class="button" text-anchor="middle" fill="#3156a3">Добавить страницу из…</text>
+
+  <!-- source menu (open) -->
+  <rect x="316" y="624" width="340" height="168" rx="12" fill="#ffffff" stroke="#c9d3ea" filter="url(#shadow)"/>
+  <text x="336" y="660" class="body" font-weight="650">Панель в Zabbix</text>
+  <text x="336" y="680" class="small muted">выбрать панель и одну её страницу</text>
+  <line x1="332" y1="696" x2="640" y2="696" stroke="#e4e7ec"/>
+  <text x="336" y="722" class="body" font-weight="650">Локальная страница</text>
+  <text x="336" y="742" class="small muted">из черновиков и библиотеки</text>
+  <line x1="332" y1="756" x2="640" y2="756" stroke="#e4e7ec"/>
+  <text x="336" y="780" class="body" font-weight="650">Файл страницы</text>
+
+  <!-- rejected page notice -->
+  <rect x="680" y="624" width="440" height="168" rx="12" fill="#fef3f2" stroke="#fda29b"/>
+  <text x="700" y="656" class="h3" fill="#912018">Страница не добавлена</text>
+  <text x="700" y="684" class="small" fill="#912018">«Linux» из панели шаблона «Linux by Zabbix</text>
+  <text x="700" y="704" class="small" fill="#912018">agent»: виджеты ссылаются на элементы данных</text>
+  <text x="700" y="724" class="small" fill="#912018">шаблона, а не узла сети. Панели шаблонов</text>
+  <text x="700" y="744" class="small" fill="#912018">в этой версии не поддерживаются.</text>
+  <text x="700" y="774" class="small" font-weight="650" fill="#912018">Подробнее</text>
+
+  <text x="316" y="852" class="small muted">Страница из Zabbix берётся из снимка в режиме «Только чтение»; панель-источник не изменяется.</text>
+  <text x="316" y="876" class="small muted">Файлы: можно выбрать несколько сразу.</text>
+
+  <!-- Right: dashboard properties -->
+  <rect x="1168" y="184" width="376" height="264" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="1192" y="216" class="label muted">СВОЙСТВА ПАНЕЛИ</text>
+  <text x="1192" y="250" class="small muted">Имя</text>
+  <rect x="1192" y="260" width="328" height="38" rx="8" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="1206" y="285" class="body">Базы данных: сводная</text>
+  <text x="1192" y="326" class="small muted">Период отображения страницы по умолчанию</text>
+  <rect x="1192" y="336" width="160" height="38" rx="8" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="1206" y="361" class="body">1 минута</text>
+  <rect x="1192" y="398" width="20" height="20" rx="4" fill="#ffffff" stroke="#98a2b3"/>
+  <text x="1222" y="414" class="small">Запускать слайд-шоу автоматически</text>
+
+  <!-- Right: assembly check -->
+  <rect x="1168" y="468" width="376" height="432" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="1192" y="500" class="label muted">ПРОВЕРКА СБОРКИ</text>
+  <text x="1192" y="538" class="h3">19 виджетов на 3 страницах</text>
+  <text x="1192" y="562" class="small muted">Сетка каждой страницы — 72 колонки.</text>
+  <text x="1192" y="604" class="h3" fill="#1d3f86">2 связи виджетов переименованы</text>
+  <text x="1192" y="628" class="small muted">Страница «ClickHouse» использовала те же</text>
+  <text x="1192" y="648" class="small muted">имена связей, что и «PostgreSQL». Zabbix</text>
+  <text x="1192" y="668" class="small muted">их не проверяет, поэтому они изменены</text>
+  <text x="1192" y="688" class="small muted">вместе со всеми зависимыми виджетами.</text>
+  <text x="1192" y="730" class="h3" fill="#8a4b00">Нужны привязки: 2 узла сети</text>
+  <text x="1192" y="754" class="small muted">Страница «Keeper и HAProxy» из файла.</text>
+  <rect x="1192" y="784" width="328" height="48" rx="10" fill="#3156a3"/>
+  <text x="1356" y="814" class="button white" text-anchor="middle">Перейти к привязкам</text>
+  <rect x="1192" y="842" width="328" height="44" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="1356" y="870" class="button" text-anchor="middle">Сохранить локально</text>
+</svg>

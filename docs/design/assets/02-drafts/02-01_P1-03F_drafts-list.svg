@@ -1,0 +1,164 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 1600 1000" fill="#17213a" role="img" aria-labelledby="title desc">
+  <title id="title">ZDashstitch — черновики</title>
+  <desc id="desc">Светлый макет раздела «Черновики»: локальные панели и страницы с фильтрами по типу и происхождению, источник и свежесть копий с сервера, локальное состояние, сведения о выбранном черновике со связями с созданными из него панелями и безопасными действиями.</desc>
+  <defs>
+    <!-- Tabler Icons outline v3.49.0 (MIT), see assets/icons/THIRD_PARTY.md -->
+    <symbol id="ti-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/></symbol>
+    <symbol id="ti-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5l0 14"/><path d="M5 12l14 0"/></symbol>
+    <symbol id="ti-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6l6 -6"/></symbol>
+    <symbol id="ti-circle-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M9 12l2 2l4 -4"/></symbol>
+    <symbol id="ti-alert-triangle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0"/><path d="M12 16h.01"/></symbol>
+    <symbol id="ti-info-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M12 9h.01"/><path d="M11 12h1v4h1"/></symbol>
+    <symbol id="ti-external-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"/><path d="M11 13l9 -9"/><path d="M15 4h5v5"/></symbol>
+    <symbol id="ti-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065"/><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/></symbol>
+    <style>
+      text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+      .muted{fill:#667085}.white{fill:#ffffff}.small{font-size:14px}.xs{font-size:12px}.label{font-size:13px;font-weight:700;letter-spacing:.08em}
+      .title{font-size:24px;font-weight:750}.h3{font-size:17px;font-weight:700}.body{font-size:16px}.button{font-size:15px;font-weight:700}
+      .nav{font-size:17px}.badge{font-size:13px;font-weight:650}.row{font-size:15px;font-weight:650}
+      .mono{font-family:ui-monospace,"Cascadia Mono",Consolas,monospace;font-size:13px;fill:#344054}
+    </style>
+  </defs>
+  <rect width="1600" height="1000" fill="#f5f7fb"/>
+
+  <!-- App bar: global navigation (P1-01B §1) -->
+  <rect width="1600" height="72" fill="#ffffff" stroke="#e4e7ec"/>
+  <image href="../../../../assets/brand/icons/stezhik-head-1024.png" x="32" y="18" width="36" height="36" preserveAspectRatio="xMidYMid meet"/>
+  <text x="80" y="45" font-size="20" font-weight="750">ZDashstitch</text>
+  <text x="232" y="44" font-size="15" font-weight="500" fill="#475467">Начало</text>
+  <text x="318" y="44" font-size="15" font-weight="700" fill="#1d3f86">Черновики</text>
+  <rect x="318" y="67" width="80" height="4" rx="2" fill="#3156a3"/>
+  <text x="430" y="44" font-size="15" font-weight="500" fill="#475467">Панели в Zabbix</text>
+  <text x="582" y="44" font-size="15" font-weight="500" fill="#475467">Библиотека</text>
+  <text x="702" y="44" font-size="15" font-weight="500" fill="#475467">Подключения</text>
+  <rect x="1138" y="19" width="270" height="34" rx="17" fill="#eef4ff"/>
+  <text x="1273" y="41" font-size="14" text-anchor="middle" fill="#3156a3">Только чтение · Лаборатория 7.4</text>
+  <rect x="1424" y="18" width="144" height="36" rx="8" fill="#ffffff" stroke="#c9d3ea"/>
+  <use href="#ti-settings" x="1438" y="27" width="18" height="18" color="#475467"/>
+  <text x="1464" y="41" font-size="15" font-weight="600" fill="#17213a">Настройки</text>
+
+  <!-- Workspace -->
+  <!-- Title -->
+  <text x="48" y="124" class="title">Черновики</text>
+  <text x="48" y="152" class="small muted">Локальные панели и страницы. Хранятся только на этом компьютере; сохранение — не публикация.</text>
+  <rect x="1176" y="100" width="168" height="42" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <use href="#ti-plus" x="1192" y="112.0" width="18" height="18" color="#17213a"/>
+  <text x="1272" y="126" class="button" text-anchor="middle">Создать</text>
+  <rect x="1356" y="100" width="196" height="42" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="1454" y="126" class="button" text-anchor="middle">Импорт файлов</text>
+  <rect x="48" y="176" width="78" height="32" rx="16" fill="#243746" stroke="#243746"/>
+  <text x="87.0" y="197" class="small" fill="#ffffff" text-anchor="middle" font-weight="650">Все 7</text>
+  <rect x="134" y="176" width="98" height="32" rx="16" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="183.0" y="197" class="small" text-anchor="middle" font-weight="600">Панели 4</text>
+  <rect x="240" y="176" width="112" height="32" rx="16" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="296.0" y="197" class="small" text-anchor="middle" font-weight="600">Страницы 3</text>
+  <rect x="372" y="176" width="180" height="32" rx="16" fill="#243746" stroke="#243746"/>
+  <text x="462.0" y="197" class="small" fill="#ffffff" text-anchor="middle" font-weight="650">Любое происхождение</text>
+  <rect x="560" y="176" width="110" height="32" rx="16" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="615.0" y="197" class="small" text-anchor="middle" font-weight="600">Локальные</text>
+  <rect x="678" y="176" width="150" height="32" rx="16" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="753.0" y="197" class="small" text-anchor="middle" font-weight="600">Копии с сервера</text>
+  <rect x="860" y="173" width="200" height="38" rx="8" fill="#ffffff" stroke="#7a8d9b"/>
+  <use href="#ti-search" x="872" y="182" width="20" height="20" color="#667085"/>
+  <text x="902" y="197" class="small muted">Поиск по имени</text>
+  <rect x="48" y="228" width="1012" height="680" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <rect x="64" y="244" width="980" height="34" rx="6" fill="#f8fafc" stroke="#eef0f4"/>
+  <text x="78" y="266" class="xs muted" font-weight="700">ИМЯ</text>
+  <text x="280" y="266" class="xs muted" font-weight="700">ТИП</text>
+  <text x="360" y="266" class="xs muted" font-weight="700">ПРОИСХОЖДЕНИЕ</text>
+  <text x="510" y="266" class="xs muted" font-weight="700">ИСТОЧНИК</text>
+  <text x="754" y="266" class="xs muted" font-weight="700">СОСТОЯНИЕ</text>
+  <rect x="64" y="284" width="980" height="52" rx="8" fill="#eef4ff" stroke="#3156a3" stroke-width="2"/>
+  <text x="78" y="316" class="small" font-weight="650">Базы данных: Prod</text>
+  <text x="280" y="316" class="small">Панель</text>
+  <text x="360" y="316" class="small">Копия с сервера</text>
+  <text x="510" y="316" class="small muted">Лаборатория 7.4 · 25.10, 14:02</text>
+  <rect x="754" y="297" width="92" height="26" rx="13" fill="#fff4e5"/>
+  <text x="800" y="315" class="badge" text-anchor="middle" fill="#8a4b00">Изменена</text>
+  <rect x="854" y="297" width="174" height="26" rx="13" fill="#fef3f2"/>
+  <text x="941" y="315" class="badge" text-anchor="middle" fill="#a32935">Изменена на сервере</text>
+  <line x1="64" y1="394" x2="1044" y2="394" stroke="#eef0f4"/>
+  <text x="78" y="374" class="small" font-weight="650">Базы данных: сводная</text>
+  <text x="280" y="374" class="small">Панель</text>
+  <text x="360" y="374" class="small">Локальная</text>
+  <text x="510" y="374" class="small muted">собрана из 3 страниц</text>
+  <rect x="754" y="355" width="92" height="26" rx="13" fill="#ecfdf3"/>
+  <text x="800" y="373" class="badge" text-anchor="middle" fill="#1f6b43">Сохранена</text>
+  <line x1="64" y1="452" x2="1044" y2="452" stroke="#eef0f4"/>
+  <text x="78" y="432" class="small" font-weight="650">ClickHouse</text>
+  <text x="280" y="432" class="small">Страница</text>
+  <text x="360" y="432" class="small">Копия с сервера</text>
+  <text x="510" y="432" class="small muted">«Базы данных: Prod», стр. 2</text>
+  <rect x="754" y="413" width="92" height="26" rx="13" fill="#ecfdf3"/>
+  <text x="800" y="431" class="badge" text-anchor="middle" fill="#1f6b43">Сохранена</text>
+  <rect x="854" y="413" width="116" height="26" rx="13" fill="#f2f4f7"/>
+  <text x="912" y="431" class="badge" text-anchor="middle" fill="#344054">Не проверена</text>
+  <line x1="64" y1="510" x2="1044" y2="510" stroke="#eef0f4"/>
+  <text x="78" y="490" class="small" font-weight="650">Keeper и HAProxy</text>
+  <text x="280" y="490" class="small">Страница</text>
+  <text x="360" y="490" class="small">Локальная</text>
+  <text x="510" y="490" class="small muted">файл страницы</text>
+  <rect x="754" y="471" width="92" height="26" rx="13" fill="#ecfdf3"/>
+  <text x="800" y="489" class="badge" text-anchor="middle" fill="#1f6b43">Сохранена</text>
+  <line x1="64" y1="568" x2="1044" y2="568" stroke="#eef0f4"/>
+  <text x="78" y="548" class="small" font-weight="650">Linux: обзор</text>
+  <text x="280" y="548" class="small">Страница</text>
+  <text x="360" y="548" class="small">Локальная</text>
+  <text x="510" y="548" class="small muted">создана здесь</text>
+  <rect x="754" y="529" width="92" height="26" rx="13" fill="#ecfdf3"/>
+  <text x="800" y="547" class="badge" text-anchor="middle" fill="#1f6b43">Сохранена</text>
+  <line x1="64" y1="626" x2="1044" y2="626" stroke="#eef0f4"/>
+  <text x="78" y="606" class="small" font-weight="650">Global view</text>
+  <text x="280" y="606" class="small">Панель</text>
+  <text x="360" y="606" class="small">Копия с сервера</text>
+  <text x="510" y="606" class="small muted">Лаборатория 7.4 · 24.10, 09:12</text>
+  <rect x="754" y="587" width="92" height="26" rx="13" fill="#ecfdf3"/>
+  <text x="800" y="605" class="badge" text-anchor="middle" fill="#1f6b43">Сохранена</text>
+  <rect x="854" y="587" width="116" height="26" rx="13" fill="#f2f4f7"/>
+  <text x="912" y="605" class="badge" text-anchor="middle" fill="#344054">Не проверена</text>
+  <line x1="64" y1="684" x2="1044" y2="684" stroke="#eef0f4"/>
+  <text x="78" y="664" class="small" font-weight="650">Базы данных</text>
+  <text x="280" y="664" class="small">Панель</text>
+  <text x="360" y="664" class="small">Локальная</text>
+  <text x="510" y="664" class="small muted">файл старого формата</text>
+  <rect x="754" y="645" width="92" height="26" rx="13" fill="#ecfdf3"/>
+  <text x="800" y="663" class="badge" text-anchor="middle" fill="#1f6b43">Сохранена</text>
+  <text x="64" y="892" class="xs muted">Сортировка — по времени изменения. Типы различаются подписью, а не цветом; имена Prod/Pilot — данные пользователя.</text>
+  <rect x="1080" y="228" width="472" height="680" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="1104" y="262" class="h3">Базы данных: Prod</text>
+  <rect x="1104" y="276" width="74" height="26" rx="13" fill="#eef4ff"/>
+  <text x="1141" y="294" class="badge" text-anchor="middle" fill="#1d3f86">Панель</text>
+  <rect x="1186" y="276" width="136" height="26" rx="13" fill="#f2f4f7"/>
+  <text x="1254" y="294" class="badge" text-anchor="middle" fill="#344054">Копия с сервера</text>
+  <text x="1104" y="336" class="small muted">Источник</text>
+  <text x="1210" y="336" class="small" font-weight="600">«Базы данных: Prod»</text>
+  <text x="1104" y="362" class="small muted">Подключение</text>
+  <text x="1210" y="362" class="small" font-weight="600">Лаборатория 7.4 · Zabbix 7.4.16</text>
+  <text x="1104" y="388" class="small muted">База</text>
+  <text x="1210" y="388" class="small" font-weight="600">снимок 25.10.2026, 14:02</text>
+  <text x="1104" y="414" class="small muted">Свежесть</text>
+  <text x="1210" y="414" class="small" font-weight="600">изменена на сервере (14:31)</text>
+  <text x="1104" y="440" class="small muted">Локально</text>
+  <text x="1210" y="440" class="small" font-weight="600">изменена · 3 страницы, 19 виджетов</text>
+  <line x1="1104" y1="462" x2="1528" y2="462" stroke="#e4e7ec"/>
+  <text x="1104" y="492" class="label muted">СОЗДАНО ИЗ ЭТОЙ КОПИИ</text>
+  <use href="#ti-circle-check" x="1104" y="506" width="18" height="18" color="#1f6b43"/>
+  <text x="1130" y="520" class="small">«ClickHouse: Pilot» — создана 24.10, 18:20</text>
+  <text x="1130" y="540" class="xs muted">проверено повторным чтением · Лаборатория 7.4</text>
+  <line x1="1104" y1="562" x2="1528" y2="562" stroke="#e4e7ec"/>
+  <rect x="1104" y="580" width="424" height="42" rx="10" fill="#3156a3" stroke="#3156a3"/>
+  <text x="1316" y="606" class="button white" text-anchor="middle">Открыть</text>
+  <rect x="1104" y="634" width="206" height="42" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="1207" y="660" class="button" text-anchor="middle">Дублировать</text>
+  <rect x="1322" y="634" width="206" height="42" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="1425" y="660" class="button" text-anchor="middle">Переименовать</text>
+  <rect x="1104" y="688" width="424" height="42" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="1316" y="714" class="button" text-anchor="middle">Сделать переносимой для экспорта…</text>
+  <rect x="1104" y="742" width="424" height="42" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="1316" y="768" class="button" fill="#a32935" text-anchor="middle">Удалить</text>
+  <use href="#ti-info-circle" x="1104" y="802" width="18" height="18" color="#667085"/>
+  <text x="1130" y="816" class="xs muted">Удаление не трогает панели на сервере. Снимок</text>
+  <text x="1130" y="834" class="xs muted">удаляется, только если на него больше ничего</text>
+  <text x="1130" y="852" class="xs muted">не ссылается; запись журнала остаётся.</text>
+  <text x="1130" y="878" class="xs muted">Копия с сервера экспортируется только после преобразования.</text>
+</svg>

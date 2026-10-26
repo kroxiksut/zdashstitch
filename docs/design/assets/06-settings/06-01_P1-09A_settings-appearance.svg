@@ -1,0 +1,126 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 1600 1000" fill="#17213a" role="img" aria-labelledby="title desc">
+  <title id="title">ZDashstitch — настройки: внешний вид</title>
+  <desc id="desc">Светлый макет экрана «Настройки»: разделы настроек слева, раздел «Внешний вид» с языком, темой, уменьшением анимации и предпросмотром форматов; путь к файлу настроек и сброс раздела.</desc>
+  <defs>
+    <!-- Tabler Icons outline v3.49.0 (MIT), see assets/icons/THIRD_PARTY.md -->
+    <symbol id="ti-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5l10 -10"/></symbol>
+    <symbol id="ti-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/></symbol>
+    <symbol id="ti-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065"/><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/></symbol>
+    <style>
+      text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+      .muted{fill:#667085}.white{fill:#ffffff}.small{font-size:14px}.xs{font-size:12px}.label{font-size:13px;font-weight:700;letter-spacing:.08em}
+      .title{font-size:24px;font-weight:750}.h3{font-size:17px;font-weight:700}.body{font-size:16px}.button{font-size:15px;font-weight:700}
+      .nav{font-size:16px}.badge{font-size:13px;font-weight:650}
+    </style>
+  </defs>
+  <rect width="1600" height="1000" fill="#f5f7fb"/>
+
+  <!-- App bar: global navigation (P1-01B §1) -->
+  <rect width="1600" height="72" fill="#ffffff" stroke="#e4e7ec"/>
+  <image href="../../../../assets/brand/icons/stezhik-head-1024.png" x="32" y="18" width="36" height="36" preserveAspectRatio="xMidYMid meet"/>
+  <text x="80" y="45" font-size="20" font-weight="750">ZDashstitch</text>
+  <text x="232" y="44" font-size="15" font-weight="500" fill="#475467">Начало</text>
+  <text x="318" y="44" font-size="15" font-weight="500" fill="#475467">Черновики</text>
+  <text x="430" y="44" font-size="15" font-weight="500" fill="#475467">Панели в Zabbix</text>
+  <text x="582" y="44" font-size="15" font-weight="500" fill="#475467">Библиотека</text>
+  <text x="702" y="44" font-size="15" font-weight="500" fill="#475467">Подключения</text>
+  <rect x="1288" y="19" width="120" height="34" rx="17" fill="#eef4ff"/>
+  <text x="1348" y="41" font-size="14" text-anchor="middle" fill="#3156a3">Автономно</text>
+  <rect x="1424" y="18" width="144" height="36" rx="8" fill="#eef4ff" stroke="#3156a3"/>
+  <use href="#ti-settings" x="1438" y="27" width="18" height="18" color="#1d3f86"/>
+  <text x="1464" y="41" font-size="15" font-weight="700" fill="#1d3f86">Настройки</text>
+
+  <!-- Settings navigation -->
+  <rect x="0" y="72" width="260" height="928" fill="#ffffff" stroke="#e4e7ec"/>
+  <text x="28" y="116" class="label muted">НАСТРОЙКИ</text>
+
+  <text x="32" y="163" class="nav">Общие</text>
+  <rect x="16" y="182" width="228" height="42" rx="10" fill="#eef4ff"/>
+  <text x="32" y="209" class="nav" font-weight="700" fill="#1d3f86">Внешний вид</text>
+  <circle cx="226" cy="203" r="4" fill="#3156a3"><title>Есть изменённые настройки</title></circle>
+  <text x="32" y="255" class="nav">Рабочие каталоги</text>
+  <text x="32" y="301" class="nav">Редактор</text>
+  <text x="32" y="347" class="nav">Подключения и сертификаты</text>
+  <text x="32" y="393" class="nav">Безопасность и экспорт</text>
+  <text x="32" y="439" class="nav">Диагностика</text>
+  <text x="32" y="485" class="nav">О программе и лицензии</text>
+  <line x1="20" y1="520" x2="240" y2="520" stroke="#e4e7ec"/>
+  <text x="28" y="552" class="small muted">Пароли и токены здесь</text>
+  <text x="28" y="574" class="small muted">не хранятся и не показываются.</text>
+
+  <!-- Header -->
+  <text x="292" y="120" class="title">Внешний вид</text>
+  <text x="292" y="150" class="small muted">Изменения применяются сразу и сохраняются в файл настроек.</text>
+  <rect x="1224" y="96" width="320" height="40" rx="8" fill="#ffffff" stroke="#c9d3ea"/>
+  <use href="#ti-search" x="1238" y="107" width="18" height="18" color="#667085"/>
+  <text x="1266" y="121" class="small muted">Поиск настроек</text>
+
+  <!-- Language -->
+  <rect x="292" y="176" width="610" height="250" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="316" y="208" class="label muted">ЯЗЫК ИНТЕРФЕЙСА</text>
+
+  <circle cx="328" cy="248" r="9" fill="#ffffff" stroke="#3156a3" stroke-width="2"/>
+  <circle cx="328" cy="248" r="4.5" fill="#3156a3"/>
+  <text x="348" y="254" class="body">Как в системе</text>
+  <text x="476" y="254" class="small muted">сейчас: русский</text>
+  <circle cx="328" cy="288" r="9" fill="#ffffff" stroke="#98a2b3" stroke-width="2"/>
+  <text x="348" y="294" class="body">English</text>
+  <circle cx="328" cy="328" r="9" fill="#ffffff" stroke="#98a2b3" stroke-width="2"/>
+  <text x="348" y="334" class="body">Русский</text>
+  <text x="316" y="378" class="small muted">Имена панелей, узлов сети и другие данные из Zabbix</text>
+  <text x="316" y="400" class="small muted">не переводятся. Термины — как в русском Zabbix.</text>
+
+  <!-- Theme -->
+  <rect x="926" y="176" width="618" height="250" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="950" y="208" class="label muted">ТЕМА</text>
+  <rect x="1090" y="190" width="84" height="24" rx="12" fill="#eef4ff"/>
+  <text x="1132" y="207" class="xs" font-weight="650" text-anchor="middle" fill="#3156a3">изменено</text>
+
+  <rect x="950" y="228" width="180" height="150" rx="12" fill="#ffffff" stroke="#d0d5dd"/>
+  <rect x="962" y="240" width="78" height="88" rx="6" fill="#f5f7fb" stroke="#d0d5dd"/>
+  <rect x="1040" y="240" width="78" height="88" rx="6" fill="#1f2933" stroke="#d0d5dd"/>
+  <text x="962" y="360" class="body" font-weight="400">Как в системе</text>
+  <rect x="1146" y="228" width="180" height="150" rx="12" fill="#ffffff" stroke="#3156a3" stroke-width="2"/>
+  <rect x="1158" y="240" width="156" height="88" rx="6" fill="#f5f7fb" stroke="#d0d5dd"/>
+  <rect x="1158" y="240" width="156" height="16" rx="6" fill="#ffffff"/>
+  <rect x="1168" y="266" width="60" height="50" rx="4" fill="#ffffff" stroke="#d0d5dd"/>
+  <rect x="1238" y="266" width="66" height="50" rx="4" fill="#ffffff" stroke="#d0d5dd"/>
+  <rect x="1158" y="344" width="20" height="20" rx="4" fill="#3156a3"/>
+  <use href="#ti-check" x="1160" y="346" width="16" height="16" color="#ffffff"/>
+  <text x="1186" y="360" class="body" font-weight="700">Светлая</text>
+  <rect x="1342" y="228" width="180" height="150" rx="12" fill="#ffffff" stroke="#d0d5dd"/>
+  <rect x="1354" y="240" width="156" height="88" rx="6" fill="#1f2933" stroke="#d0d5dd"/>
+  <rect x="1354" y="240" width="156" height="16" rx="6" fill="#2b3642"/>
+  <rect x="1364" y="266" width="60" height="50" rx="4" fill="#323e4b" stroke="#d0d5dd"/>
+  <rect x="1434" y="266" width="66" height="50" rx="4" fill="#323e4b" stroke="#d0d5dd"/>
+  <text x="1354" y="360" class="body" font-weight="400">Тёмная</text>
+  <text x="950" y="404" class="small muted">Тема интерфейса не меняет оформление виджетов на панели.</text>
+
+  <!-- Motion and contrast -->
+  <rect x="292" y="450" width="610" height="190" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="316" y="482" class="label muted">ДВИЖЕНИЕ И КОНТРАСТ</text>
+  <rect x="316" y="504" width="20" height="20" rx="4" fill="#ffffff" stroke="#7a8d9b" stroke-width="2"/>
+  <text x="348" y="520" class="body">Уменьшить анимацию</text>
+  <text x="348" y="544" class="small muted">Как в системе: выключено. Статусы и тексты не зависят от анимации.</text>
+  <text x="316" y="590" class="body">Высокая контрастность</text>
+  <text x="316" y="614" class="small muted">Берётся из настроек системы; отдельного переключателя нет.</text>
+
+  <!-- Formats preview -->
+  <rect x="926" y="450" width="618" height="190" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="950" y="482" class="label muted">ПРЕДПРОСМОТР ФОРМАТОВ</text>
+  <text x="950" y="522" class="small muted">Дата и время</text>
+  <text x="1130" y="522" class="body">25.10.2026, 14:30</text>
+  <text x="950" y="556" class="small muted">Число</text>
+  <text x="1130" y="556" class="body">1 234 567,8</text>
+  <text x="950" y="590" class="small muted">Количество</text>
+  <text x="1130" y="590" class="body">5 виджетов · 1 страница · 22 виджета</text>
+
+  <!-- Settings file -->
+  <rect x="292" y="664" width="1252" height="96" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="316" y="696" class="label muted">ФАЙЛ НАСТРОЕК</text>
+  <text x="316" y="730" class="small muted">Настройки хранятся в YAML-файле, его можно править вручную. Ошибочный файл не применяется.</text>
+  <rect x="1182" y="688" width="160" height="42" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="1262" y="714" class="button" text-anchor="middle">Открыть файл</text>
+  <rect x="1354" y="688" width="166" height="42" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="1437" y="714" class="button" text-anchor="middle">Сбросить раздел</text>
+</svg>

@@ -20,6 +20,58 @@ project={'$schema':'https://json-schema.org/draft/2020-12/schema','$id':'https:/
  'roles':{'type':'object','minProperties':1,'maxProperties':64,'patternProperties':{'^[a-z][a-z0-9_-]{1,63}$':{'type':'object','required':['cardinality'],'properties':{'cardinality':{'enum':['one','many']},'description':{'type':'string','maxLength':300},'slots':{'type':'array','minItems':1,'maxItems':256,'uniqueItems':True,'items':slug}},'additionalProperties':False}},'additionalProperties':False},
  'dashboards':{'type':'array','minItems':1,'maxItems':16,'items':dash}
  },'additionalProperties':False}
+version_pattern = r'^[1-9][0-9]*\.[0-9]+(?:\.[0-9]+)?(?:[A-Za-z][A-Za-z0-9._-]*)?$'
+version_range={'type':'object','required':['minimum'],'properties':{
+ 'minimum':{'type':'string','pattern':version_pattern},
+ 'maximum_exclusive':{'type':'string','pattern':version_pattern}
+ },'additionalProperties':False}
+provenance={'oneOf':[
+ {'type':'object','required':['kind'],'properties':{'kind':{'const':'local'}},'additionalProperties':False},
+ {'type':'object','required':['kind','legacy_format','source_project_id','source_dashboard_id'],'properties':{
+  'kind':{'const':'migrated_v1'},'legacy_format':{'const':'zdashstitch.project/v1'},
+  'source_project_id':slug,'source_dashboard_id':slug,'source_page_id':slug
+ },'additionalProperties':False},
+ {'type':'object','required':['kind'],'properties':{'kind':{'const':'server_snapshot'}},'additionalProperties':False}
+]}
+registry_state={'enum':['known','unknown']}
+widget_object_kind={'enum':['host_group','host','item','item_prototype','graph','graph_prototype','map','service','sla','user','action','media_type','unknown']}
+widget_field_value={'oneOf':[
+ {'type':'object','required':['kind','value'],'properties':{'kind':{'const':'integer'},'value':{'type':'integer','minimum':-9223372036854775808,'maximum':9223372036854775807}},'additionalProperties':False},
+ {'type':'object','required':['kind','value'],'properties':{'kind':{'const':'string'},'value':{'type':'string','maxLength':16384}},'additionalProperties':False},
+ {'type':'object','required':['kind','role','selection'],'properties':{'kind':{'const':'host'},**role_ref['properties']},'allOf':role_ref['allOf'],'additionalProperties':False},
+ {'type':'object','required':['kind','catalog','metric','hosts'],'properties':{'kind':{'const':'metric'},'catalog':slug,'metric':slug,'hosts':role_ref},'additionalProperties':False},
+ {'type':'object','required':['kind','object_kind','display_name'],'properties':{'kind':{'const':'unresolved'},'object_kind':widget_object_kind,'display_name':{'type':'string','maxLength':500}},'additionalProperties':False}
+]}
+zabbix_field={'type':'object','required':['name','field_type','registry_state','value'],'properties':{
+ 'name':{'type':'string','minLength':1,'maxLength':255},'field_type':{'type':'integer','minimum':0,'maximum':65535},
+ 'registry_state':registry_state,'value':widget_field_value
+},'allOf':[
+ {'if':{'properties':{'field_type':{'minimum':14}},'required':['field_type']},'then':{
+  'properties':{'registry_state':{'const':'unknown'},'value':{'properties':{'kind':{'const':'unresolved'},'object_kind':{'const':'unknown'}},'required':['kind','object_kind']}}
+ }}
+],'additionalProperties':False}
+zabbix_widget={'type':'object','required':['id','type','widget_type','name','registry_state','fields','layout'],'properties':{
+ 'id':slug,'type':{'const':'zabbix'},'widget_type':{'type':'string','pattern':'^[a-z][a-z0-9._-]{0,127}$'},
+ 'name':{'type':'string','maxLength':200},'registry_state':registry_state,
+ 'fields':{'type':'array','maxItems':1024,'items':zabbix_field},'layout':rect
+},'additionalProperties':False}
+page_v2={'type':'object','required':['id','name','widgets'],'properties':{'id':slug,'name':nonempty,'widgets':{'type':'array','maxItems':256,'items':{'oneOf':[graph,item,zabbix_widget]}}},'additionalProperties':False}
+dash_v2={'type':'object','required':['id','name','kind','pages'],'properties':{'id':slug,'name':nonempty,'kind':{'const':'global'},'pages':{'type':'array','minItems':1,'maxItems':32,'items':page_v2}},'additionalProperties':False}
+project_v2={'$schema':'https://json-schema.org/draft/2020-12/schema','$id':'https://zdashstitch.example/schemas/project-v2.schema.json','title':'ZDashstitch typed portable project v2', 'type':'object',
+ 'required':['format','project_id','kind','declared_compatibility','provenance','catalogs','roles','root'],
+ 'properties':{
+  'format':{'const':'zdashstitch.project/v2'},'project_id':slug,'kind':{'enum':['dashboard','page']},
+  'declared_compatibility':version_range,'provenance':provenance,
+  'catalogs':{**project['properties']['catalogs'],'minItems':0},
+  'roles':{**project['properties']['roles'],'minProperties':0},
+  'root':{'oneOf':[dash_v2,page_v2]}
+ },
+ 'allOf':[
+  {'if':{'properties':{'kind':{'const':'dashboard'}},'required':['kind']},'then':{'properties':{'root':dash_v2}}},
+  {'if':{'properties':{'kind':{'const':'page'}},'required':['kind']},'then':{'properties':{'root':page_v2}}},
+  {'if':{'properties':{'kind':{'const':'page'},'provenance':{'properties':{'kind':{'const':'migrated_v1'}},'required':['kind']}},'required':['kind','provenance']},'then':{'properties':{'provenance':{'required':['source_page_id']}}}},
+  {'if':{'properties':{'kind':{'const':'dashboard'},'provenance':{'properties':{'kind':{'const':'migrated_v1'}},'required':['kind']}},'required':['kind','provenance']},'then':{'properties':{'provenance':{'not':{'required':['source_page_id']}}}}}
+ ],'additionalProperties':False}
 selector={'oneOf':[
  {'type':'object','required':['kind','value'],'properties':{'kind':{'const':'key'},'value':{'type':'string','minLength':1,'maxLength':512}},'additionalProperties':False},
  {'type':'object','required':['kind','value'],'properties':{'kind':{'const':'alias'},'value':slug},'additionalProperties':False}
@@ -27,7 +79,6 @@ selector={'oneOf':[
 metric={'type':'object','required':['id','name','selector','value_type','units','origin'],'properties':{'id':slug,'name':nonempty,'selector':selector,'value_type':{'enum':['numeric_float','numeric_unsigned','character','text','log','binary']},'units':{'type':'string','maxLength':32},'origin':{'enum':['template_item','host_item','lld_prototype','discovered_item']},'uuid':{'type':'string','pattern':'^[0-9a-fA-F]{32}$'},'diagnostics':{'type':'array','uniqueItems':True,'items':{'enum':['missing_parent_template','unresolved_macros','lld_requires_instance','source_partial']}}},'additionalProperties':False}
 # Source provenance: v0.5 `zabbix_version` is accepted ONLY as a legacy import field.
 # Writers emit export_format_version for export inputs and source_server_version for API inputs.
-version_pattern = r'^[1-9][0-9]*\.[0-9]+(?:\.[0-9]+)?(?:[A-Za-z][A-Za-z0-9._-]*)?$'
 source = {'type':'object','required':['kind'],'properties':{
  'kind':{'enum':['template_export','zabbix_api','manual']},
  'export_format_version':{'type':'string','pattern':version_pattern},
@@ -80,6 +131,6 @@ deployment={'$schema':'https://json-schema.org/draft/2020-12/schema','title':'Pr
  'additionalProperties':False}}},
  'additionalProperties':False}
 
-for filename,obj in [('project-v1.schema.json',project),('metrics-v1.schema.json',metric_schema),('local-bindings-v1.schema.json',local),('deployment-state-v1.schema.json',deployment)]:
+for filename,obj in [('project-v1.schema.json',project),('project-v2.schema.json',project_v2),('metrics-v1.schema.json',metric_schema),('local-bindings-v1.schema.json',local),('deployment-state-v1.schema.json',deployment)]:
  (root/'schemas'/filename).write_bytes((json.dumps(obj,ensure_ascii=False,indent=2)+'\n').encode('utf-8'))
  print(filename)

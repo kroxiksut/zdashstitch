@@ -6,7 +6,7 @@
 
 ## Baseline: MVP 0.1.0
 
-The baseline is a local Rust/Axum/Svelte GUI for global dashboards on **Zabbix 7.4 only**. It must prove offline creation of a typed dashboard project or page project, portable YAML/data-only ZIP, Create/Append/Clone/ReplaceHost operations, explicit preview and a closed verified publisher. The existing multi-dashboard `project/v1` remains a legacy container until O-026 is decided. See the [README](README.md#planned-mvp-010) for scope, exclusions and quality gates.
+The baseline is a local Rust/Axum/Svelte GUI for global dashboards on **Zabbix 7.4 only**. It must prove offline creation of a typed dashboard project or page project, portable YAML/data-only ZIP, Create/Append/Clone/ReplaceHost operations, explicit preview and a closed verified publisher. The existing multi-dashboard `project/v1` remains a legacy container until P0-08 implements the format decided in O-026. See the [README](README.md#planned-mvp-010) for scope, exclusions and quality gates.
 
 ## How priorities are chosen
 
@@ -19,6 +19,7 @@ There are no fixed version numbers or dates for the directions below. Order is c
 | B — reuse | F-03 Community recipes | Stable portable format and contribution demand | Package validator, licensing and provenance rules |
 | B — richer dashboards | F-05 Visual presets and Custom Widgets | Native widgets no longer meet real use cases | Versioned codecs and separate server-module security model |
 | B — broader coverage | F-07 More dashboard objects | Real fixtures for additional widgets/template dashboards/LLD | P0-like tests per object and version |
+| B — authoring help | F-08 Live-data preview | The MVP synthetic preview is not enough to check a dashboard | Limits on Zabbix load and rules for sensitive values |
 | C — assisted creation | F-04 AI-oriented exchange | Approved data policy and stable redaction workflow | Explicit export boundary and human confirmation |
 | C — collaboration | F-06 Organizational server mode | Sustained demand from multiple administrators | New network auth, TLS, roles, audit and storage contracts |
 
@@ -37,6 +38,7 @@ There are no fixed version numbers or dates for the directions below. Order is c
 - Each generation gets its own API adapter, export parser profile, capability matrix, fixtures and contract tests.
 - Reintroduce macOS CI, packaging and real-Mac acceptance during this multi-version compatibility stage; macOS is not built or supported by the MVP.
 - `core`, portable projects and the UI remain version-neutral; unsupported behavior fails closed.
+- A widget compatibility matrix from the official Zabbix documentation: widget type and its fields → the versions where they exist and change. It refines the compatibility label of a dashboard or page (O-029). In the MVP the label is computed for 7.4 only, but the version-range model and the widget capability registry are built in from the start.
 
 **Acceptance signal:** the same portable project produces a verified result or an explicit compatibility refusal, never silent feature loss.
 
@@ -75,6 +77,23 @@ It remains optional and must not weaken local/offline operation.
 
 - Template dashboards (`templatedashboard.*`), more built-in widgets, richer LLD handling, dynamic host selection and complex widget references.
 - Every new object/operation/version combination requires real fixtures and P0-like read/write contract tests.
+
+## F-08 — live-data preview
+
+- When connected to Zabbix, show real item values in the preview (`history.get`/`trends.get`) only on an explicit user action.
+- Limit server load: request count, period and number of points, cancellation and an in-memory cache only.
+- Real values may be sensitive: they are never stored in drafts, files, exports, logs or diagnostics.
+- The MVP synthetic preview (O-028) stays for offline work and is always labelled.
+
+**Acceptance signal:** the live preview causes no noticeable load on the test Zabbix and leaves no values on disk.
+
+## F-09 — trusted transfer with real bindings
+
+- Move a draft between your own trusted machines together with its host bindings, without re-binding by roles (O-011; the MVP uses the portable package and re-binding).
+- A separate versioned encrypted container (`zdashstitch.private-transfer/v1`): password-derived key, integrity check, manifest with fingerprints; secrets are never transferred.
+- Requires its own decision, a crypto library selection (version, licence, security) and an ADR before implementation.
+
+**Acceptance signal:** the container opens only with the password, corruption or tampering is detected before anything is applied, and the portable DATA-ONLY ZIP is unchanged.
 
 ## Roadmap governance
 

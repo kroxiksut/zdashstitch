@@ -1,0 +1,26 @@
+format: zdashstitch.project/v2
+project_id: unknown-widget
+kind: page
+declared_compatibility: {minimum: 7.4.0}
+provenance: {kind: local}
+catalogs: []
+roles: {}
+root:
+  id: unknown-widget
+  name: Unknown widget preservation
+  widgets:
+    - id: vendor-widget
+      type: zabbix
+      widget_type: vendor.private
+      name: Vendor widget
+      registry_state: unknown
+      fields:
+        - name: label
+          field_type: 1
+          registry_state: unknown
+          value: {kind: string, value: preserved}
+        - name: opaque
+          field_type: 42
+          registry_state: unknown
+          value: {kind: unresolved, object_kind: unknown, display_name: Unknown field}
+      layout: {mode: auto, w: 18, h: 4}

@@ -1,0 +1,50 @@
+{
+  "settings.title": {
+    "message": "Настройки",
+    "placeholders": {}
+  },
+  "settings.general.title": {
+    "message": "Общие",
+    "placeholders": {}
+  },
+  "settings.appearance.title": {
+    "message": "Внешний вид",
+    "placeholders": {}
+  },
+  "settings.workspace.title": {
+    "message": "Рабочие каталоги",
+    "placeholders": {}
+  },
+  "settings.editor.title": {
+    "message": "Редактор",
+    "placeholders": {}
+  },
+  "settings.connections.title": {
+    "message": "Подключения и сертификаты",
+    "placeholders": {}
+  },
+  "settings.security.title": {
+    "message": "Безопасность и экспорт",
+    "placeholders": {}
+  },
+  "diagnostics.title": {
+    "message": "Диагностика",
+    "placeholders": {}
+  },
+  "about.title": {
+    "message": "О программе и лицензии",
+    "placeholders": {}
+  },
+  "settings.search.placeholder": {
+    "message": "Поиск настроек",
+    "placeholders": {}
+  },
+  "settings.nav.no_secrets": {
+    "message": "Пароли и токены здесь не хранятся и не показываются.",
+    "placeholders": {}
+  },
+  "settings.storage.network_warning": {
+    "message": "Сетевое хранилище: при обрыве связи изменения могут не сохраниться, а публикация в Zabbix будет недоступна, пока журнал не запишется.",
+    "placeholders": {}
+  }
+}

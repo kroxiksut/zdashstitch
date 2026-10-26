@@ -44,6 +44,15 @@ async fn rpc(State(state): State<MockState>, Json(body): Json<Value>) -> Respons
             Json(json!({"jsonrpc": "2.0", "result": "7.4.16", "id": id})),
         )
             .into_response(),
+        "user.checkAuthentication" => (
+            StatusCode::OK,
+            Json(json!({
+                "jsonrpc": "2.0",
+                "result": {"userid": "5", "username": "writer"},
+                "id": id
+            })),
+        )
+            .into_response(),
         "dashboard.get" => {
             let mut data = state
                 .0
@@ -180,7 +189,7 @@ fn replacement() -> ItemFieldReplacement {
 async fn client_and_update(
     reply: UpdateReply,
 ) -> (
-    zdashstitch_zabbix::AuthenticatedClient,
+    zdashstitch_zabbix::ReadWriteGateway,
     zdashstitch_zabbix::VerifiedDashboardUpdate,
     Arc<Mutex<MockData>>,
     JoinHandle<()>,
@@ -192,7 +201,8 @@ async fn client_and_update(
             "test-token".to_owned(),
         )))
         .await
-        .unwrap_or_else(|error| panic!("authentication: {error}"));
+        .unwrap_or_else(|error| panic!("authentication: {error}"))
+        .enable_writes();
     let source = client
         .dashboard_snapshots("mock-connection")
         .await
@@ -274,14 +284,16 @@ async fn plan_bound_to_another_credential_is_blocked_before_send() {
             "first-token".to_owned(),
         )))
         .await
-        .unwrap_or_else(|error| panic!("first authentication: {error}"));
+        .unwrap_or_else(|error| panic!("first authentication: {error}"))
+        .enable_writes();
     let second = ZabbixClient::new(endpoint)
         .unwrap_or_else(|error| panic!("second client: {error}"))
         .authenticate(Authentication::ApiToken(SecretString::from(
             "second-token".to_owned(),
         )))
         .await
-        .unwrap_or_else(|error| panic!("second authentication: {error}"));
+        .unwrap_or_else(|error| panic!("second authentication: {error}"))
+        .enable_writes();
     let source = first
         .dashboard_snapshots("mock-connection")
         .await
