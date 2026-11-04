@@ -3,9 +3,12 @@
 use std::env;
 
 use secrecy::SecretString;
-use zdashstitch_application::{JournalState, build_verified_plan, publish_confirmed_plan};
+use zdashstitch_application::{
+    JournalState, LocalSession, PublishJournal, build_verified_plan, publish_confirmed_plan,
+};
 use zdashstitch_zabbix::{
-    Authentication, ItemFieldReplacement, VersionedDashboardSnapshot, ZabbixClient, ZabbixEndpoint,
+    Authentication, VersionedDashboardSnapshot, WidgetFieldReplacement, ZabbixClient,
+    ZabbixEndpoint,
 };
 
 const LAB_DASHBOARD_NAME: &str = "ZDashstitch Contract Lab";
@@ -36,7 +39,7 @@ async fn verified_plan_publishes_once_and_advances_only_after_read_back() {
             .await
             .unwrap_or_else(|error| panic!("cannot read contract dashboard: {error}")),
     );
-    let (page_index, widget_index, field_name, old_itemid) = item_field(&source);
+    let (page_index, widgetid, field_name, old_itemid) = item_field(&source);
     let target_itemid = client
         .reader()
         .readable_item_ids(1_000)
@@ -46,20 +49,34 @@ async fn verified_plan_publishes_once_and_advances_only_after_read_back() {
         .find(|itemid| itemid != &old_itemid)
         .unwrap_or_else(|| panic!("laboratory needs a second readable item"));
     let expected_target = target_itemid.clone();
-    let replacement = ItemFieldReplacement {
+    let replacement = WidgetFieldReplacement {
         page_index,
-        widget_index,
+        widgetid,
         field_name,
-        expected_itemid: old_itemid,
-        replacement_itemid: target_itemid,
+        expected_value: old_itemid,
+        replacement_value: target_itemid,
     };
-    let plan = build_verified_plan(&source, &client.publication_context(), &[replacement])
-        .unwrap_or_else(|error| panic!("verified plan must be created: {error}"));
+    let session = LocalSession::new();
+    // The journal of this run lives in a temporary storage root.
+    let storage = tempfile::tempdir().unwrap_or_else(|error| panic!("temp dir: {error}"));
+    let journal = PublishJournal::new(storage.path().to_path_buf());
+    let plan = build_verified_plan(
+        &journal,
+        &source,
+        &client.publication_context(),
+        &[replacement],
+        session.current(),
+    )
+    .unwrap_or_else(|error| panic!("verified plan must be created: {error}"));
     let preview = plan.preview();
     let confirmed = plan
         .confirm(&preview.plan_id)
         .unwrap_or_else(|error| panic!("displayed plan confirmation must match: {error}"));
-    let report = publish_confirmed_plan(&client, confirmed).await;
+    let stage = session
+        .begin_write(confirmed.session())
+        .unwrap_or_else(|_| panic!("a fresh session must allow a write stage"));
+    let report = publish_confirmed_plan(&client, &journal, confirmed, &stage).await;
+    drop(stage);
     if report.states.last() != Some(&JournalState::Verified) {
         let observed = unique_contract_dashboard(
             client
@@ -76,6 +93,12 @@ async fn verified_plan_publishes_once_and_advances_only_after_read_back() {
     }
     assert_eq!(report.states.last(), Some(&JournalState::Verified));
     assert!(report.deployment_state_may_advance);
+    assert_eq!(report.journal_error, None);
+    let entry = journal
+        .entry(&preview.plan_id)
+        .unwrap_or_else(|error| panic!("journal entry: {error}"));
+    assert_eq!(entry.state, JournalState::Verified);
+    assert_eq!(entry.sends, 1);
     println!(
         "verified publisher: version=7.4.16, replacements=1, final_state=verified, deployment_state_may_advance=true"
     );
@@ -101,7 +124,7 @@ fn unique_contract_dashboard(
     dashboard
 }
 
-fn item_field(snapshot: &VersionedDashboardSnapshot) -> (usize, usize, String, String) {
+fn item_field(snapshot: &VersionedDashboardSnapshot) -> (usize, String, String, String) {
     for (page_index, page) in snapshot.raw_api_document()["pages"]
         .as_array()
         .unwrap_or_else(|| panic!("dashboard pages must be an array"))
@@ -117,7 +140,7 @@ fn item_field(snapshot: &VersionedDashboardSnapshot) -> (usize, usize, String, S
         {
             continue;
         }
-        for (widget_index, widget) in widgets.iter().enumerate() {
+        for widget in widgets {
             if widget["type"] != "item" {
                 continue;
             }
@@ -131,7 +154,10 @@ fn item_field(snapshot: &VersionedDashboardSnapshot) -> (usize, usize, String, S
                 if field_type == Some(4) {
                     return (
                         page_index,
-                        widget_index,
+                        widget["widgetid"]
+                            .as_str()
+                            .unwrap_or_else(|| panic!("widgetid must be a string"))
+                            .to_owned(),
                         field["name"]
                             .as_str()
                             .unwrap_or_else(|| panic!("item field name must be a string"))

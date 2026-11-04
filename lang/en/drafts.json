@@ -156,8 +156,12 @@
     "placeholders": {}
   },
   "draft.provenance.assembled": {
-    "message": "{count, plural, one {Built from # page} other {Built from # pages}}{sources, select, other {: {sources}}}",
-    "placeholders": {"count": "number", "sources": "text_optional"}
+    "message": "{count, plural, one {Built from # page} other {Built from # pages}}",
+    "placeholders": {"count": "number"}
+  },
+  "draft.provenance.assembled_with_sources": {
+    "message": "{count, plural, one {Built from # page: {sources}} other {Built from # pages: {sources}}}",
+    "placeholders": {"count": "number", "sources": "text"}
   },
   "draft.provenance.taken_from": {
     "message": "Taken from dashboard “{dashboard}”",
@@ -205,6 +209,18 @@
   },
   "drafts.state.changed_on_server": {
     "message": "Changed on server",
+    "placeholders": {}
+  },
+  "drafts.state.current": {
+    "message": "Checked",
+    "placeholders": {}
+  },
+  "drafts.state.stale": {
+    "message": "Out of date",
+    "placeholders": {}
+  },
+  "drafts.state.source_missing": {
+    "message": "Source missing",
     "placeholders": {}
   },
   "drafts.search.placeholder": {
@@ -387,6 +403,10 @@
     "message": "Writing only by a verified plan.",
     "placeholders": {}
   },
+  "draft.overview.publish_unavailable": {
+    "message": "Unavailable: no target selected, no checks run.",
+    "placeholders": {}
+  },
   "intent.append_page": {
     "message": "Add page to dashboard",
     "placeholders": {}
@@ -394,5 +414,61 @@
   "draft.a11y.sections": {
     "message": "Draft sections",
     "placeholders": {}
+  },
+  "drafts.created_from_draft": {
+    "message": "Created from this draft",
+    "placeholders": {}
+  },
+  "drafts.action.export_file": {
+    "message": "Export to file…",
+    "placeholders": {}
+  },
+  "drafts.details.created_not_found": {
+    "message": "Not found at the last check",
+    "placeholders": {}
+  },
+  "drafts.search.no_results": {
+    "message": "No drafts match the filters and search.",
+    "placeholders": {}
+  },
+  "drafts.damaged": {
+    "message": "{count, plural, one {# draft could not be read} other {# drafts could not be read}}; the files were not changed.",
+    "placeholders": {"count": "number"}
+  },
+  "drafts.load_failed": {
+    "message": "Could not load local drafts",
+    "placeholders": {}
+  },
+  "drafts.rename.title": {
+    "message": "Rename draft",
+    "placeholders": {}
+  },
+  "drafts.rename.description": {
+    "message": "Only the local name changes. The dashboard on the server is not changed.",
+    "placeholders": {}
+  },
+  "drafts.rename.done": {
+    "message": "Renamed: {name}",
+    "placeholders": {"name": "text"}
+  },
+  "drafts.copy_name": {
+    "message": "{name} (copy {number})",
+    "placeholders": {"name": "text", "number": "number"}
+  },
+  "drafts.list.open_hint": {
+    "message": "Click a name to open the draft. Click elsewhere in the row, or press Space on the name, to show its details.",
+    "placeholders": {}
+  },
+  "drafts.name.source_connection": {
+    "message": "({connection})",
+    "placeholders": {"connection": "text"}
+  },
+  "draft.nav.title": {
+    "message": "Draft sections",
+    "placeholders": {}
+  },
+  "draft.overview.step.open_section": {
+    "message": "Go to “{section}”",
+    "placeholders": {"section": "text"}
   }
 }

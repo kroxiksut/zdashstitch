@@ -1,0 +1,63 @@
+format: zdashstitch.project/v2
+project_id: too-many-pages
+kind: dashboard
+declared_compatibility: {minimum: 7.4.0}
+provenance: {kind: local}
+catalogs: []
+roles: {}
+root:
+  id: too-many-pages
+  name: Negative case
+  kind: global
+  pages:
+    - {id: page-01, name: Page 1, widgets: []}
+    - {id: page-02, name: Page 2, widgets: []}
+    - {id: page-03, name: Page 3, widgets: []}
+    - {id: page-04, name: Page 4, widgets: []}
+    - {id: page-05, name: Page 5, widgets: []}
+    - {id: page-06, name: Page 6, widgets: []}
+    - {id: page-07, name: Page 7, widgets: []}
+    - {id: page-08, name: Page 8, widgets: []}
+    - {id: page-09, name: Page 9, widgets: []}
+    - {id: page-10, name: Page 10, widgets: []}
+    - {id: page-11, name: Page 11, widgets: []}
+    - {id: page-12, name: Page 12, widgets: []}
+    - {id: page-13, name: Page 13, widgets: []}
+    - {id: page-14, name: Page 14, widgets: []}
+    - {id: page-15, name: Page 15, widgets: []}
+    - {id: page-16, name: Page 16, widgets: []}
+    - {id: page-17, name: Page 17, widgets: []}
+    - {id: page-18, name: Page 18, widgets: []}
+    - {id: page-19, name: Page 19, widgets: []}
+    - {id: page-20, name: Page 20, widgets: []}
+    - {id: page-21, name: Page 21, widgets: []}
+    - {id: page-22, name: Page 22, widgets: []}
+    - {id: page-23, name: Page 23, widgets: []}
+    - {id: page-24, name: Page 24, widgets: []}
+    - {id: page-25, name: Page 25, widgets: []}
+    - {id: page-26, name: Page 26, widgets: []}
+    - {id: page-27, name: Page 27, widgets: []}
+    - {id: page-28, name: Page 28, widgets: []}
+    - {id: page-29, name: Page 29, widgets: []}
+    - {id: page-30, name: Page 30, widgets: []}
+    - {id: page-31, name: Page 31, widgets: []}
+    - {id: page-32, name: Page 32, widgets: []}
+    - {id: page-33, name: Page 33, widgets: []}
+    - {id: page-34, name: Page 34, widgets: []}
+    - {id: page-35, name: Page 35, widgets: []}
+    - {id: page-36, name: Page 36, widgets: []}
+    - {id: page-37, name: Page 37, widgets: []}
+    - {id: page-38, name: Page 38, widgets: []}
+    - {id: page-39, name: Page 39, widgets: []}
+    - {id: page-40, name: Page 40, widgets: []}
+    - {id: page-41, name: Page 41, widgets: []}
+    - {id: page-42, name: Page 42, widgets: []}
+    - {id: page-43, name: Page 43, widgets: []}
+    - {id: page-44, name: Page 44, widgets: []}
+    - {id: page-45, name: Page 45, widgets: []}
+    - {id: page-46, name: Page 46, widgets: []}
+    - {id: page-47, name: Page 47, widgets: []}
+    - {id: page-48, name: Page 48, widgets: []}
+    - {id: page-49, name: Page 49, widgets: []}
+    - {id: page-50, name: Page 50, widgets: []}
+    - {id: page-51, name: Page 51, widgets: []}

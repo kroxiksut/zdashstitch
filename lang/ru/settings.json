@@ -46,5 +46,385 @@
   "settings.storage.network_warning": {
     "message": "Сетевое хранилище: при обрыве связи изменения могут не сохраниться, а публикация в Zabbix будет недоступна, пока журнал не запишется.",
     "placeholders": {}
+  },
+  "session.action.end": {
+    "message": "Завершить сеанс",
+    "placeholders": {}
+  },
+  "session.end.confirm.title": {
+    "message": "Завершить локальный сеанс?",
+    "placeholders": {}
+  },
+  "session.end.confirm.body": {
+    "message": "Сеанс закроется во всех вкладках, секреты Zabbix будут стёрты из памяти. Сохранённые черновики останутся на диске; несохранённый ввод в открытых вкладках пропадёт.",
+    "placeholders": {}
+  },
+  "session.end.unavailable_writing": {
+    "message": "Дождитесь окончания записи или того, что её результат станет известен.",
+    "placeholders": {}
+  },
+  "session.end.not_confirmed": {
+    "message": "Сначала подтвердите завершение локального сеанса.",
+    "placeholders": {}
+  },
+  "session.ended.title": {
+    "message": "Сеанс завершён",
+    "placeholders": {}
+  },
+  "about.subtitle": {
+    "message": "Сведения о сборке и лицензиях. Всё показывается без обращения к сети.",
+    "placeholders": {}
+  },
+  "about.tagline": {
+    "message": "Локальный редактор глобальных панелей Zabbix",
+    "placeholders": {}
+  },
+  "about.copyright": {
+    "message": "© 2026 Fyodor Malkov",
+    "placeholders": {}
+  },
+  "about.error.unavailable": {
+    "message": "Не удалось получить сведения о сборке.",
+    "placeholders": {}
+  },
+  "about.field.version": {
+    "message": "Версия",
+    "placeholders": {}
+  },
+  "about.field.build": {
+    "message": "Сборка",
+    "placeholders": {}
+  },
+  "about.field.build_unknown": {
+    "message": "Неизвестна",
+    "placeholders": {}
+  },
+  "about.field.zabbix": {
+    "message": "Zabbix",
+    "placeholders": {}
+  },
+  "about.field.zabbix_value": {
+    "message": "{versions} (адаптер {adapter}, проверено на {verified})",
+    "placeholders": {"versions": "technical", "adapter": "technical", "verified": "technical"}
+  },
+  "about.field.platform": {
+    "message": "Платформа",
+    "placeholders": {}
+  },
+  "about.license.title": {
+    "message": "Лицензии ZDashstitch",
+    "placeholders": {}
+  },
+  "about.license.code": {
+    "message": "Программа и исходный код",
+    "placeholders": {}
+  },
+  "about.license.code_choice": {
+    "message": "MIT OR Apache-2.0 — на выбор получателя",
+    "placeholders": {}
+  },
+  "about.license.docs": {
+    "message": "Документация и оригинальная графика",
+    "placeholders": {}
+  },
+  "about.license.docs_value": {
+    "message": "CC BY 4.0",
+    "placeholders": {}
+  },
+  "about.license.text_mit": {
+    "message": "Текст MIT",
+    "placeholders": {}
+  },
+  "about.license.text_apache": {
+    "message": "Текст Apache-2.0",
+    "placeholders": {}
+  },
+  "about.license.text": {
+    "message": "Текст лицензии",
+    "placeholders": {}
+  },
+  "about.license.text_original": {
+    "message": "Тексты лицензий показаны на языке оригинала.",
+    "placeholders": {}
+  },
+  "about.license.zabbix_note": {
+    "message": "Zabbix — отдельный продукт; его лицензии и товарные знаки на ZDashstitch не переходят.",
+    "placeholders": {}
+  },
+  "about.license.brand": {
+    "message": "Графика ZDashstitch (логотип и Стежик)",
+    "placeholders": {}
+  },
+  "about.license.tabler": {
+    "message": "Уведомление Tabler Icons (MIT)",
+    "placeholders": {}
+  },
+  "about.data.title": {
+    "message": "Данные на этом компьютере",
+    "placeholders": {}
+  },
+  "about.data.storage": {
+    "message": "Хранилище",
+    "placeholders": {}
+  },
+  "about.data.settings_file": {
+    "message": "Файл настроек",
+    "placeholders": {}
+  },
+  "about.data.journal": {
+    "message": "Журнал операций",
+    "placeholders": {}
+  },
+  "about.data.copy_path": {
+    "message": "Копировать путь: {name}",
+    "placeholders": {"name": "text"}
+  },
+  "about.data.paths_local_only": {
+    "message": "Полные пути видны только здесь и не попадают в отчёты.",
+    "placeholders": {}
+  },
+  "about.report.copy": {
+    "message": "Копировать сведения для отчёта",
+    "placeholders": {}
+  },
+  "about.report.scope": {
+    "message": "без адресов серверов, имён и секретов",
+    "placeholders": {}
+  },
+  "about.report.preview": {
+    "message": "Сведения для отчёта",
+    "placeholders": {}
+  },
+  "about.report.copy_failed": {
+    "message": "Копирование здесь недоступно. Выделите текст ниже и скопируйте его вручную.",
+    "placeholders": {}
+  },
+  "about.copied": {
+    "message": "Сведения скопированы",
+    "placeholders": {}
+  },
+  "about.third_party.title": {
+    "message": "Сторонние компоненты",
+    "placeholders": {}
+  },
+  "about.third_party.subtitle": {
+    "message": "Перечень собран при сборке программы; тексты лицензий встроены в неё.",
+    "placeholders": {}
+  },
+  "about.third_party.filters": {
+    "message": "Тип компонента",
+    "placeholders": {}
+  },
+  "about.third_party.filter.all": {
+    "message": "Все {count}",
+    "placeholders": {"count": "number"}
+  },
+  "about.third_party.filter.icons": {
+    "message": "Значки {count}",
+    "placeholders": {"count": "number"}
+  },
+  "about.third_party.filter.rust": {
+    "message": "Rust {count}",
+    "placeholders": {"count": "number"}
+  },
+  "about.third_party.filter.ui": {
+    "message": "Интерфейс {count}",
+    "placeholders": {"count": "number"}
+  },
+  "about.third_party.search": {
+    "message": "Поиск по имени или лицензии",
+    "placeholders": {}
+  },
+  "about.third_party.column.component": {
+    "message": "Компонент",
+    "placeholders": {}
+  },
+  "about.third_party.column.version": {
+    "message": "Версия",
+    "placeholders": {}
+  },
+  "about.third_party.column.license": {
+    "message": "Лицензия",
+    "placeholders": {}
+  },
+  "about.third_party.icons_summary": {
+    "message": "{count, plural, one {значки интерфейса: # значок} few {значки интерфейса: # значка} many {значки интерфейса: # значков} other {значки интерфейса: # значка}}",
+    "placeholders": {"count": "number"}
+  },
+  "about.third_party.more": {
+    "message": "{count, plural, one {и ещё # компонент} few {и ещё # компонента} many {и ещё # компонентов} other {и ещё # компонента}}",
+    "placeholders": {"count": "number"}
+  },
+  "about.third_party.show_all": {
+    "message": "Показать все: {count}",
+    "placeholders": {"count": "number"}
+  },
+  "about.third_party.empty": {
+    "message": "Нет компонентов, подходящих под поиск.",
+    "placeholders": {}
+  },
+  "about.third_party.missing": {
+    "message": "Перечень лицензий не встроен в эту сборку.",
+    "placeholders": {}
+  },
+  "settings.appearance.subtitle": {
+    "message": "Изменения применяются сразу и сохраняются в файл настроек.",
+    "placeholders": {}
+  },
+  "settings.language.title": {
+    "message": "Язык интерфейса",
+    "placeholders": {}
+  },
+  "settings.language.system": {
+    "message": "Как в системе",
+    "placeholders": {}
+  },
+  "settings.language.current": {
+    "message": "сейчас: {language}",
+    "placeholders": {"language": "text"}
+  },
+  "settings.language.after_restart": {
+    "message": "Смена языка системы применится после перезапуска браузера или приложения.",
+    "placeholders": {}
+  },
+  "settings.language.option.en": {
+    "message": "English",
+    "placeholders": {}
+  },
+  "settings.language.option.ru": {
+    "message": "Русский",
+    "placeholders": {}
+  },
+  "settings.language.name.en": {
+    "message": "английский",
+    "placeholders": {}
+  },
+  "settings.language.name.ru": {
+    "message": "русский",
+    "placeholders": {}
+  },
+  "settings.data_not_translated": {
+    "message": "Имена панелей, узлов сети и другие данные из Zabbix не переводятся. Термины — как в русском Zabbix.",
+    "placeholders": {}
+  },
+  "settings.theme.title": {
+    "message": "Тема",
+    "placeholders": {}
+  },
+  "settings.theme.system": {
+    "message": "Как в системе",
+    "placeholders": {}
+  },
+  "settings.theme.light": {
+    "message": "Светлая",
+    "placeholders": {}
+  },
+  "settings.theme.dark": {
+    "message": "Тёмная",
+    "placeholders": {}
+  },
+  "settings.theme.high_contrast": {
+    "message": "Высокая контрастность",
+    "placeholders": {}
+  },
+  "settings.theme.high_contrast.hint": {
+    "message": "Чёрный текст на белом, чёткие границы и толстая рамка фокуса.",
+    "placeholders": {}
+  },
+  "settings.theme.not_widgets": {
+    "message": "Тема интерфейса не меняет оформление виджетов на панели.",
+    "placeholders": {}
+  },
+  "settings.changed": {
+    "message": "изменено",
+    "placeholders": {}
+  },
+  "settings.motion.title": {
+    "message": "Движение и контраст",
+    "placeholders": {}
+  },
+  "settings.motion.reduce": {
+    "message": "Уменьшить анимацию",
+    "placeholders": {}
+  },
+  "settings.motion.system_state": {
+    "message": "Как в системе: {state}.",
+    "placeholders": {"state": "text"}
+  },
+  "settings.motion.explicit_state": {
+    "message": "Задано здесь; в системе: {state}.",
+    "placeholders": {"state": "text"}
+  },
+  "settings.motion.state.on": {
+    "message": "включено",
+    "placeholders": {}
+  },
+  "settings.motion.state.off": {
+    "message": "выключено",
+    "placeholders": {}
+  },
+  "settings.motion.no_meaning": {
+    "message": "Статусы и тексты не зависят от анимации.",
+    "placeholders": {}
+  },
+  "settings.contrast.title": {
+    "message": "Высокая контрастность",
+    "placeholders": {}
+  },
+  "settings.contrast.note": {
+    "message": "Выберите тему «Высокая контрастность». Режим контрастности системы тоже учитывается и важнее любой темы.",
+    "placeholders": {}
+  },
+  "settings.formats.title": {
+    "message": "Предпросмотр форматов",
+    "placeholders": {}
+  },
+  "settings.formats.datetime": {
+    "message": "Дата и время",
+    "placeholders": {}
+  },
+  "settings.formats.number": {
+    "message": "Число",
+    "placeholders": {}
+  },
+  "settings.formats.count": {
+    "message": "Количество",
+    "placeholders": {}
+  },
+  "settings.formats.count_sample": {
+    "message": "{widgets, plural, one {# виджет} few {# виджета} many {# виджетов} other {# виджета}} · {pages, plural, one {# страница} few {# страницы} many {# страниц} other {# страницы}} · {more, plural, one {# виджет} few {# виджета} many {# виджетов} other {# виджета}}",
+    "placeholders": {"widgets": "number", "pages": "number", "more": "number"}
+  },
+  "settings.file.title": {
+    "message": "Файл настроек",
+    "placeholders": {}
+  },
+  "settings.file.hint": {
+    "message": "Настройки хранятся в YAML-файле, его можно править вручную. Ошибочный файл не применяется.",
+    "placeholders": {}
+  },
+  "settings.file.invalid.title": {
+    "message": "Файл настроек содержит ошибки и не применён",
+    "placeholders": {}
+  },
+  "settings.appearance.invalid_body": {
+    "message": "Работают последние верные настройки. Пока файл не исправлен, изменения здесь действуют до перезапуска и не сохраняются.",
+    "placeholders": {}
+  },
+  "settings.appearance.not_saved.title": {
+    "message": "Изменения не сохранены",
+    "placeholders": {}
+  },
+  "settings.appearance.not_saved.body": {
+    "message": "Локальный сервер не сохранил файл настроек. Изменения действуют до перезапуска.",
+    "placeholders": {}
+  },
+  "settings.appearance.saved": {
+    "message": "Сохранено в файл настроек",
+    "placeholders": {}
+  },
+  "settings.reset.section": {
+    "message": "Сбросить раздел",
+    "placeholders": {}
   }
 }

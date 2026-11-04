@@ -150,5 +150,9 @@
   "startup.action.choose_dashboard": {
     "message": "Choose dashboard",
     "placeholders": {}
+  },
+  "startup.action.open_server": {
+    "message": "Show dashboards",
+    "placeholders": {}
   }
 }

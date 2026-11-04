@@ -2,7 +2,7 @@
   import type { I18n } from '../i18n';
   import { resolveText, type DisplayText, type LocalizedText } from './text';
 
-  let { i18n, id, label, value = $bindable(''), type = 'text', hint, error, required = false, readonly = false, disabled = false }: {
+  let { i18n, id, label, value = $bindable(''), type = 'text', hint, error, required = false, readonly = false, disabled = false, autocomplete, technical = false, element = $bindable() }: {
     i18n: I18n;
     id: string;
     label: LocalizedText;
@@ -13,6 +13,10 @@
     required?: boolean;
     readonly?: boolean;
     disabled?: boolean;
+    autocomplete?: HTMLInputElement['autocomplete'];
+    /** Monospace input for addresses and other technical values. */
+    technical?: boolean;
+    element?: HTMLInputElement;
   } = $props();
   const hintId = $derived(`${id}-hint`);
   const errorId = $derived(`${id}-error`);
@@ -20,7 +24,7 @@
 
 <div class="field">
   <label for={id}>{resolveText(i18n, label)}</label>
-  <input {id} {type} bind:value {required} {readonly} {disabled} aria-invalid={error ? 'true' : undefined} aria-describedby={[hint ? hintId : '', error ? errorId : ''].filter(Boolean).join(' ') || undefined} />
+  <input bind:this={element} {id} {type} bind:value {required} {readonly} {disabled} {autocomplete} class:technical spellcheck={technical || type === 'password' ? false : undefined} aria-invalid={error ? 'true' : undefined} aria-describedby={[hint ? hintId : '', error ? errorId : ''].filter(Boolean).join(' ') || undefined} />
   {#if hint}<span id={hintId} class="hint">{resolveText(i18n, hint)}</span>{/if}
   {#if error}<span id={errorId} class="field-error">{resolveText(i18n, error)}</span>{/if}
 </div>

@@ -1,0 +1,34 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+[package]
+name = "zdashstitch-desktop"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+# The launcher (O-036): starts the local server and shows the UI in the program window
+# (`zdashstitch-window`, a separate process) or, as a fallback, in the system browser. It never
+# links a web engine itself, so a missing WebKitGTK 4.1 cannot stop it from starting.
+[[bin]]
+name = "zdashstitch"
+path = "src/main.rs"
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+# `process`, `io-util`: supervision of the window process; no new crate.
+tokio = { workspace = true, features = ["io-util", "process"] }
+url.workspace = true
+zdashstitch-application = { path = "../../crates/application" }
+zdashstitch-local-server = { path = "../local_server" }
+
+[target.'cfg(target_os = "windows")'.dependencies]
+rfd.workspace = true
+
+[target.'cfg(target_os = "linux")'.dependencies]
+rfd = { workspace = true, features = ["xdg-portal"] }
+
+[lints]
+workspace = true

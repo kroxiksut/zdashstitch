@@ -1,4 +1,8 @@
 {
+  "shell.demo.marker": {
+    "message": "Демонстрационные данные",
+    "placeholders": {}
+  },
   "connection.list.title": {
     "message": "Подключения",
     "placeholders": {}

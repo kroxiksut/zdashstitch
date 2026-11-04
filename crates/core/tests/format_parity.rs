@@ -4,10 +4,10 @@ use std::{collections::BTreeMap, fs, path::PathBuf};
 
 use zdashstitch_core::formats::{
     DeploymentState, FormatError, LegacyRootSelection, LocalBindings, MetricCatalog,
-    PortableProject, ProjectKind, ProjectProvenance, ProjectRoot, SourceKind, TypedProject,
-    ValueType, Widget, ZabbixWidgetFieldValue, from_json_str, from_yaml_str,
-    migrate_legacy_project, to_json_string, to_yaml_string, validate_project,
-    validate_typed_project,
+    PROJECT_V1_MAX_PAGES, PROJECT_V2_MAX_PAGES, Page, PortableProject, ProjectKind,
+    ProjectProvenance, ProjectRoot, SourceKind, TypedProject, ValueType, Widget,
+    ZabbixWidgetFieldValue, from_json_str, from_yaml_str, migrate_legacy_project, to_json_string,
+    to_yaml_string, validate_project, validate_typed_project,
 };
 
 fn root() -> PathBuf {
@@ -122,7 +122,8 @@ fn legacy_version_is_read_only_and_written_as_explicit_origin() {
 
     let output = to_yaml_string(&catalog)
         .unwrap_or_else(|error| panic!("normalized catalog must serialize: {error}"));
-    assert!(output.contains("export_format_version: '6.0'"));
+    // The version stays a quoted string, never the float 6.0.
+    assert!(output.contains("export_format_version: \"6.0\""));
     assert!(!output.contains("zabbix_version"));
     assert_eq!(
         catalog,
@@ -358,6 +359,46 @@ fn legacy_migration_requires_an_explicit_root_and_keeps_source_separate() {
     assert_code(missing, "legacy_root_not_found");
 }
 
+fn empty_page(number: usize) -> Page {
+    Page {
+        id: format!("extra-page-{number:02}"),
+        name: format!("Page {number}"),
+        widgets: Vec::new(),
+    }
+}
+
+#[test]
+fn page_limit_is_fifty_for_v2_and_stays_thirty_two_for_v1() {
+    let fifty: TypedProject = from_yaml_str(&read("fixtures/formats/v2/positive/fifty-pages.yaml"))
+        .unwrap_or_else(|error| panic!("fifty-page project must parse: {error}"));
+    validate_typed_project(&fifty, &BTreeMap::new())
+        .unwrap_or_else(|error| panic!("fifty pages must validate: {error}"));
+    let ProjectRoot::Dashboard(dashboard) = &fifty.root else {
+        panic!("fifty-page fixture must have a dashboard root");
+    };
+    assert_eq!(dashboard.pages.len(), PROJECT_V2_MAX_PAGES);
+
+    let mut too_many = fifty.clone();
+    if let ProjectRoot::Dashboard(dashboard) = &mut too_many.root {
+        dashboard.pages.push(empty_page(PROJECT_V2_MAX_PAGES + 1));
+    }
+    assert_code(
+        failure(validate_typed_project(&too_many, &BTreeMap::new())),
+        "page_count",
+    );
+
+    let (mut legacy, catalogs) = project_and_catalogs();
+    let mut number = 0;
+    while legacy.dashboards[0].pages.len() < PROJECT_V1_MAX_PAGES {
+        number += 1;
+        legacy.dashboards[0].pages.push(empty_page(number));
+    }
+    validate_project(&legacy, &catalogs)
+        .unwrap_or_else(|error| panic!("v1 project with 32 pages must validate: {error}"));
+    legacy.dashboards[0].pages.push(empty_page(number + 1));
+    assert_code(failure(validate_project(&legacy, &catalogs)), "page_count");
+}
+
 #[test]
 fn unknown_typed_kind_and_target_intent_are_not_ignored() {
     for relative in [
@@ -367,6 +408,108 @@ fn unknown_typed_kind_and_target_intent_are_not_ignored() {
         assert!(
             from_yaml_str::<TypedProject>(&read(relative)).is_err(),
             "{relative} must fail"
+        );
+    }
+}
+
+fn duplicate_role_project() -> String {
+    let text = read("examples/db-pilot.yaml");
+    assert!(text.contains("roles:\n  pg_nodes:\n"));
+    text.replacen(
+        "roles:\n  pg_nodes:\n",
+        "roles:\n  pg_nodes:\n    cardinality: one\n  pg_nodes:\n",
+        1,
+    )
+}
+
+fn aliased_project() -> String {
+    let text = read("examples/db-pilot.yaml");
+    assert!(text.contains("roles:\n  pg_nodes:\n    cardinality: many\n"));
+    text.replacen(
+        "roles:\n  pg_nodes:\n    cardinality: many\n",
+        "roles:\n  pg_nodes: &role\n    cardinality: many\n  extra_nodes: *role\n",
+        1,
+    )
+}
+
+#[test]
+fn in_memory_yaml_uses_the_strict_loader() {
+    assert_code(
+        failure(from_yaml_str::<PortableProject>(&duplicate_role_project())),
+        "yaml_duplicate_key",
+    );
+    assert_code(
+        failure(from_yaml_str::<PortableProject>(&aliased_project())),
+        "yaml_alias",
+    );
+    assert_code(
+        failure(from_yaml_str::<TypedProject>(&read(
+            "fixtures/formats/v2/negative/yaml-non-string-key.yaml",
+        ))),
+        "yaml_key",
+    );
+    assert_code(
+        failure(from_yaml_str::<TypedProject>(&read(
+            "fixtures/formats/v2/negative/yaml-depth.yaml",
+        ))),
+        "yaml_depth",
+    );
+}
+
+#[test]
+fn in_memory_json_rejects_duplicate_keys() {
+    let text = read("examples/private-synthetic/bindings.example.json");
+    let duplicate = text.replacen(
+        "\"project_id\": \"db-pilot\",",
+        "\"project_id\": \"other\",\n  \"project_id\": \"db-pilot\",",
+        1,
+    );
+    assert_ne!(duplicate, text);
+    assert_code(
+        failure(from_json_str::<LocalBindings>(&duplicate)),
+        "json_duplicate_key",
+    );
+}
+
+/// serde-rs/serde#2294: unit variants of an internally tagged enum ignore
+/// `deny_unknown_fields`. `ProjectProvenance` must still reject extra fields.
+#[test]
+fn tagged_unit_provenance_rejects_extra_fields() {
+    let page = read("examples/page-v2.yaml");
+    let project: TypedProject =
+        from_yaml_str(&page).unwrap_or_else(|error| panic!("page example must parse: {error}"));
+    for (provenance, kind) in [
+        (ProjectProvenance::Local, "local"),
+        (ProjectProvenance::ServerSnapshot, "server_snapshot"),
+    ] {
+        let mut typed = project.clone();
+        typed.provenance = provenance.clone();
+        let yaml =
+            to_yaml_string(&typed).unwrap_or_else(|error| panic!("{kind} must serialize: {error}"));
+        let marker = format!("provenance:\n  kind: {kind}\n");
+        assert!(yaml.contains(&marker), "{kind} serialized form changed");
+        let reopened: TypedProject =
+            from_yaml_str(&yaml).unwrap_or_else(|error| panic!("{kind} must parse: {error}"));
+        assert_eq!(reopened.provenance, provenance);
+        let extra = yaml.replacen(&marker, &format!("{marker}  extra: true\n"), 1);
+        assert_code(failure(from_yaml_str::<TypedProject>(&extra)), "yaml_data");
+
+        let json = to_json_string(&typed)
+            .unwrap_or_else(|error| panic!("{kind} must serialize as JSON: {error}"));
+        let json_marker = format!("\"kind\": \"{kind}\"");
+        assert!(json.contains(&json_marker), "{kind} JSON form changed");
+        let reopened: TypedProject =
+            from_json_str(&json).unwrap_or_else(|error| panic!("{kind} JSON must parse: {error}"));
+        assert_eq!(reopened.provenance, provenance);
+        let extra = json.replacen(&json_marker, &format!("{json_marker}, \"extra\": true"), 1);
+        assert_code(failure(from_json_str::<TypedProject>(&extra)), "json_data");
+
+        let direct = serde_json::from_str::<ProjectProvenance>(&format!(
+            "{{\"kind\":\"{kind}\",\"extra\":true}}"
+        ));
+        assert!(
+            direct.is_err(),
+            "{kind} must reject extra fields in serde_json"
         );
     }
 }

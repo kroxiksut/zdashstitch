@@ -1,0 +1,25 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+[package]
+name = "zdashstitch-window"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+# The program window (O-036): a native window on the system web engine (WebView2 on Windows,
+# WebKitGTK 4.1 on Linux) that shows only the local server origin. Started by the `zdashstitch`
+# launcher, which hands it the one-time bootstrap URL over stdin.
+[[bin]]
+name = "zdashstitch-window"
+path = "src/main.rs"
+
+[dependencies]
+tao.workspace = true
+url.workspace = true
+wry.workspace = true
+zdashstitch-desktop = { path = "../desktop" }
+
+[lints]
+workspace = true

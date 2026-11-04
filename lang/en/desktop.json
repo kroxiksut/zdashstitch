@@ -1,0 +1,74 @@
+{
+  "desktop.fallback.title": {
+    "message": "The program window is unavailable",
+    "placeholders": {}
+  },
+  "desktop.fallback.reason.engine_missing": {
+    "message": "The system web engine that shows the program window is not installed.",
+    "placeholders": {}
+  },
+  "desktop.fallback.reason.start_failed": {
+    "message": "The program window could not start.",
+    "placeholders": {}
+  },
+  "desktop.fallback.install.webview2": {
+    "message": "Install Microsoft Edge WebView2 Runtime: {url}",
+    "placeholders": {
+      "url": "technical"
+    }
+  },
+  "desktop.fallback.install.webkitgtk": {
+    "message": "Install WebKitGTK 4.1:",
+    "placeholders": {}
+  },
+  "desktop.fallback.install.red_os": {
+    "message": "RED OS 8: {command}",
+    "placeholders": {
+      "command": "technical"
+    }
+  },
+  "desktop.fallback.install.debian": {
+    "message": "Debian, Astra Linux 1.8: {command}",
+    "placeholders": {
+      "command": "technical"
+    }
+  },
+  "desktop.fallback.install.astra_1_7": {
+    "message": "Astra Linux 1.7 has no WebKitGTK 4.1: continue in the browser.",
+    "placeholders": {}
+  },
+  "desktop.fallback.restart": {
+    "message": "After installing, start ZDashstitch again.",
+    "placeholders": {}
+  },
+  "desktop.fallback.choice.browser": {
+    "message": "Continue in the browser",
+    "placeholders": {}
+  },
+  "desktop.fallback.choice.install": {
+    "message": "I will install and restart",
+    "placeholders": {}
+  },
+  "desktop.fallback.choice.yes_no": {
+    "message": "«Yes»: continue in the browser. «No»: I will install and restart; the download page opens in the browser.",
+    "placeholders": {}
+  },
+  "desktop.fallback.opening_browser": {
+    "message": "The program opens in the browser.",
+    "placeholders": {}
+  },
+  "desktop.browser.open_failed": {
+    "message": "The browser did not open. Open this one-time address in the browser within two minutes: {url}",
+    "placeholders": {
+      "url": "technical"
+    }
+  },
+  "desktop.close.writing.title": {
+    "message": "Writing to Zabbix",
+    "placeholders": {}
+  },
+  "desktop.close.writing.body": {
+    "message": "The window cannot be closed while a write to Zabbix is running. Wait for the write to finish or for its result to become known.",
+    "placeholders": {}
+  }
+}

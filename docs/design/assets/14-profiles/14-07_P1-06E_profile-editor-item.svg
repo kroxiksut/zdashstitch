@@ -1,0 +1,204 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 1600 1000" fill="#17213a" role="img" aria-labelledby="title desc">
+  <title id="title">ZDashstitch — библиотека: профиль оформления, раздел «Значение элемента данных»</title>
+  <desc id="desc">Светлый макет редактора профиля оформления «Значения: крупно», раздел «Значение элемента данных»: поля по разделам инспектора, недопустимое значение поля с ошибкой рядом, зависимые поля «время» недоступны, пороги «по выбору» с единицами, предпросмотр значения на синтетике с цветом порога, сохранение недоступно до исправления.</desc>
+  <defs>
+    <!-- Tabler Icons outline v3.49.0 (MIT), see assets/icons/THIRD_PARTY.md -->
+    <symbol id="ti-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/></symbol>
+    <symbol id="ti-info-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M12 9h.01"/><path d="M11 12h1v4h1"/></symbol>
+    <symbol id="ti-circle-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M9 12l2 2l4 -4"/></symbol>
+    <symbol id="ti-alert-triangle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0"/><path d="M12 16h.01"/></symbol>
+    <symbol id="ti-circle-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M10 10l4 4m0 -4l-4 4"/></symbol>
+    <symbol id="ti-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5l0 14"/><path d="M5 12l14 0"/></symbol>
+    <symbol id="ti-upload" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"/><path d="M7 9l5 -5l5 5"/><path d="M12 4l0 12"/></symbol>
+    <symbol id="ti-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"/><path d="M7 11l5 5l5 -5"/><path d="M12 4l0 12"/></symbol>
+    <symbol id="ti-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 9.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667l0 -8.666"/><path d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1"/></symbol>
+    <symbol id="ti-palette" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21a9 9 0 0 1 0 -18c4.97 0 9 3.582 9 8c0 1.06 -.474 2.078 -1.318 2.828c-.844 .75 -1.989 1.172 -3.182 1.172h-2.5a2 2 0 0 0 -1 3.75a1.3 1.3 0 0 1 -1 2.25"/><path d="M7.5 10.5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M11.5 7.5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M15.5 10.5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/></symbol>
+    <symbol id="ti-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6l6 -6"/></symbol>
+    <symbol id="ti-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"/><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"/></symbol>
+    <symbol id="ti-ban" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M5.7 5.7l12.6 12.6"/></symbol>
+    <symbol id="ti-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6l-12 12"/><path d="M6 6l12 12"/></symbol>
+    <symbol id="ti-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5l10 -10"/></symbol>
+    <symbol id="ti-pencil" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4"/><path d="M13.5 6.5l4 4"/></symbol>
+    <symbol id="ti-template" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a1 1 0 0 1 1 -1h14a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-14a1 1 0 0 1 -1 -1l0 -2"/><path d="M4 13a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1l0 -6"/><path d="M14 12l6 0"/><path d="M14 16l6 0"/><path d="M14 20l6 0"/></symbol>
+    <symbol id="ti-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065"/><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/></symbol>
+    <style>
+      text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+      .muted{fill:#667085}.white{fill:#ffffff}.small{font-size:14px}.xs{font-size:12px}.label{font-size:13px;font-weight:700;letter-spacing:.08em}
+      .title{font-size:24px;font-weight:750}.h3{font-size:17px;font-weight:700}.body{font-size:16px}.button{font-size:15px;font-weight:700}
+      .nav{font-size:17px}.badge{font-size:13px;font-weight:650}.row{font-size:15px;font-weight:650}
+      .mono{font-family:ui-monospace,"Cascadia Mono",Consolas,monospace;font-size:13px;fill:#344054}
+    </style>
+  </defs>
+  <rect width="1600" height="1000" fill="#f5f7fb"/>
+
+  <!-- App bar: global navigation (P1-01B §1) -->
+  <rect width="1600" height="72" fill="#ffffff" stroke="#e4e7ec"/>
+  <image href="../../../../assets/brand/icons/stezhik-head-1024.png" x="32" y="18" width="36" height="36" preserveAspectRatio="xMidYMid meet"/>
+  <text x="80" y="45" font-size="20" font-weight="750">ZDashstitch</text>
+  <text x="232" y="44" font-size="15" font-weight="500" fill="#475467">Начало</text>
+  <text x="318" y="44" font-size="15" font-weight="500" fill="#475467">Черновики</text>
+  <text x="430" y="44" font-size="15" font-weight="500" fill="#475467">Панели в Zabbix</text>
+  <text x="582" y="44" font-size="15" font-weight="700" fill="#1d3f86">Библиотека</text>
+  <rect x="582" y="67" width="88" height="4" rx="2" fill="#3156a3"/>
+  <text x="702" y="44" font-size="15" font-weight="500" fill="#475467">Подключения</text>
+  <rect x="1288" y="19" width="120" height="34" rx="17" fill="#eef4ff"/>
+  <text x="1348" y="41" font-size="14" text-anchor="middle" fill="#3156a3">Автономно</text>
+  <rect x="1424" y="18" width="144" height="36" rx="8" fill="#ffffff" stroke="#c9d3ea"/>
+  <use href="#ti-settings" x="1438" y="27" width="18" height="18" color="#475467"/>
+  <text x="1464" y="41" font-size="15" font-weight="600" fill="#17213a">Настройки</text>
+
+  <!-- Workspace -->
+  <!-- Title -->
+  <text x="48" y="92" class="xs muted">Библиотека  /  Профили оформления  /  Значения: крупно</text>
+  <text x="48" y="124" class="title">Профиль «Значения: крупно»</text>
+  <text x="48" y="152" class="small muted">Версия 2 → 3 при сохранении · Zabbix 7.4.0+ (вычислено) · Мой · изменён 25.10.2026, 17:40</text>
+  <rect x="1104" y="101" width="124" height="26" rx="13" fill="#fff4e5"/>
+  <text x="1166" y="119" class="badge" text-anchor="middle" fill="#8a4b00">Не сохранено</text>
+  <rect x="1244" y="96" width="128" height="42" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="1308" y="122" class="button" text-anchor="middle">Отмена</text>
+  <rect x="1384" y="96" width="168" height="42" rx="10" fill="#f2f4f7" stroke="#e4e7ec"/>
+  <text x="1468" y="122" class="button" fill="#98a2b3" text-anchor="middle">Сохранить</text>
+  <rect x="48" y="176" width="240" height="732" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="64" y="206" class="label muted">РАЗДЕЛЫ ПРОФИЛЯ</text>
+  <text x="74" y="240" class="small" font-weight="600">График</text>
+  <text x="74" y="256" class="mono">svggraph</text>
+  <rect x="60" y="270" width="216" height="44" rx="8" fill="#eef4ff" stroke="#eef4ff"/>
+  <text x="74" y="290" class="small" fill="#1d3f86" font-weight="700">Значение элемента данных</text>
+  <text x="74" y="306" class="mono">item</text>
+  <text x="64" y="338" class="xs muted">Типы с изменением полей: оба</text>
+  <text x="64" y="356" class="xs muted">раздела уже есть (реестр 7.4).</text>
+  <line x1="64" y1="380" x2="272" y2="380" stroke="#e4e7ec"/>
+  <text x="64" y="404" class="label muted">ПРОФИЛЬ</text>
+  <text x="64" y="430" class="xs muted">Имя</text>
+  <rect x="64" y="436" width="208" height="36" rx="8" fill="#ffffff" stroke="#7a8d9b"/>
+  <text x="76" y="460" class="small">Значения: крупно</text>
+  <text x="64" y="496" class="xs muted">Описание</text>
+  <rect x="64" y="502" width="208" height="56" rx="8" fill="#ffffff" stroke="#7a8d9b"/>
+  <text x="76" y="524" class="xs">Крупное значение, описание</text>
+  <text x="76" y="542" class="xs">сверху, пороги для процентов</text>
+  <text x="64" y="582" class="xs muted">Теги</text>
+  <rect x="64" y="588" width="208" height="36" rx="8" fill="#ffffff" stroke="#7a8d9b"/>
+  <text x="76" y="612" class="small">значения</text>
+  <text x="64" y="648" class="xs muted">Имя — не идентификатор; совпадение</text>
+  <text x="64" y="666" class="xs muted">с другим именем — предупреждение.</text>
+  <rect x="304" y="176" width="776" height="732" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <rect x="1104" y="176" width="448" height="732" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <use href="#ti-palette" x="328" y="194" width="20" height="20" color="#1d3f86"/>
+  <text x="356" y="210" class="h3">Значение элемента данных · item</text>
+  <text x="1056" y="210" class="xs" fill="#a32935" text-anchor="end" font-weight="650">в профиле: 8 полей · пороги 2 · 1 ошибка</text>
+  <text x="328" y="234" class="xs muted">Профиль с пустым «Что показывать» недопустим: это обязательное поле Zabbix.</text>
+  <text x="328" y="264" class="label muted">ОТОБРАЖЕНИЕ · ЧТО ПОКАЗЫВАТЬ</text>
+  <rect x="328" y="277" width="20" height="20" rx="4" fill="#3156a3"/>
+  <use href="#ti-check" x="331" y="280" width="14" height="14" color="#ffffff"/>
+  <text x="358" y="292" class="small">Что показывать</text>
+  <text x="578" y="292" class="small" font-weight="600">описание, значение</text>
+  <text x="1056" y="292" class="mono" text-anchor="end">show.N</text>
+  <text x="328" y="320" class="label muted">ОТОБРАЖЕНИЕ · ЗНАЧЕНИЕ</text>
+  <rect x="328" y="333" width="20" height="20" rx="4" fill="#3156a3"/>
+  <use href="#ti-check" x="331" y="336" width="14" height="14" color="#ffffff"/>
+  <text x="358" y="348" class="small">Размер значения, %</text>
+  <rect x="578" y="328" width="90" height="30" rx="6" fill="#ffffff" stroke="#a32935" stroke-width="2"/>
+  <text x="588" y="348" class="small">145</text>
+  <use href="#ti-alert-triangle" x="676" y="334" width="18" height="18" color="#a32935"/>
+  <text x="700" y="348" class="xs" fill="#a32935" font-weight="650">Допустимо 1–100</text>
+  <text x="1056" y="348" class="mono" text-anchor="end">value_size</text>
+  <rect x="328" y="363" width="20" height="20" rx="4" fill="#3156a3"/>
+  <use href="#ti-check" x="331" y="366" width="14" height="14" color="#ffffff"/>
+  <text x="358" y="378" class="small">Жирное значение</text>
+  <text x="578" y="378" class="small" font-weight="600">да</text>
+  <text x="1056" y="378" class="mono" text-anchor="end">value_bold</text>
+  <rect x="328" y="393" width="20" height="20" rx="4" fill="#ffffff" stroke="#7a8d9b" stroke-width="2"/>
+  <text x="358" y="408" class="small">Цвет значения</text>
+  <text x="578" y="408" class="small" font-weight="600">умолчание Zabbix</text>
+  <text x="1056" y="408" class="mono" text-anchor="end">value_color</text>
+  <text x="328" y="436" class="label muted">ОТОБРАЖЕНИЕ · ОПИСАНИЕ И ЕДИНИЦЫ</text>
+  <rect x="328" y="449" width="20" height="20" rx="4" fill="#3156a3"/>
+  <use href="#ti-check" x="331" y="452" width="14" height="14" color="#ffffff"/>
+  <text x="358" y="464" class="small">Размер описания, %</text>
+  <text x="578" y="464" class="small" font-weight="600">15</text>
+  <text x="1056" y="464" class="mono" text-anchor="end">desc_size</text>
+  <rect x="328" y="479" width="20" height="20" rx="4" fill="#3156a3"/>
+  <use href="#ti-check" x="331" y="482" width="14" height="14" color="#ffffff"/>
+  <text x="358" y="494" class="small">Положение описания</text>
+  <text x="578" y="494" class="small" font-weight="600">сверху · по центру</text>
+  <text x="1056" y="494" class="mono" text-anchor="end">desc_v_pos, desc_h_pos</text>
+  <rect x="328" y="509" width="20" height="20" rx="4" fill="#3156a3"/>
+  <use href="#ti-check" x="331" y="512" width="14" height="14" color="#ffffff"/>
+  <text x="358" y="524" class="small">Показывать единицы</text>
+  <text x="578" y="524" class="small" font-weight="600">да</text>
+  <text x="1056" y="524" class="mono" text-anchor="end">units_show</text>
+  <rect x="328" y="539" width="20" height="20" rx="4" fill="#3156a3"/>
+  <use href="#ti-check" x="331" y="542" width="14" height="14" color="#ffffff"/>
+  <text x="358" y="554" class="small">Размер единиц, %</text>
+  <text x="578" y="554" class="small" font-weight="600">35</text>
+  <text x="1056" y="554" class="mono" text-anchor="end">units_size</text>
+  <rect x="328" y="569" width="20" height="20" rx="4" fill="#ffffff" stroke="#7a8d9b" stroke-width="2"/>
+  <text x="358" y="584" class="small">Текст единиц</text>
+  <text x="578" y="584" class="small" font-weight="600">—</text>
+  <rect x="712" y="567" width="97" height="26" rx="13" fill="#fff4e5"/>
+  <text x="760" y="585" class="badge" text-anchor="middle" fill="#8a4b00">по выбору</text>
+  <text x="817" y="584" class="xs muted">заменяет единицы элемента</text>
+  <text x="1056" y="584" class="mono" text-anchor="end">units</text>
+  <text x="328" y="612" class="label muted">ОТОБРАЖЕНИЕ · ВРЕМЯ И ИНДИКАТОР</text>
+  <use href="#ti-ban" x="329" y="626" width="18" height="18" color="#98a2b3"/>
+  <text x="358" y="640" class="small" fill="#98a2b3">Размер времени, %</text>
+  <text x="578" y="640" class="xs muted">не применяется: «время» не входит в «Что показывать»</text>
+  <text x="1056" y="640" class="mono" text-anchor="end">time_size</text>
+  <use href="#ti-ban" x="329" y="656" width="18" height="18" color="#98a2b3"/>
+  <text x="358" y="670" class="small" fill="#98a2b3">Цвета индикатора изменения</text>
+  <text x="578" y="670" class="xs muted">не применяется: «индикатор» не в «Что показывать»</text>
+  <text x="1056" y="670" class="mono" text-anchor="end">up_color, down_color</text>
+  <text x="328" y="698" class="label muted">ОСИ И ПОРОГИ</text>
+  <rect x="328" y="711" width="20" height="20" rx="4" fill="#3156a3"/>
+  <use href="#ti-check" x="331" y="714" width="14" height="14" color="#ffffff"/>
+  <text x="358" y="726" class="small">Пороги · 2</text>
+  <rect x="578" y="709" width="97" height="26" rx="13" fill="#fff4e5"/>
+  <text x="626" y="727" class="badge" text-anchor="middle" fill="#8a4b00">по выбору</text>
+  <text x="678" y="726" class="xs muted">для «%»; иные единицы — предупреждение</text>
+  <text x="1056" y="726" class="mono" text-anchor="end">thresholds.N.*</text>
+  <rect x="358" y="738" width="72" height="26" rx="6" fill="#ffffff" stroke="#7a8d9b"/>
+  <text x="368" y="756" class="small">80</text>
+  <text x="440" y="756" class="small">→</text>
+  <rect x="462" y="743" width="16" height="16" rx="3" fill="#e8a33d"/>
+  <text x="486" y="756" class="mono">E8A33D</text>
+  <use href="#ti-x" x="560" y="742" width="18" height="18" color="#667085"><title>Убрать порог</title></use>
+  <rect x="358" y="768" width="72" height="26" rx="6" fill="#ffffff" stroke="#7a8d9b"/>
+  <text x="368" y="786" class="small">95</text>
+  <text x="440" y="786" class="small">→</text>
+  <rect x="462" y="773" width="16" height="16" rx="3" fill="#a32935"/>
+  <text x="486" y="786" class="mono">A32935</text>
+  <use href="#ti-x" x="560" y="772" width="18" height="18" color="#667085"><title>Убрать порог</title></use>
+  <use href="#ti-plus" x="358" y="798" width="18" height="18" color="#3156a3"/>
+  <text x="382" y="812" class="xs" fill="#3156a3" font-weight="650">Добавить порог</text>
+  <use href="#ti-ban" x="328" y="828" width="18" height="18" color="#667085"/>
+  <text x="354" y="842" class="xs muted">Никогда: элемент данных, текст описания, агрегация, период, данные спарклайна, положение.</text>
+  <text x="1128" y="206" class="label muted">ПРЕДПРОСМОТР · СИНТЕТИКА</text>
+  <rect x="1128" y="218" width="400" height="34" rx="8" fill="#ffffff" stroke="#7a8d9b"/>
+  <text x="1142" y="244" class="body">Пример: число с плавающей точкой · %</text>
+  <use href="#ti-chevron-down" x="1498" y="229" width="18" height="18" color="#475467"/>
+  <rect x="1128" y="264" width="400" height="200" rx="8" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="1140" y="284" class="xs" font-weight="700">Пример виджета «Значение элемента данных»</text>
+  <rect x="1432" y="272" width="86" height="26" rx="13" fill="#fff4e5"/>
+  <text x="1475" y="290" class="badge" text-anchor="middle" fill="#8a4b00">Синтетика</text>
+  <text x="1328.0" y="324" class="small muted" text-anchor="middle">Пример: загрузка CPU</text>
+  <text x="1306.0" y="396" text-anchor="middle" font-size="64" font-weight="800" fill="#8a4b00">87,3</text>
+  <text x="1412.0" y="396" text-anchor="middle" font-size="35" fill="#8a4b00">%</text>
+  <text x="1328.0" y="446" class="xs muted" text-anchor="middle">порог 80 → цвет значения</text>
+  <text x="1128" y="486" class="xs muted">Размер значения показан как 100 % (максимум), пока</text>
+  <text x="1128" y="504" class="xs muted">в поле недопустимое значение.</text>
+  <line x1="1128" y1="524" x2="1528" y2="524" stroke="#e4e7ec"/>
+  <text x="1128" y="552" class="label muted">ИТОГ</text>
+  <text x="1128" y="578" class="small">В профиле: 8 полей, пороги 2 (по выбору); 2 поля</text>
+  <text x="1128" y="598" class="small">не включены; 2 недоступны при текущем «Что показывать».</text>
+  <rect x="1128" y="630" width="400" height="76" rx="10" fill="#fef3f2" stroke="#f2b8b5"/>
+  <use href="#ti-circle-x" x="1142" y="644" width="18" height="18" color="#a32935"/>
+  <text x="1168" y="658" class="small" fill="#a32935">Сохранить нельзя: 1 поле с недопустимым</text>
+  <text x="1168" y="676" class="small" fill="#a32935">значением — «Размер значения». Профиль</text>
+  <text x="1168" y="694" class="small" fill="#a32935">в библиотеке не изменён.</text>
+  <rect x="1128" y="722" width="400" height="76" rx="10" fill="#f5f8ff" stroke="#c9d3ea"/>
+  <use href="#ti-info-circle" x="1142" y="736" width="18" height="18" color="#1d3f86"/>
+  <text x="1168" y="750" class="small" fill="#344054">Используется: 9 виджетов в 2 черновиках.</text>
+  <text x="1168" y="768" class="small" fill="#344054">Пороги применяются только к значениям</text>
+  <text x="1168" y="786" class="small" fill="#344054">с единицами «%»; иначе — предупреждение.</text>
+  <text x="1128" y="886" class="xs muted">Ctrl+S — сохранить · Esc — закрыть (спросит о несохранённых изменениях)</text>
+</svg>

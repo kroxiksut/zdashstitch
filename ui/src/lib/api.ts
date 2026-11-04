@@ -22,6 +22,15 @@ export class ApiFailure extends Error {
   }
 }
 
+/** Data-only failure of a non-2xx response: the backend sends a code and parameters, never prose. */
+export async function apiFailure(response: Response): Promise<ApiFailure> {
+  const contentType = response.headers.get('Content-Type') ?? '';
+  const error = contentType.startsWith('application/json')
+    ? ((await response.json()) as ApiErrorResponse)
+    : null;
+  return new ApiFailure(response.status, error);
+}
+
 export async function loadHealth(fetcher: typeof fetch = fetch): Promise<HealthResponse> {
   const response = await fetcher(HEALTH_ENDPOINT, {
     credentials: 'same-origin',
@@ -29,11 +38,7 @@ export async function loadHealth(fetcher: typeof fetch = fetch): Promise<HealthR
     method: 'GET'
   });
   if (!response.ok) {
-    const contentType = response.headers.get('Content-Type') ?? '';
-    const error = contentType.startsWith('application/json')
-      ? ((await response.json()) as ApiErrorResponse)
-      : null;
-    throw new ApiFailure(response.status, error);
+    throw await apiFailure(response);
   }
   return (await response.json()) as HealthResponse;
 }

@@ -604,11 +604,20 @@ fn custom_ca_is_added_to_the_system_store_without_a_bypass() {
 
 #[test]
 fn transport_source_has_no_tls_bypass() {
-    let source_dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("src");
-    let entries = std::fs::read_dir(&source_dir).unwrap_or_else(|error| panic!("{error}"));
+    let mut pending = vec![std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("src")];
+    let mut files = Vec::new();
+    while let Some(dir) = pending.pop() {
+        for entry in std::fs::read_dir(&dir).unwrap_or_else(|error| panic!("{error}")) {
+            let path = entry.unwrap_or_else(|error| panic!("{error}")).path();
+            if path.is_dir() {
+                pending.push(path);
+            } else {
+                files.push(path);
+            }
+        }
+    }
     let mut checked = 0;
-    for entry in entries {
-        let path = entry.unwrap_or_else(|error| panic!("{error}")).path();
+    for path in files {
         let text = std::fs::read_to_string(&path).unwrap_or_else(|error| panic!("{error}"));
         for forbidden in [
             "danger_accept_invalid",

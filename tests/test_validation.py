@@ -31,11 +31,19 @@ def test_path_escape_rejected():
 
 def test_duplicate_yaml_key_rejected(tmp_path):
     p=tmp_path/'bad.yaml';p.write_text('format: a\nformat: b\n',encoding='utf8')
-    with pytest.raises(ValueError):load(p)
+    with pytest.raises(ValueError) as failure:load(p)
+    assert failure.value.code=='yaml_duplicate_key'
 
 def test_yaml_alias_rejected(tmp_path):
     p=tmp_path/'bad.yaml';p.write_text('a: &x [1]\nb: *x\n',encoding='utf8')
-    with pytest.raises(ValueError):load(p)
+    with pytest.raises(ValueError) as failure:load(p)
+    assert failure.value.code=='yaml_alias'
+
+def test_yaml_anchor_without_alias_rejected(tmp_path):
+    # Same rule as Rust formats::strict: anchors are refused even when unused.
+    p=tmp_path/'bad.yaml';p.write_text('a: &x 1\n',encoding='utf8')
+    with pytest.raises(ValueError) as failure:load(p)
+    assert failure.value.code=='yaml_alias'
 
 def test_unknown_metric_semantic_rejected(tmp_path):
     import shutil

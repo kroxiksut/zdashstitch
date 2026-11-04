@@ -2,12 +2,14 @@
 
 use thiserror::Error;
 
+use super::strict::ParseError;
+
 /// Errors produced while decoding, encoding, or validating a v1 document.
 #[derive(Debug, Error)]
 pub enum FormatError {
-    #[error("invalid YAML document: {0}")]
-    Yaml(#[from] serde_yaml_ng::Error),
-    #[error("invalid JSON document: {0}")]
+    #[error("invalid {} document ({}): {}", .0.syntax(), .0.code(), .0)]
+    Parse(#[from] ParseError),
+    #[error("cannot encode JSON document: {0}")]
     Json(#[from] serde_json::Error),
     #[error("{code}: {message}")]
     Validation { code: &'static str, message: String },
@@ -22,12 +24,13 @@ impl FormatError {
         }
     }
 
-    /// Stable machine-readable code for semantic errors.
+    /// Stable machine-readable code for strict-parse and semantic errors.
     #[must_use]
     pub const fn code(&self) -> Option<&'static str> {
         match self {
             Self::Validation { code, .. } => Some(code),
-            Self::Yaml(_) | Self::Json(_) => None,
+            Self::Parse(error) => Some(error.code()),
+            Self::Json(_) => None,
         }
     }
 }

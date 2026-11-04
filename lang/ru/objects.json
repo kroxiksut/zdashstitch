@@ -19,9 +19,9 @@
     "message": "{pages, plural, one {# страница} few {# страницы} many {# страниц} other {# страницы}}, {widgets, plural, one {# виджет} few {# виджета} many {# виджетов} other {# виджета}}",
     "placeholders": {"pages": "number", "widgets": "number"}
   },
-  "object.page.untitled": {
-    "message": "Без названия",
-    "placeholders": {}
+  "object.page.unnamed": {
+    "message": "Страница {number}",
+    "placeholders": {"number": "number"}
   },
   "object.page.numbered": {
     "message": "{number}. {name}",

@@ -76,6 +76,26 @@ def test_legacy_migration_never_guesses_a_missing_root():
         migrate_legacy_project(legacy, 'page', 'db-pilot')
 
 
+def test_v2_dashboard_accepts_fifty_pages_and_v1_keeps_thirty_two(tmp_path):
+    source = ROOT / 'fixtures/formats/v2/positive/fifty-pages.yaml'
+    project = validate_project(source)
+    assert len(project['root']['pages']) == 50
+    assert validate_package(build_package(source, tmp_path / 'fifty.zip')) == project
+    too_many = load(ROOT / 'fixtures/formats/v2/negative/too-many-pages.yaml')
+    assert len(too_many['root']['pages']) == 51
+    with pytest.raises(ValueError, match='Schema'):
+        assert_valid(too_many, schema('project-v2.schema.json'))
+    legacy = load(ROOT / 'examples/db-pilot.yaml')
+    pages = legacy['dashboards'][0]['pages']
+    pages.extend(
+        {'id': f'extra-page-{number:02d}', 'name': f'Page {number}', 'widgets': []}
+        for number in range(1, 33 - len(pages) + 1)
+    )
+    assert len(pages) == 33
+    with pytest.raises(ValueError, match='Schema'):
+        assert_valid(legacy, schema('project-v1.schema.json'))
+
+
 @pytest.mark.parametrize('filename', ['unknown-kind.yaml', 'target-intent.yaml'])
 def test_unknown_kind_and_target_intent_are_rejected(filename):
     document = load(ROOT / 'fixtures/formats/v2/negative' / filename)

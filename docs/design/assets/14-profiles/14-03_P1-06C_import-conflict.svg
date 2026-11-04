@@ -1,0 +1,132 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 1600 1000" fill="#17213a" role="img" aria-labelledby="title desc">
+  <title id="title">ZDashstitch — импорт файлов: профили и заготовки</title>
+  <desc id="desc">Светлый макет «Импорт файлов» с файлами профилей оформления и заготовок виджетов: распознанный вид, что станет, конфликт идентификатора с явным выбором «Заменить (новая версия)» или «Сохранить как копию», файл для другого адаптера, файл более новой версии формата и заготовка с маской узлов — отклонены.</desc>
+  <defs>
+    <!-- Tabler Icons outline v3.49.0 (MIT), see assets/icons/THIRD_PARTY.md -->
+    <symbol id="ti-circle-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M9 12l2 2l4 -4"/></symbol>
+    <symbol id="ti-alert-triangle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0"/><path d="M12 16h.01"/></symbol>
+    <symbol id="ti-circle-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M10 10l4 4m0 -4l-4 4"/></symbol>
+    <symbol id="ti-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6l6 -6"/></symbol>
+    <symbol id="ti-info-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M12 9h.01"/><path d="M11 12h1v4h1"/></symbol>
+    <symbol id="ti-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6l-12 12"/><path d="M6 6l12 12"/></symbol>
+    <symbol id="ti-upload" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"/><path d="M7 9l5 -5l5 5"/><path d="M12 4l0 12"/></symbol>
+    <symbol id="ti-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065"/><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/></symbol>
+    <style>
+      text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+      .muted{fill:#667085}.white{fill:#ffffff}.small{font-size:14px}.xs{font-size:12px}.label{font-size:13px;font-weight:700;letter-spacing:.08em}
+      .title{font-size:24px;font-weight:750}.h3{font-size:17px;font-weight:700}.body{font-size:16px}.button{font-size:15px;font-weight:700}
+      .nav{font-size:17px}.badge{font-size:13px;font-weight:650}.row{font-size:15px;font-weight:650}
+      .mono{font-family:ui-monospace,"Cascadia Mono",Consolas,monospace;font-size:13px;fill:#344054}
+    </style>
+  </defs>
+  <rect width="1600" height="1000" fill="#f5f7fb"/>
+
+  <!-- App bar: global navigation (P1-01B §1) -->
+  <rect width="1600" height="72" fill="#ffffff" stroke="#e4e7ec"/>
+  <image href="../../../../assets/brand/icons/stezhik-head-1024.png" x="32" y="18" width="36" height="36" preserveAspectRatio="xMidYMid meet"/>
+  <text x="80" y="45" font-size="20" font-weight="750">ZDashstitch</text>
+  <text x="232" y="44" font-size="15" font-weight="500" fill="#475467">Начало</text>
+  <text x="318" y="44" font-size="15" font-weight="500" fill="#475467">Черновики</text>
+  <text x="430" y="44" font-size="15" font-weight="500" fill="#475467">Панели в Zabbix</text>
+  <text x="582" y="44" font-size="15" font-weight="700" fill="#1d3f86">Библиотека</text>
+  <rect x="582" y="67" width="88" height="4" rx="2" fill="#3156a3"/>
+  <text x="702" y="44" font-size="15" font-weight="500" fill="#475467">Подключения</text>
+  <rect x="1288" y="19" width="120" height="34" rx="17" fill="#eef4ff"/>
+  <text x="1348" y="41" font-size="14" text-anchor="middle" fill="#3156a3">Автономно</text>
+  <rect x="1424" y="18" width="144" height="36" rx="8" fill="#ffffff" stroke="#c9d3ea"/>
+  <use href="#ti-settings" x="1438" y="27" width="18" height="18" color="#475467"/>
+  <text x="1464" y="41" font-size="15" font-weight="600" fill="#17213a">Настройки</text>
+
+  <!-- Workspace -->
+  <!-- Title -->
+  <text x="48" y="92" class="xs muted">Библиотека  /  Импорт файлов</text>
+  <text x="48" y="124" class="title">Импорт файлов</text>
+  <text x="48" y="152" class="small muted">Файлы панелей и страниц, пакеты ZIP, экспорты шаблонов Zabbix 7.4, профили оформления и заготовки виджетов.</text>
+  <rect x="48" y="176" width="1012" height="72" rx="14" fill="#f8fafc" stroke="#7a8d9b"/>
+  <rect x="48" y="176" width="1012" height="72" rx="14" fill="none" stroke="#7a8d9b" stroke-dasharray="6 6"/>
+  <use href="#ti-upload" x="72" y="202" width="22" height="22" color="#475467"/>
+  <text x="108" y="218" class="body" font-weight="650">Перетащите файлы сюда или выберите их</text>
+  <rect x="608" y="193" width="200" height="38" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="708" y="217" class="button" text-anchor="middle">Выбрать файлы…</text>
+  <rect x="820" y="193" width="220" height="38" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="930" y="217" class="button" text-anchor="middle">Загрузить через браузер</text>
+  <rect x="48" y="264" width="1012" height="644" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <rect x="64" y="280" width="980" height="34" rx="6" fill="#f8fafc" stroke="#eef0f4"/>
+  <text x="78" y="302" class="xs muted" font-weight="700">ФАЙЛ</text>
+  <text x="350" y="302" class="xs muted" font-weight="700">РАСПОЗНАН КАК</text>
+  <text x="540" y="302" class="xs muted" font-weight="700">СОДЕРЖИМОЕ</text>
+  <text x="800" y="302" class="xs muted" font-weight="700">СТАНЕТ</text>
+  <line x1="64" y1="470" x2="1044" y2="470" stroke="#eef0f4"/>
+  <use href="#ti-alert-triangle" x="72" y="336" width="20" height="20" color="#8a4b00"/>
+  <text x="100" y="351" class="mono">db-growth.style-profile.yaml</text>
+  <text x="350" y="351" class="small" font-weight="600">Профиль оформления</text>
+  <text x="540" y="351" class="small">«Рост БД — столбцы» · версия 4</text>
+  <text x="800" y="351" class="small" font-weight="600">профиль в библиотеке</text>
+  <use href="#ti-x" x="1016" y="338" width="18" height="18" color="#667085"><title>Убрать файл из списка</title></use>
+  <text x="100" y="380" class="xs" fill="#8a4b00">Профиль с таким же идентификатором уже есть в библиотеке: версия 3, изменён 26.10.2026, используется 12 виджетами.</text>
+  <circle cx="112" cy="410" r="9" fill="#ffffff" stroke="#3156a3" stroke-width="2"/>
+  <circle cx="112" cy="410" r="4.5" fill="#3156a3"/>
+  <text x="132" y="416" class="small" font-weight="650">Заменить (новая версия)</text>
+  <text x="350" y="416" class="xs muted">идентификатор сохраняется; версия станет 5 (больше обеих + 1); у виджетов «из профиля» — «обновлён до версии 5»</text>
+  <circle cx="112" cy="442" r="9" fill="#ffffff" stroke="#7a8d9b" stroke-width="2"/>
+  <text x="132" y="448" class="small" font-weight="650">Сохранить как копию</text>
+  <text x="350" y="448" class="xs muted">новый идентификатор, имя «Рост БД — столбцы (импорт)»; существующий профиль не меняется</text>
+  <line x1="64" y1="552" x2="1044" y2="552" stroke="#eef0f4"/>
+  <use href="#ti-circle-check" x="72" y="492" width="20" height="20" color="#1f6b43"/>
+  <text x="100" y="507" class="mono">cpu-load.widget-blueprint.yaml</text>
+  <text x="350" y="507" class="small" font-weight="600">Заготовка виджета</text>
+  <text x="540" y="507" class="small">«Загрузка и нагрузка CPU»</text>
+  <text x="800" y="507" class="small" font-weight="600">заготовка в библиотеке</text>
+  <use href="#ti-x" x="1016" y="494" width="18" height="18" color="#667085"><title>Убрать файл из списка</title></use>
+  <text x="100" y="534" class="xs muted">График · 3 параметра: роль узлов сети, 2 метрики · Zabbix 7.4.0+</text>
+  <line x1="64" y1="634" x2="1044" y2="634" stroke="#eef0f4"/>
+  <use href="#ti-alert-triangle" x="72" y="574" width="20" height="20" color="#8a4b00"/>
+  <text x="100" y="589" class="mono">values-big.style-profile.yaml</text>
+  <text x="350" y="589" class="small" font-weight="600">Профиль оформления</text>
+  <text x="540" y="589" class="small">«Значения: крупно» · адаптер 8.0</text>
+  <text x="800" y="589" class="small" font-weight="600">профиль в библиотеке</text>
+  <text x="100" y="616" class="xs" fill="#8a4b00">Создан для адаптера Zabbix 8.0, которого в этой версии приложения нет: сохранится, но применить его будет нельзя.</text>
+  <rect x="936" y="600" width="108" height="26" rx="13" fill="#f2f4f7"/>
+  <text x="990" y="618" class="badge" text-anchor="middle" fill="#344054">Не проверено</text>
+  <line x1="64" y1="716" x2="1044" y2="716" stroke="#eef0f4"/>
+  <use href="#ti-circle-x" x="72" y="656" width="20" height="20" color="#a32935"/>
+  <text x="100" y="671" class="mono">profile-next.style-profile.yaml</text>
+  <text x="350" y="671" class="small" font-weight="600">Не распознан</text>
+  <text x="540" y="671" class="mono">zdashstitch.style-profile/v2</text>
+  <text x="800" y="671" class="small" fill="#a32935" font-weight="600">не импортируется</text>
+  <text x="100" y="698" class="xs" fill="#a32935">Файл создан более новой версией ZDashstitch (формат v2): обновите приложение. Файл не изменён.</text>
+  <line x1="64" y1="798" x2="1044" y2="798" stroke="#eef0f4"/>
+  <use href="#ti-circle-x" x="72" y="738" width="20" height="20" color="#a32935"/>
+  <text x="100" y="753" class="mono">haproxy.widget-blueprint.yaml</text>
+  <text x="350" y="753" class="small" font-weight="600">Заготовка виджета</text>
+  <text x="540" y="753" class="small">«HAProxy» · График</text>
+  <text x="800" y="753" class="small" fill="#a32935" font-weight="600">не импортируется</text>
+  <text x="100" y="780" class="xs" fill="#a32935">Данные противоречивы (blueprint_host_pattern): заготовка не может содержать имена или маски узлов сети.</text>
+  <text x="64" y="830" class="xs muted">Профили и заготовки — отдельные файлы: в пакет панели они не входят и из пакета не читаются.</text>
+  <text x="64" y="850" class="xs muted">Повторный импорт того же файла без конфликта идентификатора создаёт новый объект; существующие не перезаписываются.</text>
+  <rect x="1080" y="176" width="472" height="732" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="1104" y="210" class="label muted">ИТОГ ПЕРЕД ИМПОРТОМ</text>
+  <text x="1104" y="248" class="small muted">Профили</text>
+  <text x="1260" y="248" class="small" font-weight="600">2 (1 заменит версию 3 → 5)</text>
+  <text x="1104" y="278" class="small muted">Заготовки</text>
+  <text x="1260" y="278" class="small" font-weight="600">1</text>
+  <text x="1104" y="308" class="small muted">Не импортируется</text>
+  <text x="1260" y="308" class="small" font-weight="600">2 файла</text>
+  <text x="1104" y="338" class="small muted">Нужен выбор</text>
+  <text x="1260" y="338" class="small" font-weight="600">0</text>
+  <line x1="1104" y1="370" x2="1528" y2="370" stroke="#e4e7ec"/>
+  <use href="#ti-info-circle" x="1104" y="388" width="18" height="18" color="#667085"/>
+  <text x="1130" y="402" class="small muted">Файлы — недоверенные данные. Они проверяются</text>
+  <text x="1130" y="424" class="small muted">в памяти; скрипты, внешние ссылки и сетевые</text>
+  <text x="1130" y="446" class="small muted">ресурсы не выполняются. Каждый файл</text>
+  <text x="1130" y="468" class="small muted">сохраняется целиком или не сохраняется совсем.</text>
+  <rect x="1104" y="510" width="424" height="94" rx="10" fill="#f5f8ff" stroke="#c9d3ea"/>
+  <use href="#ti-info-circle" x="1118" y="524" width="18" height="18" color="#1d3f86"/>
+  <text x="1144" y="538" class="small" fill="#344054">Замена сохраняет идентификатор: черновики</text>
+  <text x="1144" y="560" class="small" fill="#344054">не меняются, у виджетов «из профиля» появится</text>
+  <text x="1144" y="582" class="small" fill="#344054">подпись «обновлён до версии 5».</text>
+  <rect x="1104" y="836" width="140" height="42" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="1174" y="862" class="button" text-anchor="middle">Отмена</text>
+  <rect x="1256" y="836" width="272" height="42" rx="10" fill="#3156a3" stroke="#3156a3"/>
+  <text x="1392" y="862" class="button white" text-anchor="middle">Импортировать</text>
+</svg>

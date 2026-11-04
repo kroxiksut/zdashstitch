@@ -12,6 +12,7 @@ mod local_bindings;
 mod metrics;
 mod portable_io;
 mod project;
+pub mod strict;
 mod validation;
 
 pub use deployment_state::{
@@ -35,9 +36,9 @@ pub use portable_io::{
 };
 pub use project::{
     Cardinality, CatalogReference, Dashboard, DashboardKind, GraphExpansion, GraphSeries,
-    HostSelection, ItemExpansion, Layout, LegacyRootSelection, Page, PortableProject,
-    ProjectFormat, ProjectKind, ProjectProvenance, ProjectRoot, RegistryState, Role, Selection,
-    TypedProject, TypedProjectFormat, Widget, ZabbixObjectKind, ZabbixWidgetField,
-    ZabbixWidgetFieldValue, migrate_legacy_project,
+    HostSelection, ItemExpansion, Layout, LegacyRootSelection, PROJECT_V1_MAX_PAGES,
+    PROJECT_V2_MAX_PAGES, Page, PortableProject, ProjectFormat, ProjectKind, ProjectProvenance,
+    ProjectRoot, RegistryState, Role, Selection, TypedProject, TypedProjectFormat, Widget,
+    ZabbixObjectKind, ZabbixWidgetField, ZabbixWidgetFieldValue, migrate_legacy_project,
 };
 pub use validation::{Validate, validate_project, validate_typed_project};

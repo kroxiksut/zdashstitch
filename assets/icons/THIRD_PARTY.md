@@ -57,12 +57,35 @@ When actual Tabler SVGs or a Tabler package are added to a distributable artifac
 | `zoom-in` | review mockups P1-04: «Увеличить» |
 | `zoom-out` | review mockups P1-04: «Уменьшить» |
 | `folder` | review mockups P1-09D/G: storage root, choose folder |
-| `logout` | review mockup P1-09G: «Завершить сессию» |
+| `logout` | review mockup P1-09G: «Завершить сеанс» |
 | `download` | review mockup P1-09G: «Сохранить пакет…» |
 | `copy` | review mockup P1-12: «Копировать путь», «Копировать сведения для отчёта» |
 | `arrows-move` | P1-08B diff model: moved page or widget marker (specified, not drawn yet) |
+| `upload` | review mockups P1-06C: «Импорт файлов» in the library (profiles and blueprints) |
+| `palette` | review mockups P1-06C/D: style profile marker, «Сохранить оформление как профиль» |
+| `template` | review mockups P1-06F: widget blueprint marker in «Добавить виджет → Из заготовок» |
 
 Review mockups in `docs/design/assets/` inline the upstream path data as `<symbol>` elements so the SVG stays self-contained; the path data is not modified.
+
+#### Runtime use in the application UI
+
+The UI bundles the unchanged `<path d>` data of these vendored files in `ui/src/lib/components/icons.ts` and renders it through `Icon.svelte` as decorative inline SVG (no raw HTML, no external references); `icons.test.ts` checks the data against the vendored files. The meaning is always carried by adjacent text.
+
+| Icon (upstream name) | Used in |
+|---|---|
+| `settings` | app header: «Настройки» link |
+| `plus` | «Подключения»: «Новое подключение»; «Черновики»: «Создать» |
+| `search` | «Черновики»: «Поиск по имени» field |
+| `circle-check` | connection check: passed step; «Черновики» details: created dashboard verified by reading back; bindings: passed wizard step, exact match, applied decision |
+| `circle-x` | connection check: failed step; bindings and publication preview: not found, unresolved, blocking finding |
+| `circle-dashed` | connection check: step not checked; bindings: unverified reference, out-of-date binding |
+| `info-circle` | connection check: informational step; «Черновики» details: safe deletion note |
+| `alert-triangle` | connection profile, list and «Разрешить запись»: HTTP and write warnings; «Черновики» details: created dashboard not found at the last check; bindings: match with differences, ambiguous match, partial scope; publication preview: warning finding |
+| `copy` | bundled for the connection check report copy action (mockup 05-03); not rendered yet |
+| `pencil` | «Привязки» and «Публикация» (ReplaceHost): changed reference, widget or field marker |
+| `minus` | «Публикация» (ReplaceHost) changes: unchanged widget marker; bindings summary |
+| `ban` | «Привязки» and «Публикация» (ReplaceHost): reference that stays on the old host |
+| `refresh` | «Привязки»: «Проверить все»; «Публикация»: «Проверить снова» |
 
 ### MIT License
 

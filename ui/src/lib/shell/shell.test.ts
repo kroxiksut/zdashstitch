@@ -2,7 +2,7 @@ import { render } from 'svelte/server';
 import { describe, expect, it } from 'vitest';
 
 import App from '../../App.svelte';
-import { createI18n } from '../i18n';
+import { catalogs, createI18n } from '../i18n';
 import DraftsScreen from './DraftsScreen.svelte';
 import DraftWorkspace from './DraftWorkspace.svelte';
 import SettingsScreen from './SettingsScreen.svelte';
@@ -15,8 +15,8 @@ import {
   unavailableDraftsClient,
   type DraftDetail
 } from './drafts';
-import { durationText, pageName, widgetTypeName } from './format';
-import { findingLevelLabel } from './labels';
+import { assembledText, durationText, numberedPageName, pageName, widgetGeometry, widgetTypeName } from './format';
+import { findingLevelLabel, widgetTypeLabel } from './labels';
 import { periodUnit, previewAspectRatio, rowsUsed, widgetBox } from './preview';
 import { draftPath, internalLinkPath, parseRoute, topSection } from './router';
 
@@ -200,15 +200,24 @@ describe('shell screens', () => {
     for (const text of ['Name', 'Type', 'Origin', 'Source', 'State', 'All 2', 'Dashboards 1', 'Pages 1', 'Any origin', 'Copies from server']) {
       expect(body).toContain(text);
     }
-    expect(body).toContain('<a href="/draft/draft-page-1/overview">Queue overview</a>');
+    // P2-08A: the name opens the draft; the rest of the row selects it and shows the details.
+    expect(body).toMatch(/<a id="drafts-row-draft-page-1"[^>]*href="\/draft\/draft-page-1\/overview"[^>]*>Queue overview<\/a>/);
+    expect(body).toContain('Click a name to open the draft.');
+    expect(body).toContain('href="/draft/draft-dashboard-1/overview"');
     expect(body).toContain('Source dashboard / Queues');
     expect(body).toContain('type="radio"');
   });
 
-  it('says that drafts storage is not available yet instead of showing a list', () => {
+  it('says that drafts storage is not available instead of showing a list', () => {
     const { body } = render(DraftsScreen, { props: { i18n: en, drafts: { status: 'unavailable' } } });
-    expect(body).toContain('No local drafts yet');
+    expect(body).toContain('Could not load local drafts');
+    expect(body).toContain('The local backend is unavailable.');
     expect(body).not.toContain('<table');
+    const failed = render(DraftsScreen, {
+      props: { i18n: ru, drafts: { status: 'failed', failure: { code: 'storage_linked_path', params: {} } } }
+    }).body;
+    expect(failed).toContain('Путь содержит символьную ссылку');
+    expect(failed).not.toContain('<table');
   });
 
   it('shows the workspace context line, breadcrumb and section navigation', () => {
@@ -222,7 +231,7 @@ describe('shell screens', () => {
     expect(body).toContain('aria-current="page">Overview');
     // Attribute assertions are joined so the UI contract scan does not read them as markup.
     expect(body).toContain(['<nav class="breadcrumb" aria-label', '"Breadcrumbs">'].join('='));
-    expect(body).toContain('Graph · 0, 0 · 36 × 5');
+    expect(body).toContain('Graph · 36 × 5');
   });
 
   it('renders the structure tree and the page preview with editing unavailable', () => {
@@ -264,11 +273,14 @@ describe('shell screens', () => {
     expect(missing).not.toContain('side-nav');
   });
 
-  it('keeps the settings navigation, reserved about route and unavailable G1b sections', () => {
+  it('keeps the settings navigation, the about screen and unavailable G1b sections', () => {
     const { body } = render(SettingsScreen, { props: { i18n: ru, section: 'about' } });
     expect(body).toContain('<a href="/settings/about" aria-current="page">О программе и лицензии</a>');
     expect(body).toContain('Пароли и токены здесь не хранятся и не показываются.');
-    expect(body).toContain(['placeholder', '"Поиск настроек"'].join('='));
+    expect(body).toContain('<h1>О программе и лицензии</h1>');
+    expect(body).toContain('Permission is hereby granted');
+        const appearance = render(SettingsScreen, { props: { i18n: ru, section: 'appearance' } }).body;
+    expect(appearance).toContain(['placeholder', '"Поиск настроек"'].join('='));
     expect(body).not.toContain('href="/settings/security"');
     expect(body).toContain('Безопасность и экспорт');
   });
@@ -287,12 +299,16 @@ describe('shell texts (P1-00F §9)', () => {
       props: { i18n: en, localId: unknown.local_id, section: 'overview', result: { status: 'ready', draft: unknown } }
     });
     expect(body).toContain('Editing not supported');
-    expect(body).toMatch(/class="muted technical"[^>]*>vendor\.custom · 0, 0/);
+    expect(body).toMatch(/class="muted technical"[^>]*>vendor\.custom · 6 × 2/);
   });
 
-  it('names untitled pages and counts widgets with plurals', () => {
-    expect(pageName(en, '  ')).toBe('Untitled');
-    expect(pageName(ru, '')).toBe('Без названия');
+  it('names unnamed pages by position like Zabbix and counts widgets with plurals', () => {
+    expect(pageName(en, '  ', 3)).toBe('Page 3');
+    expect(pageName(ru, '', 1)).toBe('Страница 1');
+    expect(pageName(ru, 'Базы данных', 2)).toBe('Базы данных');
+    expect(pageName(en, '')).toBe('—');
+    expect(numberedPageName(ru, '', 4)).toBe('Страница 4');
+    expect(numberedPageName(en, 'Databases', 2)).toBe('2. Databases');
     expect([1, 2, 5, 21].map((count) => ru.t('object.page.widget_count', { count }))).toEqual(['1 виджет', '2 виджета', '5 виджетов', '21 виджет']);
     expect(en.t('object.page.widget_count', { count: 1 })).toBe('1 widget');
     expect(en.t('object.page.widget_count', { count: 3 })).toBe('3 widgets');
@@ -305,9 +321,38 @@ describe('shell texts (P1-00F §9)', () => {
     expect(durationText(en, 60)).toBe('1 minute');
   });
 
-  it('renders an optional select suffix only when the value is present', () => {
-    expect(ru.t('draft.provenance.assembled', { count: 3, sources: 'A, B' })).toBe('собрана из 3 страниц: A, B');
-    expect(en.t('draft.provenance.assembled', { count: 1 })).toBe('Built from 1 page');
+  it('spells an optional part of a phrase as a separate message ID (O-035)', () => {
+    const counts = [0, 1, 2, 5];
+    expect(counts.map((count) => en.t('draft.provenance.assembled', { count }))).toEqual([
+      'Built from 0 pages', 'Built from 1 page', 'Built from 2 pages', 'Built from 5 pages'
+    ]);
+    expect(counts.map((count) => ru.t('draft.provenance.assembled', { count }))).toEqual([
+      'собрана из 0 страниц', 'собрана из 1 страницы', 'собрана из 2 страниц', 'собрана из 5 страниц'
+    ]);
+    expect(counts.map((count) => en.t('draft.provenance.assembled_with_sources', { count, sources: 'A, B' }))).toEqual([
+      'Built from 0 pages: A, B', 'Built from 1 page: A, B', 'Built from 2 pages: A, B', 'Built from 5 pages: A, B'
+    ]);
+    expect(counts.map((count) => ru.t('draft.provenance.assembled_with_sources', { count, sources: 'A, B' }))).toEqual([
+      'собрана из 0 страниц: A, B', 'собрана из 1 страницы: A, B', 'собрана из 2 страниц: A, B', 'собрана из 5 страниц: A, B'
+    ]);
+    expect(assembledText(ru, 3, ['A', 'B'])).toBe('собрана из 3 страниц: A, B');
+    expect(assembledText(en, 1, [])).toBe('Built from 1 page');
+  });
+
+  it('names every catalog widget type and passes unknown ids through as text (O-035)', () => {
+    const typeIds = Object.keys(catalogs.en)
+      .filter((id) => id.startsWith('widget.type.'))
+      .map((id) => id.slice('widget.type.'.length));
+    expect(typeIds.length).toBeGreaterThan(0);
+    for (const type of typeIds) {
+      expect(widgetTypeLabel(type)).toEqual({ id: `widget.type.${type}` });
+      expect(widgetTypeName(ru, type)).not.toBe(type);
+    }
+    expect(widgetTypeLabel('vendor.custom')).toBeNull();
+    expect(widgetTypeLabel('constructor')).toBeNull();
+    const widget = { id: 'w', name: '', type: 'vendor.custom', x: 1, y: 2, width: 6, height: 3, editable: false };
+    expect(widgetGeometry(ru, widget)).toBe('vendor.custom · 1, 2 · 6 × 3');
+    expect(widgetGeometry(en, { ...widget, type: 'svggraph' })).toBe('Graph · 1, 2 · 6 × 3');
   });
 
   it('shows finding levels as text next to the colour', () => {
@@ -319,10 +364,11 @@ describe('shell texts (P1-00F §9)', () => {
     expect(body).toContain('Blocks publication');
   });
 
-  it('labels the main navigation landmark and shows /server as not connected', () => {
+  it('labels the main navigation landmark and waits for the profiles on /server', () => {
     const { body } = render(App, { props: { initialPath: '/server', locale: 'ru' } });
     expect(body).toContain(['<nav class="top-nav" aria-label', '"Основная навигация">'].join('='));
-    expect(body).toContain('Не подключено');
-    expect(body).toContain('href="/connections"');
+    expect(body).toContain('aria-current="page">Панели в Zabbix');
+    expect(body).toContain('Загрузка…');
+    expect(body).not.toContain('<table');
   });
 });

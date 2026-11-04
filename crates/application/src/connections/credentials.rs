@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-//! Credential store (P2-01D). Only API tokens are stored, and only when the
-//! user chooses so; passwords are never stored. Store errors are reduced to
-//! three states and never carry platform messages or secret bytes.
+//! Credential store (P2-01D). An API token or, since O-037, a password is
+//! stored only when the user chooses so for the profile. Store errors are
+//! reduced to three states and never carry platform messages or secret
+//! bytes.
 
 use std::collections::HashMap;
 use std::sync::Mutex;
@@ -96,8 +97,7 @@ fn map_keyring_error(error: keyring::Error) -> CredentialState {
     }
 }
 
-/// In-memory store for the current process: secrets entered without
-/// "store the token", and tests. `fail_with` simulates a locked or missing
+/// In-memory store for tests. `fail_with` simulates a locked or missing
 /// system store.
 #[derive(Default)]
 pub struct MemoryCredentialStore {

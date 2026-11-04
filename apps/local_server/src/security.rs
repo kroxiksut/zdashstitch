@@ -2,7 +2,10 @@
 
 use std::{
     collections::{BTreeMap, HashMap},
-    sync::{Arc, Mutex},
+    sync::{
+        Arc, Mutex, MutexGuard, PoisonError,
+        atomic::{AtomicUsize, Ordering},
+    },
     time::{Duration, Instant},
 };
 
@@ -23,11 +26,15 @@ use axum::{
 };
 use serde::Serialize;
 use sha2::{Digest, Sha256};
-use zdashstitch_application::MessageId;
+use tokio::sync::{Notify, watch};
+use zdashstitch_application::{
+    EndSessionRequest, LocalSession, MessageId, SessionEndError, SessionGeneration,
+};
 
 use crate::browser_transfer::{
     self, BrowserTransferService, upload_route_set_id, validate_display_name,
 };
+use crate::session_end::SessionMemory;
 
 pub const JSON_BODY_LIMIT: usize = 2 * 1024 * 1024;
 pub const UPLOAD_BODY_LIMIT: usize = 16 * 1024 * 1024;
@@ -37,6 +44,8 @@ pub const UPLOAD_COUNT_LIMIT: usize = 4;
 pub const CSRF_HEADER: &str = "x-zdashstitch-csrf";
 const SESSION_COOKIE_PREFIX: &str = "zdashstitch_session";
 const BOOTSTRAP_TTL: Duration = Duration::from_secs(120);
+/// Unexchanged bootstrap codes kept at once; a request beyond it is refused.
+const BOOTSTRAP_CODE_LIMIT: usize = 32;
 
 #[derive(Clone)]
 pub struct LocalSecurity {
@@ -45,12 +54,135 @@ pub struct LocalSecurity {
 
 struct SecurityInner {
     port: u16,
+    /// `None` once the local session was ended (P2-SEC-01E): the cookie and
+    /// CSRF token of every tab are rejected from then on.
+    session: Mutex<Option<SessionKeys>>,
+    local_session: LocalSession,
+    in_flight: Arc<InFlight>,
+    memories: Mutex<Vec<Arc<dyn SessionMemory>>>,
+    /// Completion of the erase task started by the last `end_session`
+    /// (P2-SEC-01F): `true` once it finished. A new session is created only
+    /// after that. Locked after `session`, before `bootstraps`.
+    erase: Mutex<Option<watch::Receiver<bool>>>,
+    bootstraps: Mutex<HashMap<[u8; 32], Instant>>,
+    bootstrap_ttl: Duration,
+    active_uploads: Mutex<usize>,
+}
+
+struct SessionKeys {
     session_token: String,
     session_hash: [u8; 32],
     csrf_token: String,
     csrf_hash: [u8; 32],
-    bootstraps: Mutex<HashMap<[u8; 32], Instant>>,
-    active_uploads: Mutex<usize>,
+}
+
+impl SessionKeys {
+    fn generate() -> Result<Self, SecurityInitError> {
+        let session_token = random_token()?;
+        let csrf_token = random_token()?;
+        Ok(Self {
+            session_hash: token_hash(&session_token),
+            session_token,
+            csrf_hash: token_hash(&csrf_token),
+            csrf_token,
+        })
+    }
+}
+
+/// What `end_session` hands to the handler: the requests still running
+/// under the ended session and the completion signal of the erase task.
+pub(crate) struct EndedSession {
+    pub(crate) in_flight: Arc<InFlight>,
+    pub(crate) erase: EraseCompletion,
+}
+
+/// Signals that the erase task of an ended session finished. Dropped
+/// without [`EraseCompletion::finish`] (a panicking erase), the ended
+/// session never gets a successor in this process.
+pub(crate) struct EraseCompletion(watch::Sender<bool>);
+
+impl EraseCompletion {
+    pub(crate) fn finish(self) {
+        self.0.send_replace(true);
+    }
+}
+
+/// Why [`LocalSecurity::issue_bootstrap`] issued no code. Machine codes
+/// only; the single-instance channel returns them to the second launch.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum BootstrapIssueError {
+    /// The erase of the ended session did not finish within the wait.
+    EraseTimeout,
+    /// The erase task of the ended session stopped without finishing.
+    EraseFailed,
+    /// Too many unexchanged bootstrap codes are pending.
+    TooManyCodes,
+    /// The operating-system random source failed.
+    Random,
+}
+
+impl BootstrapIssueError {
+    #[must_use]
+    pub const fn code(self) -> &'static str {
+        match self {
+            Self::EraseTimeout => "instance.bootstrap.erase_timeout",
+            Self::EraseFailed => "instance.bootstrap.erase_failed",
+            Self::TooManyCodes => "instance.bootstrap.too_many_codes",
+            Self::Random => "instance.bootstrap.random_failed",
+        }
+    }
+}
+
+/// API requests admitted under the session and still running.
+#[derive(Default)]
+pub(crate) struct InFlight {
+    count: AtomicUsize,
+    idle: Notify,
+}
+
+impl InFlight {
+    fn enter(this: &Arc<Self>) -> InFlightGuard {
+        this.count.fetch_add(1, Ordering::SeqCst);
+        InFlightGuard(Arc::clone(this))
+    }
+
+    /// Resolves once no admitted request is running.
+    pub(crate) async fn drained(&self) {
+        loop {
+            let idle = self.idle.notified();
+            tokio::pin!(idle);
+            idle.as_mut().enable();
+            if self.count.load(Ordering::SeqCst) == 0 {
+                return;
+            }
+            idle.await;
+        }
+    }
+}
+
+struct InFlightGuard(Arc<InFlight>);
+
+impl Drop for InFlightGuard {
+    fn drop(&mut self) {
+        if self.0.count.fetch_sub(1, Ordering::SeqCst) == 1 {
+            self.0.idle.notify_waiters();
+        }
+    }
+}
+
+/// Why [`LocalSecurity::admit`] refused a request.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+enum Refusal {
+    /// No session, an ended session or a wrong cookie: 401.
+    Session,
+    /// A mutating request without the current CSRF token: 403.
+    Csrf,
+}
+
+/// A request that passed the session check.
+struct Admission {
+    generation: SessionGeneration,
+    in_flight: InFlightGuard,
 }
 
 pub struct InitialBootstrap {
@@ -75,21 +207,75 @@ impl LocalSecurity {
     }
 
     fn new_with_ttl(port: u16, ttl: Duration) -> Result<InitialBootstrap, SecurityInitError> {
-        let session_token = random_token()?;
-        let csrf_token = random_token()?;
+        let keys = SessionKeys::generate()?;
         let code = random_token()?;
         let security = Self {
             inner: Arc::new(SecurityInner {
                 port,
-                session_hash: token_hash(&session_token),
-                session_token,
-                csrf_hash: token_hash(&csrf_token),
-                csrf_token,
+                session: Mutex::new(Some(keys)),
+                local_session: LocalSession::new(),
+                in_flight: Arc::default(),
+                memories: Mutex::default(),
+                erase: Mutex::default(),
                 bootstraps: Mutex::new(HashMap::from([(token_hash(&code), Instant::now() + ttl)])),
+                bootstrap_ttl: ttl,
                 active_uploads: Mutex::new(0),
             }),
         };
         Ok(InitialBootstrap { security, code })
+    }
+
+    /// A fresh one-time bootstrap code for a repeated launch (O-017,
+    /// P2-SEC-01F).
+    ///
+    /// While a session is active, the code joins that session: the new tab
+    /// uses the current local session (`session.tab.additional`). After
+    /// «End session» no session exists; the code is issued only once the
+    /// background erase of the ended session has finished, and then for a
+    /// new session with new cookie and CSRF keys. Requests admitted under
+    /// the ended session keep their old generation and cannot write. Waits
+    /// at most `erase_wait` for the erase.
+    pub async fn issue_bootstrap(
+        &self,
+        erase_wait: Duration,
+    ) -> Result<String, BootstrapIssueError> {
+        let deadline = tokio::time::Instant::now() + erase_wait;
+        loop {
+            let mut pending = {
+                let mut session = lock(&self.inner.session);
+                let erase = lock(&self.inner.erase).clone();
+                match erase {
+                    Some(erase) if session.is_none() && !*erase.borrow() => erase,
+                    _ => {
+                        if session.is_none() {
+                            let keys =
+                                SessionKeys::generate().map_err(|_| BootstrapIssueError::Random)?;
+                            *session = Some(keys);
+                        }
+                        return self.add_bootstrap_code();
+                    }
+                }
+            };
+            match tokio::time::timeout_at(deadline, pending.wait_for(|finished| *finished)).await {
+                Ok(Ok(_)) => {}
+                Ok(Err(_)) => return Err(BootstrapIssueError::EraseFailed),
+                Err(_) => return Err(BootstrapIssueError::EraseTimeout),
+            }
+        }
+    }
+
+    /// Called with the session lock held, so `end_session` cannot clear
+    /// the pending codes between the session check and the insert.
+    fn add_bootstrap_code(&self) -> Result<String, BootstrapIssueError> {
+        let code = random_token().map_err(|_| BootstrapIssueError::Random)?;
+        let now = Instant::now();
+        let mut bootstraps = lock(&self.inner.bootstraps);
+        bootstraps.retain(|_, expires_at| *expires_at > now);
+        if bootstraps.len() >= BOOTSTRAP_CODE_LIMIT {
+            return Err(BootstrapIssueError::TooManyCodes);
+        }
+        bootstraps.insert(token_hash(&code), now + self.inner.bootstrap_ttl);
+        Ok(code)
     }
 
     #[must_use]
@@ -107,38 +293,91 @@ impl LocalSecurity {
             || origin == format!("http://localhost:{}", self.inner.port)
     }
 
-    fn exchange_bootstrap(&self, code: &str) -> bool {
+    /// Redeems a one-time code for the cookie token of the session it was
+    /// issued for. The session lock is taken first and held while the code
+    /// is removed and the token read (the order of `issue_bootstrap` and
+    /// `end_session`), so an «End session» plus a new session in between
+    /// can never hand a code of the ended session the new session's cookie.
+    fn exchange_bootstrap(&self, code: &str) -> Option<String> {
         let now = Instant::now();
         let code_hash = token_hash(code);
-        let mut bootstraps = self
-            .inner
-            .bootstraps
-            .lock()
-            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        let session = lock(&self.inner.session);
+        let mut bootstraps = lock(&self.inner.bootstraps);
         bootstraps.retain(|_, expires_at| *expires_at > now);
-        bootstraps.remove(&code_hash).is_some()
+        bootstraps.remove(&code_hash)?;
+        session.as_ref().map(|keys| keys.session_token.clone())
     }
 
-    fn valid_session(&self, headers: &HeaderMap) -> bool {
-        cookie_value(headers, &self.session_cookie_name())
-            .map(token_hash)
-            .is_some_and(|hash| constant_time_eq(&hash, &self.inner.session_hash))
-    }
-
-    fn valid_csrf(&self, headers: &HeaderMap) -> bool {
-        headers
+    /// Admits a request carrying the current session cookie and, when
+    /// `needs_csrf`, the current CSRF token. Both tokens and the generation
+    /// are checked under one session lock, so a request is either admitted
+    /// before `end_session` (and counted in flight) or refused after it as
+    /// [`Refusal::Session`], never as a CSRF failure.
+    fn admit(&self, headers: &HeaderMap, needs_csrf: bool) -> Result<Admission, Refusal> {
+        let session = lock(&self.inner.session);
+        let keys = session.as_ref().ok_or(Refusal::Session)?;
+        let cookie = cookie_value(headers, &self.session_cookie_name()).ok_or(Refusal::Session)?;
+        if !constant_time_eq(&token_hash(cookie), &keys.session_hash) {
+            return Err(Refusal::Session);
+        }
+        let csrf_valid = headers
             .get(CSRF_HEADER)
             .and_then(|value| value.to_str().ok())
             .map(token_hash)
-            .is_some_and(|hash| constant_time_eq(&hash, &self.inner.csrf_hash))
+            .is_some_and(|hash| constant_time_eq(&hash, &keys.csrf_hash));
+        if needs_csrf && !csrf_valid {
+            return Err(Refusal::Csrf);
+        }
+        Ok(Admission {
+            generation: self.inner.local_session.current(),
+            in_flight: InFlight::enter(&self.inner.in_flight),
+        })
+    }
+
+    /// Local session state shared with the publication use case: a handler
+    /// starts a write stage with the [`SessionGeneration`] its request was
+    /// admitted under (a request extension set by the API boundary).
+    #[must_use]
+    pub fn local_session(&self) -> &LocalSession {
+        &self.inner.local_session
+    }
+
+    /// Registers an in-memory holder of Zabbix secrets or plans that
+    /// `session.end` must erase.
+    pub fn register_session_memory(&self, memory: Arc<dyn SessionMemory>) {
+        lock(&self.inner.memories).push(memory);
+    }
+
+    /// `session.end`: refused without confirmation or during a write stage.
+    /// Otherwise the session keys of every tab and every pending bootstrap
+    /// code are dropped at once, and the erase the caller must run is
+    /// recorded as pending, so no new session starts before it finished.
+    pub(crate) fn end_session(
+        &self,
+        request: EndSessionRequest,
+    ) -> Result<EndedSession, SessionEndError> {
+        let mut session = lock(&self.inner.session);
+        self.inner.local_session.end(request)?;
+        *session = None;
+        let (finished, pending) = watch::channel(false);
+        *lock(&self.inner.erase) = Some(pending);
+        lock(&self.inner.bootstraps).clear();
+        Ok(EndedSession {
+            in_flight: Arc::clone(&self.inner.in_flight),
+            erase: EraseCompletion(finished),
+        })
+    }
+
+    /// Erases every registered holder; idempotent.
+    pub(crate) async fn erase_session_memory(&self) {
+        let memories = lock(&self.inner.memories).clone();
+        for memory in memories {
+            memory.erase().await;
+        }
     }
 
     fn reserve_upload(&self) -> Option<UploadPermit> {
-        let mut accepted = self
-            .inner
-            .active_uploads
-            .lock()
-            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        let mut accepted = lock(&self.inner.active_uploads);
         if *accepted >= UPLOAD_COUNT_LIMIT {
             return None;
         }
@@ -148,9 +387,13 @@ impl LocalSecurity {
         })
     }
 
-    fn session_cookie_name(&self) -> String {
+    pub(crate) fn session_cookie_name(&self) -> String {
         format!("{SESSION_COOKIE_PREFIX}_{}", self.inner.port)
     }
+}
+
+fn lock<T: ?Sized>(mutex: &Mutex<T>) -> MutexGuard<'_, T> {
+    mutex.lock().unwrap_or_else(PoisonError::into_inner)
 }
 
 struct UploadPermit {
@@ -159,12 +402,7 @@ struct UploadPermit {
 
 impl Drop for UploadPermit {
     fn drop(&mut self) {
-        let mut active = self
-            .security
-            .inner
-            .active_uploads
-            .lock()
-            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        let mut active = lock(&self.security.inner.active_uploads);
         *active = active.saturating_sub(1);
     }
 }
@@ -215,29 +453,36 @@ pub(crate) struct ApiGuard {
 
 pub(crate) async fn protect_api(
     State(guard): State<ApiGuard>,
-    request: Request,
+    mut request: Request,
     next: Next,
 ) -> Response {
     let security = &guard.security;
-    let headers = request.headers();
-    if !request_origin_allowed(security, headers) {
+    if !request_origin_allowed(security, request.headers()) {
         return api_error_with_api_headers(
             StatusCode::FORBIDDEN,
             MessageId::HTTP_SECURITY_INVALID_ORIGIN,
         );
     }
-    if !security.valid_session(headers) {
-        return api_error_with_api_headers(
-            StatusCode::UNAUTHORIZED,
-            MessageId::HTTP_SECURITY_SESSION_INVALID,
-        );
-    }
-    if is_mutating(request.method()) && !security.valid_csrf(headers) {
-        return api_error_with_api_headers(
-            StatusCode::FORBIDDEN,
-            MessageId::HTTP_SECURITY_CSRF_INVALID,
-        );
-    }
+    let Admission {
+        generation,
+        in_flight,
+    } = match security.admit(request.headers(), is_mutating(request.method())) {
+        Ok(admission) => admission,
+        Err(Refusal::Session) => {
+            return api_error_with_api_headers(
+                StatusCode::UNAUTHORIZED,
+                MessageId::HTTP_SECURITY_SESSION_INVALID,
+            );
+        }
+        Err(Refusal::Csrf) => {
+            return api_error_with_api_headers(
+                StatusCode::FORBIDDEN,
+                MessageId::HTTP_SECURITY_CSRF_INVALID,
+            );
+        }
+    };
+    request.extensions_mut().insert(generation);
+    let headers = request.headers();
 
     guard.transfers.prune_expired();
     if !is_mutating(request.method()) && request_has_body(&request) {
@@ -314,6 +559,7 @@ pub(crate) async fn protect_api(
 
     let mut response = next.run(request).await;
     drop(upload_permit);
+    drop(in_flight);
     add_api_headers(response.headers_mut());
     if let Some(attachment) = response.extensions().get::<AttachmentResponse>() {
         let value = attachment.content_disposition();
@@ -418,23 +664,29 @@ pub struct SessionResponse {
     pub csrf_token: String,
 }
 
-pub async fn session(State(security): State<LocalSecurity>) -> Json<SessionResponse> {
-    Json(SessionResponse {
-        csrf_token: security.inner.csrf_token.clone(),
-    })
+pub async fn session(State(security): State<LocalSecurity>) -> Response {
+    let csrf_token = lock(&security.inner.session)
+        .as_ref()
+        .map(|keys| keys.csrf_token.clone());
+    match csrf_token {
+        Some(csrf_token) => Json(SessionResponse { csrf_token }).into_response(),
+        None => api_error(
+            StatusCode::UNAUTHORIZED,
+            MessageId::HTTP_SECURITY_SESSION_INVALID,
+        ),
+    }
 }
 
 fn bootstrap_response(security: &LocalSecurity, code: &str) -> Response {
-    if !security.exchange_bootstrap(code) {
+    let Some(session_token) = security.exchange_bootstrap(code) else {
         return api_error(
             StatusCode::UNAUTHORIZED,
             MessageId::HTTP_SECURITY_BOOTSTRAP_INVALID,
         );
-    }
+    };
     let cookie = format!(
-        "{}={}; HttpOnly; SameSite=Strict; Path=/",
+        "{}={session_token}; HttpOnly; SameSite=Strict; Path=/",
         security.session_cookie_name(),
-        security.inner.session_token
     );
     let mut response = StatusCode::SEE_OTHER.into_response();
     response
@@ -514,7 +766,7 @@ fn constant_time_eq(left: &[u8; 32], right: &[u8; 32]) -> bool {
         == 0
 }
 
-fn api_error(status: StatusCode, code: MessageId) -> Response {
+pub(crate) fn api_error(status: StatusCode, code: MessageId) -> Response {
     (
         status,
         Json(ApiErrorBody {
@@ -550,6 +802,10 @@ impl LocalSecurity {
     pub fn expired_for_test(port: u16) -> Result<InitialBootstrap, SecurityInitError> {
         Self::new_with_ttl(port, Duration::ZERO)
     }
+
+    pub(crate) fn session_memory_count(&self) -> usize {
+        lock(&self.inner.memories).len()
+    }
 }
 
 #[cfg(test)]
@@ -571,6 +827,135 @@ mod tests {
         assert!(security.reserve_upload().is_none());
         drop(permits);
         assert!(security.reserve_upload().is_some());
+    }
+
+    /// Finding: a session ended between a separate cookie check and CSRF
+    /// check answered 403 `csrf_invalid` instead of 401. Both are now one
+    /// check under the session lock, and the session refusal wins.
+    #[test]
+    fn admission_checks_cookie_and_csrf_together_and_an_ended_session_is_401() {
+        let security = LocalSecurity::initialize(43125)
+            .unwrap_or_else(|error| panic!("security must initialize: {error}"))
+            .security;
+        let (cookie, csrf) = {
+            let session = lock(&security.inner.session);
+            let keys = session
+                .as_ref()
+                .unwrap_or_else(|| panic!("a new session has keys"));
+            (keys.session_token.clone(), keys.csrf_token.clone())
+        };
+        let name = security.session_cookie_name();
+        let headers = |cookie: &str, csrf: Option<&str>| {
+            let mut headers = HeaderMap::new();
+            let cookie = HeaderValue::from_str(&format!("{name}={cookie}"))
+                .unwrap_or_else(|error| panic!("cookie header: {error}"));
+            headers.insert("cookie", cookie);
+            if let Some(csrf) = csrf {
+                let csrf = HeaderValue::from_str(csrf)
+                    .unwrap_or_else(|error| panic!("CSRF header: {error}"));
+                headers.insert(CSRF_HEADER, csrf);
+            }
+            headers
+        };
+        assert!(security.admit(&headers(&cookie, Some(&csrf)), true).is_ok());
+        assert!(security.admit(&headers(&cookie, None), false).is_ok());
+        assert_eq!(
+            security.admit(&headers(&cookie, Some("wrong")), true).err(),
+            Some(Refusal::Csrf)
+        );
+        assert_eq!(
+            security.admit(&headers(&cookie, None), true).err(),
+            Some(Refusal::Csrf)
+        );
+        assert_eq!(
+            security.admit(&headers("wrong", Some(&csrf)), true).err(),
+            Some(Refusal::Session)
+        );
+
+        security
+            .end_session(EndSessionRequest { confirmed: true })
+            .unwrap_or_else(|error| panic!("end: {error:?}"));
+        for (csrf, needs_csrf) in [
+            (Some(csrf.as_str()), true),
+            (Some("wrong"), true),
+            (None, true),
+            (None, false),
+        ] {
+            assert_eq!(
+                security.admit(&headers(&cookie, csrf), needs_csrf).err(),
+                Some(Refusal::Session)
+            );
+        }
+    }
+
+    /// An erase task that stops without finishing (for example a panicking
+    /// holder) must not let a new session start over unerased secrets.
+    #[tokio::test]
+    async fn an_erase_that_never_finishes_refuses_new_sessions() {
+        let security = LocalSecurity::initialize(43126)
+            .unwrap_or_else(|error| panic!("security must initialize: {error}"))
+            .security;
+        let ended = security
+            .end_session(EndSessionRequest { confirmed: true })
+            .unwrap_or_else(|error| panic!("end: {error:?}"));
+        drop(ended);
+        for _ in 0..2 {
+            assert_eq!(
+                security.issue_bootstrap(Duration::from_secs(1)).await.err(),
+                Some(BootstrapIssueError::EraseFailed)
+            );
+        }
+        assert!(lock(&security.inner.session).is_none());
+    }
+
+    /// A code redeems exactly once and only the cookie of the session it
+    /// was issued for; «End session» invalidates it before a new session
+    /// exists. (The exchange holds the session lock while it removes the
+    /// code and reads the token, so no interleaving can mix the two.)
+    #[tokio::test]
+    async fn a_code_redeems_only_the_cookie_of_its_own_session() {
+        let initial = LocalSecurity::initialize(43128)
+            .unwrap_or_else(|error| panic!("security must initialize: {error}"));
+        let security = initial.security;
+        let first_token = lock(&security.inner.session)
+            .as_ref()
+            .map(|keys| keys.session_token.clone());
+        assert!(first_token.is_some());
+        assert_eq!(security.exchange_bootstrap(&initial.code), first_token);
+        assert_eq!(security.exchange_bootstrap(&initial.code), None);
+
+        let stale = security
+            .issue_bootstrap(Duration::ZERO)
+            .await
+            .unwrap_or_else(|error| panic!("issue: {error:?}"));
+        security
+            .end_session(EndSessionRequest { confirmed: true })
+            .unwrap_or_else(|error| panic!("end: {error:?}"))
+            .erase
+            .finish();
+        assert_eq!(security.exchange_bootstrap(&stale), None);
+        let fresh = security
+            .issue_bootstrap(Duration::ZERO)
+            .await
+            .unwrap_or_else(|error| panic!("issue: {error:?}"));
+        assert_eq!(security.exchange_bootstrap(&stale), None);
+        let second_token = security.exchange_bootstrap(&fresh);
+        assert!(second_token.is_some());
+        assert_ne!(second_token, first_token);
+    }
+
+    #[tokio::test]
+    async fn pending_bootstrap_codes_are_bounded() {
+        let security = LocalSecurity::initialize(43127)
+            .unwrap_or_else(|error| panic!("security must initialize: {error}"))
+            .security;
+        for _ in 1..BOOTSTRAP_CODE_LIMIT {
+            assert!(security.issue_bootstrap(Duration::ZERO).await.is_ok());
+        }
+        assert_eq!(
+            security.issue_bootstrap(Duration::ZERO).await.err(),
+            Some(BootstrapIssueError::TooManyCodes)
+        );
     }
 
     #[test]

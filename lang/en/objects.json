@@ -19,9 +19,9 @@
     "message": "{pages, plural, one {# page} other {# pages}}, {widgets, plural, one {# widget} other {# widgets}}",
     "placeholders": {"pages": "number", "widgets": "number"}
   },
-  "object.page.untitled": {
-    "message": "Untitled",
-    "placeholders": {}
+  "object.page.unnamed": {
+    "message": "Page {number}",
+    "placeholders": {"number": "number"}
   },
   "object.page.numbered": {
     "message": "{number}. {name}",

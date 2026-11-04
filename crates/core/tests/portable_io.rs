@@ -336,3 +336,57 @@ fn read_text(relative: &str) -> String {
     fs::read_to_string(root().join(relative))
         .unwrap_or_else(|error| panic!("cannot read {relative}: {error}"))
 }
+
+/// P0-11 (2): every public file and package reader rejects duplicate keys and
+/// anchors/aliases with the reference codes.
+#[test]
+fn file_and_package_readers_reject_duplicate_keys_and_aliases() {
+    let v1 = read_text("examples/db-pilot.yaml");
+    let v2 = read_text("examples/page-v2.yaml");
+    let cases = [
+        (
+            "v1",
+            "yaml_duplicate_key",
+            format!("{v1}project_id: other\n"),
+        ),
+        (
+            "v1",
+            "yaml_alias",
+            v1.replacen("project_id: ", "project_id: &id ", 1),
+        ),
+        (
+            "v2",
+            "yaml_duplicate_key",
+            format!("{v2}project_id: other\n"),
+        ),
+        (
+            "v2",
+            "yaml_alias",
+            v2.replacen("project_id: ", "project_id: &id ", 1),
+        ),
+    ];
+    let temporary = tempdir().unwrap_or_else(|error| panic!("temp directory: {error}"));
+    for (reader, code, text) in cases {
+        let path = temporary.path().join("project.yaml");
+        fs::write(&path, &text).unwrap_or_else(|error| panic!("write project: {error}"));
+        let raw = make_zip(
+            &[("project.yaml", text.as_bytes())],
+            CompressionMethod::Stored,
+        );
+        let (file, package) = if reader == "v1" {
+            (
+                load_project_file(&path).err(),
+                read_package_bytes(&raw).err(),
+            )
+        } else {
+            (
+                load_typed_project_file(&path).err(),
+                read_typed_package_bytes(&raw).err(),
+            )
+        };
+        let file = file.unwrap_or_else(|| panic!("{reader} file must fail with {code}"));
+        assert_eq!(file.code(), code, "{reader} file: {file}");
+        let package = package.unwrap_or_else(|| panic!("{reader} package must fail with {code}"));
+        assert_eq!(package.code(), code, "{reader} package: {package}");
+    }
+}

@@ -7,7 +7,263 @@ pub struct MessageId(&'static str);
 
 #[rustfmt::skip]
 impl MessageId {
+    pub const ABOUT_COPIED: Self = Self("about.copied");
+    pub const ABOUT_COPYRIGHT: Self = Self("about.copyright");
+    pub const ABOUT_DATA_COPY_PATH: Self = Self("about.data.copy_path");
+    pub const ABOUT_DATA_JOURNAL: Self = Self("about.data.journal");
+    pub const ABOUT_DATA_PATHS_LOCAL_ONLY: Self = Self("about.data.paths_local_only");
+    pub const ABOUT_DATA_SETTINGS_FILE: Self = Self("about.data.settings_file");
+    pub const ABOUT_DATA_STORAGE: Self = Self("about.data.storage");
+    pub const ABOUT_DATA_TITLE: Self = Self("about.data.title");
+    pub const ABOUT_ERROR_UNAVAILABLE: Self = Self("about.error.unavailable");
+    pub const ABOUT_FIELD_BUILD: Self = Self("about.field.build");
+    pub const ABOUT_FIELD_BUILD_UNKNOWN: Self = Self("about.field.build_unknown");
+    pub const ABOUT_FIELD_PLATFORM: Self = Self("about.field.platform");
+    pub const ABOUT_FIELD_VERSION: Self = Self("about.field.version");
+    pub const ABOUT_FIELD_ZABBIX: Self = Self("about.field.zabbix");
+    pub const ABOUT_FIELD_ZABBIX_VALUE: Self = Self("about.field.zabbix_value");
+    pub const ABOUT_LICENSE_BRAND: Self = Self("about.license.brand");
+    pub const ABOUT_LICENSE_CODE: Self = Self("about.license.code");
+    pub const ABOUT_LICENSE_CODE_CHOICE: Self = Self("about.license.code_choice");
+    pub const ABOUT_LICENSE_DOCS: Self = Self("about.license.docs");
+    pub const ABOUT_LICENSE_DOCS_VALUE: Self = Self("about.license.docs_value");
+    pub const ABOUT_LICENSE_TABLER: Self = Self("about.license.tabler");
+    pub const ABOUT_LICENSE_TEXT: Self = Self("about.license.text");
+    pub const ABOUT_LICENSE_TEXT_APACHE: Self = Self("about.license.text_apache");
+    pub const ABOUT_LICENSE_TEXT_MIT: Self = Self("about.license.text_mit");
+    pub const ABOUT_LICENSE_TEXT_ORIGINAL: Self = Self("about.license.text_original");
+    pub const ABOUT_LICENSE_TITLE: Self = Self("about.license.title");
+    pub const ABOUT_LICENSE_ZABBIX_NOTE: Self = Self("about.license.zabbix_note");
+    pub const ABOUT_REPORT_COPY: Self = Self("about.report.copy");
+    pub const ABOUT_REPORT_COPY_FAILED: Self = Self("about.report.copy_failed");
+    pub const ABOUT_REPORT_PREVIEW: Self = Self("about.report.preview");
+    pub const ABOUT_REPORT_SCOPE: Self = Self("about.report.scope");
+    pub const ABOUT_SUBTITLE: Self = Self("about.subtitle");
+    pub const ABOUT_TAGLINE: Self = Self("about.tagline");
+    pub const ABOUT_THIRD_PARTY_COLUMN_COMPONENT: Self = Self("about.third_party.column.component");
+    pub const ABOUT_THIRD_PARTY_COLUMN_LICENSE: Self = Self("about.third_party.column.license");
+    pub const ABOUT_THIRD_PARTY_COLUMN_VERSION: Self = Self("about.third_party.column.version");
+    pub const ABOUT_THIRD_PARTY_EMPTY: Self = Self("about.third_party.empty");
+    pub const ABOUT_THIRD_PARTY_FILTER_ALL: Self = Self("about.third_party.filter.all");
+    pub const ABOUT_THIRD_PARTY_FILTER_ICONS: Self = Self("about.third_party.filter.icons");
+    pub const ABOUT_THIRD_PARTY_FILTER_RUST: Self = Self("about.third_party.filter.rust");
+    pub const ABOUT_THIRD_PARTY_FILTER_UI: Self = Self("about.third_party.filter.ui");
+    pub const ABOUT_THIRD_PARTY_FILTERS: Self = Self("about.third_party.filters");
+    pub const ABOUT_THIRD_PARTY_ICONS_SUMMARY: Self = Self("about.third_party.icons_summary");
+    pub const ABOUT_THIRD_PARTY_MISSING: Self = Self("about.third_party.missing");
+    pub const ABOUT_THIRD_PARTY_MORE: Self = Self("about.third_party.more");
+    pub const ABOUT_THIRD_PARTY_SEARCH: Self = Self("about.third_party.search");
+    pub const ABOUT_THIRD_PARTY_SHOW_ALL: Self = Self("about.third_party.show_all");
+    pub const ABOUT_THIRD_PARTY_SUBTITLE: Self = Self("about.third_party.subtitle");
+    pub const ABOUT_THIRD_PARTY_TITLE: Self = Self("about.third_party.title");
     pub const ABOUT_TITLE: Self = Self("about.title");
+    pub const BINDINGS_A11Y_STEPS: Self = Self("bindings.a11y.steps");
+    pub const BINDINGS_ACTION_BACK: Self = Self("bindings.action.back");
+    pub const BINDINGS_ACTION_CHECK_ALL: Self = Self("bindings.action.check_all");
+    pub const BINDINGS_ACTION_CONNECT: Self = Self("bindings.action.connect");
+    pub const BINDINGS_ACTION_NEXT_DEPENDENCIES: Self = Self("bindings.action.next_dependencies");
+    pub const BINDINGS_ACTION_NEXT_MAPPING: Self = Self("bindings.action.next_mapping");
+    pub const BINDINGS_ACTION_NEXT_NEW_HOST: Self = Self("bindings.action.next_new_host");
+    pub const BINDINGS_ACTION_NEXT_SUMMARY: Self = Self("bindings.action.next_summary");
+    pub const BINDINGS_ACTION_RESET_ALL: Self = Self("bindings.action.reset_all");
+    pub const BINDINGS_ACTION_RETRY: Self = Self("bindings.action.retry");
+    pub const BINDINGS_ACTION_TO_PUBLICATION: Self = Self("bindings.action.to_publication");
+    pub const BINDINGS_CALCULATED_DONE: Self = Self("bindings.calculated.done");
+    pub const BINDINGS_CALCULATED_AT: Self = Self("bindings.calculated_at");
+    pub const BINDINGS_CANDIDATES_LEGEND: Self = Self("bindings.candidates.legend");
+    pub const BINDINGS_CANDIDATES_NONE: Self = Self("bindings.candidates.none");
+    pub const BINDINGS_CHANGE_CHANGED: Self = Self("bindings.change.changed");
+    pub const BINDINGS_CHANGE_KEPT_ON_SOURCE: Self = Self("bindings.change.kept_on_source");
+    pub const BINDINGS_CHANGE_UNRESOLVED: Self = Self("bindings.change.unresolved");
+    pub const BINDINGS_CHANGE_UNTOUCHED: Self = Self("bindings.change.untouched");
+    pub const BINDINGS_CHECK_REASON_CANDIDATE_NOT_VISIBLE: Self = Self("bindings.check_reason.candidate_not_visible");
+    pub const BINDINGS_CHECK_REASON_REFERENCE_ADDED: Self = Self("bindings.check_reason.reference_added");
+    pub const BINDINGS_CHECK_REASON_REFERENCE_GONE: Self = Self("bindings.check_reason.reference_gone");
+    pub const BINDINGS_CHECK_REASON_RESOLUTION_CHANGED: Self = Self("bindings.check_reason.resolution_changed");
+    pub const BINDINGS_CHECK_REASON_SERVER_VERSION_CHANGED: Self = Self("bindings.check_reason.server_version_changed");
+    pub const BINDINGS_CHECK_REASON_TARGET_NOT_VISIBLE: Self = Self("bindings.check_reason.target_not_visible");
+    pub const BINDINGS_CHECKED_DONE: Self = Self("bindings.checked.done");
+    pub const BINDINGS_CHECKED_AT: Self = Self("bindings.checked_at");
+    pub const BINDINGS_COMMAND_FAILED: Self = Self("bindings.command_failed");
+    pub const BINDINGS_DECISION_APPLIED_CANDIDATE: Self = Self("bindings.decision.applied_candidate");
+    pub const BINDINGS_DECISION_APPLIED_KEEP: Self = Self("bindings.decision.applied_keep");
+    pub const BINDINGS_DECISION_CHOOSE: Self = Self("bindings.decision.choose");
+    pub const BINDINGS_DECISION_DONE: Self = Self("bindings.decision.done");
+    pub const BINDINGS_DECISION_INVALID: Self = Self("bindings.decision.invalid");
+    pub const BINDINGS_DECISION_KEEP_HINT: Self = Self("bindings.decision.keep_hint");
+    pub const BINDINGS_DECISION_KEEP_ON_SOURCE: Self = Self("bindings.decision.keep_on_source");
+    pub const BINDINGS_DECISION_UNDO: Self = Self("bindings.decision.undo");
+    pub const BINDINGS_DECISION_UNDONE: Self = Self("bindings.decision.undone");
+    pub const BINDINGS_DECISION_UNRESOLVED: Self = Self("bindings.decision.unresolved");
+    pub const BINDINGS_DEPS_CHOOSE_HOST: Self = Self("bindings.deps.choose_host");
+    pub const BINDINGS_DEPS_COLUMN_OUTCOME: Self = Self("bindings.deps.column.outcome");
+    pub const BINDINGS_DEPS_COLUMN_REFERENCE: Self = Self("bindings.deps.column.reference");
+    pub const BINDINGS_DEPS_COLUMN_TYPE: Self = Self("bindings.deps.column.type");
+    pub const BINDINGS_DEPS_COLUMN_WIDGET: Self = Self("bindings.deps.column.widget");
+    pub const BINDINGS_DEPS_COUNT_CHANGES: Self = Self("bindings.deps.count.changes");
+    pub const BINDINGS_DEPS_COUNT_KEPT: Self = Self("bindings.deps.count.kept");
+    pub const BINDINGS_DEPS_COUNT_UNVERIFIED: Self = Self("bindings.deps.count.unverified");
+    pub const BINDINGS_DEPS_PAGE_SUMMARY: Self = Self("bindings.deps.page_summary");
+    pub const BINDINGS_DEPS_PATTERN_RULE: Self = Self("bindings.deps.pattern_rule");
+    pub const BINDINGS_DEPS_TITLE: Self = Self("bindings.deps.title");
+    pub const BINDINGS_DIFFERENCE_ORIGIN: Self = Self("bindings.difference.origin");
+    pub const BINDINGS_DIFFERENCE_PATTERN_COVERAGE: Self = Self("bindings.difference.pattern_coverage");
+    pub const BINDINGS_DIFFERENCE_UNITS: Self = Self("bindings.difference.units");
+    pub const BINDINGS_DIFFERENCE_VALUE_TYPE: Self = Self("bindings.difference.value_type");
+    pub const BINDINGS_DRAFT_ONLY: Self = Self("bindings.draft_only");
+    pub const BINDINGS_EVIDENCE_COVERAGE: Self = Self("bindings.evidence.coverage");
+    pub const BINDINGS_EVIDENCE_DIFFERENCES: Self = Self("bindings.evidence.differences");
+    pub const BINDINGS_EVIDENCE_KEY: Self = Self("bindings.evidence.key");
+    pub const BINDINGS_EVIDENCE_NO_UNITS: Self = Self("bindings.evidence.no_units");
+    pub const BINDINGS_EVIDENCE_ORIGIN_LLD: Self = Self("bindings.evidence.origin.lld");
+    pub const BINDINGS_EVIDENCE_ORIGIN_OWN: Self = Self("bindings.evidence.origin.own");
+    pub const BINDINGS_EVIDENCE_ORIGIN_TEMPLATE: Self = Self("bindings.evidence.origin.template");
+    pub const BINDINGS_EVIDENCE_SOURCE_ITEM: Self = Self("bindings.evidence.source_item");
+    pub const BINDINGS_EVIDENCE_TARGET_ITEM: Self = Self("bindings.evidence.target_item");
+    pub const BINDINGS_EVIDENCE_UNITS: Self = Self("bindings.evidence.units");
+    pub const BINDINGS_EVIDENCE_VALUE_TYPE: Self = Self("bindings.evidence.value_type");
+    pub const BINDINGS_FITNESS_EDITABLE: Self = Self("bindings.fitness.editable");
+    pub const BINDINGS_FITNESS_READ_ONLY: Self = Self("bindings.fitness.read_only");
+    pub const BINDINGS_FITNESS_UNSUPPORTED: Self = Self("bindings.fitness.unsupported");
+    pub const BINDINGS_HISTORY_EMPTY: Self = Self("bindings.history.empty");
+    pub const BINDINGS_HISTORY_OP_REPLACE_HOST: Self = Self("bindings.history.op.replace_host");
+    pub const BINDINGS_HISTORY_OP_REPLACE_HOST_CONFIRM_KEPT: Self = Self("bindings.history.op.replace_host_confirm_kept");
+    pub const BINDINGS_HISTORY_OP_REPLACE_HOST_DECISION: Self = Self("bindings.history.op.replace_host_decision");
+    pub const BINDINGS_HISTORY_OP_UNKNOWN: Self = Self("bindings.history.op.unknown");
+    pub const BINDINGS_HISTORY_TITLE: Self = Self("bindings.history.title");
+    pub const BINDINGS_INSPECTOR_FIELD: Self = Self("bindings.inspector.field");
+    pub const BINDINGS_INSPECTOR_NONE: Self = Self("bindings.inspector.none");
+    pub const BINDINGS_INSPECTOR_TITLE: Self = Self("bindings.inspector.title");
+    pub const BINDINGS_INTENT_CLONE: Self = Self("bindings.intent.clone");
+    pub const BINDINGS_INTENT_TITLE: Self = Self("bindings.intent.title");
+    pub const BINDINGS_KEPT_BY_DECISION: Self = Self("bindings.kept.by_decision");
+    pub const BINDINGS_KEPT_CONFIRMED: Self = Self("bindings.kept.confirmed");
+    pub const BINDINGS_KEPT_NOT_BLOCKING: Self = Self("bindings.kept.not_blocking");
+    pub const BINDINGS_KEPT_TITLE: Self = Self("bindings.kept.title");
+    pub const BINDINGS_KEPT_UNCONFIRMED: Self = Self("bindings.kept.unconfirmed");
+    pub const BINDINGS_LOAD_FAILED: Self = Self("bindings.load_failed");
+    pub const BINDINGS_LOCAL_ONLY: Self = Self("bindings.local_only");
+    pub const BINDINGS_MAPPING_CANDIDATES: Self = Self("bindings.mapping.candidates");
+    pub const BINDINGS_MAPPING_CANDIDATES_COUNT: Self = Self("bindings.mapping.candidates_count");
+    pub const BINDINGS_MAPPING_CAPTION: Self = Self("bindings.mapping.caption");
+    pub const BINDINGS_MAPPING_CHOOSE_LLD_INSTANCE: Self = Self("bindings.mapping.choose_lld_instance");
+    pub const BINDINGS_MAPPING_COLUMN_MATCH: Self = Self("bindings.mapping.column.match");
+    pub const BINDINGS_MAPPING_COLUMN_SOURCE: Self = Self("bindings.mapping.column.source");
+    pub const BINDINGS_MAPPING_COLUMN_TARGET: Self = Self("bindings.mapping.column.target");
+    pub const BINDINGS_MAPPING_COLUMN_WIDGET: Self = Self("bindings.mapping.column.widget");
+    pub const BINDINGS_MAPPING_EMPTY_FILTER: Self = Self("bindings.mapping.empty_filter");
+    pub const BINDINGS_MAPPING_FILTER: Self = Self("bindings.mapping.filter");
+    pub const BINDINGS_MAPPING_KEYBOARD_HINT: Self = Self("bindings.mapping.keyboard_hint");
+    pub const BINDINGS_MAPPING_NO_ROWS: Self = Self("bindings.mapping.no_rows");
+    pub const BINDINGS_MAPPING_NO_TARGET: Self = Self("bindings.mapping.no_target");
+    pub const BINDINGS_MAPPING_SIMILAR_NAME_NOT_PROOF: Self = Self("bindings.mapping.similar_name_not_proof");
+    pub const BINDINGS_MAPPING_TARGET_MISSING: Self = Self("bindings.mapping.target_missing");
+    pub const BINDINGS_MAPPING_TITLE: Self = Self("bindings.mapping.title");
+    pub const BINDINGS_MATCH_AMBIGUOUS: Self = Self("bindings.match.ambiguous");
+    pub const BINDINGS_MATCH_COMPATIBLE: Self = Self("bindings.match.compatible");
+    pub const BINDINGS_MATCH_DENIED: Self = Self("bindings.match.denied");
+    pub const BINDINGS_MATCH_EXACT: Self = Self("bindings.match.exact");
+    pub const BINDINGS_MATCH_MISSING: Self = Self("bindings.match.missing");
+    pub const BINDINGS_MATCH_UNRESOLVED_LLD: Self = Self("bindings.match.unresolved_lld");
+    pub const BINDINGS_MATCH_SHORT_AMBIGUOUS: Self = Self("bindings.match_short.ambiguous");
+    pub const BINDINGS_MATCH_SHORT_COMPATIBLE: Self = Self("bindings.match_short.compatible");
+    pub const BINDINGS_MATCH_SHORT_DENIED: Self = Self("bindings.match_short.denied");
+    pub const BINDINGS_MATCH_SHORT_EXACT: Self = Self("bindings.match_short.exact");
+    pub const BINDINGS_MATCH_SHORT_MISSING: Self = Self("bindings.match_short.missing");
+    pub const BINDINGS_MATCH_SHORT_UNRESOLVED_LLD: Self = Self("bindings.match_short.unresolved_lld");
+    pub const BINDINGS_MATCH_SHORT_UNVERIFIED: Self = Self("bindings.match_short.unverified");
+    pub const BINDINGS_NEW_HOST_CHOSEN: Self = Self("bindings.new_host.chosen");
+    pub const BINDINGS_NEW_HOST_EMPTY: Self = Self("bindings.new_host.empty");
+    pub const BINDINGS_NEW_HOST_GROUPS: Self = Self("bindings.new_host.groups");
+    pub const BINDINGS_NEW_HOST_LEGEND: Self = Self("bindings.new_host.legend");
+    pub const BINDINGS_NEW_HOST_NO_TEMPLATES: Self = Self("bindings.new_host.no_templates");
+    pub const BINDINGS_NEW_HOST_PARTIAL: Self = Self("bindings.new_host.partial");
+    pub const BINDINGS_NEW_HOST_SAME_CONNECTION: Self = Self("bindings.new_host.same_connection");
+    pub const BINDINGS_NEW_HOST_SEARCH: Self = Self("bindings.new_host.search");
+    pub const BINDINGS_NEW_HOST_SEARCH_ACTION: Self = Self("bindings.new_host.search_action");
+    pub const BINDINGS_NEW_HOST_TRUNCATED: Self = Self("bindings.new_host.truncated");
+    pub const BINDINGS_NEW_HOST_VISIBLE_ONLY: Self = Self("bindings.new_host.visible_only");
+    pub const BINDINGS_OFFLINE_BODY: Self = Self("bindings.offline.body");
+    pub const BINDINGS_OFFLINE_CHECK_ALL: Self = Self("bindings.offline.check_all");
+    pub const BINDINGS_OFFLINE_TITLE: Self = Self("bindings.offline.title");
+    pub const BINDINGS_OUTCOME_CHANGES: Self = Self("bindings.outcome.changes");
+    pub const BINDINGS_OUTCOME_KEPT: Self = Self("bindings.outcome.kept");
+    pub const BINDINGS_PLAN_INVALID_NOTE: Self = Self("bindings.plan_invalid_note");
+    pub const BINDINGS_PROGRESS_CALCULATING: Self = Self("bindings.progress.calculating");
+    pub const BINDINGS_PROGRESS_CHECKING: Self = Self("bindings.progress.checking");
+    pub const BINDINGS_PROGRESS_INVENTORY: Self = Self("bindings.progress.inventory");
+    pub const BINDINGS_PROGRESS_SAVING: Self = Self("bindings.progress.saving");
+    pub const BINDINGS_PROGRESS_SEARCH: Self = Self("bindings.progress.search");
+    pub const BINDINGS_REASON_CLASSIC_GRAPH_CONTRACT_PENDING: Self = Self("bindings.reason.classic_graph_contract_pending");
+    pub const BINDINGS_REASON_FIELD_NOT_REPLACEABLE: Self = Self("bindings.reason.field_not_replaceable");
+    pub const BINDINGS_REASON_GRAPH_NAME_NOT_FOUND: Self = Self("bindings.reason.graph_name_not_found");
+    pub const BINDINGS_REASON_HOST_FIELD_NOT_SUPPORTED: Self = Self("bindings.reason.host_field_not_supported");
+    pub const BINDINGS_REASON_HOST_MASK: Self = Self("bindings.reason.host_mask");
+    pub const BINDINGS_REASON_HOST_WILDCARD_ALL: Self = Self("bindings.reason.host_wildcard_all");
+    pub const BINDINGS_REASON_ITEM_PATTERNS_WITHOUT_TARGET_ITEMS: Self = Self("bindings.reason.item_patterns_without_target_items");
+    pub const BINDINGS_REASON_KEY_NOT_FOUND: Self = Self("bindings.reason.key_not_found");
+    pub const BINDINGS_REASON_LLD_INSTANCE_MISSING: Self = Self("bindings.reason.lld_instance_missing");
+    pub const BINDINGS_REASON_NOT_FOUND_OR_NO_ACCESS: Self = Self("bindings.reason.not_found_or_no_access");
+    pub const BINDINGS_REASON_ORIGIN_DIFFERS: Self = Self("bindings.reason.origin_differs");
+    pub const BINDINGS_REASON_PATTERN_COVERAGE_DIFFERS: Self = Self("bindings.reason.pattern_coverage_differs");
+    pub const BINDINGS_REASON_PATTERN_FIELD_NOT_SUPPORTED: Self = Self("bindings.reason.pattern_field_not_supported");
+    pub const BINDINGS_REASON_PROTOTYPE_OWNER_UNKNOWN: Self = Self("bindings.reason.prototype_owner_unknown");
+    pub const BINDINGS_REASON_SEVERAL_TARGET_CANDIDATES: Self = Self("bindings.reason.several_target_candidates");
+    pub const BINDINGS_REASON_TARGET_NAME_IS_MASK: Self = Self("bindings.reason.target_name_is_mask");
+    pub const BINDINGS_REASON_UNITS_DIFFER: Self = Self("bindings.reason.units_differ");
+    pub const BINDINGS_REASON_UNKNOWN: Self = Self("bindings.reason.unknown");
+    pub const BINDINGS_REASON_UNKNOWN_FIELD: Self = Self("bindings.reason.unknown_field");
+    pub const BINDINGS_REASON_UNKNOWN_WIDGET: Self = Self("bindings.reason.unknown_widget");
+    pub const BINDINGS_REASON_VALUE_TYPE_DIFFERS: Self = Self("bindings.reason.value_type_differs");
+    pub const BINDINGS_REASON_VALUE_TYPE_INCOMPATIBLE: Self = Self("bindings.reason.value_type_incompatible");
+    pub const BINDINGS_REASON_WIDGET_NOT_EDITABLE: Self = Self("bindings.reason.widget_not_editable");
+    pub const BINDINGS_REF_BY_ID: Self = Self("bindings.ref.by_id");
+    pub const BINDINGS_REF_GRAPH_ID: Self = Self("bindings.ref.graph_id");
+    pub const BINDINGS_REF_HOST_ID: Self = Self("bindings.ref.host_id");
+    pub const BINDINGS_REF_HOST_MASK: Self = Self("bindings.ref.host_mask");
+    pub const BINDINGS_REF_HOST_NAME_PATTERN: Self = Self("bindings.ref.host_name_pattern");
+    pub const BINDINGS_REF_PROTOTYPE: Self = Self("bindings.ref.prototype");
+    pub const BINDINGS_RESET_BODY: Self = Self("bindings.reset.body");
+    pub const BINDINGS_RESET_DONE: Self = Self("bindings.reset.done");
+    pub const BINDINGS_RESET_TITLE: Self = Self("bindings.reset.title");
+    pub const BINDINGS_SCOPE_CHOOSE_PAGES: Self = Self("bindings.scope.choose_pages");
+    pub const BINDINGS_SCOPE_CHOOSE_WIDGETS: Self = Self("bindings.scope.choose_widgets");
+    pub const BINDINGS_SCOPE_EMPTY_SELECTION: Self = Self("bindings.scope.empty_selection");
+    pub const BINDINGS_SCOPE_PAGES: Self = Self("bindings.scope.pages");
+    pub const BINDINGS_SCOPE_PARTIAL_WARNING: Self = Self("bindings.scope.partial_warning");
+    pub const BINDINGS_SCOPE_WHOLE: Self = Self("bindings.scope.whole");
+    pub const BINDINGS_SCOPE_WHOLE_PAGE: Self = Self("bindings.scope.whole_page");
+    pub const BINDINGS_SCOPE_WIDGETS: Self = Self("bindings.scope.widgets");
+    pub const BINDINGS_SOURCE_NONE: Self = Self("bindings.source.none");
+    pub const BINDINGS_SOURCE_OPTION_DETAIL: Self = Self("bindings.source.option_detail");
+    pub const BINDINGS_SOURCE_UNATTRIBUTED: Self = Self("bindings.source.unattributed");
+    pub const BINDINGS_SOURCE_EVIDENCE: Self = Self("bindings.source_evidence");
+    pub const BINDINGS_STATE_CHECKED: Self = Self("bindings.state.checked");
+    pub const BINDINGS_STATE_INVALID: Self = Self("bindings.state.invalid");
+    pub const BINDINGS_STATE_STALE: Self = Self("bindings.state.stale");
+    pub const BINDINGS_STEP_DEPENDENCIES: Self = Self("bindings.step.dependencies");
+    pub const BINDINGS_STEP_DONE: Self = Self("bindings.step.done");
+    pub const BINDINGS_STEP_MAPPING: Self = Self("bindings.step.mapping");
+    pub const BINDINGS_STEP_NEW_HOST: Self = Self("bindings.step.new_host");
+    pub const BINDINGS_STEP_SCOPE: Self = Self("bindings.step.scope");
+    pub const BINDINGS_STEP_SUMMARY: Self = Self("bindings.step.summary");
+    pub const BINDINGS_STEP_UNAVAILABLE: Self = Self("bindings.step.unavailable");
+    pub const BINDINGS_STORED_CHANGE_HINT: Self = Self("bindings.stored.change_hint");
+    pub const BINDINGS_STORED_TITLE: Self = Self("bindings.stored.title");
+    pub const BINDINGS_SUMMARY_BLOCKED: Self = Self("bindings.summary.blocked");
+    pub const BINDINGS_SUMMARY_CHANGES: Self = Self("bindings.summary.changes");
+    pub const BINDINGS_SUMMARY_KEPT: Self = Self("bindings.summary.kept");
+    pub const BINDINGS_SUMMARY_ONLY_CHANGES: Self = Self("bindings.summary.only_changes");
+    pub const BINDINGS_SUMMARY_TITLE: Self = Self("bindings.summary.title");
+    pub const BINDINGS_SUMMARY_UNRESOLVED: Self = Self("bindings.summary.unresolved");
+    pub const BINDINGS_SUMMARY_UNTOUCHED: Self = Self("bindings.summary.untouched");
+    pub const BINDINGS_TARGETS_TEMPLATES_COVERAGE: Self = Self("bindings.targets.templates_coverage");
+    pub const BINDINGS_VALUE_TYPE_BINARY: Self = Self("bindings.value_type.binary");
+    pub const BINDINGS_VALUE_TYPE_CHARACTER: Self = Self("bindings.value_type.character");
+    pub const BINDINGS_VALUE_TYPE_FLOAT: Self = Self("bindings.value_type.float");
+    pub const BINDINGS_VALUE_TYPE_LOG: Self = Self("bindings.value_type.log");
+    pub const BINDINGS_VALUE_TYPE_TEXT: Self = Self("bindings.value_type.text");
+    pub const BINDINGS_VALUE_TYPE_UNSIGNED: Self = Self("bindings.value_type.unsigned");
     pub const CHECKS_EMPTY: Self = Self("checks.empty");
     pub const CHECKS_GROUP_COMPATIBILITY: Self = Self("checks.group.compatibility");
     pub const CHECKS_GROUP_PASSED: Self = Self("checks.group.passed");
@@ -28,11 +284,13 @@ impl MessageId {
     pub const CHECKS_SUMMARY_PUBLICATION_BLOCKED: Self = Self("checks.summary.publication_blocked");
     pub const CHECKS_SUMMARY_PUBLICATION_READY: Self = Self("checks.summary.publication_ready");
     pub const CHECKS_SUMMARY_SAVE_ALWAYS: Self = Self("checks.summary.save_always");
+    pub const COMMON_ACTION_CANCEL: Self = Self("common.action.cancel");
     pub const COMMON_ACTION_COPY: Self = Self("common.action.copy");
     pub const COMMON_ACTION_DELETE: Self = Self("common.action.delete");
     pub const COMMON_ACTION_DUPLICATE: Self = Self("common.action.duplicate");
     pub const COMMON_ACTION_OPEN: Self = Self("common.action.open");
     pub const COMMON_ACTION_RENAME: Self = Self("common.action.rename");
+    pub const COMMON_ACTION_SAVE_DRAFT: Self = Self("common.action.save_draft");
     pub const COMMON_COUNT_ITEMS: Self = Self("common.count.items");
     pub const COMMON_DURATION_HOURS: Self = Self("common.duration.hours");
     pub const COMMON_DURATION_MINUTES: Self = Self("common.duration.minutes");
@@ -47,15 +305,254 @@ impl MessageId {
     pub const COMMON_STATE_OFFLINE: Self = Self("common.state.offline");
     pub const COMMON_STATE_READ_ONLY: Self = Self("common.state.read_only");
     pub const COMMON_STATE_READ_WRITE: Self = Self("common.state.read_write");
+    pub const COMMON_STATE_VERIFIED: Self = Self("common.state.verified");
     pub const COMPATIBILITY_CALCULATED_RANGE: Self = Self("compatibility.calculated_range");
     pub const COMPATIBILITY_DECLARED_MISMATCH: Self = Self("compatibility.declared_mismatch");
     pub const COMPATIBILITY_EMPTY_DRAFT: Self = Self("compatibility.empty_draft");
     pub const COMPATIBILITY_NO_COMMON_RANGE: Self = Self("compatibility.no_common_range");
     pub const COMPATIBILITY_UNKNOWN_WIDGET_FIELD: Self = Self("compatibility.unknown_widget_field");
     pub const COMPATIBILITY_UNKNOWN_WIDGET_TYPE: Self = Self("compatibility.unknown_widget_type");
+    pub const CONNECTION_A11Y_PROFILES: Self = Self("connection.a11y.profiles");
+    pub const CONNECTION_A11Y_STEPS: Self = Self("connection.a11y.steps");
+    pub const CONNECTION_ACTION_BACK_TO_LIST: Self = Self("connection.action.back_to_list");
+    pub const CONNECTION_ACTION_CANCEL: Self = Self("connection.action.cancel");
+    pub const CONNECTION_ACTION_CHECK: Self = Self("connection.action.check");
+    pub const CONNECTION_ACTION_CONFIRM_NEW_SERVER: Self = Self("connection.action.confirm_new_server");
+    pub const CONNECTION_ACTION_CONNECT: Self = Self("connection.action.connect");
+    pub const CONNECTION_ACTION_CONTINUE_OFFLINE: Self = Self("connection.action.continue_offline");
+    pub const CONNECTION_ACTION_DISCONNECT: Self = Self("connection.action.disconnect");
+    pub const CONNECTION_ACTION_EDIT: Self = Self("connection.action.edit");
+    pub const CONNECTION_ACTION_ENABLE_WRITES: Self = Self("connection.action.enable_writes");
+    pub const CONNECTION_ACTION_FIX_ADDRESS: Self = Self("connection.action.fix_address");
+    pub const CONNECTION_ACTION_FIX_SIGN_IN: Self = Self("connection.action.fix_sign_in");
+    pub const CONNECTION_ACTION_FORGET_PASSWORD: Self = Self("connection.action.forget_password");
+    pub const CONNECTION_ACTION_FORGET_TOKEN: Self = Self("connection.action.forget_token");
+    pub const CONNECTION_ACTION_NEW: Self = Self("connection.action.new");
+    pub const CONNECTION_ACTION_RETRY: Self = Self("connection.action.retry");
+    pub const CONNECTION_ACTION_SAVE: Self = Self("connection.action.save");
+    pub const CONNECTION_ACTION_SET_READ_ONLY: Self = Self("connection.action.set_read_only");
+    pub const CONNECTION_ACTION_SIGN_IN: Self = Self("connection.action.sign_in");
+    pub const CONNECTION_ACTION_TEST: Self = Self("connection.action.test");
+    pub const CONNECTION_ACTION_USE_DEFAULT_ACCOUNT: Self = Self("connection.action.use_default_account");
+    pub const CONNECTION_AUTH_MFA_TOKEN_REQUIRED: Self = Self("connection.auth.mfa_token_required");
+    pub const CONNECTION_CARD_AUTH_PASSWORD: Self = Self("connection.card.auth.password");
+    pub const CONNECTION_CARD_AUTH_PASSWORD_OS_STORE: Self = Self("connection.card.auth.password_os_store");
+    pub const CONNECTION_CARD_AUTH_TOKEN_MEMORY: Self = Self("connection.card.auth.token_memory");
+    pub const CONNECTION_CARD_AUTH_TOKEN_OS_STORE: Self = Self("connection.card.auth.token_os_store");
+    pub const CONNECTION_CARD_CHECKED_AT: Self = Self("connection.card.checked_at");
+    pub const CONNECTION_CARD_NEVER_CHECKED: Self = Self("connection.card.never_checked");
+    pub const CONNECTION_CONNECT_FAILED: Self = Self("connection.connect_failed");
+    pub const CONNECTION_CONNECTED: Self = Self("connection.connected");
+    pub const CONNECTION_CREDENTIAL_SAVE_FAILED: Self = Self("connection.credential_save_failed");
+    pub const CONNECTION_DEFAULT_PASSWORD_ACKNOWLEDGE: Self = Self("connection.default_password.acknowledge");
+    pub const CONNECTION_DEFAULT_PASSWORD_BODY: Self = Self("connection.default_password.body");
+    pub const CONNECTION_DEFAULT_PASSWORD_DONT_SHOW: Self = Self("connection.default_password.dont_show");
+    pub const CONNECTION_DEFAULT_PASSWORD_TITLE: Self = Self("connection.default_password.title");
+    pub const CONNECTION_DELETE_BODY: Self = Self("connection.delete.body");
+    pub const CONNECTION_DELETE_CREDENTIAL_LEFT: Self = Self("connection.delete.credential_left");
+    pub const CONNECTION_DELETE_DISCONNECT_FIRST: Self = Self("connection.delete.disconnect_first");
+    pub const CONNECTION_DELETE_TITLE: Self = Self("connection.delete.title");
+    pub const CONNECTION_DELETED: Self = Self("connection.deleted");
+    pub const CONNECTION_DISCONNECTED: Self = Self("connection.disconnected");
+    pub const CONNECTION_DUPLICATE_NAME: Self = Self("connection.duplicate.name");
+    pub const CONNECTION_EDITOR_SECTION_MODE: Self = Self("connection.editor.section.mode");
+    pub const CONNECTION_EDITOR_SECTION_PROFILE: Self = Self("connection.editor.section.profile");
+    pub const CONNECTION_EDITOR_SECTION_SIGN_IN: Self = Self("connection.editor.section.sign_in");
+    pub const CONNECTION_EDITOR_SECTION_TRUST: Self = Self("connection.editor.section.trust");
+    pub const CONNECTION_EDITOR_TITLE_EDIT: Self = Self("connection.editor.title_edit");
+    pub const CONNECTION_EDITOR_TITLE_NEW: Self = Self("connection.editor.title_new");
+    pub const CONNECTION_ENABLE_WRITES_AVAILABLE: Self = Self("connection.enable_writes.available");
+    pub const CONNECTION_ENABLE_WRITES_AVAILABLE_TITLE: Self = Self("connection.enable_writes.available_title");
+    pub const CONNECTION_ENABLE_WRITES_CONTEXT: Self = Self("connection.enable_writes.context");
+    pub const CONNECTION_ENABLE_WRITES_DURATION: Self = Self("connection.enable_writes.duration");
+    pub const CONNECTION_ENABLE_WRITES_DURATION_TITLE: Self = Self("connection.enable_writes.duration_title");
+    pub const CONNECTION_ENABLE_WRITES_ENABLED: Self = Self("connection.enable_writes.enabled");
+    pub const CONNECTION_ENABLE_WRITES_NEVER: Self = Self("connection.enable_writes.never");
+    pub const CONNECTION_ENABLE_WRITES_NEVER_TITLE: Self = Self("connection.enable_writes.never_title");
+    pub const CONNECTION_ENABLE_WRITES_NO_EXTRA_RIGHTS: Self = Self("connection.enable_writes.no_extra_rights");
+    pub const CONNECTION_ENABLE_WRITES_PLAN_ONLY: Self = Self("connection.enable_writes.plan_only");
+    pub const CONNECTION_ENABLE_WRITES_RETURN_HINT: Self = Self("connection.enable_writes.return_hint");
+    pub const CONNECTION_ENABLE_WRITES_TITLE: Self = Self("connection.enable_writes.title");
+    pub const CONNECTION_FORGET_PASSWORD_DONE: Self = Self("connection.forget_password.done");
+    pub const CONNECTION_FORGET_TOKEN_NOT_REVOKED: Self = Self("connection.forget_token.not_revoked");
+    pub const CONNECTION_FORM_API_TOKEN: Self = Self("connection.form.api_token");
+    pub const CONNECTION_FORM_API_URL: Self = Self("connection.form.api_url");
+    pub const CONNECTION_FORM_API_URL_PENDING: Self = Self("connection.form.api_url_pending");
+    pub const CONNECTION_FORM_AUTH_METHOD: Self = Self("connection.form.auth_method");
+    pub const CONNECTION_FORM_AUTH_PASSWORD: Self = Self("connection.form.auth_password");
+    pub const CONNECTION_FORM_CUSTOM_CA: Self = Self("connection.form.custom_ca");
+    pub const CONNECTION_FORM_CUSTOM_CA_CHOOSE: Self = Self("connection.form.custom_ca_choose");
+    pub const CONNECTION_FORM_CUSTOM_CA_FINGERPRINT: Self = Self("connection.form.custom_ca_fingerprint");
+    pub const CONNECTION_FORM_CUSTOM_CA_HINT: Self = Self("connection.form.custom_ca_hint");
+    pub const CONNECTION_FORM_CUSTOM_CA_LOADED: Self = Self("connection.form.custom_ca_loaded");
+    pub const CONNECTION_FORM_CUSTOM_CA_LOADING: Self = Self("connection.form.custom_ca_loading");
+    pub const CONNECTION_FORM_CUSTOM_CA_REQUIRED: Self = Self("connection.form.custom_ca_required");
+    pub const CONNECTION_FORM_DEFAULT_ACCOUNT_HINT: Self = Self("connection.form.default_account_hint");
+    pub const CONNECTION_FORM_ENDPOINT: Self = Self("connection.form.endpoint");
+    pub const CONNECTION_FORM_ENDPOINT_HINT: Self = Self("connection.form.endpoint_hint");
+    pub const CONNECTION_FORM_HAS_ERRORS: Self = Self("connection.form.has_errors");
+    pub const CONNECTION_FORM_HTTP_CONFIRM: Self = Self("connection.form.http_confirm");
+    pub const CONNECTION_FORM_HTTP_CONFIRM_PASSWORD: Self = Self("connection.form.http_confirm_password");
+    pub const CONNECTION_FORM_MFA_HINT: Self = Self("connection.form.mfa_hint");
+    pub const CONNECTION_FORM_MODE_READ_ONLY: Self = Self("connection.form.mode_read_only");
+    pub const CONNECTION_FORM_PASSWORD: Self = Self("connection.form.password");
+    pub const CONNECTION_FORM_PASSWORD_NOT_STORED: Self = Self("connection.form.password_not_stored");
+    pub const CONNECTION_FORM_PASSWORD_STORED: Self = Self("connection.form.password_stored");
+    pub const CONNECTION_FORM_PROFILE_NAME: Self = Self("connection.form.profile_name");
+    pub const CONNECTION_FORM_RENAME_KEEPS_SERVER: Self = Self("connection.form.rename_keeps_server");
+    pub const CONNECTION_FORM_RULES_HTTP: Self = Self("connection.form.rules.http");
+    pub const CONNECTION_FORM_RULES_PORT_PATH: Self = Self("connection.form.rules.port_path");
+    pub const CONNECTION_FORM_RULES_REJECTED: Self = Self("connection.form.rules.rejected");
+    pub const CONNECTION_FORM_RULES_SCHEME: Self = Self("connection.form.rules.scheme");
+    pub const CONNECTION_FORM_RULES_TITLE: Self = Self("connection.form.rules.title");
+    pub const CONNECTION_FORM_SECRET_IN_MEMORY: Self = Self("connection.form.secret_in_memory");
+    pub const CONNECTION_FORM_SERVER_CHANGED_BODY: Self = Self("connection.form.server_changed.body");
+    pub const CONNECTION_FORM_SERVER_CHANGED_TITLE: Self = Self("connection.form.server_changed.title");
+    pub const CONNECTION_FORM_STORE_PASSWORD: Self = Self("connection.form.store_password");
+    pub const CONNECTION_FORM_STORE_PASSWORD_HINT: Self = Self("connection.form.store_password_hint");
+    pub const CONNECTION_FORM_STORE_TOKEN: Self = Self("connection.form.store_token");
+    pub const CONNECTION_FORM_TLS_NO_BYPASS: Self = Self("connection.form.tls_no_bypass");
+    pub const CONNECTION_FORM_TOKEN_AT_CONNECT: Self = Self("connection.form.token_at_connect");
+    pub const CONNECTION_FORM_TOKEN_STORED: Self = Self("connection.form.token_stored");
+    pub const CONNECTION_FORM_TRUST_CUSTOM_CA: Self = Self("connection.form.trust_custom_ca");
+    pub const CONNECTION_FORM_TRUST_SYSTEM: Self = Self("connection.form.trust_system");
+    pub const CONNECTION_FORM_USERNAME: Self = Self("connection.form.username");
+    pub const CONNECTION_IDENTITY_ACCEPTED: Self = Self("connection.identity.accepted");
+    pub const CONNECTION_IDENTITY_CHANGED: Self = Self("connection.identity.changed");
+    pub const CONNECTION_IDENTITY_FIRST_SEEN: Self = Self("connection.identity.first_seen");
+    pub const CONNECTION_IDENTITY_VERSION_CHANGED: Self = Self("connection.identity.version_changed");
+    pub const CONNECTION_LIST_EMPTY: Self = Self("connection.list.empty");
+    pub const CONNECTION_LIST_EMPTY_HELP: Self = Self("connection.list.empty_help");
+    pub const CONNECTION_LIST_LOAD_FAILED: Self = Self("connection.list.load_failed");
+    pub const CONNECTION_LIST_NO_SECRETS: Self = Self("connection.list.no_secrets");
+    pub const CONNECTION_LIST_SUBTITLE: Self = Self("connection.list.subtitle");
     pub const CONNECTION_LIST_TITLE: Self = Self("connection.list.title");
+    pub const CONNECTION_LOGOUT_FAILED: Self = Self("connection.logout_failed");
+    pub const CONNECTION_MODE_READ_ONLY: Self = Self("connection.mode.read_only");
+    pub const CONNECTION_MODE_READ_ONLY_HELP: Self = Self("connection.mode.read_only_help");
+    pub const CONNECTION_MODE_READ_WRITE: Self = Self("connection.mode.read_write");
+    pub const CONNECTION_MODE_READ_WRITE_HELP: Self = Self("connection.mode.read_write_help");
+    pub const CONNECTION_READ_ONLY_RESTORED: Self = Self("connection.read_only_restored");
+    pub const CONNECTION_RESULT_VERSION: Self = Self("connection.result.version");
+    pub const CONNECTION_SAVED: Self = Self("connection.saved");
+    pub const CONNECTION_SIGN_IN_DESCRIPTION: Self = Self("connection.sign_in.description");
+    pub const CONNECTION_SIGN_IN_IN_PROGRESS: Self = Self("connection.sign_in.in_progress");
+    pub const CONNECTION_SIGN_IN_LOCKED: Self = Self("connection.sign_in.locked");
+    pub const CONNECTION_SIGN_IN_PASSWORD_MEMORY_ONLY: Self = Self("connection.sign_in.password_memory_only");
+    pub const CONNECTION_SIGN_IN_PASSWORD_REQUIRED: Self = Self("connection.sign_in.password_required");
+    pub const CONNECTION_SIGN_IN_PASSWORD_WILL_BE_STORED: Self = Self("connection.sign_in.password_will_be_stored");
+    pub const CONNECTION_SIGN_IN_TITLE: Self = Self("connection.sign_in.title");
+    pub const CONNECTION_SIGN_IN_TOKEN_MEMORY_ONLY: Self = Self("connection.sign_in.token_memory_only");
+    pub const CONNECTION_SIGN_IN_TOKEN_REQUIRED: Self = Self("connection.sign_in.token_required");
+    pub const CONNECTION_SIGN_IN_TOKEN_WILL_BE_STORED: Self = Self("connection.sign_in.token_will_be_stored");
+    pub const CONNECTION_SIGN_IN_USERNAME: Self = Self("connection.sign_in.username");
+    pub const CONNECTION_SIGN_IN_USERNAME_HINT: Self = Self("connection.sign_in.username_hint");
+    pub const CONNECTION_SIGN_IN_WAITING: Self = Self("connection.sign_in.waiting");
+    pub const CONNECTION_STATE_CONNECTED_MODE: Self = Self("connection.state.connected_mode");
+    pub const CONNECTION_STATE_CONNECTING: Self = Self("connection.state.connecting");
+    pub const CONNECTION_STATE_CONTEXT_CHANGED: Self = Self("connection.state.context_changed");
+    pub const CONNECTION_STATE_LAST_CHECK_FAILED: Self = Self("connection.state.last_check_failed");
+    pub const CONNECTION_STATE_NEEDS_SIGN_IN: Self = Self("connection.state.needs_sign_in");
     pub const CONNECTION_STATE_NOT_CONNECTED: Self = Self("connection.state.not_connected");
+    pub const CONNECTION_STATE_READ_ONLY_PROFILE: Self = Self("connection.state.read_only_profile");
+    pub const CONNECTION_STATE_READ_WRITE_PROFILE: Self = Self("connection.state.read_write_profile");
+    pub const CONNECTION_TEST_CAPABILITIES_DENIED: Self = Self("connection.test.capabilities_denied");
+    pub const CONNECTION_TEST_CRUMB: Self = Self("connection.test.crumb");
+    pub const CONNECTION_TEST_DETAILS_CODE: Self = Self("connection.test.details.code");
+    pub const CONNECTION_TEST_DETAILS_METHOD: Self = Self("connection.test.details.method");
+    pub const CONNECTION_TEST_DETAILS_STEP: Self = Self("connection.test.details.step");
+    pub const CONNECTION_TEST_DETAILS_TIME: Self = Self("connection.test.details.time");
+    pub const CONNECTION_TEST_DETAILS_TITLE: Self = Self("connection.test.details.title");
+    pub const CONNECTION_TEST_DETAILS_VERSION: Self = Self("connection.test.details.version");
+    pub const CONNECTION_TEST_DURING_SIGN_IN: Self = Self("connection.test.during_sign_in");
+    pub const CONNECTION_TEST_FAILED_AT: Self = Self("connection.test.failed_at");
+    pub const CONNECTION_TEST_IDLE: Self = Self("connection.test.idle");
+    pub const CONNECTION_TEST_LOCKOUT_HINT: Self = Self("connection.test.lockout_hint");
+    pub const CONNECTION_TEST_NOT_CHECKED: Self = Self("connection.test.not_checked");
+    pub const CONNECTION_TEST_PASSED: Self = Self("connection.test.passed");
+    pub const CONNECTION_TEST_REASON_API: Self = Self("connection.test.reason.api");
+    pub const CONNECTION_TEST_REASON_AUTH: Self = Self("connection.test.reason.auth");
+    pub const CONNECTION_TEST_REASON_ENDPOINT: Self = Self("connection.test.reason.endpoint");
+    pub const CONNECTION_TEST_REASON_IDENTITY: Self = Self("connection.test.reason.identity");
+    pub const CONNECTION_TEST_REPORT_COPIED: Self = Self("connection.test.report.copied");
+    pub const CONNECTION_TEST_REPORT_COPY: Self = Self("connection.test.report.copy");
+    pub const CONNECTION_TEST_REPORT_COPY_FAILED: Self = Self("connection.test.report.copy_failed");
+    pub const CONNECTION_TEST_REPORT_INCLUDE_ADDRESS: Self = Self("connection.test.report.include_address");
+    pub const CONNECTION_TEST_REPORT_SCOPE: Self = Self("connection.test.report.scope");
+    pub const CONNECTION_TEST_RESULT_API: Self = Self("connection.test.result.api");
+    pub const CONNECTION_TEST_RESULT_AUTH_PASSWORD: Self = Self("connection.test.result.auth_password");
+    pub const CONNECTION_TEST_RESULT_AUTH_TOKEN: Self = Self("connection.test.result.auth_token");
+    pub const CONNECTION_TEST_RESULT_CAPABILITIES: Self = Self("connection.test.result.capabilities");
+    pub const CONNECTION_TEST_RESULT_ENDPOINT: Self = Self("connection.test.result.endpoint");
+    pub const CONNECTION_TEST_RESULT_IDENTITY_MATCHES: Self = Self("connection.test.result.identity_matches");
+    pub const CONNECTION_TEST_RUNNING: Self = Self("connection.test.running");
+    pub const CONNECTION_TEST_STATUS_FAILED: Self = Self("connection.test.status.failed");
+    pub const CONNECTION_TEST_STATUS_NOT_CHECKED: Self = Self("connection.test.status.not_checked");
+    pub const CONNECTION_TEST_STATUS_NOTICE: Self = Self("connection.test.status.notice");
+    pub const CONNECTION_TEST_STATUS_PASSED: Self = Self("connection.test.status.passed");
+    pub const CONNECTION_TEST_STEP_API: Self = Self("connection.test.step.api");
+    pub const CONNECTION_TEST_STEP_AUTH: Self = Self("connection.test.step.auth");
+    pub const CONNECTION_TEST_STEP_CAPABILITIES: Self = Self("connection.test.step.capabilities");
+    pub const CONNECTION_TEST_STEP_ENDPOINT: Self = Self("connection.test.step.endpoint");
+    pub const CONNECTION_TEST_STEP_IDENTITY: Self = Self("connection.test.step.identity");
+    pub const CONNECTION_TEST_STEP_HEADING: Self = Self("connection.test.step_heading");
+    pub const CONNECTION_TEST_SUBTITLE: Self = Self("connection.test.subtitle");
+    pub const CONNECTION_TEST_TITLE: Self = Self("connection.test.title");
+    pub const CONNECTION_WARNING_HTTP: Self = Self("connection.warning.http");
+    pub const COPY_ACTION_NEW_COPY: Self = Self("copy.action.new_copy");
+    pub const COPY_ACTION_OPEN_MINE: Self = Self("copy.action.open_mine");
+    pub const COPY_BREADCRUMB: Self = Self("copy.breadcrumb");
+    pub const COPY_DEP_BY_ID_OR_PATTERN: Self = Self("copy.dep.by_id_or_pattern");
+    pub const COPY_DEP_GRAPHS: Self = Self("copy.dep.graphs");
+    pub const COPY_DEP_HOSTS: Self = Self("copy.dep.hosts");
+    pub const COPY_DEP_ITEMS: Self = Self("copy.dep.items");
+    pub const COPY_DEP_NOT_COPIED: Self = Self("copy.dep.not_copied");
+    pub const COPY_DEP_OTHER: Self = Self("copy.dep.other");
+    pub const COPY_DEP_REFERENCES: Self = Self("copy.dep.references");
+    pub const COPY_DEP_REFERENCES_VALUE: Self = Self("copy.dep.references_value");
+    pub const COPY_DEP_UNKNOWN_FIELDS: Self = Self("copy.dep.unknown_fields");
+    pub const COPY_DEP_UNKNOWN_FIELDS_VALUE: Self = Self("copy.dep.unknown_fields_value");
+    pub const COPY_EXISTING: Self = Self("copy.existing");
+    pub const COPY_EXISTING_REFETCH_HINT: Self = Self("copy.existing.refetch_hint");
+    pub const COPY_NOT_SAVED: Self = Self("copy.not_saved");
+    pub const COPY_PAGE_SUMMARY: Self = Self("copy.page_summary");
+    pub const COPY_PROGRESS: Self = Self("copy.progress");
+    pub const COPY_READ_TWICE: Self = Self("copy.read_twice");
+    pub const COPY_RESULT_CREATED: Self = Self("copy.result.created");
+    pub const COPY_RESULT_FAILED: Self = Self("copy.result.failed");
+    pub const COPY_RESULT_METADATA_PARTIAL: Self = Self("copy.result.metadata_partial");
+    pub const COPY_RESULT_METADATA_UNAVAILABLE: Self = Self("copy.result.metadata_unavailable");
+    pub const COPY_SAVED_ACCESS: Self = Self("copy.saved.access");
+    pub const COPY_SAVED_DRAFT: Self = Self("copy.saved.draft");
+    pub const COPY_SAVED_SNAPSHOT: Self = Self("copy.saved.snapshot");
+    pub const COPY_SCOPE_WHOLE: Self = Self("copy.scope.whole");
+    pub const COPY_SECTION_COMPOSITION: Self = Self("copy.section.composition");
+    pub const COPY_SECTION_DEPENDENCIES: Self = Self("copy.section.dependencies");
+    pub const COPY_SECTION_NOT_SAVED: Self = Self("copy.section.not_saved");
+    pub const COPY_SECTION_SAVED: Self = Self("copy.section.saved");
+    pub const COPY_TITLE: Self = Self("copy.title");
+    pub const COPY_WIDGET_AS_IS: Self = Self("copy.widget.as_is");
+    pub const COPY_WIDGET_EDITABLE: Self = Self("copy.widget.editable");
+    pub const DASHBOARDS_PERMISSION_NOT_VISIBLE_OR_DENIED: Self = Self("dashboards.permission.not_visible_or_denied");
     pub const DASHBOARDS_SUMMARY_PAGES_WIDGETS: Self = Self("dashboards.summary.pages_widgets");
+    pub const DASHBOARDS_VISIBILITY_PRIVATE: Self = Self("dashboards.visibility.private");
+    pub const DASHBOARDS_VISIBILITY_SHARED: Self = Self("dashboards.visibility.shared");
+    pub const DESKTOP_BROWSER_OPEN_FAILED: Self = Self("desktop.browser.open_failed");
+    pub const DESKTOP_CLOSE_WRITING_BODY: Self = Self("desktop.close.writing.body");
+    pub const DESKTOP_CLOSE_WRITING_TITLE: Self = Self("desktop.close.writing.title");
+    pub const DESKTOP_FALLBACK_CHOICE_BROWSER: Self = Self("desktop.fallback.choice.browser");
+    pub const DESKTOP_FALLBACK_CHOICE_INSTALL: Self = Self("desktop.fallback.choice.install");
+    pub const DESKTOP_FALLBACK_CHOICE_YES_NO: Self = Self("desktop.fallback.choice.yes_no");
+    pub const DESKTOP_FALLBACK_INSTALL_ASTRA_1_7: Self = Self("desktop.fallback.install.astra_1_7");
+    pub const DESKTOP_FALLBACK_INSTALL_DEBIAN: Self = Self("desktop.fallback.install.debian");
+    pub const DESKTOP_FALLBACK_INSTALL_RED_OS: Self = Self("desktop.fallback.install.red_os");
+    pub const DESKTOP_FALLBACK_INSTALL_WEBKITGTK: Self = Self("desktop.fallback.install.webkitgtk");
+    pub const DESKTOP_FALLBACK_INSTALL_WEBVIEW2: Self = Self("desktop.fallback.install.webview2");
+    pub const DESKTOP_FALLBACK_OPENING_BROWSER: Self = Self("desktop.fallback.opening_browser");
+    pub const DESKTOP_FALLBACK_REASON_ENGINE_MISSING: Self = Self("desktop.fallback.reason.engine_missing");
+    pub const DESKTOP_FALLBACK_REASON_START_FAILED: Self = Self("desktop.fallback.reason.start_failed");
+    pub const DESKTOP_FALLBACK_RESTART: Self = Self("desktop.fallback.restart");
+    pub const DESKTOP_FALLBACK_TITLE: Self = Self("desktop.fallback.title");
     pub const DIAGNOSTICS_TITLE: Self = Self("diagnostics.title");
     pub const DRAFT_A11Y_SECTIONS: Self = Self("draft.a11y.sections");
     pub const DRAFT_ACTION_CHECK_SOURCE: Self = Self("draft.action.check_source");
@@ -74,6 +571,7 @@ impl MessageId {
     pub const DRAFT_NAV_OVERVIEW: Self = Self("draft.nav.overview");
     pub const DRAFT_NAV_PUBLICATION: Self = Self("draft.nav.publication");
     pub const DRAFT_NAV_STRUCTURE: Self = Self("draft.nav.structure");
+    pub const DRAFT_NAV_TITLE: Self = Self("draft.nav.title");
     pub const DRAFT_OVERVIEW_COMPOSITION_DASHBOARD: Self = Self("draft.overview.composition.dashboard");
     pub const DRAFT_OVERVIEW_COMPOSITION_HELP: Self = Self("draft.overview.composition.help");
     pub const DRAFT_OVERVIEW_COMPOSITION_PAGE: Self = Self("draft.overview.composition.page");
@@ -83,6 +581,7 @@ impl MessageId {
     pub const DRAFT_OVERVIEW_NEEDS_CONNECTION: Self = Self("draft.overview.needs_connection");
     pub const DRAFT_OVERVIEW_NEXT_STEPS: Self = Self("draft.overview.next_steps");
     pub const DRAFT_OVERVIEW_ORIGIN: Self = Self("draft.overview.origin");
+    pub const DRAFT_OVERVIEW_PUBLISH_UNAVAILABLE: Self = Self("draft.overview.publish_unavailable");
     pub const DRAFT_OVERVIEW_SELECTION_NOTE: Self = Self("draft.overview.selection_note");
     pub const DRAFT_OVERVIEW_SNAPSHOT: Self = Self("draft.overview.snapshot");
     pub const DRAFT_OVERVIEW_SNAPSHOT_FROM: Self = Self("draft.overview.snapshot_from");
@@ -92,6 +591,7 @@ impl MessageId {
     pub const DRAFT_OVERVIEW_STEP_CHOOSE_TARGET: Self = Self("draft.overview.step.choose_target");
     pub const DRAFT_OVERVIEW_STEP_CHOOSE_TARGET_HELP: Self = Self("draft.overview.step.choose_target.help");
     pub const DRAFT_OVERVIEW_STEP_NUMBERED: Self = Self("draft.overview.step.numbered");
+    pub const DRAFT_OVERVIEW_STEP_OPEN_SECTION: Self = Self("draft.overview.step.open_section");
     pub const DRAFT_OVERVIEW_STEP_REVIEW_PLAN: Self = Self("draft.overview.step.review_plan");
     pub const DRAFT_OVERVIEW_STEP_REVIEW_PLAN_HELP: Self = Self("draft.overview.step.review_plan.help");
     pub const DRAFT_OVERVIEW_TARGET: Self = Self("draft.overview.target");
@@ -104,6 +604,7 @@ impl MessageId {
     pub const DRAFT_PREVIEW_SYNTHETIC_TOGGLE: Self = Self("draft.preview.synthetic.toggle");
     pub const DRAFT_PREVIEW_TITLE: Self = Self("draft.preview.title");
     pub const DRAFT_PROVENANCE_ASSEMBLED: Self = Self("draft.provenance.assembled");
+    pub const DRAFT_PROVENANCE_ASSEMBLED_WITH_SOURCES: Self = Self("draft.provenance.assembled_with_sources");
     pub const DRAFT_PROVENANCE_CREATED_HERE: Self = Self("draft.provenance.created_here");
     pub const DRAFT_PROVENANCE_IMPORTED_FILE: Self = Self("draft.provenance.imported_file");
     pub const DRAFT_PROVENANCE_LEGACY_FILE: Self = Self("draft.provenance.legacy_file");
@@ -126,19 +627,24 @@ impl MessageId {
     pub const DRAFT_STRUCTURE_SLIDESHOW_ON: Self = Self("draft.structure.slideshow.on");
     pub const DRAFT_STRUCTURE_WIDGET_GEOMETRY: Self = Self("draft.structure.widget_geometry");
     pub const DRAFTS_ACTION_CREATE: Self = Self("drafts.action.create");
+    pub const DRAFTS_ACTION_EXPORT_FILE: Self = Self("drafts.action.export_file");
     pub const DRAFTS_ACTION_MAKE_PORTABLE: Self = Self("drafts.action.make_portable");
     pub const DRAFTS_COLUMN_KIND: Self = Self("drafts.column.kind");
     pub const DRAFTS_COLUMN_NAME: Self = Self("drafts.column.name");
     pub const DRAFTS_COLUMN_ORIGIN: Self = Self("drafts.column.origin");
     pub const DRAFTS_COLUMN_SOURCE: Self = Self("drafts.column.source");
     pub const DRAFTS_COLUMN_STATE: Self = Self("drafts.column.state");
+    pub const DRAFTS_COPY_NAME: Self = Self("drafts.copy_name");
     pub const DRAFTS_CREATED_FROM_COPY: Self = Self("drafts.created_from_copy");
+    pub const DRAFTS_CREATED_FROM_DRAFT: Self = Self("drafts.created_from_draft");
+    pub const DRAFTS_DAMAGED: Self = Self("drafts.damaged");
     pub const DRAFTS_DELETE_SAFE: Self = Self("drafts.delete.safe");
     pub const DRAFTS_DETAILS_BASE: Self = Self("drafts.details.base");
     pub const DRAFTS_DETAILS_BASE_SNAPSHOT: Self = Self("drafts.details.base_snapshot");
     pub const DRAFTS_DETAILS_CHANGED_ON_SERVER_AT: Self = Self("drafts.details.changed_on_server_at");
     pub const DRAFTS_DETAILS_CONNECTION: Self = Self("drafts.details.connection");
     pub const DRAFTS_DETAILS_CREATED_ITEM: Self = Self("drafts.details.created_item");
+    pub const DRAFTS_DETAILS_CREATED_NOT_FOUND: Self = Self("drafts.details.created_not_found");
     pub const DRAFTS_DETAILS_FRESHNESS: Self = Self("drafts.details.freshness");
     pub const DRAFTS_DETAILS_LOCAL: Self = Self("drafts.details.local");
     pub const DRAFTS_DETAILS_SOURCE: Self = Self("drafts.details.source");
@@ -147,15 +653,134 @@ impl MessageId {
     pub const DRAFTS_FILTER_LOCAL: Self = Self("drafts.filter.local");
     pub const DRAFTS_FILTER_PAGES: Self = Self("drafts.filter.pages");
     pub const DRAFTS_FILTER_SERVER_COPIES: Self = Self("drafts.filter.server_copies");
+    pub const DRAFTS_LIST_OPEN_HINT: Self = Self("drafts.list.open_hint");
+    pub const DRAFTS_LOAD_FAILED: Self = Self("drafts.load_failed");
+    pub const DRAFTS_NAME_SOURCE_CONNECTION: Self = Self("drafts.name.source_connection");
+    pub const DRAFTS_RENAME_DESCRIPTION: Self = Self("drafts.rename.description");
+    pub const DRAFTS_RENAME_DONE: Self = Self("drafts.rename.done");
+    pub const DRAFTS_RENAME_TITLE: Self = Self("drafts.rename.title");
+    pub const DRAFTS_SEARCH_NO_RESULTS: Self = Self("drafts.search.no_results");
     pub const DRAFTS_SEARCH_PLACEHOLDER: Self = Self("drafts.search.placeholder");
     pub const DRAFTS_SERVER_COPY_EXPORT_HINT: Self = Self("drafts.server_copy_export_hint");
     pub const DRAFTS_SORT_HINT: Self = Self("drafts.sort_hint");
     pub const DRAFTS_STATE_CHANGED_ON_SERVER: Self = Self("drafts.state.changed_on_server");
+    pub const DRAFTS_STATE_CURRENT: Self = Self("drafts.state.current");
     pub const DRAFTS_STATE_MODIFIED: Self = Self("drafts.state.modified");
     pub const DRAFTS_STATE_SAVED: Self = Self("drafts.state.saved");
+    pub const DRAFTS_STATE_SOURCE_MISSING: Self = Self("drafts.state.source_missing");
+    pub const DRAFTS_STATE_STALE: Self = Self("drafts.state.stale");
     pub const DRAFTS_SUBTITLE: Self = Self("drafts.subtitle");
     pub const DRAFTS_TITLE: Self = Self("drafts.title");
     pub const EDITOR_UNAVAILABLE_YET: Self = Self("editor.unavailable_yet");
+    pub const ERRORS_ADDRESS_FRAGMENT: Self = Self("errors.address.fragment");
+    pub const ERRORS_ADDRESS_HOST: Self = Self("errors.address.host");
+    pub const ERRORS_ADDRESS_QUERY: Self = Self("errors.address.query");
+    pub const ERRORS_ADDRESS_SCHEME: Self = Self("errors.address.scheme");
+    pub const ERRORS_ADDRESS_SYNTAX: Self = Self("errors.address.syntax");
+    pub const ERRORS_ADDRESS_USERINFO: Self = Self("errors.address.userinfo");
+    pub const ERRORS_AUTH_CREDENTIALS_OR_DIRECTORY: Self = Self("errors.auth.credentials_or_directory");
+    pub const ERRORS_AUTH_MFA_TOKEN_REQUIRED: Self = Self("errors.auth.mfa_token_required");
+    pub const ERRORS_AUTH_SESSION_EXPIRED: Self = Self("errors.auth.session_expired");
+    pub const ERRORS_AUTH_TOKEN_EXPIRED: Self = Self("errors.auth.token_expired");
+    pub const ERRORS_AUTH_TOKEN_INVALID_OR_DISABLED: Self = Self("errors.auth.token_invalid_or_disabled");
+    pub const ERRORS_CONNECTION_API_ERROR: Self = Self("errors.connection.api_error");
+    pub const ERRORS_CONNECTION_API_NOT_FOUND: Self = Self("errors.connection.api_not_found");
+    pub const ERRORS_CONNECTION_DNS_UNRESOLVABLE: Self = Self("errors.connection.dns_unresolvable");
+    pub const ERRORS_CONNECTION_FAILED: Self = Self("errors.connection.failed");
+    pub const ERRORS_CONNECTION_NOT_CONNECTED: Self = Self("errors.connection.not_connected");
+    pub const ERRORS_CONNECTION_RANDOM_UNAVAILABLE: Self = Self("errors.connection.random_unavailable");
+    pub const ERRORS_CONNECTION_REFUSED: Self = Self("errors.connection.refused");
+    pub const ERRORS_CONNECTION_REQUEST_INVALID: Self = Self("errors.connection.request_invalid");
+    pub const ERRORS_CONNECTION_SECRET_INVALID: Self = Self("errors.connection.secret_invalid");
+    pub const ERRORS_CONNECTION_SECRET_REQUIRED: Self = Self("errors.connection.secret_required");
+    pub const ERRORS_CONNECTION_SERVICE_UNAVAILABLE: Self = Self("errors.connection.service_unavailable");
+    pub const ERRORS_CONNECTION_UNEXPECTED_RESPONSE: Self = Self("errors.connection.unexpected_response");
+    pub const ERRORS_CONNECTION_UNKNOWN: Self = Self("errors.connection.unknown");
+    pub const ERRORS_CONNECTION_UNREACHABLE_OR_TIMEOUT: Self = Self("errors.connection.unreachable_or_timeout");
+    pub const ERRORS_CONNECTION_VERSION_UNSUPPORTED: Self = Self("errors.connection.version_unsupported");
+    pub const ERRORS_CONNECTION_WRITES_NOT_CONFIRMED: Self = Self("errors.connection.writes_not_confirmed");
+    pub const ERRORS_CREDENTIAL_LOCKED: Self = Self("errors.credential.locked");
+    pub const ERRORS_CREDENTIAL_MISSING: Self = Self("errors.credential.missing");
+    pub const ERRORS_CREDENTIAL_UNAVAILABLE: Self = Self("errors.credential.unavailable");
+    pub const ERRORS_DRAFTS_NAME_INVALID: Self = Self("errors.drafts.name_invalid");
+    pub const ERRORS_IMPORT_INCONSISTENT: Self = Self("errors.import.inconsistent");
+    pub const ERRORS_IMPORT_PARSE: Self = Self("errors.import.parse");
+    pub const ERRORS_IMPORT_POLICY: Self = Self("errors.import.policy");
+    pub const ERRORS_IMPORT_UNSAFE_STRUCTURE: Self = Self("errors.import.unsafe_structure");
+    pub const ERRORS_IMPORT_VALIDATION: Self = Self("errors.import.validation");
+    pub const ERRORS_PERMISSION_API_METHOD: Self = Self("errors.permission.api_method");
+    pub const ERRORS_PERMISSION_SYSTEM_ACCESS: Self = Self("errors.permission.system_access");
+    pub const ERRORS_PROFILE_LIMIT_REACHED: Self = Self("errors.profile.limit_reached");
+    pub const ERRORS_PROFILE_NAME_INVALID: Self = Self("errors.profile.name_invalid");
+    pub const ERRORS_PROFILE_NOT_FOUND: Self = Self("errors.profile.not_found");
+    pub const ERRORS_PROFILE_PLAIN_HTTP_UNCONFIRMED: Self = Self("errors.profile.plain_http_unconfirmed");
+    pub const ERRORS_PROFILE_STORE_INVALID: Self = Self("errors.profile.store_invalid");
+    pub const ERRORS_PROFILE_STORE_LINKED_PATH: Self = Self("errors.profile.store_linked_path");
+    pub const ERRORS_PROFILE_STORE_TOO_LARGE: Self = Self("errors.profile.store_too_large");
+    pub const ERRORS_PROFILE_STORE_UNAVAILABLE: Self = Self("errors.profile.store_unavailable");
+    pub const ERRORS_PROFILE_USERNAME_INVALID: Self = Self("errors.profile.username_invalid");
+    pub const ERRORS_PUBLICATION_BLOCKED: Self = Self("errors.publication.blocked");
+    pub const ERRORS_PUBLICATION_CODE: Self = Self("errors.publication.code");
+    pub const ERRORS_PUBLICATION_JOURNAL_DAMAGED: Self = Self("errors.publication.journal_damaged");
+    pub const ERRORS_PUBLICATION_JOURNAL_NOT_DAMAGED: Self = Self("errors.publication.journal_not_damaged");
+    pub const ERRORS_PUBLICATION_JOURNAL_WRITE_FAILED: Self = Self("errors.publication.journal_write_failed");
+    pub const ERRORS_PUBLICATION_LOCAL_MISMATCH: Self = Self("errors.publication.local_mismatch");
+    pub const ERRORS_PUBLICATION_NAME_TAKEN_MAYBE_HIDDEN: Self = Self("errors.publication.name_taken_maybe_hidden");
+    pub const ERRORS_PUBLICATION_OPERATION_NOT_FOUND: Self = Self("errors.publication.operation_not_found");
+    pub const ERRORS_PUBLICATION_OPERATION_RUNNING: Self = Self("errors.publication.operation_running");
+    pub const ERRORS_PUBLICATION_PLAN_MISMATCH: Self = Self("errors.publication.plan_mismatch");
+    pub const ERRORS_PUBLICATION_PLAN_NOT_FOUND: Self = Self("errors.publication.plan_not_found");
+    pub const ERRORS_PUBLICATION_QUARANTINE_EXISTS: Self = Self("errors.publication.quarantine_exists");
+    pub const ERRORS_PUBLICATION_RECONCILE_NOT_NEEDED: Self = Self("errors.publication.reconcile_not_needed");
+    pub const ERRORS_PUBLICATION_RECONCILE_PARTIAL_VISIBILITY: Self = Self("errors.publication.reconcile_partial_visibility");
+    pub const ERRORS_PUBLICATION_RECONCILE_SERVER_CHANGED: Self = Self("errors.publication.reconcile_server_changed");
+    pub const ERRORS_PUBLICATION_TARGET_BLOCKED: Self = Self("errors.publication.target_blocked");
+    pub const ERRORS_REPLACE_HOST_BINDING_NOT_FOUND: Self = Self("errors.replace_host.binding_not_found");
+    pub const ERRORS_REPLACE_HOST_CANDIDATE_NOT_VISIBLE: Self = Self("errors.replace_host.candidate_not_visible");
+    pub const ERRORS_REPLACE_HOST_CANDIDATE_VALUE_TYPE_INCOMPATIBLE: Self = Self("errors.replace_host.candidate_value_type_incompatible");
+    pub const ERRORS_REPLACE_HOST_CHANGED_CONCURRENTLY: Self = Self("errors.replace_host.changed_concurrently");
+    pub const ERRORS_REPLACE_HOST_DECISION_NOT_APPLICABLE: Self = Self("errors.replace_host.decision_not_applicable");
+    pub const ERRORS_REPLACE_HOST_HOST_OBJECTS_LIMIT: Self = Self("errors.replace_host.host_objects_limit");
+    pub const ERRORS_REPLACE_HOST_INTERNAL: Self = Self("errors.replace_host.internal");
+    pub const ERRORS_REPLACE_HOST_KEPT_CHANGED: Self = Self("errors.replace_host.kept_changed");
+    pub const ERRORS_REPLACE_HOST_KEPT_EMPTY: Self = Self("errors.replace_host.kept_empty");
+    pub const ERRORS_REPLACE_HOST_NOT_CALCULATED: Self = Self("errors.replace_host.not_calculated");
+    pub const ERRORS_REPLACE_HOST_OPERATION_NOT_FOUND: Self = Self("errors.replace_host.operation_not_found");
+    pub const ERRORS_REPLACE_HOST_OTHER_CONNECTION: Self = Self("errors.replace_host.other_connection");
+    pub const ERRORS_REPLACE_HOST_PENDING: Self = Self("errors.replace_host.pending");
+    pub const ERRORS_REPLACE_HOST_SAME_HOST: Self = Self("errors.replace_host.same_host");
+    pub const ERRORS_REPLACE_HOST_SCOPE_INVALID: Self = Self("errors.replace_host.scope_invalid");
+    pub const ERRORS_REPLACE_HOST_SCOPE_OUTSIDE_DRAFT: Self = Self("errors.replace_host.scope_outside_draft");
+    pub const ERRORS_REPLACE_HOST_SOURCE_NOT_VISIBLE: Self = Self("errors.replace_host.source_not_visible");
+    pub const ERRORS_SNAPSHOT_CORRUPT: Self = Self("errors.snapshot.corrupt");
+    pub const ERRORS_SNAPSHOT_MISSING: Self = Self("errors.snapshot.missing");
+    pub const ERRORS_SNAPSHOT_SHAPE_INVALID: Self = Self("errors.snapshot.shape_invalid");
+    pub const ERRORS_SNAPSHOT_TOO_LARGE: Self = Self("errors.snapshot.too_large");
+    pub const ERRORS_SNAPSHOT_UNSUPPORTED_ADAPTER: Self = Self("errors.snapshot.unsupported_adapter");
+    pub const ERRORS_STORAGE_LINKED: Self = Self("errors.storage.linked");
+    pub const ERRORS_TLS_NAME_MISMATCH: Self = Self("errors.tls.name_mismatch");
+    pub const ERRORS_TLS_TIME_INVALID: Self = Self("errors.tls.time_invalid");
+    pub const ERRORS_TLS_UNTRUSTED: Self = Self("errors.tls.untrusted");
+    pub const ERRORS_TRUST_CHANGED: Self = Self("errors.trust.changed");
+    pub const ERRORS_TRUST_EMPTY: Self = Self("errors.trust.empty");
+    pub const ERRORS_TRUST_INVALID_PEM: Self = Self("errors.trust.invalid_pem");
+    pub const ERRORS_TRUST_MISSING: Self = Self("errors.trust.missing");
+    pub const ERRORS_TRUST_PRIVATE_KEY: Self = Self("errors.trust.private_key");
+    pub const ERRORS_TRUST_REJECTED: Self = Self("errors.trust.rejected");
+    pub const ERRORS_TRUST_TOO_LARGE: Self = Self("errors.trust.too_large");
+    pub const ERRORS_TRUST_TOO_MANY_CERTIFICATES: Self = Self("errors.trust.too_many_certificates");
+    pub const ERRORS_TRUST_UPLOAD_INVALID: Self = Self("errors.trust.upload_invalid");
+    pub const ERRORS_WORKCOPY_CORRUPT: Self = Self("errors.workcopy.corrupt");
+    pub const ERRORS_WORKCOPY_NOT_VISIBLE_OR_DENIED: Self = Self("errors.workcopy.not_visible_or_denied");
+    pub const ERRORS_WORKCOPY_PAGE_NOT_FOUND: Self = Self("errors.workcopy.page_not_found");
+    pub const ERRORS_WORKCOPY_SEARCH_INVALID: Self = Self("errors.workcopy.search_invalid");
+    pub const ERRORS_WORKCOPY_SETTINGS_UNAVAILABLE: Self = Self("errors.workcopy.settings_unavailable");
+    pub const ERRORS_WORKCOPY_STORAGE_FILE_TOO_LARGE: Self = Self("errors.workcopy.storage_file_too_large");
+    pub const ERRORS_WORKCOPY_STORAGE_LIMIT_REACHED: Self = Self("errors.workcopy.storage_limit_reached");
+    pub const ERRORS_WORKCOPY_STORAGE_UNAVAILABLE: Self = Self("errors.workcopy.storage_unavailable");
+    pub const ERRORS_WORKCOPY_STORAGE_WRITE_FAILED: Self = Self("errors.workcopy.storage_write_failed");
+    pub const ERRORS_WORKCOPY_TOO_LARGE: Self = Self("errors.workcopy.too_large");
+    pub const ERRORS_WORKCOPY_UNSUPPORTED_OPERATION: Self = Self("errors.workcopy.unsupported_operation");
     pub const HTTP_SECURITY_API_NOT_FOUND: Self = Self("http.security.api_not_found");
     pub const HTTP_SECURITY_BODY_TOO_LARGE: Self = Self("http.security.body_too_large");
     pub const HTTP_SECURITY_BOOTSTRAP_INVALID: Self = Self("http.security.bootstrap_invalid");
@@ -172,6 +797,10 @@ impl MessageId {
     pub const HTTP_TRANSFER_TOTAL_TOO_LARGE: Self = Self("http.transfer.total_too_large");
     pub const HTTP_TRANSFER_UNAVAILABLE: Self = Self("http.transfer.unavailable");
     pub const INTENT_APPEND_PAGE: Self = Self("intent.append_page");
+    pub const INTENT_REPLACE_HOST: Self = Self("intent.replace_host");
+    pub const INTENT_REPLACE_ITEM_FIELDS: Self = Self("intent.replace_item_fields");
+    pub const INTENT_SAVE_AS_COPY: Self = Self("intent.save_as_copy");
+    pub const INTENT_UNKNOWN: Self = Self("intent.unknown");
     pub const LIBRARY_TITLE: Self = Self("library.title");
     pub const NAV_CONNECTIONS: Self = Self("nav.connections");
     pub const NAV_DRAFTS: Self = Self("nav.drafts");
@@ -184,22 +813,450 @@ impl MessageId {
     pub const OBJECT_ORIGIN_LOCAL: Self = Self("object.origin.local");
     pub const OBJECT_ORIGIN_SERVER_COPY: Self = Self("object.origin.server_copy");
     pub const OBJECT_PAGE_NUMBERED: Self = Self("object.page.numbered");
-    pub const OBJECT_PAGE_UNTITLED: Self = Self("object.page.untitled");
+    pub const OBJECT_PAGE_UNNAMED: Self = Self("object.page.unnamed");
     pub const OBJECT_PAGE_WIDGET_COUNT: Self = Self("object.page.widget_count");
+    pub const PUBLICATION_A11Y_STEPS: Self = Self("publication.a11y.steps");
+    pub const PUBLICATION_ACCESS_COPY_PRIVATE: Self = Self("publication.access.copy_private");
+    pub const PUBLICATION_ACCESS_TITLE: Self = Self("publication.access.title");
+    pub const PUBLICATION_ACCESS_UPDATE_NOT_SENT: Self = Self("publication.access.update_not_sent");
+    pub const PUBLICATION_ACTION_BACK_CHANGES: Self = Self("publication.action.back_changes");
+    pub const PUBLICATION_ACTION_BACK_CHECKS: Self = Self("publication.action.back_checks");
+    pub const PUBLICATION_ACTION_BACK_TARGET: Self = Self("publication.action.back_target");
+    pub const PUBLICATION_ACTION_BACK_TO_DRAFT: Self = Self("publication.action.back_to_draft");
+    pub const PUBLICATION_ACTION_CONFIRM_DIALOG: Self = Self("publication.action.confirm_dialog");
+    pub const PUBLICATION_ACTION_CONFIRM_WRITE: Self = Self("publication.action.confirm_write");
+    pub const PUBLICATION_ACTION_NEW_PREVIEW: Self = Self("publication.action.new_preview");
+    pub const PUBLICATION_ACTION_NEXT_CHANGES: Self = Self("publication.action.next_changes");
+    pub const PUBLICATION_ACTION_NEXT_CHECKS: Self = Self("publication.action.next_checks");
+    pub const PUBLICATION_ACTION_NEXT_CONFIRM: Self = Self("publication.action.next_confirm");
+    pub const PUBLICATION_ACTION_OPEN_IN_ZABBIX: Self = Self("publication.action.open_in_zabbix");
+    pub const PUBLICATION_ACTION_OPEN_JOURNAL: Self = Self("publication.action.open_journal");
+    pub const PUBLICATION_ACTION_OPEN_SERVER: Self = Self("publication.action.open_server");
+    pub const PUBLICATION_ACTION_RECONCILE: Self = Self("publication.action.reconcile");
+    pub const PUBLICATION_CHECK_ACTION_CONFIRM_KEPT: Self = Self("publication.check.action.confirm_kept");
+    pub const PUBLICATION_CHECK_ACTION_OPEN_BINDINGS: Self = Self("publication.check.action.open_bindings");
+    pub const PUBLICATION_CHECK_CONFIRM_KEPT: Self = Self("publication.check.confirm_kept");
+    pub const PUBLICATION_CHECK_COUNT_BLOCKING: Self = Self("publication.check.count.blocking");
+    pub const PUBLICATION_CHECK_COUNT_WARNINGS: Self = Self("publication.check.count.warnings");
+    pub const PUBLICATION_CHECK_FIXED_IN: Self = Self("publication.check.fixed_in");
+    pub const PUBLICATION_CHECK_GROUP_BINDINGS: Self = Self("publication.check.group.bindings");
+    pub const PUBLICATION_CHECK_GROUP_CONNECTION: Self = Self("publication.check.group.connection");
+    pub const PUBLICATION_CHECK_GROUP_PLAN: Self = Self("publication.check.group.plan");
+    pub const PUBLICATION_CHECK_GROUP_SOURCE: Self = Self("publication.check.group.source");
+    pub const PUBLICATION_CHECK_GROUP_WIDGETS: Self = Self("publication.check.group.widgets");
+    pub const PUBLICATION_CHECK_NONE: Self = Self("publication.check.none");
+    pub const PUBLICATION_CHECK_RECHECK: Self = Self("publication.check.recheck");
+    pub const PUBLICATION_CHECK_STATUS_BLOCKS: Self = Self("publication.check.status.blocks");
+    pub const PUBLICATION_CHECK_STATUS_WARNING: Self = Self("publication.check.status.warning");
+    pub const PUBLICATION_CHECK_SUMMARY_PLAN_NOT_BUILT: Self = Self("publication.check.summary.plan_not_built");
+    pub const PUBLICATION_CHECK_SUMMARY_READY: Self = Self("publication.check.summary.ready");
+    pub const PUBLICATION_CHECKS_CHECKING: Self = Self("publication.checks.checking");
+    pub const PUBLICATION_CHECKS_SOURCE_CURRENT: Self = Self("publication.checks.source_current");
+    pub const PUBLICATION_CHECKS_SOURCE_NOT_CHECKED: Self = Self("publication.checks.source_not_checked");
+    pub const PUBLICATION_CHECKS_SOURCE_TITLE: Self = Self("publication.checks.source_title");
+    pub const PUBLICATION_CONFIRM_API_CREATE: Self = Self("publication.confirm.api_create");
+    pub const PUBLICATION_CONFIRM_API_UPDATE: Self = Self("publication.confirm.api_update");
+    pub const PUBLICATION_CONFIRM_BUILDING: Self = Self("publication.confirm.building");
+    pub const PUBLICATION_CONFIRM_CHANGES_CREATE: Self = Self("publication.confirm.changes_create");
+    pub const PUBLICATION_CONFIRM_CHANGES_UPDATE: Self = Self("publication.confirm.changes_update");
+    pub const PUBLICATION_CONFIRM_CONNECTION_VALUE: Self = Self("publication.confirm.connection_value");
+    pub const PUBLICATION_CONFIRM_CREATE_NAME_CHECK: Self = Self("publication.confirm.create_name_check");
+    pub const PUBLICATION_CONFIRM_DASHBOARD_EXISTING: Self = Self("publication.confirm.dashboard_existing");
+    pub const PUBLICATION_CONFIRM_DASHBOARD_NEW: Self = Self("publication.confirm.dashboard_new");
+    pub const PUBLICATION_CONFIRM_FIELD_ACTION: Self = Self("publication.confirm.field.action");
+    pub const PUBLICATION_CONFIRM_FIELD_CHANGES: Self = Self("publication.confirm.field.changes");
+    pub const PUBLICATION_CONFIRM_FIELD_CONNECTION: Self = Self("publication.confirm.field.connection");
+    pub const PUBLICATION_CONFIRM_FIELD_DASHBOARD: Self = Self("publication.confirm.field.dashboard");
+    pub const PUBLICATION_CONFIRM_FIELD_KEPT: Self = Self("publication.confirm.field.kept");
+    pub const PUBLICATION_CONFIRM_FIELD_PLAN: Self = Self("publication.confirm.field.plan");
+    pub const PUBLICATION_CONFIRM_FIELD_UNCHANGED: Self = Self("publication.confirm.field.unchanged");
+    pub const PUBLICATION_CONFIRM_FIELD_WARNINGS: Self = Self("publication.confirm.field.warnings");
+    pub const PUBLICATION_CONFIRM_INVALID_WHEN: Self = Self("publication.confirm.invalid_when");
+    pub const PUBLICATION_CONFIRM_KEPT_CONFIRMED: Self = Self("publication.confirm.kept_confirmed");
+    pub const PUBLICATION_CONFIRM_NO_CANCEL_AFTER_SEND: Self = Self("publication.confirm.no_cancel_after_send");
+    pub const PUBLICATION_CONFIRM_OFFLINE: Self = Self("publication.confirm.offline");
+    pub const PUBLICATION_CONFIRM_PLAN_ONCE: Self = Self("publication.confirm.plan_once");
+    pub const PUBLICATION_CONFIRM_QUESTION_CREATE: Self = Self("publication.confirm.question_create");
+    pub const PUBLICATION_CONFIRM_QUESTION_UPDATE: Self = Self("publication.confirm.question_update");
+    pub const PUBLICATION_CONFIRM_REQUIREMENTS: Self = Self("publication.confirm.requirements");
+    pub const PUBLICATION_CONFIRM_REREAD: Self = Self("publication.confirm.reread");
+    pub const PUBLICATION_CONFIRM_SUMMARY_TITLE: Self = Self("publication.confirm.summary_title");
+    pub const PUBLICATION_CONFIRM_TARGET_LINE: Self = Self("publication.confirm.target_line");
+    pub const PUBLICATION_CONFIRM_TITLE: Self = Self("publication.confirm.title");
+    pub const PUBLICATION_CONFIRM_UNCHANGED_UPDATE: Self = Self("publication.confirm.unchanged_update");
+    pub const PUBLICATION_CONFIRM_WARNINGS_REVIEWED: Self = Self("publication.confirm.warnings_reviewed");
+    pub const PUBLICATION_CONFLICT_BODY: Self = Self("publication.conflict.body");
+    pub const PUBLICATION_CONFLICT_CAPTION: Self = Self("publication.conflict.caption");
+    pub const PUBLICATION_CONFLICT_CHANGE_ACCESS: Self = Self("publication.conflict.change.access");
+    pub const PUBLICATION_CONFLICT_CHANGE_DASHBOARD_PROPERTIES: Self = Self("publication.conflict.change.dashboard_properties");
+    pub const PUBLICATION_CONFLICT_CHANGE_PAGE_ADDED: Self = Self("publication.conflict.change.page_added");
+    pub const PUBLICATION_CONFLICT_CHANGE_PAGE_CHANGED: Self = Self("publication.conflict.change.page_changed");
+    pub const PUBLICATION_CONFLICT_CHANGE_PAGE_REMOVED: Self = Self("publication.conflict.change.page_removed");
+    pub const PUBLICATION_CONFLICT_CHANGE_PAGE_RENAMED: Self = Self("publication.conflict.change.page_renamed");
+    pub const PUBLICATION_CONFLICT_CHANGE_WIDGET_ADDED: Self = Self("publication.conflict.change.widget_added");
+    pub const PUBLICATION_CONFLICT_CHANGE_WIDGET_CHANGED: Self = Self("publication.conflict.change.widget_changed");
+    pub const PUBLICATION_CONFLICT_CHANGE_WIDGET_MOVED: Self = Self("publication.conflict.change.widget_moved");
+    pub const PUBLICATION_CONFLICT_CHANGE_WIDGET_REMOVED: Self = Self("publication.conflict.change.widget_removed");
+    pub const PUBLICATION_CONFLICT_COLUMN_MINE: Self = Self("publication.conflict.column.mine");
+    pub const PUBLICATION_CONFLICT_COLUMN_OBJECT: Self = Self("publication.conflict.column.object");
+    pub const PUBLICATION_CONFLICT_COLUMN_SERVER: Self = Self("publication.conflict.column.server");
+    pub const PUBLICATION_CONFLICT_DETECTED_AT: Self = Self("publication.conflict.detected_at");
+    pub const PUBLICATION_CONFLICT_MINE_HOST_REPLACED: Self = Self("publication.conflict.mine.host_replaced");
+    pub const PUBLICATION_CONFLICT_MINE_NONE: Self = Self("publication.conflict.mine.none");
+    pub const PUBLICATION_CONFLICT_MISSING_BODY: Self = Self("publication.conflict.missing_body");
+    pub const PUBLICATION_CONFLICT_MISSING_TITLE: Self = Self("publication.conflict.missing_title");
+    pub const PUBLICATION_CONFLICT_NEXT_TITLE: Self = Self("publication.conflict.next_title");
+    pub const PUBLICATION_CONFLICT_NO_AUTHOR: Self = Self("publication.conflict.no_author");
+    pub const PUBLICATION_CONFLICT_OBJECT_DASHBOARD: Self = Self("publication.conflict.object.dashboard");
+    pub const PUBLICATION_CONFLICT_OBJECT_PAGE: Self = Self("publication.conflict.object.page");
+    pub const PUBLICATION_CONFLICT_OBJECT_WIDGET: Self = Self("publication.conflict.object.widget");
+    pub const PUBLICATION_CONFLICT_OPEN_NEW_COPY: Self = Self("publication.conflict.open_new_copy");
+    pub const PUBLICATION_CONFLICT_OVERLAP: Self = Self("publication.conflict.overlap");
+    pub const PUBLICATION_CONFLICT_OVERWRITE: Self = Self("publication.conflict.overwrite");
+    pub const PUBLICATION_CONFLICT_OVERWRITE_UNAVAILABLE: Self = Self("publication.conflict.overwrite_unavailable");
+    pub const PUBLICATION_CONFLICT_RECHECK_HINT: Self = Self("publication.conflict.recheck_hint");
+    pub const PUBLICATION_CONFLICT_REFETCH_HINT: Self = Self("publication.conflict.refetch_hint");
+    pub const PUBLICATION_CONFLICT_REFETCH_NOT_REPLAYED: Self = Self("publication.conflict.refetch_not_replayed");
+    pub const PUBLICATION_CONFLICT_REFETCHED: Self = Self("publication.conflict.refetched");
+    pub const PUBLICATION_CONFLICT_SAVE_COPY_HINT: Self = Self("publication.conflict.save_copy_hint");
+    pub const PUBLICATION_CONFLICT_STALE_BODY: Self = Self("publication.conflict.stale_body");
+    pub const PUBLICATION_CONFLICT_STALE_TITLE: Self = Self("publication.conflict.stale_title");
+    pub const PUBLICATION_CONFLICT_TITLE: Self = Self("publication.conflict.title");
+    pub const PUBLICATION_CONFLICT_TRUNCATED: Self = Self("publication.conflict.truncated");
+    pub const PUBLICATION_CONTEXT_CONNECTION: Self = Self("publication.context.connection");
+    pub const PUBLICATION_CONTEXT_OPERATION: Self = Self("publication.context.operation");
+    pub const PUBLICATION_CONTEXT_PAGES_VALUE: Self = Self("publication.context.pages_value");
+    pub const PUBLICATION_CONTEXT_SCOPE: Self = Self("publication.context.scope");
+    pub const PUBLICATION_CONTEXT_SCOPE_VALUE: Self = Self("publication.context.scope_value");
+    pub const PUBLICATION_CONTEXT_SOURCE: Self = Self("publication.context.source");
+    pub const PUBLICATION_CONTEXT_TARGET: Self = Self("publication.context.target");
+    pub const PUBLICATION_CONTEXT_TARGET_HINT: Self = Self("publication.context.target_hint");
+    pub const PUBLICATION_CONTEXT_TARGET_NEW: Self = Self("publication.context.target_new");
+    pub const PUBLICATION_CONTEXT_TARGET_NOT_CHOSEN: Self = Self("publication.context.target_not_chosen");
+    pub const PUBLICATION_CONTEXT_TARGET_SAME: Self = Self("publication.context.target_same");
+    pub const PUBLICATION_CONTRACT_ITEM_WIDGET_ITEMID: Self = Self("publication.contract.item_widget_itemid");
+    pub const PUBLICATION_CONTRACT_PRESERVE_UNTOUCHED_PAGES: Self = Self("publication.contract.preserve_untouched_pages");
+    pub const PUBLICATION_CONTRACT_PRESERVE_WIDGET_REFERENCES: Self = Self("publication.contract.preserve_widget_references");
+    pub const PUBLICATION_CONTRACT_RECONCILE_UNKNOWN_OUTCOME: Self = Self("publication.contract.reconcile_unknown_outcome");
+    pub const PUBLICATION_CONTRACT_RESEND_WIDGET_TYPE: Self = Self("publication.contract.resend_widget_type");
+    pub const PUBLICATION_CONTRACT_SVGGRAPH_DATASET_HOSTS: Self = Self("publication.contract.svggraph_dataset_hosts");
+    pub const PUBLICATION_CONTRACT_SVGGRAPH_DATASET_ITEMIDS: Self = Self("publication.contract.svggraph_dataset_itemids");
+    pub const PUBLICATION_CONTRACT_UPDATE_ONE_PAGE_WITH_FULL_FIELDS: Self = Self("publication.contract.update_one_page_with_full_fields");
+    pub const PUBLICATION_CONTRACT_UPDATE_SEVERAL_PAGES: Self = Self("publication.contract.update_several_pages");
+    pub const PUBLICATION_DIFF_CAPTION: Self = Self("publication.diff.caption");
+    pub const PUBLICATION_DIFF_CHANGE_FIELD: Self = Self("publication.diff.change.field");
+    pub const PUBLICATION_DIFF_CHANGE_KEPT: Self = Self("publication.diff.change.kept");
+    pub const PUBLICATION_DIFF_CHANGE_UNRESOLVED: Self = Self("publication.diff.change.unresolved");
+    pub const PUBLICATION_DIFF_COLUMN_AFTER: Self = Self("publication.diff.column.after");
+    pub const PUBLICATION_DIFF_COLUMN_BEFORE: Self = Self("publication.diff.column.before");
+    pub const PUBLICATION_DIFF_COLUMN_CHANGE: Self = Self("publication.diff.column.change");
+    pub const PUBLICATION_DIFF_COLUMN_OBJECT: Self = Self("publication.diff.column.object");
+    pub const PUBLICATION_DIFF_EMPTY_FILTER: Self = Self("publication.diff.empty_filter");
+    pub const PUBLICATION_DIFF_FILTER_CHANGED: Self = Self("publication.diff.filter.changed");
+    pub const PUBLICATION_DIFF_FILTER_KEPT: Self = Self("publication.diff.filter.kept");
+    pub const PUBLICATION_DIFF_FILTER_LABEL: Self = Self("publication.diff.filter.label");
+    pub const PUBLICATION_DIFF_FILTER_UNRESOLVED: Self = Self("publication.diff.filter.unresolved");
+    pub const PUBLICATION_DIFF_FILTER_UNTOUCHED: Self = Self("publication.diff.filter.untouched");
+    pub const PUBLICATION_DIFF_INSPECTOR_CHANGED_FIELDS: Self = Self("publication.diff.inspector.changed_fields");
+    pub const PUBLICATION_DIFF_INSPECTOR_NONE: Self = Self("publication.diff.inspector.none");
+    pub const PUBLICATION_DIFF_INSPECTOR_SERIES: Self = Self("publication.diff.inspector.series");
+    pub const PUBLICATION_DIFF_INSPECTOR_SOURCES: Self = Self("publication.diff.inspector.sources");
+    pub const PUBLICATION_DIFF_INSPECTOR_TITLE: Self = Self("publication.diff.inspector.title");
+    pub const PUBLICATION_DIFF_INSPECTOR_UNCHANGED: Self = Self("publication.diff.inspector.unchanged");
+    pub const PUBLICATION_DIFF_INSPECTOR_UNCHANGED_BODY: Self = Self("publication.diff.inspector.unchanged_body");
+    pub const PUBLICATION_DIFF_MATCHING_BY_ID: Self = Self("publication.diff.matching_by_id");
+    pub const PUBLICATION_DIFF_NO_CHANGES: Self = Self("publication.diff.no_changes");
+    pub const PUBLICATION_DIFF_OUT_OF_SCOPE: Self = Self("publication.diff.out_of_scope");
+    pub const PUBLICATION_DIFF_PAGE_SUMMARY: Self = Self("publication.diff.page_summary");
+    pub const PUBLICATION_DIFF_REMOTE_CURRENT: Self = Self("publication.diff.remote_current");
+    pub const PUBLICATION_DIFF_REMOTE_LATER: Self = Self("publication.diff.remote_later");
+    pub const PUBLICATION_DIFF_SEARCH: Self = Self("publication.diff.search");
+    pub const PUBLICATION_DIFF_TAB_LOCAL: Self = Self("publication.diff.tab.local");
+    pub const PUBLICATION_DIFF_TAB_REMOTE: Self = Self("publication.diff.tab.remote");
+    pub const PUBLICATION_EVIDENCE_DASHBOARD_NAME_TAKEN: Self = Self("publication.evidence.dashboard_name_taken");
+    pub const PUBLICATION_EVIDENCE_EXPECTED_FOUND: Self = Self("publication.evidence.expected_found");
+    pub const PUBLICATION_EVIDENCE_NOT_VISIBLE: Self = Self("publication.evidence.not_visible");
+    pub const PUBLICATION_EVIDENCE_OTHER_FOUND: Self = Self("publication.evidence.other_found");
+    pub const PUBLICATION_EVIDENCE_READ_BACK_MATCHES: Self = Self("publication.evidence.read_back_matches");
+    pub const PUBLICATION_EVIDENCE_RECONCILE_AMBIGUOUS: Self = Self("publication.evidence.reconcile_ambiguous");
+    pub const PUBLICATION_EVIDENCE_RECONCILE_CONFIRMED: Self = Self("publication.evidence.reconcile_confirmed");
+    pub const PUBLICATION_EVIDENCE_RECONCILE_NOT_FOUND: Self = Self("publication.evidence.reconcile_not_found");
+    pub const PUBLICATION_EVIDENCE_RECONCILE_STRUCTURE_MISMATCH: Self = Self("publication.evidence.reconcile_structure_mismatch");
+    pub const PUBLICATION_EVIDENCE_SOURCE_FOUND: Self = Self("publication.evidence.source_found");
+    pub const PUBLICATION_EVIDENCE_UNKNOWN: Self = Self("publication.evidence.unknown");
+    pub const PUBLICATION_EXPECTED_CHOOSE_ACTION: Self = Self("publication.expected.choose_action");
+    pub const PUBLICATION_EXPECTED_REPLACE_HOST: Self = Self("publication.expected.replace_host");
+    pub const PUBLICATION_EXPECTED_SAVE_AS_COPY: Self = Self("publication.expected.save_as_copy");
+    pub const PUBLICATION_EXPECTED_TITLE: Self = Self("publication.expected.title");
+    pub const PUBLICATION_FINDING_BINDING_INVALID: Self = Self("publication.finding.binding_invalid");
+    pub const PUBLICATION_FINDING_BINDING_STALE: Self = Self("publication.finding.binding_stale");
+    pub const PUBLICATION_FINDING_BINDING_UNRESOLVED: Self = Self("publication.finding.binding_unresolved");
+    pub const PUBLICATION_FINDING_CAPABILITY_NOT_VERIFIED: Self = Self("publication.finding.capability_not_verified");
+    pub const PUBLICATION_FINDING_CONNECTION_REQUIRED: Self = Self("publication.finding.connection_required");
+    pub const PUBLICATION_FINDING_DASHBOARD_NOT_EDITABLE: Self = Self("publication.finding.dashboard_not_editable");
+    pub const PUBLICATION_FINDING_DECISION_INVALID: Self = Self("publication.finding.decision_invalid");
+    pub const PUBLICATION_FINDING_KEPT_ON_SOURCE: Self = Self("publication.finding.kept_on_source");
+    pub const PUBLICATION_FINDING_KEPT_ON_SOURCE_CONFIRMATION_STALE: Self = Self("publication.finding.kept_on_source_confirmation_stale");
+    pub const PUBLICATION_FINDING_MATCH_DIFFERENCES: Self = Self("publication.finding.match_differences");
+    pub const PUBLICATION_FINDING_NO_CHANGES: Self = Self("publication.finding.no_changes");
+    pub const PUBLICATION_FINDING_SCOPE_LINK_CROSSING_CONSUMER_OUTSIDE: Self = Self("publication.finding.scope_link_crossing.consumer_outside");
+    pub const PUBLICATION_FINDING_SCOPE_LINK_CROSSING_PROVIDER_OUTSIDE: Self = Self("publication.finding.scope_link_crossing.provider_outside");
+    pub const PUBLICATION_FINDING_SERVER_VERSION_MISMATCH: Self = Self("publication.finding.server_version_mismatch");
+    pub const PUBLICATION_FINDING_SOURCE_UNVERIFIED: Self = Self("publication.finding.source_unverified");
+    pub const PUBLICATION_FINDING_TARGET_HOST_NOT_VISIBLE: Self = Self("publication.finding.target_host_not_visible");
+    pub const PUBLICATION_FINDING_UNKNOWN: Self = Self("publication.finding.unknown");
+    pub const PUBLICATION_FINDING_WRITE_CONTRACT_UNVERIFIED: Self = Self("publication.finding.write_contract_unverified");
+    pub const PUBLICATION_FINDING_WRITE_MODE_REQUIRED: Self = Self("publication.finding.write_mode_required");
+    pub const PUBLICATION_JOURNAL_CLOSE: Self = Self("publication.journal.close");
+    pub const PUBLICATION_JOURNAL_DESCRIPTION: Self = Self("publication.journal.description");
+    pub const PUBLICATION_JOURNAL_DISK_NOTE: Self = Self("publication.journal.disk_note");
+    pub const PUBLICATION_JOURNAL_FIELD_CLOSED_BY: Self = Self("publication.journal.field.closed_by");
+    pub const PUBLICATION_JOURNAL_FIELD_CONNECTION: Self = Self("publication.journal.field.connection");
+    pub const PUBLICATION_JOURNAL_FIELD_EVIDENCE: Self = Self("publication.journal.field.evidence");
+    pub const PUBLICATION_JOURNAL_FIELD_FINISHED: Self = Self("publication.journal.field.finished");
+    pub const PUBLICATION_JOURNAL_FIELD_OPERATION: Self = Self("publication.journal.field.operation");
+    pub const PUBLICATION_JOURNAL_FIELD_OPERATION_ID: Self = Self("publication.journal.field.operation_id");
+    pub const PUBLICATION_JOURNAL_FIELD_REPEATS: Self = Self("publication.journal.field.repeats");
+    pub const PUBLICATION_JOURNAL_FIELD_SENDS: Self = Self("publication.journal.field.sends");
+    pub const PUBLICATION_JOURNAL_FIELD_SENT: Self = Self("publication.journal.field.sent");
+    pub const PUBLICATION_JOURNAL_FIELD_SERVER_VERSION: Self = Self("publication.journal.field.server_version");
+    pub const PUBLICATION_JOURNAL_FIELD_SOURCE: Self = Self("publication.journal.field.source");
+    pub const PUBLICATION_JOURNAL_FIELD_STARTED: Self = Self("publication.journal.field.started");
+    pub const PUBLICATION_JOURNAL_FIELD_STATE: Self = Self("publication.journal.field.state");
+    pub const PUBLICATION_JOURNAL_FIELD_TARGET: Self = Self("publication.journal.field.target");
+    pub const PUBLICATION_JOURNAL_FIELD_TRANSITIONS: Self = Self("publication.journal.field.transitions");
+    pub const PUBLICATION_JOURNAL_PROFILE_REMOVED: Self = Self("publication.journal.profile_removed");
+    pub const PUBLICATION_JOURNAL_SOURCE_DRAFT: Self = Self("publication.journal.source_draft");
+    pub const PUBLICATION_JOURNAL_SOURCE_REMOVED: Self = Self("publication.journal.source_removed");
+    pub const PUBLICATION_JOURNAL_TARGET_EXISTING: Self = Self("publication.journal.target_existing");
+    pub const PUBLICATION_JOURNAL_TARGET_EXISTING_UNNAMED: Self = Self("publication.journal.target_existing_unnamed");
+    pub const PUBLICATION_JOURNAL_TARGET_NEW: Self = Self("publication.journal.target_new");
+    pub const PUBLICATION_JOURNAL_TITLE: Self = Self("publication.journal.title");
+    pub const PUBLICATION_JOURNAL_TRANSITION: Self = Self("publication.journal.transition");
+    pub const PUBLICATION_JOURNAL_BLOCK: Self = Self("publication.journal_block");
+    pub const PUBLICATION_JOURNAL_BLOCK_DAMAGED: Self = Self("publication.journal_block_damaged");
+    pub const PUBLICATION_KEPT_CONFIRMED_DONE: Self = Self("publication.kept.confirmed_done");
+    pub const PUBLICATION_LATER_HINT: Self = Self("publication.later.hint");
+    pub const PUBLICATION_NONE_BODY: Self = Self("publication.none.body");
+    pub const PUBLICATION_NONE_TITLE: Self = Self("publication.none.title");
+    pub const PUBLICATION_PLAN_INVALIDATED: Self = Self("publication.plan.invalidated");
+    pub const PUBLICATION_PLAN_REASON_APP_RESTARTED: Self = Self("publication.plan.reason.app_restarted");
+    pub const PUBLICATION_PLAN_REASON_BINDINGS_CHANGED: Self = Self("publication.plan.reason.bindings_changed");
+    pub const PUBLICATION_PLAN_REASON_CONNECTION_CHANGED: Self = Self("publication.plan.reason.connection_changed");
+    pub const PUBLICATION_PLAN_REASON_DRAFT_CHANGED: Self = Self("publication.plan.reason.draft_changed");
+    pub const PUBLICATION_PLAN_REASON_SESSION_ENDED: Self = Self("publication.plan.reason.session_ended");
+    pub const PUBLICATION_PLAN_REASON_SOURCE_CHANGED: Self = Self("publication.plan.reason.source_changed");
+    pub const PUBLICATION_PLAN_REASON_TARGET_CHANGED: Self = Self("publication.plan.reason.target_changed");
+    pub const PUBLICATION_PLAN_REASON_UNKNOWN: Self = Self("publication.plan.reason.unknown");
+    pub const PUBLICATION_PREFLIGHT_BLOCKED: Self = Self("publication.preflight.blocked");
+    pub const PUBLICATION_PREFLIGHT_TITLE: Self = Self("publication.preflight.title");
+    pub const PUBLICATION_PREVIEW_READ_ONLY_NOTE: Self = Self("publication.preview.read_only_note");
+    pub const PUBLICATION_RECONCILE_COLUMN_FOUND: Self = Self("publication.reconcile.column.found");
+    pub const PUBLICATION_RECONCILE_COLUMN_NEXT: Self = Self("publication.reconcile.column.next");
+    pub const PUBLICATION_RECONCILE_COLUMN_RESULT: Self = Self("publication.reconcile.column.result");
+    pub const PUBLICATION_RECONCILE_CREATE_NOTE: Self = Self("publication.reconcile.create_note");
+    pub const PUBLICATION_RECONCILE_FOUND_BASE: Self = Self("publication.reconcile.found_base");
+    pub const PUBLICATION_RECONCILE_FOUND_EXPECTED: Self = Self("publication.reconcile.found_expected");
+    pub const PUBLICATION_RECONCILE_FOUND_NONE_OR_OTHER: Self = Self("publication.reconcile.found_none_or_other");
+    pub const PUBLICATION_RECONCILE_FOUND_ONE: Self = Self("publication.reconcile.found_one");
+    pub const PUBLICATION_RECONCILE_FOUND_OTHER: Self = Self("publication.reconcile.found_other");
+    pub const PUBLICATION_RECONCILE_NEXT_CONTINUE: Self = Self("publication.reconcile.next_continue");
+    pub const PUBLICATION_RECONCILE_NEXT_NEW_PREVIEW: Self = Self("publication.reconcile.next_new_preview");
+    pub const PUBLICATION_RECONCILE_NEXT_OPEN: Self = Self("publication.reconcile.next_open");
+    pub const PUBLICATION_RECONCILE_READ_ONLY_ENOUGH: Self = Self("publication.reconcile.read_only_enough");
+    pub const PUBLICATION_RECONCILE_TITLE: Self = Self("publication.reconcile.title");
+    pub const PUBLICATION_RECONCILE_UPDATE_NOTE: Self = Self("publication.reconcile.update_note");
+    pub const PUBLICATION_RECONCILE_WRITE_BLOCKED: Self = Self("publication.reconcile.write_blocked");
     pub const PUBLICATION_REQUIREMENT_NO_CONNECTION: Self = Self("publication.requirement.no_connection");
+    pub const PUBLICATION_RESULT_BASE_ADVANCED: Self = Self("publication.result.base_advanced");
+    pub const PUBLICATION_RESULT_BASE_NOT_ADVANCED: Self = Self("publication.result.base_not_advanced");
+    pub const PUBLICATION_RESULT_CLOSED_MANUALLY_BODY: Self = Self("publication.result.closed_manually_body");
+    pub const PUBLICATION_RESULT_COPY_CREATED: Self = Self("publication.result.copy_created");
+    pub const PUBLICATION_RESULT_FAILED_AFTER_RESPONSE_BODY: Self = Self("publication.result.failed_after_response_body");
+    pub const PUBLICATION_RESULT_FAILED_BEFORE_SEND_BODY: Self = Self("publication.result.failed_before_send_body");
+    pub const PUBLICATION_RESULT_JOURNAL_ERROR: Self = Self("publication.result.journal_error");
+    pub const PUBLICATION_RESULT_MANUAL_BODY: Self = Self("publication.result.manual_body");
+    pub const PUBLICATION_RESULT_MANUAL_UPDATE_BODY: Self = Self("publication.result.manual_update_body");
+    pub const PUBLICATION_RESULT_RECONCILED_FAILED_BODY: Self = Self("publication.result.reconciled_failed_body");
+    pub const PUBLICATION_RESULT_RECONCILED_VERIFIED_BODY: Self = Self("publication.result.reconciled_verified_body");
+    pub const PUBLICATION_RESULT_UNKNOWN_BODY: Self = Self("publication.result.unknown_body");
+    pub const PUBLICATION_RESULT_VERIFIED_BODY: Self = Self("publication.result.verified_body");
+    pub const PUBLICATION_STAGE_AT: Self = Self("publication.stage.at");
+    pub const PUBLICATION_STAGE_DISPLAY: Self = Self("publication.stage.display");
+    pub const PUBLICATION_STAGE_DISPLAY_NOT_CHECKED: Self = Self("publication.stage.display_not_checked");
+    pub const PUBLICATION_STAGE_NAME_CHECK: Self = Self("publication.stage.name_check");
+    pub const PUBLICATION_STAGE_NAME_CHECK_DONE: Self = Self("publication.stage.name_check_done");
+    pub const PUBLICATION_STAGE_NOT_DONE: Self = Self("publication.stage.not_done");
+    pub const PUBLICATION_STAGE_NOT_SENT: Self = Self("publication.stage.not_sent");
+    pub const PUBLICATION_STAGE_PRE_READ: Self = Self("publication.stage.pre_read");
+    pub const PUBLICATION_STAGE_PRE_READ_DONE: Self = Self("publication.stage.pre_read_done");
+    pub const PUBLICATION_STAGE_READ_BACK: Self = Self("publication.stage.read_back");
+    pub const PUBLICATION_STAGE_READ_BACK_DONE: Self = Self("publication.stage.read_back_done");
+    pub const PUBLICATION_STAGE_SENDING: Self = Self("publication.stage.sending");
+    pub const PUBLICATION_STAGE_SOURCES: Self = Self("publication.stage.sources");
+    pub const PUBLICATION_STAGE_SOURCES_DONE: Self = Self("publication.stage.sources_done");
+    pub const PUBLICATION_STAGE_STRUCTURE: Self = Self("publication.stage.structure");
+    pub const PUBLICATION_STAGE_STRUCTURE_DONE: Self = Self("publication.stage.structure_done");
+    pub const PUBLICATION_STAGE_WAITING: Self = Self("publication.stage.waiting");
+    pub const PUBLICATION_STAGE_WRITE: Self = Self("publication.stage.write");
+    pub const PUBLICATION_STAGE_WRITE_DONE: Self = Self("publication.stage.write_done");
+    pub const PUBLICATION_STAGE_WRITE_UNKNOWN: Self = Self("publication.stage.write_unknown");
+    pub const PUBLICATION_STAGES_TITLE: Self = Self("publication.stages.title");
+    pub const PUBLICATION_STATE_CLOSED_MANUALLY: Self = Self("publication.state.closed_manually");
+    pub const PUBLICATION_STATE_CONFIRMED: Self = Self("publication.state.confirmed");
+    pub const PUBLICATION_STATE_CONFLICT: Self = Self("publication.state.conflict");
+    pub const PUBLICATION_STATE_FAILED_AFTER_RESPONSE: Self = Self("publication.state.failed_after_response");
+    pub const PUBLICATION_STATE_FAILED_BEFORE_SEND: Self = Self("publication.state.failed_before_send");
+    pub const PUBLICATION_STATE_MANUAL_CHECK_REQUIRED: Self = Self("publication.state.manual_check_required");
+    pub const PUBLICATION_STATE_RECONCILED_FAILED: Self = Self("publication.state.reconciled_failed");
+    pub const PUBLICATION_STATE_RECONCILED_VERIFIED: Self = Self("publication.state.reconciled_verified");
+    pub const PUBLICATION_STATE_SUBMITTING: Self = Self("publication.state.submitting");
+    pub const PUBLICATION_STATE_UNKNOWN_OUTCOME: Self = Self("publication.state.unknown_outcome");
+    pub const PUBLICATION_STATE_VERIFIED: Self = Self("publication.state.verified");
+    pub const PUBLICATION_STEP_CHANGES: Self = Self("publication.step.changes");
+    pub const PUBLICATION_STEP_CHECKS: Self = Self("publication.step.checks");
+    pub const PUBLICATION_STEP_CONFIRM: Self = Self("publication.step.confirm");
+    pub const PUBLICATION_STEP_TARGET: Self = Self("publication.step.target");
+    pub const PUBLICATION_STEP_UNAVAILABLE_REASON: Self = Self("publication.step.unavailable_reason");
+    pub const PUBLICATION_STEP_WRITE: Self = Self("publication.step.write");
+    pub const PUBLICATION_TARGET_CHOOSE_EXPLICITLY: Self = Self("publication.target.choose_explicitly");
+    pub const PUBLICATION_TARGET_NAME: Self = Self("publication.target.name");
+    pub const PUBLICATION_TARGET_NAME_REQUIRED: Self = Self("publication.target.name_required");
+    pub const PUBLICATION_TARGET_NAME_SERVER_CHECK: Self = Self("publication.target.name_server_check");
+    pub const PUBLICATION_TARGET_NO_RETARGET: Self = Self("publication.target.no_retarget");
+    pub const PUBLICATION_TARGET_SAVE_COPY: Self = Self("publication.target.save_copy");
+    pub const PUBLICATION_TARGET_SAVE_COPY_HINT: Self = Self("publication.target.save_copy_hint");
+    pub const PUBLICATION_TARGET_TITLE: Self = Self("publication.target.title");
+    pub const PUBLICATION_TARGET_UPDATE_SOURCE: Self = Self("publication.target.update_source");
+    pub const PUBLICATION_TARGET_UPDATE_SOURCE_HINT: Self = Self("publication.target.update_source_hint");
+    pub const PUBLICATION_TARGET_UPDATE_VISIBLE_TO_ALL: Self = Self("publication.target.update_visible_to_all");
+    pub const PUBLICATION_TECH_BASE: Self = Self("publication.tech.base");
+    pub const PUBLICATION_TECH_FIELDS: Self = Self("publication.tech.fields");
+    pub const PUBLICATION_TECH_LOCAL: Self = Self("publication.tech.local");
+    pub const PUBLICATION_TECH_PAGEID: Self = Self("publication.tech.pageid");
+    pub const PUBLICATION_TECH_REVISION: Self = Self("publication.tech.revision");
+    pub const PUBLICATION_TECH_TITLE: Self = Self("publication.tech.title");
+    pub const PUBLICATION_TECH_WIDGET_TYPE: Self = Self("publication.tech.widget_type");
+    pub const PUBLICATION_TECH_WIDGETID: Self = Self("publication.tech.widgetid");
+    pub const PUBLICATION_TITLE: Self = Self("publication.title");
+    pub const PUBLICATION_UNTOUCHED_ACCESS: Self = Self("publication.untouched.access");
+    pub const PUBLICATION_UNTOUCHED_PAGES: Self = Self("publication.untouched.pages");
+    pub const PUBLICATION_UNTOUCHED_SOURCE: Self = Self("publication.untouched.source");
+    pub const PUBLICATION_UNTOUCHED_TITLE: Self = Self("publication.untouched.title");
+    pub const PUBLICATION_UNTOUCHED_WIDGETS: Self = Self("publication.untouched.widgets");
+    pub const PUBLICATION_UNTOUCHED_ZABBIX_OBJECTS: Self = Self("publication.untouched.zabbix_objects");
+    pub const REPLACE_HOST_SOURCE: Self = Self("replace_host.source");
+    pub const SERVER_ACTION_CLONE: Self = Self("server.action.clone");
+    pub const SERVER_ACTION_COPY: Self = Self("server.action.copy");
+    pub const SERVER_ACTION_OPEN_COPY: Self = Self("server.action.open_copy");
+    pub const SERVER_ACTION_PREVIEW: Self = Self("server.action.preview");
+    pub const SERVER_ACTION_REFRESH: Self = Self("server.action.refresh");
+    pub const SERVER_ACTIONS_START_WITH_COPY: Self = Self("server.actions_start_with_copy");
+    pub const SERVER_COLUMN_ACCESS: Self = Self("server.column.access");
+    pub const SERVER_COLUMN_EDITABLE: Self = Self("server.column.editable");
+    pub const SERVER_COLUMN_MINE: Self = Self("server.column.mine");
+    pub const SERVER_COLUMN_NAME: Self = Self("server.column.name");
+    pub const SERVER_COLUMN_OWNER: Self = Self("server.column.owner");
+    pub const SERVER_COLUMN_PAGES: Self = Self("server.column.pages");
+    pub const SERVER_COLUMN_WIDGETS: Self = Self("server.column.widgets");
     pub const SERVER_DASHBOARDS_TITLE: Self = Self("server.dashboards.title");
+    pub const SERVER_DETAILS_COPIED_AS_IS: Self = Self("server.details.copied_as_is");
+    pub const SERVER_DETAILS_EDITABLE: Self = Self("server.details.editable");
+    pub const SERVER_DETAILS_EXISTING_COPY: Self = Self("server.details.existing_copy");
+    pub const SERVER_DETAILS_NOT_EDITABLE: Self = Self("server.details.not_editable");
+    pub const SERVER_DETAILS_OWNER: Self = Self("server.details.owner");
+    pub const SERVER_DETAILS_PAGES: Self = Self("server.details.pages");
+    pub const SERVER_DETAILS_SELECT_HINT: Self = Self("server.details.select_hint");
+    pub const SERVER_DETAILS_TYPE_COUNT: Self = Self("server.details.type_count");
+    pub const SERVER_DETAILS_WIDGETS: Self = Self("server.details.widgets");
+    pub const SERVER_EDITABLE_COUNT: Self = Self("server.editable_count");
+    pub const SERVER_EMPTY_OFFLINE: Self = Self("server.empty.offline");
+    pub const SERVER_EMPTY_OTHER_CONNECTION: Self = Self("server.empty.other_connection");
+    pub const SERVER_FILTER_LEGEND: Self = Self("server.filter.legend");
+    pub const SERVER_FILTER_MINE: Self = Self("server.filter.mine");
+    pub const SERVER_FILTER_SHARED: Self = Self("server.filter.shared");
+    pub const SERVER_LIST_COPIES_UNKNOWN: Self = Self("server.list.copies_unknown");
+    pub const SERVER_LIST_LOAD_FAILED: Self = Self("server.list.load_failed");
+    pub const SERVER_LIST_TRUNCATED: Self = Self("server.list.truncated");
+    pub const SERVER_MINE_COPY: Self = Self("server.mine.copy");
+    pub const SERVER_MINE_UNKNOWN: Self = Self("server.mine.unknown");
+    pub const SERVER_OWNER_OTHER: Self = Self("server.owner.other");
+    pub const SERVER_OWNER_YOU: Self = Self("server.owner.you");
+    pub const SERVER_PAGINATION_LABEL: Self = Self("server.pagination.label");
+    pub const SERVER_PAGINATION_NEXT: Self = Self("server.pagination.next");
+    pub const SERVER_PAGINATION_PREVIOUS: Self = Self("server.pagination.previous");
+    pub const SERVER_PREVIEW_BADGE: Self = Self("server.preview.badge");
+    pub const SERVER_PREVIEW_BREADCRUMB: Self = Self("server.preview.breadcrumb");
+    pub const SERVER_PREVIEW_LOAD_FAILED: Self = Self("server.preview.load_failed");
+    pub const SERVER_PREVIEW_NOTE: Self = Self("server.preview.note");
+    pub const SERVER_PREVIEW_PAGE_TO_TAKE: Self = Self("server.preview.page_to_take");
+    pub const SERVER_SEARCH_ACTION: Self = Self("server.search.action");
+    pub const SERVER_SEARCH_PLACEHOLDER: Self = Self("server.search.placeholder");
+    pub const SERVER_SUBTITLE: Self = Self("server.subtitle");
+    pub const SERVER_TAB_DASHBOARDS: Self = Self("server.tab.dashboards");
+    pub const SERVER_TAB_TEMPLATES: Self = Self("server.tab.templates");
+    pub const SERVER_TAKE_PAGE_LEGEND: Self = Self("server.take_page.legend");
+    pub const SERVER_TEMPLATES_LATER: Self = Self("server.templates.later");
+    pub const SERVER_VISIBILITY_NOTE: Self = Self("server.visibility_note");
+    pub const SESSION_ACTION_END: Self = Self("session.action.end");
+    pub const SESSION_END_CONFIRM_BODY: Self = Self("session.end.confirm.body");
+    pub const SESSION_END_CONFIRM_TITLE: Self = Self("session.end.confirm.title");
+    pub const SESSION_END_NOT_CONFIRMED: Self = Self("session.end.not_confirmed");
+    pub const SESSION_END_UNAVAILABLE_WRITING: Self = Self("session.end.unavailable_writing");
+    pub const SESSION_ENDED_TITLE: Self = Self("session.ended.title");
+    pub const SETTINGS_APPEARANCE_INVALID_BODY: Self = Self("settings.appearance.invalid_body");
+    pub const SETTINGS_APPEARANCE_NOT_SAVED_BODY: Self = Self("settings.appearance.not_saved.body");
+    pub const SETTINGS_APPEARANCE_NOT_SAVED_TITLE: Self = Self("settings.appearance.not_saved.title");
+    pub const SETTINGS_APPEARANCE_SAVED: Self = Self("settings.appearance.saved");
+    pub const SETTINGS_APPEARANCE_SUBTITLE: Self = Self("settings.appearance.subtitle");
     pub const SETTINGS_APPEARANCE_TITLE: Self = Self("settings.appearance.title");
+    pub const SETTINGS_CHANGED: Self = Self("settings.changed");
     pub const SETTINGS_CONNECTIONS_TITLE: Self = Self("settings.connections.title");
+    pub const SETTINGS_CONTRAST_NOTE: Self = Self("settings.contrast.note");
+    pub const SETTINGS_CONTRAST_TITLE: Self = Self("settings.contrast.title");
+    pub const SETTINGS_DATA_NOT_TRANSLATED: Self = Self("settings.data_not_translated");
     pub const SETTINGS_EDITOR_TITLE: Self = Self("settings.editor.title");
+    pub const SETTINGS_FILE_HINT: Self = Self("settings.file.hint");
+    pub const SETTINGS_FILE_INVALID_TITLE: Self = Self("settings.file.invalid.title");
+    pub const SETTINGS_FILE_TITLE: Self = Self("settings.file.title");
+    pub const SETTINGS_FORMATS_COUNT: Self = Self("settings.formats.count");
+    pub const SETTINGS_FORMATS_COUNT_SAMPLE: Self = Self("settings.formats.count_sample");
+    pub const SETTINGS_FORMATS_DATETIME: Self = Self("settings.formats.datetime");
+    pub const SETTINGS_FORMATS_NUMBER: Self = Self("settings.formats.number");
+    pub const SETTINGS_FORMATS_TITLE: Self = Self("settings.formats.title");
     pub const SETTINGS_GENERAL_TITLE: Self = Self("settings.general.title");
+    pub const SETTINGS_LANGUAGE_AFTER_RESTART: Self = Self("settings.language.after_restart");
+    pub const SETTINGS_LANGUAGE_CURRENT: Self = Self("settings.language.current");
+    pub const SETTINGS_LANGUAGE_NAME_EN: Self = Self("settings.language.name.en");
+    pub const SETTINGS_LANGUAGE_NAME_RU: Self = Self("settings.language.name.ru");
+    pub const SETTINGS_LANGUAGE_OPTION_EN: Self = Self("settings.language.option.en");
+    pub const SETTINGS_LANGUAGE_OPTION_RU: Self = Self("settings.language.option.ru");
+    pub const SETTINGS_LANGUAGE_SYSTEM: Self = Self("settings.language.system");
+    pub const SETTINGS_LANGUAGE_TITLE: Self = Self("settings.language.title");
+    pub const SETTINGS_MOTION_EXPLICIT_STATE: Self = Self("settings.motion.explicit_state");
+    pub const SETTINGS_MOTION_NO_MEANING: Self = Self("settings.motion.no_meaning");
+    pub const SETTINGS_MOTION_REDUCE: Self = Self("settings.motion.reduce");
+    pub const SETTINGS_MOTION_STATE_OFF: Self = Self("settings.motion.state.off");
+    pub const SETTINGS_MOTION_STATE_ON: Self = Self("settings.motion.state.on");
+    pub const SETTINGS_MOTION_SYSTEM_STATE: Self = Self("settings.motion.system_state");
+    pub const SETTINGS_MOTION_TITLE: Self = Self("settings.motion.title");
     pub const SETTINGS_NAV_NO_SECRETS: Self = Self("settings.nav.no_secrets");
+    pub const SETTINGS_RESET_SECTION: Self = Self("settings.reset.section");
     pub const SETTINGS_SEARCH_PLACEHOLDER: Self = Self("settings.search.placeholder");
     pub const SETTINGS_SECURITY_TITLE: Self = Self("settings.security.title");
     pub const SETTINGS_STORAGE_NETWORK_WARNING: Self = Self("settings.storage.network_warning");
+    pub const SETTINGS_THEME_DARK: Self = Self("settings.theme.dark");
+    pub const SETTINGS_THEME_HIGH_CONTRAST: Self = Self("settings.theme.high_contrast");
+    pub const SETTINGS_THEME_HIGH_CONTRAST_HINT: Self = Self("settings.theme.high_contrast.hint");
+    pub const SETTINGS_THEME_LIGHT: Self = Self("settings.theme.light");
+    pub const SETTINGS_THEME_NOT_WIDGETS: Self = Self("settings.theme.not_widgets");
+    pub const SETTINGS_THEME_SYSTEM: Self = Self("settings.theme.system");
+    pub const SETTINGS_THEME_TITLE: Self = Self("settings.theme.title");
     pub const SETTINGS_TITLE: Self = Self("settings.title");
     pub const SETTINGS_WORKSPACE_TITLE: Self = Self("settings.workspace.title");
     pub const SHELL_A11Y_BREADCRUMBS: Self = Self("shell.a11y.breadcrumbs");
     pub const SHELL_A11Y_MAIN_NAV: Self = Self("shell.a11y.main_nav");
+    pub const SHELL_DEMO_MARKER: Self = Self("shell.demo.marker");
     pub const STARTUP_ACTION_ALL_DRAFTS: Self = Self("startup.action.all_drafts");
     pub const STARTUP_ACTION_ASSEMBLE_DASHBOARD: Self = Self("startup.action.assemble_dashboard");
     pub const STARTUP_ACTION_CHOOSE_DASHBOARD: Self = Self("startup.action.choose_dashboard");
@@ -207,6 +1264,7 @@ impl MessageId {
     pub const STARTUP_ACTION_IMPORT_FILES: Self = Self("startup.action.import_files");
     pub const STARTUP_ACTION_NEW_DASHBOARD: Self = Self("startup.action.new_dashboard");
     pub const STARTUP_ACTION_NEW_PAGE: Self = Self("startup.action.new_page");
+    pub const STARTUP_ACTION_OPEN_SERVER: Self = Self("startup.action.open_server");
     pub const STARTUP_ACTION_TAKE_PAGE: Self = Self("startup.action.take_page");
     pub const STARTUP_DRAFT_MISSING: Self = Self("startup.draft.missing");
     pub const STARTUP_ERROR_UNAVAILABLE: Self = Self("startup.error.unavailable");
@@ -225,6 +1283,26 @@ impl MessageId {
     pub const STARTUP_QUESTION: Self = Self("startup.question");
     pub const STARTUP_RECENT_EMPTY: Self = Self("startup.recent.empty");
     pub const STARTUP_RECENT_TITLE: Self = Self("startup.recent.title");
+    pub const STARTUP_RECOVERY_A11Y_REGION: Self = Self("startup.recovery.a11y.region");
+    pub const STARTUP_RECOVERY_ACTION_CONNECT: Self = Self("startup.recovery.action.connect");
+    pub const STARTUP_RECOVERY_ACTION_OPEN_DRAFT: Self = Self("startup.recovery.action.open_draft");
+    pub const STARTUP_RECOVERY_BODY: Self = Self("startup.recovery.body");
+    pub const STARTUP_RECOVERY_CLOSE_UNVERIFIED: Self = Self("startup.recovery.close_unverified");
+    pub const STARTUP_RECOVERY_CLOSE_UNVERIFIED_CONFIRM: Self = Self("startup.recovery.close_unverified.confirm");
+    pub const STARTUP_RECOVERY_CLOSE_UNVERIFIED_TITLE: Self = Self("startup.recovery.close_unverified.title");
+    pub const STARTUP_RECOVERY_CLOSED: Self = Self("startup.recovery.closed");
+    pub const STARTUP_RECOVERY_CLOSED_MANUALLY: Self = Self("startup.recovery.closed_manually");
+    pub const STARTUP_RECOVERY_CONNECT_FIRST: Self = Self("startup.recovery.connect_first");
+    pub const STARTUP_RECOVERY_DAMAGED_BODY_ALL: Self = Self("startup.recovery.damaged.body_all");
+    pub const STARTUP_RECOVERY_DAMAGED_BODY_TARGET: Self = Self("startup.recovery.damaged.body_target");
+    pub const STARTUP_RECOVERY_DAMAGED_TITLE: Self = Self("startup.recovery.damaged.title");
+    pub const STARTUP_RECOVERY_FOUND: Self = Self("startup.recovery.found");
+    pub const STARTUP_RECOVERY_LOAD_FAILED: Self = Self("startup.recovery.load_failed");
+    pub const STARTUP_RECOVERY_QUARANTINE: Self = Self("startup.recovery.quarantine");
+    pub const STARTUP_RECOVERY_QUARANTINE_CONFIRM: Self = Self("startup.recovery.quarantine.confirm");
+    pub const STARTUP_RECOVERY_QUARANTINE_TITLE: Self = Self("startup.recovery.quarantine.title");
+    pub const STARTUP_RECOVERY_QUARANTINED: Self = Self("startup.recovery.quarantined");
+    pub const STARTUP_RECOVERY_STATE: Self = Self("startup.recovery.state");
     pub const STARTUP_SERVER_HELP: Self = Self("startup.server.help");
     pub const STARTUP_SERVER_TITLE: Self = Self("startup.server.title");
     pub const STARTUP_STATUS_BACKEND: Self = Self("startup.status.backend");
@@ -270,10 +1348,267 @@ impl MessageId {
     pub const WIDGET_TYPE_TRIGOVER: Self = Self("widget.type.trigover");
     pub const WIDGET_TYPE_URL: Self = Self("widget.type.url");
     pub const WIDGET_TYPE_WEB: Self = Self("widget.type.web");
+    pub const WORKCOPY_REFETCH_ACTION: Self = Self("workcopy.refetch.action");
 
     /// Every message identifier in stable lexical order.
     pub const ALL: &'static [Self] = &[
+        Self::ABOUT_COPIED,
+        Self::ABOUT_COPYRIGHT,
+        Self::ABOUT_DATA_COPY_PATH,
+        Self::ABOUT_DATA_JOURNAL,
+        Self::ABOUT_DATA_PATHS_LOCAL_ONLY,
+        Self::ABOUT_DATA_SETTINGS_FILE,
+        Self::ABOUT_DATA_STORAGE,
+        Self::ABOUT_DATA_TITLE,
+        Self::ABOUT_ERROR_UNAVAILABLE,
+        Self::ABOUT_FIELD_BUILD,
+        Self::ABOUT_FIELD_BUILD_UNKNOWN,
+        Self::ABOUT_FIELD_PLATFORM,
+        Self::ABOUT_FIELD_VERSION,
+        Self::ABOUT_FIELD_ZABBIX,
+        Self::ABOUT_FIELD_ZABBIX_VALUE,
+        Self::ABOUT_LICENSE_BRAND,
+        Self::ABOUT_LICENSE_CODE,
+        Self::ABOUT_LICENSE_CODE_CHOICE,
+        Self::ABOUT_LICENSE_DOCS,
+        Self::ABOUT_LICENSE_DOCS_VALUE,
+        Self::ABOUT_LICENSE_TABLER,
+        Self::ABOUT_LICENSE_TEXT,
+        Self::ABOUT_LICENSE_TEXT_APACHE,
+        Self::ABOUT_LICENSE_TEXT_MIT,
+        Self::ABOUT_LICENSE_TEXT_ORIGINAL,
+        Self::ABOUT_LICENSE_TITLE,
+        Self::ABOUT_LICENSE_ZABBIX_NOTE,
+        Self::ABOUT_REPORT_COPY,
+        Self::ABOUT_REPORT_COPY_FAILED,
+        Self::ABOUT_REPORT_PREVIEW,
+        Self::ABOUT_REPORT_SCOPE,
+        Self::ABOUT_SUBTITLE,
+        Self::ABOUT_TAGLINE,
+        Self::ABOUT_THIRD_PARTY_COLUMN_COMPONENT,
+        Self::ABOUT_THIRD_PARTY_COLUMN_LICENSE,
+        Self::ABOUT_THIRD_PARTY_COLUMN_VERSION,
+        Self::ABOUT_THIRD_PARTY_EMPTY,
+        Self::ABOUT_THIRD_PARTY_FILTER_ALL,
+        Self::ABOUT_THIRD_PARTY_FILTER_ICONS,
+        Self::ABOUT_THIRD_PARTY_FILTER_RUST,
+        Self::ABOUT_THIRD_PARTY_FILTER_UI,
+        Self::ABOUT_THIRD_PARTY_FILTERS,
+        Self::ABOUT_THIRD_PARTY_ICONS_SUMMARY,
+        Self::ABOUT_THIRD_PARTY_MISSING,
+        Self::ABOUT_THIRD_PARTY_MORE,
+        Self::ABOUT_THIRD_PARTY_SEARCH,
+        Self::ABOUT_THIRD_PARTY_SHOW_ALL,
+        Self::ABOUT_THIRD_PARTY_SUBTITLE,
+        Self::ABOUT_THIRD_PARTY_TITLE,
         Self::ABOUT_TITLE,
+        Self::BINDINGS_A11Y_STEPS,
+        Self::BINDINGS_ACTION_BACK,
+        Self::BINDINGS_ACTION_CHECK_ALL,
+        Self::BINDINGS_ACTION_CONNECT,
+        Self::BINDINGS_ACTION_NEXT_DEPENDENCIES,
+        Self::BINDINGS_ACTION_NEXT_MAPPING,
+        Self::BINDINGS_ACTION_NEXT_NEW_HOST,
+        Self::BINDINGS_ACTION_NEXT_SUMMARY,
+        Self::BINDINGS_ACTION_RESET_ALL,
+        Self::BINDINGS_ACTION_RETRY,
+        Self::BINDINGS_ACTION_TO_PUBLICATION,
+        Self::BINDINGS_CALCULATED_DONE,
+        Self::BINDINGS_CALCULATED_AT,
+        Self::BINDINGS_CANDIDATES_LEGEND,
+        Self::BINDINGS_CANDIDATES_NONE,
+        Self::BINDINGS_CHANGE_CHANGED,
+        Self::BINDINGS_CHANGE_KEPT_ON_SOURCE,
+        Self::BINDINGS_CHANGE_UNRESOLVED,
+        Self::BINDINGS_CHANGE_UNTOUCHED,
+        Self::BINDINGS_CHECK_REASON_CANDIDATE_NOT_VISIBLE,
+        Self::BINDINGS_CHECK_REASON_REFERENCE_ADDED,
+        Self::BINDINGS_CHECK_REASON_REFERENCE_GONE,
+        Self::BINDINGS_CHECK_REASON_RESOLUTION_CHANGED,
+        Self::BINDINGS_CHECK_REASON_SERVER_VERSION_CHANGED,
+        Self::BINDINGS_CHECK_REASON_TARGET_NOT_VISIBLE,
+        Self::BINDINGS_CHECKED_DONE,
+        Self::BINDINGS_CHECKED_AT,
+        Self::BINDINGS_COMMAND_FAILED,
+        Self::BINDINGS_DECISION_APPLIED_CANDIDATE,
+        Self::BINDINGS_DECISION_APPLIED_KEEP,
+        Self::BINDINGS_DECISION_CHOOSE,
+        Self::BINDINGS_DECISION_DONE,
+        Self::BINDINGS_DECISION_INVALID,
+        Self::BINDINGS_DECISION_KEEP_HINT,
+        Self::BINDINGS_DECISION_KEEP_ON_SOURCE,
+        Self::BINDINGS_DECISION_UNDO,
+        Self::BINDINGS_DECISION_UNDONE,
+        Self::BINDINGS_DECISION_UNRESOLVED,
+        Self::BINDINGS_DEPS_CHOOSE_HOST,
+        Self::BINDINGS_DEPS_COLUMN_OUTCOME,
+        Self::BINDINGS_DEPS_COLUMN_REFERENCE,
+        Self::BINDINGS_DEPS_COLUMN_TYPE,
+        Self::BINDINGS_DEPS_COLUMN_WIDGET,
+        Self::BINDINGS_DEPS_COUNT_CHANGES,
+        Self::BINDINGS_DEPS_COUNT_KEPT,
+        Self::BINDINGS_DEPS_COUNT_UNVERIFIED,
+        Self::BINDINGS_DEPS_PAGE_SUMMARY,
+        Self::BINDINGS_DEPS_PATTERN_RULE,
+        Self::BINDINGS_DEPS_TITLE,
+        Self::BINDINGS_DIFFERENCE_ORIGIN,
+        Self::BINDINGS_DIFFERENCE_PATTERN_COVERAGE,
+        Self::BINDINGS_DIFFERENCE_UNITS,
+        Self::BINDINGS_DIFFERENCE_VALUE_TYPE,
+        Self::BINDINGS_DRAFT_ONLY,
+        Self::BINDINGS_EVIDENCE_COVERAGE,
+        Self::BINDINGS_EVIDENCE_DIFFERENCES,
+        Self::BINDINGS_EVIDENCE_KEY,
+        Self::BINDINGS_EVIDENCE_NO_UNITS,
+        Self::BINDINGS_EVIDENCE_ORIGIN_LLD,
+        Self::BINDINGS_EVIDENCE_ORIGIN_OWN,
+        Self::BINDINGS_EVIDENCE_ORIGIN_TEMPLATE,
+        Self::BINDINGS_EVIDENCE_SOURCE_ITEM,
+        Self::BINDINGS_EVIDENCE_TARGET_ITEM,
+        Self::BINDINGS_EVIDENCE_UNITS,
+        Self::BINDINGS_EVIDENCE_VALUE_TYPE,
+        Self::BINDINGS_FITNESS_EDITABLE,
+        Self::BINDINGS_FITNESS_READ_ONLY,
+        Self::BINDINGS_FITNESS_UNSUPPORTED,
+        Self::BINDINGS_HISTORY_EMPTY,
+        Self::BINDINGS_HISTORY_OP_REPLACE_HOST,
+        Self::BINDINGS_HISTORY_OP_REPLACE_HOST_CONFIRM_KEPT,
+        Self::BINDINGS_HISTORY_OP_REPLACE_HOST_DECISION,
+        Self::BINDINGS_HISTORY_OP_UNKNOWN,
+        Self::BINDINGS_HISTORY_TITLE,
+        Self::BINDINGS_INSPECTOR_FIELD,
+        Self::BINDINGS_INSPECTOR_NONE,
+        Self::BINDINGS_INSPECTOR_TITLE,
+        Self::BINDINGS_INTENT_CLONE,
+        Self::BINDINGS_INTENT_TITLE,
+        Self::BINDINGS_KEPT_BY_DECISION,
+        Self::BINDINGS_KEPT_CONFIRMED,
+        Self::BINDINGS_KEPT_NOT_BLOCKING,
+        Self::BINDINGS_KEPT_TITLE,
+        Self::BINDINGS_KEPT_UNCONFIRMED,
+        Self::BINDINGS_LOAD_FAILED,
+        Self::BINDINGS_LOCAL_ONLY,
+        Self::BINDINGS_MAPPING_CANDIDATES,
+        Self::BINDINGS_MAPPING_CANDIDATES_COUNT,
+        Self::BINDINGS_MAPPING_CAPTION,
+        Self::BINDINGS_MAPPING_CHOOSE_LLD_INSTANCE,
+        Self::BINDINGS_MAPPING_COLUMN_MATCH,
+        Self::BINDINGS_MAPPING_COLUMN_SOURCE,
+        Self::BINDINGS_MAPPING_COLUMN_TARGET,
+        Self::BINDINGS_MAPPING_COLUMN_WIDGET,
+        Self::BINDINGS_MAPPING_EMPTY_FILTER,
+        Self::BINDINGS_MAPPING_FILTER,
+        Self::BINDINGS_MAPPING_KEYBOARD_HINT,
+        Self::BINDINGS_MAPPING_NO_ROWS,
+        Self::BINDINGS_MAPPING_NO_TARGET,
+        Self::BINDINGS_MAPPING_SIMILAR_NAME_NOT_PROOF,
+        Self::BINDINGS_MAPPING_TARGET_MISSING,
+        Self::BINDINGS_MAPPING_TITLE,
+        Self::BINDINGS_MATCH_AMBIGUOUS,
+        Self::BINDINGS_MATCH_COMPATIBLE,
+        Self::BINDINGS_MATCH_DENIED,
+        Self::BINDINGS_MATCH_EXACT,
+        Self::BINDINGS_MATCH_MISSING,
+        Self::BINDINGS_MATCH_UNRESOLVED_LLD,
+        Self::BINDINGS_MATCH_SHORT_AMBIGUOUS,
+        Self::BINDINGS_MATCH_SHORT_COMPATIBLE,
+        Self::BINDINGS_MATCH_SHORT_DENIED,
+        Self::BINDINGS_MATCH_SHORT_EXACT,
+        Self::BINDINGS_MATCH_SHORT_MISSING,
+        Self::BINDINGS_MATCH_SHORT_UNRESOLVED_LLD,
+        Self::BINDINGS_MATCH_SHORT_UNVERIFIED,
+        Self::BINDINGS_NEW_HOST_CHOSEN,
+        Self::BINDINGS_NEW_HOST_EMPTY,
+        Self::BINDINGS_NEW_HOST_GROUPS,
+        Self::BINDINGS_NEW_HOST_LEGEND,
+        Self::BINDINGS_NEW_HOST_NO_TEMPLATES,
+        Self::BINDINGS_NEW_HOST_PARTIAL,
+        Self::BINDINGS_NEW_HOST_SAME_CONNECTION,
+        Self::BINDINGS_NEW_HOST_SEARCH,
+        Self::BINDINGS_NEW_HOST_SEARCH_ACTION,
+        Self::BINDINGS_NEW_HOST_TRUNCATED,
+        Self::BINDINGS_NEW_HOST_VISIBLE_ONLY,
+        Self::BINDINGS_OFFLINE_BODY,
+        Self::BINDINGS_OFFLINE_CHECK_ALL,
+        Self::BINDINGS_OFFLINE_TITLE,
+        Self::BINDINGS_OUTCOME_CHANGES,
+        Self::BINDINGS_OUTCOME_KEPT,
+        Self::BINDINGS_PLAN_INVALID_NOTE,
+        Self::BINDINGS_PROGRESS_CALCULATING,
+        Self::BINDINGS_PROGRESS_CHECKING,
+        Self::BINDINGS_PROGRESS_INVENTORY,
+        Self::BINDINGS_PROGRESS_SAVING,
+        Self::BINDINGS_PROGRESS_SEARCH,
+        Self::BINDINGS_REASON_CLASSIC_GRAPH_CONTRACT_PENDING,
+        Self::BINDINGS_REASON_FIELD_NOT_REPLACEABLE,
+        Self::BINDINGS_REASON_GRAPH_NAME_NOT_FOUND,
+        Self::BINDINGS_REASON_HOST_FIELD_NOT_SUPPORTED,
+        Self::BINDINGS_REASON_HOST_MASK,
+        Self::BINDINGS_REASON_HOST_WILDCARD_ALL,
+        Self::BINDINGS_REASON_ITEM_PATTERNS_WITHOUT_TARGET_ITEMS,
+        Self::BINDINGS_REASON_KEY_NOT_FOUND,
+        Self::BINDINGS_REASON_LLD_INSTANCE_MISSING,
+        Self::BINDINGS_REASON_NOT_FOUND_OR_NO_ACCESS,
+        Self::BINDINGS_REASON_ORIGIN_DIFFERS,
+        Self::BINDINGS_REASON_PATTERN_COVERAGE_DIFFERS,
+        Self::BINDINGS_REASON_PATTERN_FIELD_NOT_SUPPORTED,
+        Self::BINDINGS_REASON_PROTOTYPE_OWNER_UNKNOWN,
+        Self::BINDINGS_REASON_SEVERAL_TARGET_CANDIDATES,
+        Self::BINDINGS_REASON_TARGET_NAME_IS_MASK,
+        Self::BINDINGS_REASON_UNITS_DIFFER,
+        Self::BINDINGS_REASON_UNKNOWN,
+        Self::BINDINGS_REASON_UNKNOWN_FIELD,
+        Self::BINDINGS_REASON_UNKNOWN_WIDGET,
+        Self::BINDINGS_REASON_VALUE_TYPE_DIFFERS,
+        Self::BINDINGS_REASON_VALUE_TYPE_INCOMPATIBLE,
+        Self::BINDINGS_REASON_WIDGET_NOT_EDITABLE,
+        Self::BINDINGS_REF_BY_ID,
+        Self::BINDINGS_REF_GRAPH_ID,
+        Self::BINDINGS_REF_HOST_ID,
+        Self::BINDINGS_REF_HOST_MASK,
+        Self::BINDINGS_REF_HOST_NAME_PATTERN,
+        Self::BINDINGS_REF_PROTOTYPE,
+        Self::BINDINGS_RESET_BODY,
+        Self::BINDINGS_RESET_DONE,
+        Self::BINDINGS_RESET_TITLE,
+        Self::BINDINGS_SCOPE_CHOOSE_PAGES,
+        Self::BINDINGS_SCOPE_CHOOSE_WIDGETS,
+        Self::BINDINGS_SCOPE_EMPTY_SELECTION,
+        Self::BINDINGS_SCOPE_PAGES,
+        Self::BINDINGS_SCOPE_PARTIAL_WARNING,
+        Self::BINDINGS_SCOPE_WHOLE,
+        Self::BINDINGS_SCOPE_WHOLE_PAGE,
+        Self::BINDINGS_SCOPE_WIDGETS,
+        Self::BINDINGS_SOURCE_NONE,
+        Self::BINDINGS_SOURCE_OPTION_DETAIL,
+        Self::BINDINGS_SOURCE_UNATTRIBUTED,
+        Self::BINDINGS_SOURCE_EVIDENCE,
+        Self::BINDINGS_STATE_CHECKED,
+        Self::BINDINGS_STATE_INVALID,
+        Self::BINDINGS_STATE_STALE,
+        Self::BINDINGS_STEP_DEPENDENCIES,
+        Self::BINDINGS_STEP_DONE,
+        Self::BINDINGS_STEP_MAPPING,
+        Self::BINDINGS_STEP_NEW_HOST,
+        Self::BINDINGS_STEP_SCOPE,
+        Self::BINDINGS_STEP_SUMMARY,
+        Self::BINDINGS_STEP_UNAVAILABLE,
+        Self::BINDINGS_STORED_CHANGE_HINT,
+        Self::BINDINGS_STORED_TITLE,
+        Self::BINDINGS_SUMMARY_BLOCKED,
+        Self::BINDINGS_SUMMARY_CHANGES,
+        Self::BINDINGS_SUMMARY_KEPT,
+        Self::BINDINGS_SUMMARY_ONLY_CHANGES,
+        Self::BINDINGS_SUMMARY_TITLE,
+        Self::BINDINGS_SUMMARY_UNRESOLVED,
+        Self::BINDINGS_SUMMARY_UNTOUCHED,
+        Self::BINDINGS_TARGETS_TEMPLATES_COVERAGE,
+        Self::BINDINGS_VALUE_TYPE_BINARY,
+        Self::BINDINGS_VALUE_TYPE_CHARACTER,
+        Self::BINDINGS_VALUE_TYPE_FLOAT,
+        Self::BINDINGS_VALUE_TYPE_LOG,
+        Self::BINDINGS_VALUE_TYPE_TEXT,
+        Self::BINDINGS_VALUE_TYPE_UNSIGNED,
         Self::CHECKS_EMPTY,
         Self::CHECKS_GROUP_COMPATIBILITY,
         Self::CHECKS_GROUP_PASSED,
@@ -294,11 +1629,13 @@ impl MessageId {
         Self::CHECKS_SUMMARY_PUBLICATION_BLOCKED,
         Self::CHECKS_SUMMARY_PUBLICATION_READY,
         Self::CHECKS_SUMMARY_SAVE_ALWAYS,
+        Self::COMMON_ACTION_CANCEL,
         Self::COMMON_ACTION_COPY,
         Self::COMMON_ACTION_DELETE,
         Self::COMMON_ACTION_DUPLICATE,
         Self::COMMON_ACTION_OPEN,
         Self::COMMON_ACTION_RENAME,
+        Self::COMMON_ACTION_SAVE_DRAFT,
         Self::COMMON_COUNT_ITEMS,
         Self::COMMON_DURATION_HOURS,
         Self::COMMON_DURATION_MINUTES,
@@ -313,15 +1650,254 @@ impl MessageId {
         Self::COMMON_STATE_OFFLINE,
         Self::COMMON_STATE_READ_ONLY,
         Self::COMMON_STATE_READ_WRITE,
+        Self::COMMON_STATE_VERIFIED,
         Self::COMPATIBILITY_CALCULATED_RANGE,
         Self::COMPATIBILITY_DECLARED_MISMATCH,
         Self::COMPATIBILITY_EMPTY_DRAFT,
         Self::COMPATIBILITY_NO_COMMON_RANGE,
         Self::COMPATIBILITY_UNKNOWN_WIDGET_FIELD,
         Self::COMPATIBILITY_UNKNOWN_WIDGET_TYPE,
+        Self::CONNECTION_A11Y_PROFILES,
+        Self::CONNECTION_A11Y_STEPS,
+        Self::CONNECTION_ACTION_BACK_TO_LIST,
+        Self::CONNECTION_ACTION_CANCEL,
+        Self::CONNECTION_ACTION_CHECK,
+        Self::CONNECTION_ACTION_CONFIRM_NEW_SERVER,
+        Self::CONNECTION_ACTION_CONNECT,
+        Self::CONNECTION_ACTION_CONTINUE_OFFLINE,
+        Self::CONNECTION_ACTION_DISCONNECT,
+        Self::CONNECTION_ACTION_EDIT,
+        Self::CONNECTION_ACTION_ENABLE_WRITES,
+        Self::CONNECTION_ACTION_FIX_ADDRESS,
+        Self::CONNECTION_ACTION_FIX_SIGN_IN,
+        Self::CONNECTION_ACTION_FORGET_PASSWORD,
+        Self::CONNECTION_ACTION_FORGET_TOKEN,
+        Self::CONNECTION_ACTION_NEW,
+        Self::CONNECTION_ACTION_RETRY,
+        Self::CONNECTION_ACTION_SAVE,
+        Self::CONNECTION_ACTION_SET_READ_ONLY,
+        Self::CONNECTION_ACTION_SIGN_IN,
+        Self::CONNECTION_ACTION_TEST,
+        Self::CONNECTION_ACTION_USE_DEFAULT_ACCOUNT,
+        Self::CONNECTION_AUTH_MFA_TOKEN_REQUIRED,
+        Self::CONNECTION_CARD_AUTH_PASSWORD,
+        Self::CONNECTION_CARD_AUTH_PASSWORD_OS_STORE,
+        Self::CONNECTION_CARD_AUTH_TOKEN_MEMORY,
+        Self::CONNECTION_CARD_AUTH_TOKEN_OS_STORE,
+        Self::CONNECTION_CARD_CHECKED_AT,
+        Self::CONNECTION_CARD_NEVER_CHECKED,
+        Self::CONNECTION_CONNECT_FAILED,
+        Self::CONNECTION_CONNECTED,
+        Self::CONNECTION_CREDENTIAL_SAVE_FAILED,
+        Self::CONNECTION_DEFAULT_PASSWORD_ACKNOWLEDGE,
+        Self::CONNECTION_DEFAULT_PASSWORD_BODY,
+        Self::CONNECTION_DEFAULT_PASSWORD_DONT_SHOW,
+        Self::CONNECTION_DEFAULT_PASSWORD_TITLE,
+        Self::CONNECTION_DELETE_BODY,
+        Self::CONNECTION_DELETE_CREDENTIAL_LEFT,
+        Self::CONNECTION_DELETE_DISCONNECT_FIRST,
+        Self::CONNECTION_DELETE_TITLE,
+        Self::CONNECTION_DELETED,
+        Self::CONNECTION_DISCONNECTED,
+        Self::CONNECTION_DUPLICATE_NAME,
+        Self::CONNECTION_EDITOR_SECTION_MODE,
+        Self::CONNECTION_EDITOR_SECTION_PROFILE,
+        Self::CONNECTION_EDITOR_SECTION_SIGN_IN,
+        Self::CONNECTION_EDITOR_SECTION_TRUST,
+        Self::CONNECTION_EDITOR_TITLE_EDIT,
+        Self::CONNECTION_EDITOR_TITLE_NEW,
+        Self::CONNECTION_ENABLE_WRITES_AVAILABLE,
+        Self::CONNECTION_ENABLE_WRITES_AVAILABLE_TITLE,
+        Self::CONNECTION_ENABLE_WRITES_CONTEXT,
+        Self::CONNECTION_ENABLE_WRITES_DURATION,
+        Self::CONNECTION_ENABLE_WRITES_DURATION_TITLE,
+        Self::CONNECTION_ENABLE_WRITES_ENABLED,
+        Self::CONNECTION_ENABLE_WRITES_NEVER,
+        Self::CONNECTION_ENABLE_WRITES_NEVER_TITLE,
+        Self::CONNECTION_ENABLE_WRITES_NO_EXTRA_RIGHTS,
+        Self::CONNECTION_ENABLE_WRITES_PLAN_ONLY,
+        Self::CONNECTION_ENABLE_WRITES_RETURN_HINT,
+        Self::CONNECTION_ENABLE_WRITES_TITLE,
+        Self::CONNECTION_FORGET_PASSWORD_DONE,
+        Self::CONNECTION_FORGET_TOKEN_NOT_REVOKED,
+        Self::CONNECTION_FORM_API_TOKEN,
+        Self::CONNECTION_FORM_API_URL,
+        Self::CONNECTION_FORM_API_URL_PENDING,
+        Self::CONNECTION_FORM_AUTH_METHOD,
+        Self::CONNECTION_FORM_AUTH_PASSWORD,
+        Self::CONNECTION_FORM_CUSTOM_CA,
+        Self::CONNECTION_FORM_CUSTOM_CA_CHOOSE,
+        Self::CONNECTION_FORM_CUSTOM_CA_FINGERPRINT,
+        Self::CONNECTION_FORM_CUSTOM_CA_HINT,
+        Self::CONNECTION_FORM_CUSTOM_CA_LOADED,
+        Self::CONNECTION_FORM_CUSTOM_CA_LOADING,
+        Self::CONNECTION_FORM_CUSTOM_CA_REQUIRED,
+        Self::CONNECTION_FORM_DEFAULT_ACCOUNT_HINT,
+        Self::CONNECTION_FORM_ENDPOINT,
+        Self::CONNECTION_FORM_ENDPOINT_HINT,
+        Self::CONNECTION_FORM_HAS_ERRORS,
+        Self::CONNECTION_FORM_HTTP_CONFIRM,
+        Self::CONNECTION_FORM_HTTP_CONFIRM_PASSWORD,
+        Self::CONNECTION_FORM_MFA_HINT,
+        Self::CONNECTION_FORM_MODE_READ_ONLY,
+        Self::CONNECTION_FORM_PASSWORD,
+        Self::CONNECTION_FORM_PASSWORD_NOT_STORED,
+        Self::CONNECTION_FORM_PASSWORD_STORED,
+        Self::CONNECTION_FORM_PROFILE_NAME,
+        Self::CONNECTION_FORM_RENAME_KEEPS_SERVER,
+        Self::CONNECTION_FORM_RULES_HTTP,
+        Self::CONNECTION_FORM_RULES_PORT_PATH,
+        Self::CONNECTION_FORM_RULES_REJECTED,
+        Self::CONNECTION_FORM_RULES_SCHEME,
+        Self::CONNECTION_FORM_RULES_TITLE,
+        Self::CONNECTION_FORM_SECRET_IN_MEMORY,
+        Self::CONNECTION_FORM_SERVER_CHANGED_BODY,
+        Self::CONNECTION_FORM_SERVER_CHANGED_TITLE,
+        Self::CONNECTION_FORM_STORE_PASSWORD,
+        Self::CONNECTION_FORM_STORE_PASSWORD_HINT,
+        Self::CONNECTION_FORM_STORE_TOKEN,
+        Self::CONNECTION_FORM_TLS_NO_BYPASS,
+        Self::CONNECTION_FORM_TOKEN_AT_CONNECT,
+        Self::CONNECTION_FORM_TOKEN_STORED,
+        Self::CONNECTION_FORM_TRUST_CUSTOM_CA,
+        Self::CONNECTION_FORM_TRUST_SYSTEM,
+        Self::CONNECTION_FORM_USERNAME,
+        Self::CONNECTION_IDENTITY_ACCEPTED,
+        Self::CONNECTION_IDENTITY_CHANGED,
+        Self::CONNECTION_IDENTITY_FIRST_SEEN,
+        Self::CONNECTION_IDENTITY_VERSION_CHANGED,
+        Self::CONNECTION_LIST_EMPTY,
+        Self::CONNECTION_LIST_EMPTY_HELP,
+        Self::CONNECTION_LIST_LOAD_FAILED,
+        Self::CONNECTION_LIST_NO_SECRETS,
+        Self::CONNECTION_LIST_SUBTITLE,
         Self::CONNECTION_LIST_TITLE,
+        Self::CONNECTION_LOGOUT_FAILED,
+        Self::CONNECTION_MODE_READ_ONLY,
+        Self::CONNECTION_MODE_READ_ONLY_HELP,
+        Self::CONNECTION_MODE_READ_WRITE,
+        Self::CONNECTION_MODE_READ_WRITE_HELP,
+        Self::CONNECTION_READ_ONLY_RESTORED,
+        Self::CONNECTION_RESULT_VERSION,
+        Self::CONNECTION_SAVED,
+        Self::CONNECTION_SIGN_IN_DESCRIPTION,
+        Self::CONNECTION_SIGN_IN_IN_PROGRESS,
+        Self::CONNECTION_SIGN_IN_LOCKED,
+        Self::CONNECTION_SIGN_IN_PASSWORD_MEMORY_ONLY,
+        Self::CONNECTION_SIGN_IN_PASSWORD_REQUIRED,
+        Self::CONNECTION_SIGN_IN_PASSWORD_WILL_BE_STORED,
+        Self::CONNECTION_SIGN_IN_TITLE,
+        Self::CONNECTION_SIGN_IN_TOKEN_MEMORY_ONLY,
+        Self::CONNECTION_SIGN_IN_TOKEN_REQUIRED,
+        Self::CONNECTION_SIGN_IN_TOKEN_WILL_BE_STORED,
+        Self::CONNECTION_SIGN_IN_USERNAME,
+        Self::CONNECTION_SIGN_IN_USERNAME_HINT,
+        Self::CONNECTION_SIGN_IN_WAITING,
+        Self::CONNECTION_STATE_CONNECTED_MODE,
+        Self::CONNECTION_STATE_CONNECTING,
+        Self::CONNECTION_STATE_CONTEXT_CHANGED,
+        Self::CONNECTION_STATE_LAST_CHECK_FAILED,
+        Self::CONNECTION_STATE_NEEDS_SIGN_IN,
         Self::CONNECTION_STATE_NOT_CONNECTED,
+        Self::CONNECTION_STATE_READ_ONLY_PROFILE,
+        Self::CONNECTION_STATE_READ_WRITE_PROFILE,
+        Self::CONNECTION_TEST_CAPABILITIES_DENIED,
+        Self::CONNECTION_TEST_CRUMB,
+        Self::CONNECTION_TEST_DETAILS_CODE,
+        Self::CONNECTION_TEST_DETAILS_METHOD,
+        Self::CONNECTION_TEST_DETAILS_STEP,
+        Self::CONNECTION_TEST_DETAILS_TIME,
+        Self::CONNECTION_TEST_DETAILS_TITLE,
+        Self::CONNECTION_TEST_DETAILS_VERSION,
+        Self::CONNECTION_TEST_DURING_SIGN_IN,
+        Self::CONNECTION_TEST_FAILED_AT,
+        Self::CONNECTION_TEST_IDLE,
+        Self::CONNECTION_TEST_LOCKOUT_HINT,
+        Self::CONNECTION_TEST_NOT_CHECKED,
+        Self::CONNECTION_TEST_PASSED,
+        Self::CONNECTION_TEST_REASON_API,
+        Self::CONNECTION_TEST_REASON_AUTH,
+        Self::CONNECTION_TEST_REASON_ENDPOINT,
+        Self::CONNECTION_TEST_REASON_IDENTITY,
+        Self::CONNECTION_TEST_REPORT_COPIED,
+        Self::CONNECTION_TEST_REPORT_COPY,
+        Self::CONNECTION_TEST_REPORT_COPY_FAILED,
+        Self::CONNECTION_TEST_REPORT_INCLUDE_ADDRESS,
+        Self::CONNECTION_TEST_REPORT_SCOPE,
+        Self::CONNECTION_TEST_RESULT_API,
+        Self::CONNECTION_TEST_RESULT_AUTH_PASSWORD,
+        Self::CONNECTION_TEST_RESULT_AUTH_TOKEN,
+        Self::CONNECTION_TEST_RESULT_CAPABILITIES,
+        Self::CONNECTION_TEST_RESULT_ENDPOINT,
+        Self::CONNECTION_TEST_RESULT_IDENTITY_MATCHES,
+        Self::CONNECTION_TEST_RUNNING,
+        Self::CONNECTION_TEST_STATUS_FAILED,
+        Self::CONNECTION_TEST_STATUS_NOT_CHECKED,
+        Self::CONNECTION_TEST_STATUS_NOTICE,
+        Self::CONNECTION_TEST_STATUS_PASSED,
+        Self::CONNECTION_TEST_STEP_API,
+        Self::CONNECTION_TEST_STEP_AUTH,
+        Self::CONNECTION_TEST_STEP_CAPABILITIES,
+        Self::CONNECTION_TEST_STEP_ENDPOINT,
+        Self::CONNECTION_TEST_STEP_IDENTITY,
+        Self::CONNECTION_TEST_STEP_HEADING,
+        Self::CONNECTION_TEST_SUBTITLE,
+        Self::CONNECTION_TEST_TITLE,
+        Self::CONNECTION_WARNING_HTTP,
+        Self::COPY_ACTION_NEW_COPY,
+        Self::COPY_ACTION_OPEN_MINE,
+        Self::COPY_BREADCRUMB,
+        Self::COPY_DEP_BY_ID_OR_PATTERN,
+        Self::COPY_DEP_GRAPHS,
+        Self::COPY_DEP_HOSTS,
+        Self::COPY_DEP_ITEMS,
+        Self::COPY_DEP_NOT_COPIED,
+        Self::COPY_DEP_OTHER,
+        Self::COPY_DEP_REFERENCES,
+        Self::COPY_DEP_REFERENCES_VALUE,
+        Self::COPY_DEP_UNKNOWN_FIELDS,
+        Self::COPY_DEP_UNKNOWN_FIELDS_VALUE,
+        Self::COPY_EXISTING,
+        Self::COPY_EXISTING_REFETCH_HINT,
+        Self::COPY_NOT_SAVED,
+        Self::COPY_PAGE_SUMMARY,
+        Self::COPY_PROGRESS,
+        Self::COPY_READ_TWICE,
+        Self::COPY_RESULT_CREATED,
+        Self::COPY_RESULT_FAILED,
+        Self::COPY_RESULT_METADATA_PARTIAL,
+        Self::COPY_RESULT_METADATA_UNAVAILABLE,
+        Self::COPY_SAVED_ACCESS,
+        Self::COPY_SAVED_DRAFT,
+        Self::COPY_SAVED_SNAPSHOT,
+        Self::COPY_SCOPE_WHOLE,
+        Self::COPY_SECTION_COMPOSITION,
+        Self::COPY_SECTION_DEPENDENCIES,
+        Self::COPY_SECTION_NOT_SAVED,
+        Self::COPY_SECTION_SAVED,
+        Self::COPY_TITLE,
+        Self::COPY_WIDGET_AS_IS,
+        Self::COPY_WIDGET_EDITABLE,
+        Self::DASHBOARDS_PERMISSION_NOT_VISIBLE_OR_DENIED,
         Self::DASHBOARDS_SUMMARY_PAGES_WIDGETS,
+        Self::DASHBOARDS_VISIBILITY_PRIVATE,
+        Self::DASHBOARDS_VISIBILITY_SHARED,
+        Self::DESKTOP_BROWSER_OPEN_FAILED,
+        Self::DESKTOP_CLOSE_WRITING_BODY,
+        Self::DESKTOP_CLOSE_WRITING_TITLE,
+        Self::DESKTOP_FALLBACK_CHOICE_BROWSER,
+        Self::DESKTOP_FALLBACK_CHOICE_INSTALL,
+        Self::DESKTOP_FALLBACK_CHOICE_YES_NO,
+        Self::DESKTOP_FALLBACK_INSTALL_ASTRA_1_7,
+        Self::DESKTOP_FALLBACK_INSTALL_DEBIAN,
+        Self::DESKTOP_FALLBACK_INSTALL_RED_OS,
+        Self::DESKTOP_FALLBACK_INSTALL_WEBKITGTK,
+        Self::DESKTOP_FALLBACK_INSTALL_WEBVIEW2,
+        Self::DESKTOP_FALLBACK_OPENING_BROWSER,
+        Self::DESKTOP_FALLBACK_REASON_ENGINE_MISSING,
+        Self::DESKTOP_FALLBACK_REASON_START_FAILED,
+        Self::DESKTOP_FALLBACK_RESTART,
+        Self::DESKTOP_FALLBACK_TITLE,
         Self::DIAGNOSTICS_TITLE,
         Self::DRAFT_A11Y_SECTIONS,
         Self::DRAFT_ACTION_CHECK_SOURCE,
@@ -340,6 +1916,7 @@ impl MessageId {
         Self::DRAFT_NAV_OVERVIEW,
         Self::DRAFT_NAV_PUBLICATION,
         Self::DRAFT_NAV_STRUCTURE,
+        Self::DRAFT_NAV_TITLE,
         Self::DRAFT_OVERVIEW_COMPOSITION_DASHBOARD,
         Self::DRAFT_OVERVIEW_COMPOSITION_HELP,
         Self::DRAFT_OVERVIEW_COMPOSITION_PAGE,
@@ -349,6 +1926,7 @@ impl MessageId {
         Self::DRAFT_OVERVIEW_NEEDS_CONNECTION,
         Self::DRAFT_OVERVIEW_NEXT_STEPS,
         Self::DRAFT_OVERVIEW_ORIGIN,
+        Self::DRAFT_OVERVIEW_PUBLISH_UNAVAILABLE,
         Self::DRAFT_OVERVIEW_SELECTION_NOTE,
         Self::DRAFT_OVERVIEW_SNAPSHOT,
         Self::DRAFT_OVERVIEW_SNAPSHOT_FROM,
@@ -358,6 +1936,7 @@ impl MessageId {
         Self::DRAFT_OVERVIEW_STEP_CHOOSE_TARGET,
         Self::DRAFT_OVERVIEW_STEP_CHOOSE_TARGET_HELP,
         Self::DRAFT_OVERVIEW_STEP_NUMBERED,
+        Self::DRAFT_OVERVIEW_STEP_OPEN_SECTION,
         Self::DRAFT_OVERVIEW_STEP_REVIEW_PLAN,
         Self::DRAFT_OVERVIEW_STEP_REVIEW_PLAN_HELP,
         Self::DRAFT_OVERVIEW_TARGET,
@@ -370,6 +1949,7 @@ impl MessageId {
         Self::DRAFT_PREVIEW_SYNTHETIC_TOGGLE,
         Self::DRAFT_PREVIEW_TITLE,
         Self::DRAFT_PROVENANCE_ASSEMBLED,
+        Self::DRAFT_PROVENANCE_ASSEMBLED_WITH_SOURCES,
         Self::DRAFT_PROVENANCE_CREATED_HERE,
         Self::DRAFT_PROVENANCE_IMPORTED_FILE,
         Self::DRAFT_PROVENANCE_LEGACY_FILE,
@@ -392,19 +1972,24 @@ impl MessageId {
         Self::DRAFT_STRUCTURE_SLIDESHOW_ON,
         Self::DRAFT_STRUCTURE_WIDGET_GEOMETRY,
         Self::DRAFTS_ACTION_CREATE,
+        Self::DRAFTS_ACTION_EXPORT_FILE,
         Self::DRAFTS_ACTION_MAKE_PORTABLE,
         Self::DRAFTS_COLUMN_KIND,
         Self::DRAFTS_COLUMN_NAME,
         Self::DRAFTS_COLUMN_ORIGIN,
         Self::DRAFTS_COLUMN_SOURCE,
         Self::DRAFTS_COLUMN_STATE,
+        Self::DRAFTS_COPY_NAME,
         Self::DRAFTS_CREATED_FROM_COPY,
+        Self::DRAFTS_CREATED_FROM_DRAFT,
+        Self::DRAFTS_DAMAGED,
         Self::DRAFTS_DELETE_SAFE,
         Self::DRAFTS_DETAILS_BASE,
         Self::DRAFTS_DETAILS_BASE_SNAPSHOT,
         Self::DRAFTS_DETAILS_CHANGED_ON_SERVER_AT,
         Self::DRAFTS_DETAILS_CONNECTION,
         Self::DRAFTS_DETAILS_CREATED_ITEM,
+        Self::DRAFTS_DETAILS_CREATED_NOT_FOUND,
         Self::DRAFTS_DETAILS_FRESHNESS,
         Self::DRAFTS_DETAILS_LOCAL,
         Self::DRAFTS_DETAILS_SOURCE,
@@ -413,15 +1998,134 @@ impl MessageId {
         Self::DRAFTS_FILTER_LOCAL,
         Self::DRAFTS_FILTER_PAGES,
         Self::DRAFTS_FILTER_SERVER_COPIES,
+        Self::DRAFTS_LIST_OPEN_HINT,
+        Self::DRAFTS_LOAD_FAILED,
+        Self::DRAFTS_NAME_SOURCE_CONNECTION,
+        Self::DRAFTS_RENAME_DESCRIPTION,
+        Self::DRAFTS_RENAME_DONE,
+        Self::DRAFTS_RENAME_TITLE,
+        Self::DRAFTS_SEARCH_NO_RESULTS,
         Self::DRAFTS_SEARCH_PLACEHOLDER,
         Self::DRAFTS_SERVER_COPY_EXPORT_HINT,
         Self::DRAFTS_SORT_HINT,
         Self::DRAFTS_STATE_CHANGED_ON_SERVER,
+        Self::DRAFTS_STATE_CURRENT,
         Self::DRAFTS_STATE_MODIFIED,
         Self::DRAFTS_STATE_SAVED,
+        Self::DRAFTS_STATE_SOURCE_MISSING,
+        Self::DRAFTS_STATE_STALE,
         Self::DRAFTS_SUBTITLE,
         Self::DRAFTS_TITLE,
         Self::EDITOR_UNAVAILABLE_YET,
+        Self::ERRORS_ADDRESS_FRAGMENT,
+        Self::ERRORS_ADDRESS_HOST,
+        Self::ERRORS_ADDRESS_QUERY,
+        Self::ERRORS_ADDRESS_SCHEME,
+        Self::ERRORS_ADDRESS_SYNTAX,
+        Self::ERRORS_ADDRESS_USERINFO,
+        Self::ERRORS_AUTH_CREDENTIALS_OR_DIRECTORY,
+        Self::ERRORS_AUTH_MFA_TOKEN_REQUIRED,
+        Self::ERRORS_AUTH_SESSION_EXPIRED,
+        Self::ERRORS_AUTH_TOKEN_EXPIRED,
+        Self::ERRORS_AUTH_TOKEN_INVALID_OR_DISABLED,
+        Self::ERRORS_CONNECTION_API_ERROR,
+        Self::ERRORS_CONNECTION_API_NOT_FOUND,
+        Self::ERRORS_CONNECTION_DNS_UNRESOLVABLE,
+        Self::ERRORS_CONNECTION_FAILED,
+        Self::ERRORS_CONNECTION_NOT_CONNECTED,
+        Self::ERRORS_CONNECTION_RANDOM_UNAVAILABLE,
+        Self::ERRORS_CONNECTION_REFUSED,
+        Self::ERRORS_CONNECTION_REQUEST_INVALID,
+        Self::ERRORS_CONNECTION_SECRET_INVALID,
+        Self::ERRORS_CONNECTION_SECRET_REQUIRED,
+        Self::ERRORS_CONNECTION_SERVICE_UNAVAILABLE,
+        Self::ERRORS_CONNECTION_UNEXPECTED_RESPONSE,
+        Self::ERRORS_CONNECTION_UNKNOWN,
+        Self::ERRORS_CONNECTION_UNREACHABLE_OR_TIMEOUT,
+        Self::ERRORS_CONNECTION_VERSION_UNSUPPORTED,
+        Self::ERRORS_CONNECTION_WRITES_NOT_CONFIRMED,
+        Self::ERRORS_CREDENTIAL_LOCKED,
+        Self::ERRORS_CREDENTIAL_MISSING,
+        Self::ERRORS_CREDENTIAL_UNAVAILABLE,
+        Self::ERRORS_DRAFTS_NAME_INVALID,
+        Self::ERRORS_IMPORT_INCONSISTENT,
+        Self::ERRORS_IMPORT_PARSE,
+        Self::ERRORS_IMPORT_POLICY,
+        Self::ERRORS_IMPORT_UNSAFE_STRUCTURE,
+        Self::ERRORS_IMPORT_VALIDATION,
+        Self::ERRORS_PERMISSION_API_METHOD,
+        Self::ERRORS_PERMISSION_SYSTEM_ACCESS,
+        Self::ERRORS_PROFILE_LIMIT_REACHED,
+        Self::ERRORS_PROFILE_NAME_INVALID,
+        Self::ERRORS_PROFILE_NOT_FOUND,
+        Self::ERRORS_PROFILE_PLAIN_HTTP_UNCONFIRMED,
+        Self::ERRORS_PROFILE_STORE_INVALID,
+        Self::ERRORS_PROFILE_STORE_LINKED_PATH,
+        Self::ERRORS_PROFILE_STORE_TOO_LARGE,
+        Self::ERRORS_PROFILE_STORE_UNAVAILABLE,
+        Self::ERRORS_PROFILE_USERNAME_INVALID,
+        Self::ERRORS_PUBLICATION_BLOCKED,
+        Self::ERRORS_PUBLICATION_CODE,
+        Self::ERRORS_PUBLICATION_JOURNAL_DAMAGED,
+        Self::ERRORS_PUBLICATION_JOURNAL_NOT_DAMAGED,
+        Self::ERRORS_PUBLICATION_JOURNAL_WRITE_FAILED,
+        Self::ERRORS_PUBLICATION_LOCAL_MISMATCH,
+        Self::ERRORS_PUBLICATION_NAME_TAKEN_MAYBE_HIDDEN,
+        Self::ERRORS_PUBLICATION_OPERATION_NOT_FOUND,
+        Self::ERRORS_PUBLICATION_OPERATION_RUNNING,
+        Self::ERRORS_PUBLICATION_PLAN_MISMATCH,
+        Self::ERRORS_PUBLICATION_PLAN_NOT_FOUND,
+        Self::ERRORS_PUBLICATION_QUARANTINE_EXISTS,
+        Self::ERRORS_PUBLICATION_RECONCILE_NOT_NEEDED,
+        Self::ERRORS_PUBLICATION_RECONCILE_PARTIAL_VISIBILITY,
+        Self::ERRORS_PUBLICATION_RECONCILE_SERVER_CHANGED,
+        Self::ERRORS_PUBLICATION_TARGET_BLOCKED,
+        Self::ERRORS_REPLACE_HOST_BINDING_NOT_FOUND,
+        Self::ERRORS_REPLACE_HOST_CANDIDATE_NOT_VISIBLE,
+        Self::ERRORS_REPLACE_HOST_CANDIDATE_VALUE_TYPE_INCOMPATIBLE,
+        Self::ERRORS_REPLACE_HOST_CHANGED_CONCURRENTLY,
+        Self::ERRORS_REPLACE_HOST_DECISION_NOT_APPLICABLE,
+        Self::ERRORS_REPLACE_HOST_HOST_OBJECTS_LIMIT,
+        Self::ERRORS_REPLACE_HOST_INTERNAL,
+        Self::ERRORS_REPLACE_HOST_KEPT_CHANGED,
+        Self::ERRORS_REPLACE_HOST_KEPT_EMPTY,
+        Self::ERRORS_REPLACE_HOST_NOT_CALCULATED,
+        Self::ERRORS_REPLACE_HOST_OPERATION_NOT_FOUND,
+        Self::ERRORS_REPLACE_HOST_OTHER_CONNECTION,
+        Self::ERRORS_REPLACE_HOST_PENDING,
+        Self::ERRORS_REPLACE_HOST_SAME_HOST,
+        Self::ERRORS_REPLACE_HOST_SCOPE_INVALID,
+        Self::ERRORS_REPLACE_HOST_SCOPE_OUTSIDE_DRAFT,
+        Self::ERRORS_REPLACE_HOST_SOURCE_NOT_VISIBLE,
+        Self::ERRORS_SNAPSHOT_CORRUPT,
+        Self::ERRORS_SNAPSHOT_MISSING,
+        Self::ERRORS_SNAPSHOT_SHAPE_INVALID,
+        Self::ERRORS_SNAPSHOT_TOO_LARGE,
+        Self::ERRORS_SNAPSHOT_UNSUPPORTED_ADAPTER,
+        Self::ERRORS_STORAGE_LINKED,
+        Self::ERRORS_TLS_NAME_MISMATCH,
+        Self::ERRORS_TLS_TIME_INVALID,
+        Self::ERRORS_TLS_UNTRUSTED,
+        Self::ERRORS_TRUST_CHANGED,
+        Self::ERRORS_TRUST_EMPTY,
+        Self::ERRORS_TRUST_INVALID_PEM,
+        Self::ERRORS_TRUST_MISSING,
+        Self::ERRORS_TRUST_PRIVATE_KEY,
+        Self::ERRORS_TRUST_REJECTED,
+        Self::ERRORS_TRUST_TOO_LARGE,
+        Self::ERRORS_TRUST_TOO_MANY_CERTIFICATES,
+        Self::ERRORS_TRUST_UPLOAD_INVALID,
+        Self::ERRORS_WORKCOPY_CORRUPT,
+        Self::ERRORS_WORKCOPY_NOT_VISIBLE_OR_DENIED,
+        Self::ERRORS_WORKCOPY_PAGE_NOT_FOUND,
+        Self::ERRORS_WORKCOPY_SEARCH_INVALID,
+        Self::ERRORS_WORKCOPY_SETTINGS_UNAVAILABLE,
+        Self::ERRORS_WORKCOPY_STORAGE_FILE_TOO_LARGE,
+        Self::ERRORS_WORKCOPY_STORAGE_LIMIT_REACHED,
+        Self::ERRORS_WORKCOPY_STORAGE_UNAVAILABLE,
+        Self::ERRORS_WORKCOPY_STORAGE_WRITE_FAILED,
+        Self::ERRORS_WORKCOPY_TOO_LARGE,
+        Self::ERRORS_WORKCOPY_UNSUPPORTED_OPERATION,
         Self::HTTP_SECURITY_API_NOT_FOUND,
         Self::HTTP_SECURITY_BODY_TOO_LARGE,
         Self::HTTP_SECURITY_BOOTSTRAP_INVALID,
@@ -438,6 +2142,10 @@ impl MessageId {
         Self::HTTP_TRANSFER_TOTAL_TOO_LARGE,
         Self::HTTP_TRANSFER_UNAVAILABLE,
         Self::INTENT_APPEND_PAGE,
+        Self::INTENT_REPLACE_HOST,
+        Self::INTENT_REPLACE_ITEM_FIELDS,
+        Self::INTENT_SAVE_AS_COPY,
+        Self::INTENT_UNKNOWN,
         Self::LIBRARY_TITLE,
         Self::NAV_CONNECTIONS,
         Self::NAV_DRAFTS,
@@ -450,22 +2158,450 @@ impl MessageId {
         Self::OBJECT_ORIGIN_LOCAL,
         Self::OBJECT_ORIGIN_SERVER_COPY,
         Self::OBJECT_PAGE_NUMBERED,
-        Self::OBJECT_PAGE_UNTITLED,
+        Self::OBJECT_PAGE_UNNAMED,
         Self::OBJECT_PAGE_WIDGET_COUNT,
+        Self::PUBLICATION_A11Y_STEPS,
+        Self::PUBLICATION_ACCESS_COPY_PRIVATE,
+        Self::PUBLICATION_ACCESS_TITLE,
+        Self::PUBLICATION_ACCESS_UPDATE_NOT_SENT,
+        Self::PUBLICATION_ACTION_BACK_CHANGES,
+        Self::PUBLICATION_ACTION_BACK_CHECKS,
+        Self::PUBLICATION_ACTION_BACK_TARGET,
+        Self::PUBLICATION_ACTION_BACK_TO_DRAFT,
+        Self::PUBLICATION_ACTION_CONFIRM_DIALOG,
+        Self::PUBLICATION_ACTION_CONFIRM_WRITE,
+        Self::PUBLICATION_ACTION_NEW_PREVIEW,
+        Self::PUBLICATION_ACTION_NEXT_CHANGES,
+        Self::PUBLICATION_ACTION_NEXT_CHECKS,
+        Self::PUBLICATION_ACTION_NEXT_CONFIRM,
+        Self::PUBLICATION_ACTION_OPEN_IN_ZABBIX,
+        Self::PUBLICATION_ACTION_OPEN_JOURNAL,
+        Self::PUBLICATION_ACTION_OPEN_SERVER,
+        Self::PUBLICATION_ACTION_RECONCILE,
+        Self::PUBLICATION_CHECK_ACTION_CONFIRM_KEPT,
+        Self::PUBLICATION_CHECK_ACTION_OPEN_BINDINGS,
+        Self::PUBLICATION_CHECK_CONFIRM_KEPT,
+        Self::PUBLICATION_CHECK_COUNT_BLOCKING,
+        Self::PUBLICATION_CHECK_COUNT_WARNINGS,
+        Self::PUBLICATION_CHECK_FIXED_IN,
+        Self::PUBLICATION_CHECK_GROUP_BINDINGS,
+        Self::PUBLICATION_CHECK_GROUP_CONNECTION,
+        Self::PUBLICATION_CHECK_GROUP_PLAN,
+        Self::PUBLICATION_CHECK_GROUP_SOURCE,
+        Self::PUBLICATION_CHECK_GROUP_WIDGETS,
+        Self::PUBLICATION_CHECK_NONE,
+        Self::PUBLICATION_CHECK_RECHECK,
+        Self::PUBLICATION_CHECK_STATUS_BLOCKS,
+        Self::PUBLICATION_CHECK_STATUS_WARNING,
+        Self::PUBLICATION_CHECK_SUMMARY_PLAN_NOT_BUILT,
+        Self::PUBLICATION_CHECK_SUMMARY_READY,
+        Self::PUBLICATION_CHECKS_CHECKING,
+        Self::PUBLICATION_CHECKS_SOURCE_CURRENT,
+        Self::PUBLICATION_CHECKS_SOURCE_NOT_CHECKED,
+        Self::PUBLICATION_CHECKS_SOURCE_TITLE,
+        Self::PUBLICATION_CONFIRM_API_CREATE,
+        Self::PUBLICATION_CONFIRM_API_UPDATE,
+        Self::PUBLICATION_CONFIRM_BUILDING,
+        Self::PUBLICATION_CONFIRM_CHANGES_CREATE,
+        Self::PUBLICATION_CONFIRM_CHANGES_UPDATE,
+        Self::PUBLICATION_CONFIRM_CONNECTION_VALUE,
+        Self::PUBLICATION_CONFIRM_CREATE_NAME_CHECK,
+        Self::PUBLICATION_CONFIRM_DASHBOARD_EXISTING,
+        Self::PUBLICATION_CONFIRM_DASHBOARD_NEW,
+        Self::PUBLICATION_CONFIRM_FIELD_ACTION,
+        Self::PUBLICATION_CONFIRM_FIELD_CHANGES,
+        Self::PUBLICATION_CONFIRM_FIELD_CONNECTION,
+        Self::PUBLICATION_CONFIRM_FIELD_DASHBOARD,
+        Self::PUBLICATION_CONFIRM_FIELD_KEPT,
+        Self::PUBLICATION_CONFIRM_FIELD_PLAN,
+        Self::PUBLICATION_CONFIRM_FIELD_UNCHANGED,
+        Self::PUBLICATION_CONFIRM_FIELD_WARNINGS,
+        Self::PUBLICATION_CONFIRM_INVALID_WHEN,
+        Self::PUBLICATION_CONFIRM_KEPT_CONFIRMED,
+        Self::PUBLICATION_CONFIRM_NO_CANCEL_AFTER_SEND,
+        Self::PUBLICATION_CONFIRM_OFFLINE,
+        Self::PUBLICATION_CONFIRM_PLAN_ONCE,
+        Self::PUBLICATION_CONFIRM_QUESTION_CREATE,
+        Self::PUBLICATION_CONFIRM_QUESTION_UPDATE,
+        Self::PUBLICATION_CONFIRM_REQUIREMENTS,
+        Self::PUBLICATION_CONFIRM_REREAD,
+        Self::PUBLICATION_CONFIRM_SUMMARY_TITLE,
+        Self::PUBLICATION_CONFIRM_TARGET_LINE,
+        Self::PUBLICATION_CONFIRM_TITLE,
+        Self::PUBLICATION_CONFIRM_UNCHANGED_UPDATE,
+        Self::PUBLICATION_CONFIRM_WARNINGS_REVIEWED,
+        Self::PUBLICATION_CONFLICT_BODY,
+        Self::PUBLICATION_CONFLICT_CAPTION,
+        Self::PUBLICATION_CONFLICT_CHANGE_ACCESS,
+        Self::PUBLICATION_CONFLICT_CHANGE_DASHBOARD_PROPERTIES,
+        Self::PUBLICATION_CONFLICT_CHANGE_PAGE_ADDED,
+        Self::PUBLICATION_CONFLICT_CHANGE_PAGE_CHANGED,
+        Self::PUBLICATION_CONFLICT_CHANGE_PAGE_REMOVED,
+        Self::PUBLICATION_CONFLICT_CHANGE_PAGE_RENAMED,
+        Self::PUBLICATION_CONFLICT_CHANGE_WIDGET_ADDED,
+        Self::PUBLICATION_CONFLICT_CHANGE_WIDGET_CHANGED,
+        Self::PUBLICATION_CONFLICT_CHANGE_WIDGET_MOVED,
+        Self::PUBLICATION_CONFLICT_CHANGE_WIDGET_REMOVED,
+        Self::PUBLICATION_CONFLICT_COLUMN_MINE,
+        Self::PUBLICATION_CONFLICT_COLUMN_OBJECT,
+        Self::PUBLICATION_CONFLICT_COLUMN_SERVER,
+        Self::PUBLICATION_CONFLICT_DETECTED_AT,
+        Self::PUBLICATION_CONFLICT_MINE_HOST_REPLACED,
+        Self::PUBLICATION_CONFLICT_MINE_NONE,
+        Self::PUBLICATION_CONFLICT_MISSING_BODY,
+        Self::PUBLICATION_CONFLICT_MISSING_TITLE,
+        Self::PUBLICATION_CONFLICT_NEXT_TITLE,
+        Self::PUBLICATION_CONFLICT_NO_AUTHOR,
+        Self::PUBLICATION_CONFLICT_OBJECT_DASHBOARD,
+        Self::PUBLICATION_CONFLICT_OBJECT_PAGE,
+        Self::PUBLICATION_CONFLICT_OBJECT_WIDGET,
+        Self::PUBLICATION_CONFLICT_OPEN_NEW_COPY,
+        Self::PUBLICATION_CONFLICT_OVERLAP,
+        Self::PUBLICATION_CONFLICT_OVERWRITE,
+        Self::PUBLICATION_CONFLICT_OVERWRITE_UNAVAILABLE,
+        Self::PUBLICATION_CONFLICT_RECHECK_HINT,
+        Self::PUBLICATION_CONFLICT_REFETCH_HINT,
+        Self::PUBLICATION_CONFLICT_REFETCH_NOT_REPLAYED,
+        Self::PUBLICATION_CONFLICT_REFETCHED,
+        Self::PUBLICATION_CONFLICT_SAVE_COPY_HINT,
+        Self::PUBLICATION_CONFLICT_STALE_BODY,
+        Self::PUBLICATION_CONFLICT_STALE_TITLE,
+        Self::PUBLICATION_CONFLICT_TITLE,
+        Self::PUBLICATION_CONFLICT_TRUNCATED,
+        Self::PUBLICATION_CONTEXT_CONNECTION,
+        Self::PUBLICATION_CONTEXT_OPERATION,
+        Self::PUBLICATION_CONTEXT_PAGES_VALUE,
+        Self::PUBLICATION_CONTEXT_SCOPE,
+        Self::PUBLICATION_CONTEXT_SCOPE_VALUE,
+        Self::PUBLICATION_CONTEXT_SOURCE,
+        Self::PUBLICATION_CONTEXT_TARGET,
+        Self::PUBLICATION_CONTEXT_TARGET_HINT,
+        Self::PUBLICATION_CONTEXT_TARGET_NEW,
+        Self::PUBLICATION_CONTEXT_TARGET_NOT_CHOSEN,
+        Self::PUBLICATION_CONTEXT_TARGET_SAME,
+        Self::PUBLICATION_CONTRACT_ITEM_WIDGET_ITEMID,
+        Self::PUBLICATION_CONTRACT_PRESERVE_UNTOUCHED_PAGES,
+        Self::PUBLICATION_CONTRACT_PRESERVE_WIDGET_REFERENCES,
+        Self::PUBLICATION_CONTRACT_RECONCILE_UNKNOWN_OUTCOME,
+        Self::PUBLICATION_CONTRACT_RESEND_WIDGET_TYPE,
+        Self::PUBLICATION_CONTRACT_SVGGRAPH_DATASET_HOSTS,
+        Self::PUBLICATION_CONTRACT_SVGGRAPH_DATASET_ITEMIDS,
+        Self::PUBLICATION_CONTRACT_UPDATE_ONE_PAGE_WITH_FULL_FIELDS,
+        Self::PUBLICATION_CONTRACT_UPDATE_SEVERAL_PAGES,
+        Self::PUBLICATION_DIFF_CAPTION,
+        Self::PUBLICATION_DIFF_CHANGE_FIELD,
+        Self::PUBLICATION_DIFF_CHANGE_KEPT,
+        Self::PUBLICATION_DIFF_CHANGE_UNRESOLVED,
+        Self::PUBLICATION_DIFF_COLUMN_AFTER,
+        Self::PUBLICATION_DIFF_COLUMN_BEFORE,
+        Self::PUBLICATION_DIFF_COLUMN_CHANGE,
+        Self::PUBLICATION_DIFF_COLUMN_OBJECT,
+        Self::PUBLICATION_DIFF_EMPTY_FILTER,
+        Self::PUBLICATION_DIFF_FILTER_CHANGED,
+        Self::PUBLICATION_DIFF_FILTER_KEPT,
+        Self::PUBLICATION_DIFF_FILTER_LABEL,
+        Self::PUBLICATION_DIFF_FILTER_UNRESOLVED,
+        Self::PUBLICATION_DIFF_FILTER_UNTOUCHED,
+        Self::PUBLICATION_DIFF_INSPECTOR_CHANGED_FIELDS,
+        Self::PUBLICATION_DIFF_INSPECTOR_NONE,
+        Self::PUBLICATION_DIFF_INSPECTOR_SERIES,
+        Self::PUBLICATION_DIFF_INSPECTOR_SOURCES,
+        Self::PUBLICATION_DIFF_INSPECTOR_TITLE,
+        Self::PUBLICATION_DIFF_INSPECTOR_UNCHANGED,
+        Self::PUBLICATION_DIFF_INSPECTOR_UNCHANGED_BODY,
+        Self::PUBLICATION_DIFF_MATCHING_BY_ID,
+        Self::PUBLICATION_DIFF_NO_CHANGES,
+        Self::PUBLICATION_DIFF_OUT_OF_SCOPE,
+        Self::PUBLICATION_DIFF_PAGE_SUMMARY,
+        Self::PUBLICATION_DIFF_REMOTE_CURRENT,
+        Self::PUBLICATION_DIFF_REMOTE_LATER,
+        Self::PUBLICATION_DIFF_SEARCH,
+        Self::PUBLICATION_DIFF_TAB_LOCAL,
+        Self::PUBLICATION_DIFF_TAB_REMOTE,
+        Self::PUBLICATION_EVIDENCE_DASHBOARD_NAME_TAKEN,
+        Self::PUBLICATION_EVIDENCE_EXPECTED_FOUND,
+        Self::PUBLICATION_EVIDENCE_NOT_VISIBLE,
+        Self::PUBLICATION_EVIDENCE_OTHER_FOUND,
+        Self::PUBLICATION_EVIDENCE_READ_BACK_MATCHES,
+        Self::PUBLICATION_EVIDENCE_RECONCILE_AMBIGUOUS,
+        Self::PUBLICATION_EVIDENCE_RECONCILE_CONFIRMED,
+        Self::PUBLICATION_EVIDENCE_RECONCILE_NOT_FOUND,
+        Self::PUBLICATION_EVIDENCE_RECONCILE_STRUCTURE_MISMATCH,
+        Self::PUBLICATION_EVIDENCE_SOURCE_FOUND,
+        Self::PUBLICATION_EVIDENCE_UNKNOWN,
+        Self::PUBLICATION_EXPECTED_CHOOSE_ACTION,
+        Self::PUBLICATION_EXPECTED_REPLACE_HOST,
+        Self::PUBLICATION_EXPECTED_SAVE_AS_COPY,
+        Self::PUBLICATION_EXPECTED_TITLE,
+        Self::PUBLICATION_FINDING_BINDING_INVALID,
+        Self::PUBLICATION_FINDING_BINDING_STALE,
+        Self::PUBLICATION_FINDING_BINDING_UNRESOLVED,
+        Self::PUBLICATION_FINDING_CAPABILITY_NOT_VERIFIED,
+        Self::PUBLICATION_FINDING_CONNECTION_REQUIRED,
+        Self::PUBLICATION_FINDING_DASHBOARD_NOT_EDITABLE,
+        Self::PUBLICATION_FINDING_DECISION_INVALID,
+        Self::PUBLICATION_FINDING_KEPT_ON_SOURCE,
+        Self::PUBLICATION_FINDING_KEPT_ON_SOURCE_CONFIRMATION_STALE,
+        Self::PUBLICATION_FINDING_MATCH_DIFFERENCES,
+        Self::PUBLICATION_FINDING_NO_CHANGES,
+        Self::PUBLICATION_FINDING_SCOPE_LINK_CROSSING_CONSUMER_OUTSIDE,
+        Self::PUBLICATION_FINDING_SCOPE_LINK_CROSSING_PROVIDER_OUTSIDE,
+        Self::PUBLICATION_FINDING_SERVER_VERSION_MISMATCH,
+        Self::PUBLICATION_FINDING_SOURCE_UNVERIFIED,
+        Self::PUBLICATION_FINDING_TARGET_HOST_NOT_VISIBLE,
+        Self::PUBLICATION_FINDING_UNKNOWN,
+        Self::PUBLICATION_FINDING_WRITE_CONTRACT_UNVERIFIED,
+        Self::PUBLICATION_FINDING_WRITE_MODE_REQUIRED,
+        Self::PUBLICATION_JOURNAL_CLOSE,
+        Self::PUBLICATION_JOURNAL_DESCRIPTION,
+        Self::PUBLICATION_JOURNAL_DISK_NOTE,
+        Self::PUBLICATION_JOURNAL_FIELD_CLOSED_BY,
+        Self::PUBLICATION_JOURNAL_FIELD_CONNECTION,
+        Self::PUBLICATION_JOURNAL_FIELD_EVIDENCE,
+        Self::PUBLICATION_JOURNAL_FIELD_FINISHED,
+        Self::PUBLICATION_JOURNAL_FIELD_OPERATION,
+        Self::PUBLICATION_JOURNAL_FIELD_OPERATION_ID,
+        Self::PUBLICATION_JOURNAL_FIELD_REPEATS,
+        Self::PUBLICATION_JOURNAL_FIELD_SENDS,
+        Self::PUBLICATION_JOURNAL_FIELD_SENT,
+        Self::PUBLICATION_JOURNAL_FIELD_SERVER_VERSION,
+        Self::PUBLICATION_JOURNAL_FIELD_SOURCE,
+        Self::PUBLICATION_JOURNAL_FIELD_STARTED,
+        Self::PUBLICATION_JOURNAL_FIELD_STATE,
+        Self::PUBLICATION_JOURNAL_FIELD_TARGET,
+        Self::PUBLICATION_JOURNAL_FIELD_TRANSITIONS,
+        Self::PUBLICATION_JOURNAL_PROFILE_REMOVED,
+        Self::PUBLICATION_JOURNAL_SOURCE_DRAFT,
+        Self::PUBLICATION_JOURNAL_SOURCE_REMOVED,
+        Self::PUBLICATION_JOURNAL_TARGET_EXISTING,
+        Self::PUBLICATION_JOURNAL_TARGET_EXISTING_UNNAMED,
+        Self::PUBLICATION_JOURNAL_TARGET_NEW,
+        Self::PUBLICATION_JOURNAL_TITLE,
+        Self::PUBLICATION_JOURNAL_TRANSITION,
+        Self::PUBLICATION_JOURNAL_BLOCK,
+        Self::PUBLICATION_JOURNAL_BLOCK_DAMAGED,
+        Self::PUBLICATION_KEPT_CONFIRMED_DONE,
+        Self::PUBLICATION_LATER_HINT,
+        Self::PUBLICATION_NONE_BODY,
+        Self::PUBLICATION_NONE_TITLE,
+        Self::PUBLICATION_PLAN_INVALIDATED,
+        Self::PUBLICATION_PLAN_REASON_APP_RESTARTED,
+        Self::PUBLICATION_PLAN_REASON_BINDINGS_CHANGED,
+        Self::PUBLICATION_PLAN_REASON_CONNECTION_CHANGED,
+        Self::PUBLICATION_PLAN_REASON_DRAFT_CHANGED,
+        Self::PUBLICATION_PLAN_REASON_SESSION_ENDED,
+        Self::PUBLICATION_PLAN_REASON_SOURCE_CHANGED,
+        Self::PUBLICATION_PLAN_REASON_TARGET_CHANGED,
+        Self::PUBLICATION_PLAN_REASON_UNKNOWN,
+        Self::PUBLICATION_PREFLIGHT_BLOCKED,
+        Self::PUBLICATION_PREFLIGHT_TITLE,
+        Self::PUBLICATION_PREVIEW_READ_ONLY_NOTE,
+        Self::PUBLICATION_RECONCILE_COLUMN_FOUND,
+        Self::PUBLICATION_RECONCILE_COLUMN_NEXT,
+        Self::PUBLICATION_RECONCILE_COLUMN_RESULT,
+        Self::PUBLICATION_RECONCILE_CREATE_NOTE,
+        Self::PUBLICATION_RECONCILE_FOUND_BASE,
+        Self::PUBLICATION_RECONCILE_FOUND_EXPECTED,
+        Self::PUBLICATION_RECONCILE_FOUND_NONE_OR_OTHER,
+        Self::PUBLICATION_RECONCILE_FOUND_ONE,
+        Self::PUBLICATION_RECONCILE_FOUND_OTHER,
+        Self::PUBLICATION_RECONCILE_NEXT_CONTINUE,
+        Self::PUBLICATION_RECONCILE_NEXT_NEW_PREVIEW,
+        Self::PUBLICATION_RECONCILE_NEXT_OPEN,
+        Self::PUBLICATION_RECONCILE_READ_ONLY_ENOUGH,
+        Self::PUBLICATION_RECONCILE_TITLE,
+        Self::PUBLICATION_RECONCILE_UPDATE_NOTE,
+        Self::PUBLICATION_RECONCILE_WRITE_BLOCKED,
         Self::PUBLICATION_REQUIREMENT_NO_CONNECTION,
+        Self::PUBLICATION_RESULT_BASE_ADVANCED,
+        Self::PUBLICATION_RESULT_BASE_NOT_ADVANCED,
+        Self::PUBLICATION_RESULT_CLOSED_MANUALLY_BODY,
+        Self::PUBLICATION_RESULT_COPY_CREATED,
+        Self::PUBLICATION_RESULT_FAILED_AFTER_RESPONSE_BODY,
+        Self::PUBLICATION_RESULT_FAILED_BEFORE_SEND_BODY,
+        Self::PUBLICATION_RESULT_JOURNAL_ERROR,
+        Self::PUBLICATION_RESULT_MANUAL_BODY,
+        Self::PUBLICATION_RESULT_MANUAL_UPDATE_BODY,
+        Self::PUBLICATION_RESULT_RECONCILED_FAILED_BODY,
+        Self::PUBLICATION_RESULT_RECONCILED_VERIFIED_BODY,
+        Self::PUBLICATION_RESULT_UNKNOWN_BODY,
+        Self::PUBLICATION_RESULT_VERIFIED_BODY,
+        Self::PUBLICATION_STAGE_AT,
+        Self::PUBLICATION_STAGE_DISPLAY,
+        Self::PUBLICATION_STAGE_DISPLAY_NOT_CHECKED,
+        Self::PUBLICATION_STAGE_NAME_CHECK,
+        Self::PUBLICATION_STAGE_NAME_CHECK_DONE,
+        Self::PUBLICATION_STAGE_NOT_DONE,
+        Self::PUBLICATION_STAGE_NOT_SENT,
+        Self::PUBLICATION_STAGE_PRE_READ,
+        Self::PUBLICATION_STAGE_PRE_READ_DONE,
+        Self::PUBLICATION_STAGE_READ_BACK,
+        Self::PUBLICATION_STAGE_READ_BACK_DONE,
+        Self::PUBLICATION_STAGE_SENDING,
+        Self::PUBLICATION_STAGE_SOURCES,
+        Self::PUBLICATION_STAGE_SOURCES_DONE,
+        Self::PUBLICATION_STAGE_STRUCTURE,
+        Self::PUBLICATION_STAGE_STRUCTURE_DONE,
+        Self::PUBLICATION_STAGE_WAITING,
+        Self::PUBLICATION_STAGE_WRITE,
+        Self::PUBLICATION_STAGE_WRITE_DONE,
+        Self::PUBLICATION_STAGE_WRITE_UNKNOWN,
+        Self::PUBLICATION_STAGES_TITLE,
+        Self::PUBLICATION_STATE_CLOSED_MANUALLY,
+        Self::PUBLICATION_STATE_CONFIRMED,
+        Self::PUBLICATION_STATE_CONFLICT,
+        Self::PUBLICATION_STATE_FAILED_AFTER_RESPONSE,
+        Self::PUBLICATION_STATE_FAILED_BEFORE_SEND,
+        Self::PUBLICATION_STATE_MANUAL_CHECK_REQUIRED,
+        Self::PUBLICATION_STATE_RECONCILED_FAILED,
+        Self::PUBLICATION_STATE_RECONCILED_VERIFIED,
+        Self::PUBLICATION_STATE_SUBMITTING,
+        Self::PUBLICATION_STATE_UNKNOWN_OUTCOME,
+        Self::PUBLICATION_STATE_VERIFIED,
+        Self::PUBLICATION_STEP_CHANGES,
+        Self::PUBLICATION_STEP_CHECKS,
+        Self::PUBLICATION_STEP_CONFIRM,
+        Self::PUBLICATION_STEP_TARGET,
+        Self::PUBLICATION_STEP_UNAVAILABLE_REASON,
+        Self::PUBLICATION_STEP_WRITE,
+        Self::PUBLICATION_TARGET_CHOOSE_EXPLICITLY,
+        Self::PUBLICATION_TARGET_NAME,
+        Self::PUBLICATION_TARGET_NAME_REQUIRED,
+        Self::PUBLICATION_TARGET_NAME_SERVER_CHECK,
+        Self::PUBLICATION_TARGET_NO_RETARGET,
+        Self::PUBLICATION_TARGET_SAVE_COPY,
+        Self::PUBLICATION_TARGET_SAVE_COPY_HINT,
+        Self::PUBLICATION_TARGET_TITLE,
+        Self::PUBLICATION_TARGET_UPDATE_SOURCE,
+        Self::PUBLICATION_TARGET_UPDATE_SOURCE_HINT,
+        Self::PUBLICATION_TARGET_UPDATE_VISIBLE_TO_ALL,
+        Self::PUBLICATION_TECH_BASE,
+        Self::PUBLICATION_TECH_FIELDS,
+        Self::PUBLICATION_TECH_LOCAL,
+        Self::PUBLICATION_TECH_PAGEID,
+        Self::PUBLICATION_TECH_REVISION,
+        Self::PUBLICATION_TECH_TITLE,
+        Self::PUBLICATION_TECH_WIDGET_TYPE,
+        Self::PUBLICATION_TECH_WIDGETID,
+        Self::PUBLICATION_TITLE,
+        Self::PUBLICATION_UNTOUCHED_ACCESS,
+        Self::PUBLICATION_UNTOUCHED_PAGES,
+        Self::PUBLICATION_UNTOUCHED_SOURCE,
+        Self::PUBLICATION_UNTOUCHED_TITLE,
+        Self::PUBLICATION_UNTOUCHED_WIDGETS,
+        Self::PUBLICATION_UNTOUCHED_ZABBIX_OBJECTS,
+        Self::REPLACE_HOST_SOURCE,
+        Self::SERVER_ACTION_CLONE,
+        Self::SERVER_ACTION_COPY,
+        Self::SERVER_ACTION_OPEN_COPY,
+        Self::SERVER_ACTION_PREVIEW,
+        Self::SERVER_ACTION_REFRESH,
+        Self::SERVER_ACTIONS_START_WITH_COPY,
+        Self::SERVER_COLUMN_ACCESS,
+        Self::SERVER_COLUMN_EDITABLE,
+        Self::SERVER_COLUMN_MINE,
+        Self::SERVER_COLUMN_NAME,
+        Self::SERVER_COLUMN_OWNER,
+        Self::SERVER_COLUMN_PAGES,
+        Self::SERVER_COLUMN_WIDGETS,
         Self::SERVER_DASHBOARDS_TITLE,
+        Self::SERVER_DETAILS_COPIED_AS_IS,
+        Self::SERVER_DETAILS_EDITABLE,
+        Self::SERVER_DETAILS_EXISTING_COPY,
+        Self::SERVER_DETAILS_NOT_EDITABLE,
+        Self::SERVER_DETAILS_OWNER,
+        Self::SERVER_DETAILS_PAGES,
+        Self::SERVER_DETAILS_SELECT_HINT,
+        Self::SERVER_DETAILS_TYPE_COUNT,
+        Self::SERVER_DETAILS_WIDGETS,
+        Self::SERVER_EDITABLE_COUNT,
+        Self::SERVER_EMPTY_OFFLINE,
+        Self::SERVER_EMPTY_OTHER_CONNECTION,
+        Self::SERVER_FILTER_LEGEND,
+        Self::SERVER_FILTER_MINE,
+        Self::SERVER_FILTER_SHARED,
+        Self::SERVER_LIST_COPIES_UNKNOWN,
+        Self::SERVER_LIST_LOAD_FAILED,
+        Self::SERVER_LIST_TRUNCATED,
+        Self::SERVER_MINE_COPY,
+        Self::SERVER_MINE_UNKNOWN,
+        Self::SERVER_OWNER_OTHER,
+        Self::SERVER_OWNER_YOU,
+        Self::SERVER_PAGINATION_LABEL,
+        Self::SERVER_PAGINATION_NEXT,
+        Self::SERVER_PAGINATION_PREVIOUS,
+        Self::SERVER_PREVIEW_BADGE,
+        Self::SERVER_PREVIEW_BREADCRUMB,
+        Self::SERVER_PREVIEW_LOAD_FAILED,
+        Self::SERVER_PREVIEW_NOTE,
+        Self::SERVER_PREVIEW_PAGE_TO_TAKE,
+        Self::SERVER_SEARCH_ACTION,
+        Self::SERVER_SEARCH_PLACEHOLDER,
+        Self::SERVER_SUBTITLE,
+        Self::SERVER_TAB_DASHBOARDS,
+        Self::SERVER_TAB_TEMPLATES,
+        Self::SERVER_TAKE_PAGE_LEGEND,
+        Self::SERVER_TEMPLATES_LATER,
+        Self::SERVER_VISIBILITY_NOTE,
+        Self::SESSION_ACTION_END,
+        Self::SESSION_END_CONFIRM_BODY,
+        Self::SESSION_END_CONFIRM_TITLE,
+        Self::SESSION_END_NOT_CONFIRMED,
+        Self::SESSION_END_UNAVAILABLE_WRITING,
+        Self::SESSION_ENDED_TITLE,
+        Self::SETTINGS_APPEARANCE_INVALID_BODY,
+        Self::SETTINGS_APPEARANCE_NOT_SAVED_BODY,
+        Self::SETTINGS_APPEARANCE_NOT_SAVED_TITLE,
+        Self::SETTINGS_APPEARANCE_SAVED,
+        Self::SETTINGS_APPEARANCE_SUBTITLE,
         Self::SETTINGS_APPEARANCE_TITLE,
+        Self::SETTINGS_CHANGED,
         Self::SETTINGS_CONNECTIONS_TITLE,
+        Self::SETTINGS_CONTRAST_NOTE,
+        Self::SETTINGS_CONTRAST_TITLE,
+        Self::SETTINGS_DATA_NOT_TRANSLATED,
         Self::SETTINGS_EDITOR_TITLE,
+        Self::SETTINGS_FILE_HINT,
+        Self::SETTINGS_FILE_INVALID_TITLE,
+        Self::SETTINGS_FILE_TITLE,
+        Self::SETTINGS_FORMATS_COUNT,
+        Self::SETTINGS_FORMATS_COUNT_SAMPLE,
+        Self::SETTINGS_FORMATS_DATETIME,
+        Self::SETTINGS_FORMATS_NUMBER,
+        Self::SETTINGS_FORMATS_TITLE,
         Self::SETTINGS_GENERAL_TITLE,
+        Self::SETTINGS_LANGUAGE_AFTER_RESTART,
+        Self::SETTINGS_LANGUAGE_CURRENT,
+        Self::SETTINGS_LANGUAGE_NAME_EN,
+        Self::SETTINGS_LANGUAGE_NAME_RU,
+        Self::SETTINGS_LANGUAGE_OPTION_EN,
+        Self::SETTINGS_LANGUAGE_OPTION_RU,
+        Self::SETTINGS_LANGUAGE_SYSTEM,
+        Self::SETTINGS_LANGUAGE_TITLE,
+        Self::SETTINGS_MOTION_EXPLICIT_STATE,
+        Self::SETTINGS_MOTION_NO_MEANING,
+        Self::SETTINGS_MOTION_REDUCE,
+        Self::SETTINGS_MOTION_STATE_OFF,
+        Self::SETTINGS_MOTION_STATE_ON,
+        Self::SETTINGS_MOTION_SYSTEM_STATE,
+        Self::SETTINGS_MOTION_TITLE,
         Self::SETTINGS_NAV_NO_SECRETS,
+        Self::SETTINGS_RESET_SECTION,
         Self::SETTINGS_SEARCH_PLACEHOLDER,
         Self::SETTINGS_SECURITY_TITLE,
         Self::SETTINGS_STORAGE_NETWORK_WARNING,
+        Self::SETTINGS_THEME_DARK,
+        Self::SETTINGS_THEME_HIGH_CONTRAST,
+        Self::SETTINGS_THEME_HIGH_CONTRAST_HINT,
+        Self::SETTINGS_THEME_LIGHT,
+        Self::SETTINGS_THEME_NOT_WIDGETS,
+        Self::SETTINGS_THEME_SYSTEM,
+        Self::SETTINGS_THEME_TITLE,
         Self::SETTINGS_TITLE,
         Self::SETTINGS_WORKSPACE_TITLE,
         Self::SHELL_A11Y_BREADCRUMBS,
         Self::SHELL_A11Y_MAIN_NAV,
+        Self::SHELL_DEMO_MARKER,
         Self::STARTUP_ACTION_ALL_DRAFTS,
         Self::STARTUP_ACTION_ASSEMBLE_DASHBOARD,
         Self::STARTUP_ACTION_CHOOSE_DASHBOARD,
@@ -473,6 +2609,7 @@ impl MessageId {
         Self::STARTUP_ACTION_IMPORT_FILES,
         Self::STARTUP_ACTION_NEW_DASHBOARD,
         Self::STARTUP_ACTION_NEW_PAGE,
+        Self::STARTUP_ACTION_OPEN_SERVER,
         Self::STARTUP_ACTION_TAKE_PAGE,
         Self::STARTUP_DRAFT_MISSING,
         Self::STARTUP_ERROR_UNAVAILABLE,
@@ -491,6 +2628,26 @@ impl MessageId {
         Self::STARTUP_QUESTION,
         Self::STARTUP_RECENT_EMPTY,
         Self::STARTUP_RECENT_TITLE,
+        Self::STARTUP_RECOVERY_A11Y_REGION,
+        Self::STARTUP_RECOVERY_ACTION_CONNECT,
+        Self::STARTUP_RECOVERY_ACTION_OPEN_DRAFT,
+        Self::STARTUP_RECOVERY_BODY,
+        Self::STARTUP_RECOVERY_CLOSE_UNVERIFIED,
+        Self::STARTUP_RECOVERY_CLOSE_UNVERIFIED_CONFIRM,
+        Self::STARTUP_RECOVERY_CLOSE_UNVERIFIED_TITLE,
+        Self::STARTUP_RECOVERY_CLOSED,
+        Self::STARTUP_RECOVERY_CLOSED_MANUALLY,
+        Self::STARTUP_RECOVERY_CONNECT_FIRST,
+        Self::STARTUP_RECOVERY_DAMAGED_BODY_ALL,
+        Self::STARTUP_RECOVERY_DAMAGED_BODY_TARGET,
+        Self::STARTUP_RECOVERY_DAMAGED_TITLE,
+        Self::STARTUP_RECOVERY_FOUND,
+        Self::STARTUP_RECOVERY_LOAD_FAILED,
+        Self::STARTUP_RECOVERY_QUARANTINE,
+        Self::STARTUP_RECOVERY_QUARANTINE_CONFIRM,
+        Self::STARTUP_RECOVERY_QUARANTINE_TITLE,
+        Self::STARTUP_RECOVERY_QUARANTINED,
+        Self::STARTUP_RECOVERY_STATE,
         Self::STARTUP_SERVER_HELP,
         Self::STARTUP_SERVER_TITLE,
         Self::STARTUP_STATUS_BACKEND,
@@ -536,6 +2693,7 @@ impl MessageId {
         Self::WIDGET_TYPE_TRIGOVER,
         Self::WIDGET_TYPE_URL,
         Self::WIDGET_TYPE_WEB,
+        Self::WORKCOPY_REFETCH_ACTION,
     ];
 
     /// Return the wire/catalog representation.

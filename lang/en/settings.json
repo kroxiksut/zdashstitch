@@ -46,5 +46,385 @@
   "settings.storage.network_warning": {
     "message": "Network storage: if the connection drops, changes may not be saved, and publishing to Zabbix stays unavailable until the journal is written.",
     "placeholders": {}
+  },
+  "session.action.end": {
+    "message": "End session",
+    "placeholders": {}
+  },
+  "session.end.confirm.title": {
+    "message": "End the local session?",
+    "placeholders": {}
+  },
+  "session.end.confirm.body": {
+    "message": "All tabs will close the session and Zabbix secrets in memory will be erased. Saved drafts stay on disk; unsaved input in open tabs is lost.",
+    "placeholders": {}
+  },
+  "session.end.unavailable_writing": {
+    "message": "Wait for the write to finish or for its result to become known.",
+    "placeholders": {}
+  },
+  "session.end.not_confirmed": {
+    "message": "Confirm ending the local session first.",
+    "placeholders": {}
+  },
+  "session.ended.title": {
+    "message": "Session ended",
+    "placeholders": {}
+  },
+  "about.subtitle": {
+    "message": "Build and license information. Shown without any network access.",
+    "placeholders": {}
+  },
+  "about.tagline": {
+    "message": "Local editor for global Zabbix dashboards",
+    "placeholders": {}
+  },
+  "about.copyright": {
+    "message": "Copyright © 2026 Fyodor Malkov",
+    "placeholders": {}
+  },
+  "about.error.unavailable": {
+    "message": "Build information could not be loaded.",
+    "placeholders": {}
+  },
+  "about.field.version": {
+    "message": "Version",
+    "placeholders": {}
+  },
+  "about.field.build": {
+    "message": "Build",
+    "placeholders": {}
+  },
+  "about.field.build_unknown": {
+    "message": "Unknown",
+    "placeholders": {}
+  },
+  "about.field.zabbix": {
+    "message": "Zabbix",
+    "placeholders": {}
+  },
+  "about.field.zabbix_value": {
+    "message": "{versions} (adapter {adapter}, verified on {verified})",
+    "placeholders": {"versions": "technical", "adapter": "technical", "verified": "technical"}
+  },
+  "about.field.platform": {
+    "message": "Platform",
+    "placeholders": {}
+  },
+  "about.license.title": {
+    "message": "ZDashstitch licenses",
+    "placeholders": {}
+  },
+  "about.license.code": {
+    "message": "Program and source code",
+    "placeholders": {}
+  },
+  "about.license.code_choice": {
+    "message": "MIT OR Apache-2.0, at the recipient's choice",
+    "placeholders": {}
+  },
+  "about.license.docs": {
+    "message": "Documentation and original visuals",
+    "placeholders": {}
+  },
+  "about.license.docs_value": {
+    "message": "CC BY 4.0",
+    "placeholders": {}
+  },
+  "about.license.text_mit": {
+    "message": "MIT text",
+    "placeholders": {}
+  },
+  "about.license.text_apache": {
+    "message": "Apache-2.0 text",
+    "placeholders": {}
+  },
+  "about.license.text": {
+    "message": "License text",
+    "placeholders": {}
+  },
+  "about.license.text_original": {
+    "message": "License texts are shown in the original language.",
+    "placeholders": {}
+  },
+  "about.license.zabbix_note": {
+    "message": "Zabbix is a separate product; its licenses and trademarks do not transfer to ZDashstitch.",
+    "placeholders": {}
+  },
+  "about.license.brand": {
+    "message": "ZDashstitch artwork (logo and Stezhik)",
+    "placeholders": {}
+  },
+  "about.license.tabler": {
+    "message": "Tabler Icons notice (MIT)",
+    "placeholders": {}
+  },
+  "about.data.title": {
+    "message": "Data on this computer",
+    "placeholders": {}
+  },
+  "about.data.storage": {
+    "message": "Storage",
+    "placeholders": {}
+  },
+  "about.data.settings_file": {
+    "message": "Settings file",
+    "placeholders": {}
+  },
+  "about.data.journal": {
+    "message": "Operation journal",
+    "placeholders": {}
+  },
+  "about.data.copy_path": {
+    "message": "Copy path: {name}",
+    "placeholders": {"name": "text"}
+  },
+  "about.data.paths_local_only": {
+    "message": "Full paths are shown only here and are not included in reports.",
+    "placeholders": {}
+  },
+  "about.report.copy": {
+    "message": "Copy details for a report",
+    "placeholders": {}
+  },
+  "about.report.scope": {
+    "message": "without server addresses, names and secrets",
+    "placeholders": {}
+  },
+  "about.report.preview": {
+    "message": "Details for a report",
+    "placeholders": {}
+  },
+  "about.report.copy_failed": {
+    "message": "Copying is not available here. Select the text below and copy it manually.",
+    "placeholders": {}
+  },
+  "about.copied": {
+    "message": "Details copied",
+    "placeholders": {}
+  },
+  "about.third_party.title": {
+    "message": "Third-party components",
+    "placeholders": {}
+  },
+  "about.third_party.subtitle": {
+    "message": "The list is built with the program; license texts are embedded in it.",
+    "placeholders": {}
+  },
+  "about.third_party.filters": {
+    "message": "Component type",
+    "placeholders": {}
+  },
+  "about.third_party.filter.all": {
+    "message": "All {count}",
+    "placeholders": {"count": "number"}
+  },
+  "about.third_party.filter.icons": {
+    "message": "Icons {count}",
+    "placeholders": {"count": "number"}
+  },
+  "about.third_party.filter.rust": {
+    "message": "Rust {count}",
+    "placeholders": {"count": "number"}
+  },
+  "about.third_party.filter.ui": {
+    "message": "Interface {count}",
+    "placeholders": {"count": "number"}
+  },
+  "about.third_party.search": {
+    "message": "Search by name or license",
+    "placeholders": {}
+  },
+  "about.third_party.column.component": {
+    "message": "Component",
+    "placeholders": {}
+  },
+  "about.third_party.column.version": {
+    "message": "Version",
+    "placeholders": {}
+  },
+  "about.third_party.column.license": {
+    "message": "License",
+    "placeholders": {}
+  },
+  "about.third_party.icons_summary": {
+    "message": "{count, plural, one {interface icon: # icon} other {interface icons: # icons}}",
+    "placeholders": {"count": "number"}
+  },
+  "about.third_party.more": {
+    "message": "{count, plural, one {and # more component} other {and # more components}}",
+    "placeholders": {"count": "number"}
+  },
+  "about.third_party.show_all": {
+    "message": "Show all {count}",
+    "placeholders": {"count": "number"}
+  },
+  "about.third_party.empty": {
+    "message": "No components match the search.",
+    "placeholders": {}
+  },
+  "about.third_party.missing": {
+    "message": "The license list is not embedded in this build.",
+    "placeholders": {}
+  },
+  "settings.appearance.subtitle": {
+    "message": "Changes apply immediately and are saved to the settings file.",
+    "placeholders": {}
+  },
+  "settings.language.title": {
+    "message": "Interface language",
+    "placeholders": {}
+  },
+  "settings.language.system": {
+    "message": "As in the system",
+    "placeholders": {}
+  },
+  "settings.language.current": {
+    "message": "now: {language}",
+    "placeholders": {"language": "text"}
+  },
+  "settings.language.after_restart": {
+    "message": "A change of the system language applies after restarting the browser or the application.",
+    "placeholders": {}
+  },
+  "settings.language.option.en": {
+    "message": "English",
+    "placeholders": {}
+  },
+  "settings.language.option.ru": {
+    "message": "Русский",
+    "placeholders": {}
+  },
+  "settings.language.name.en": {
+    "message": "English",
+    "placeholders": {}
+  },
+  "settings.language.name.ru": {
+    "message": "Russian",
+    "placeholders": {}
+  },
+  "settings.data_not_translated": {
+    "message": "Dashboard names, hosts and other Zabbix data are not translated. Terms follow the Zabbix localization.",
+    "placeholders": {}
+  },
+  "settings.theme.title": {
+    "message": "Theme",
+    "placeholders": {}
+  },
+  "settings.theme.system": {
+    "message": "As in the system",
+    "placeholders": {}
+  },
+  "settings.theme.light": {
+    "message": "Light",
+    "placeholders": {}
+  },
+  "settings.theme.dark": {
+    "message": "Dark",
+    "placeholders": {}
+  },
+  "settings.theme.high_contrast": {
+    "message": "High contrast",
+    "placeholders": {}
+  },
+  "settings.theme.high_contrast.hint": {
+    "message": "Black text on white, strong borders and a thick focus frame.",
+    "placeholders": {}
+  },
+  "settings.theme.not_widgets": {
+    "message": "The interface theme does not change how widgets look on the dashboard.",
+    "placeholders": {}
+  },
+  "settings.changed": {
+    "message": "changed",
+    "placeholders": {}
+  },
+  "settings.motion.title": {
+    "message": "Motion and contrast",
+    "placeholders": {}
+  },
+  "settings.motion.reduce": {
+    "message": "Reduce animation",
+    "placeholders": {}
+  },
+  "settings.motion.system_state": {
+    "message": "As in the system: {state}.",
+    "placeholders": {"state": "text"}
+  },
+  "settings.motion.explicit_state": {
+    "message": "Set here; in the system: {state}.",
+    "placeholders": {"state": "text"}
+  },
+  "settings.motion.state.on": {
+    "message": "on",
+    "placeholders": {}
+  },
+  "settings.motion.state.off": {
+    "message": "off",
+    "placeholders": {}
+  },
+  "settings.motion.no_meaning": {
+    "message": "Statuses and texts do not depend on animation.",
+    "placeholders": {}
+  },
+  "settings.contrast.title": {
+    "message": "High contrast",
+    "placeholders": {}
+  },
+  "settings.contrast.note": {
+    "message": "Choose the «High contrast» theme. The system contrast mode is also respected and takes priority over any theme.",
+    "placeholders": {}
+  },
+  "settings.formats.title": {
+    "message": "Format preview",
+    "placeholders": {}
+  },
+  "settings.formats.datetime": {
+    "message": "Date and time",
+    "placeholders": {}
+  },
+  "settings.formats.number": {
+    "message": "Number",
+    "placeholders": {}
+  },
+  "settings.formats.count": {
+    "message": "Count",
+    "placeholders": {}
+  },
+  "settings.formats.count_sample": {
+    "message": "{widgets, plural, one {# widget} other {# widgets}} · {pages, plural, one {# page} other {# pages}} · {more, plural, one {# widget} other {# widgets}}",
+    "placeholders": {"widgets": "number", "pages": "number", "more": "number"}
+  },
+  "settings.file.title": {
+    "message": "Settings file",
+    "placeholders": {}
+  },
+  "settings.file.hint": {
+    "message": "Settings are stored in a YAML file that you can edit by hand. An invalid file is not applied.",
+    "placeholders": {}
+  },
+  "settings.file.invalid.title": {
+    "message": "The settings file has errors and was not applied",
+    "placeholders": {}
+  },
+  "settings.appearance.invalid_body": {
+    "message": "The last valid settings are in use. Until the file is fixed, changes made here apply until restart and are not saved.",
+    "placeholders": {}
+  },
+  "settings.appearance.not_saved.title": {
+    "message": "Changes are not saved",
+    "placeholders": {}
+  },
+  "settings.appearance.not_saved.body": {
+    "message": "The local server did not save the settings file. The changes apply until restart.",
+    "placeholders": {}
+  },
+  "settings.appearance.saved": {
+    "message": "Saved to the settings file",
+    "placeholders": {}
+  },
+  "settings.reset.section": {
+    "message": "Reset section",
+    "placeholders": {}
   }
 }

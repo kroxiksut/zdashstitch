@@ -1,6 +1,6 @@
 # P1-00H — reference pack и handoff в P2-00
 
-**Версия:** 1.0, 2026-10-24. **Статус:** принято как design-system handoff P1-00. Реализация компонентов, CSS и runtime-каталогов относится к P2-00; этот документ не является снимком работающего приложения.
+**Версия:** 1.1, 2026-10-26 (DESIGN-FIX-01: без слова «project» — m-02; устаревший `publication.action.publish` заменён — m-13); 1.0 — 2026-10-24. **Статус:** принято как design-system handoff P1-00. Реализация компонентов, CSS и runtime-каталогов относится к P2-00; этот документ не является снимком работающего приложения.
 
 ## 1. Нормативный состав pack
 
@@ -21,7 +21,7 @@
 ## 2. Implementation order for P2-00
 
 1. Data-only EN source and complete RU catalogs; generated/checked typed keys and placeholder parity.
-2. Theme preference `system | light | dark`, semantic tokens and forced-colors mapping without component color literals.
+2. Theme preference `system | light | dark | high_contrast` (high_contrast added 28.10.2026, O-038), semantic tokens and forced-colors mapping without component color literals.
 3. Native primitives: text/link/button/form/status/disclosure/dialog/progress.
 4. Composite primitives: tabs, combobox/listbox, tree, data table/grid only where required, split pane and inspector.
 5. Shared feedback: banner, field/summary errors, toast/history link, skeleton/progress, technical details.
@@ -39,9 +39,9 @@ Reference surface uses `surface.canvas` → `surface.default` panels, `text.prim
 
 | Row | Components/states | Copy/data example |
 |---|---|---|
-| Actions | primary, secondary, quiet, danger; default/hover/focus/disabled/busy | `publication.action.publish`, `common.action.cancel` |
+| Actions | primary, secondary, quiet, danger; default/hover/focus/disabled/busy | `publication.action.open_confirm`, `common.action.cancel` |
 | Fields | text, URL, password, select, combobox, checkbox/radio/switch; default/focus/error/read-only | Synthetic endpoint; no token value in visual/reference |
-| Navigation | link, tabs, breadcrumb, tree row selected/focused | Project → dashboard → page |
+| Navigation | link, tabs, breadcrumb, tree row selected/focused | Dashboard → page → widget |
 | Feedback | info/warning/danger/success banners, badges, progress, skeleton, empty | Offline, partial, conflict, verified |
 | Overlay/detail | dialog, non-modal inspector, tooltip, technical-details disclosure | Safe diagnostics only |
 | Dense data | table headers/rows, changed/unsupported/unknown-outcome markers, pagination | 20-row page group; Base/Local/Remote |
@@ -59,7 +59,7 @@ Authored gradients/shadows are removed; native/system colors convey surface, tex
 This reference intentionally combines the broadest shared surface without claiming a finished P1-08 screen.
 
 ```text
-┌ App bar: project / saved state / connection / read-only-or-write mode ┐
+┌ App bar: draft / saved state / connection / read-only-or-write mode ──┐
 ├ Navigation 240 ┬ Main: Preview and publish ─────────────┬ Inspector 360 ┤
 │ Dashboards     │ target + operation + current freshness │ Selection     │
 │ Pages          │ [blocking conflict/unknown banner]      │ Base          │
@@ -79,7 +79,7 @@ At 1024 px inspector becomes a drawer and navigation collapses; at 320 CSS px eq
 
 | Element | Data inputs | Events | Message IDs | Acceptance checks |
 |---|---|---|---|---|
-| App status bar | project name, saved/dirty, connection state, access mode | open project/connection context | `common.state.*`, feature labels | Axes remain independent; server data unmodified |
+| App status bar | draft name, saved/dirty, connection state, access mode | open draft/connection context | `common.state.*`, feature labels | Axes remain independent; server data unmodified |
 | Navigation/tree | route nodes, object IDs/names, current node, counts | navigate, expand/collapse, select | `library.*`, `dashboards.*`, `editor.*` | Native route order; selected ≠ focus; long names available |
 | Data table | stable row ID, columns, sort/page, row state | sort, page, select, open details | namespace column/status IDs | Header association; no color-only diff; stress virtualization preserves focus |
 | Inspector/drawer | selected object, editable/read-only fields, evidence | edit, copy, close, resize | `editor.inspector.title`, `bindings.evidence.*`, `diagnostics.*` | Non-modal no trap; narrow layout becomes labelled drawer |

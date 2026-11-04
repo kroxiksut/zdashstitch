@@ -1,4 +1,5 @@
 import type { LocalizedText } from '../components';
+import type { MessageId } from '../i18n';
 import type { DraftFreshness, DraftKind, DraftLocalState, DraftOrigin, CheckGroup } from './drafts';
 import type { DraftSection, SettingsSection, TopSection } from './router';
 
@@ -19,6 +20,12 @@ export const LOCAL_STATE_LABEL: Readonly<Record<DraftLocalState, LocalizedText>>
   dirty: { id: 'draft.context.dirty' }
 };
 
+/** Short local state of a «Drafts» row (P1-00F §9.2); the long form is for details and «Overview». */
+export const LIST_STATE_LABEL: Readonly<Record<DraftLocalState, LocalizedText>> = {
+  saved: { id: 'drafts.state.saved' },
+  dirty: { id: 'drafts.state.modified' }
+};
+
 export const LOCAL_STATE_TONE: Readonly<Record<DraftLocalState, Tone>> = { saved: 'info', dirty: 'warning' };
 
 export function freshnessLabel(freshness: DraftFreshness): LocalizedText {
@@ -34,6 +41,18 @@ export function freshnessLabel(freshness: DraftFreshness): LocalizedText {
     case 'not_checked':
       return { id: 'draft.freshness.not_checked' };
   }
+}
+
+const SHORT_FRESHNESS_ID = {
+  current: 'drafts.state.current',
+  stale: 'drafts.state.stale',
+  conflict: 'drafts.state.changed_on_server',
+  source_missing: 'drafts.state.source_missing'
+} as const;
+
+/** Freshness in a «Drafts» row: short forms (P1-00F §9.2); «not checked» has no separate short form. */
+export function listFreshnessLabel(freshness: DraftFreshness): LocalizedText {
+  return freshness.state === 'not_checked' ? freshnessLabel(freshness) : { id: SHORT_FRESHNESS_ID[freshness.state] };
 }
 
 export function freshnessTone(freshness: DraftFreshness): Tone {
@@ -72,10 +91,10 @@ export const SETTINGS_ENTRIES: ReadonlyArray<SettingsEntry> = [
   { section: 'workspace', label: { id: 'settings.workspace.title' }, available: false },
   { section: 'editor', label: { id: 'settings.editor.title' }, available: false },
   { section: 'connections', label: { id: 'settings.connections.title' }, available: false },
-  // TODO(O-032): End session — the command lives in «Security and export» (P1-12, P2-SEC-01E).
+  // TODO(O-032): End session — the button lives in «Security and export» (P1-12) and calls
+  // `endLocalSession` from `../session` after the `session.end.confirm.*` dialog (P2-SEC-01E).
   { section: 'security', label: { id: 'settings.security.title' }, available: false },
   { section: 'diagnostics', label: { id: 'diagnostics.title' }, available: false },
-  // TODO(P1-12): About/Licenses entry point — the window is designed in P1-12 and built in P2-00F/P6.
   { section: 'about', label: { id: 'about.title' }, available: true }
 ];
 
@@ -101,16 +120,22 @@ export const MODE_LABEL: Readonly<Record<ConnectionMode, LocalizedText>> = {
   read_write: { id: 'common.state.read_write' }
 };
 
-// Zabbix 7.4 widget types with an official display name (P1-00F §9.8).
+type WidgetTypeMessage<I> = I extends `widget.type.${infer Type}` ? Type : never;
+
+// Zabbix 7.4 widget types with an official display name (P1-00F §9.8). Each one has a
+// `widget.type.<id>` message; `satisfies` keeps the list and the catalog in step.
 const WIDGET_TYPES = [
   'actionlog', 'clock', 'discovery', 'favgraphs', 'favmaps', 'gauge', 'geomap', 'graph', 'graphprototype',
   'honeycomb', 'hostavail', 'hostcard', 'hostnavigator', 'item', 'itemcard', 'itemhistory', 'itemnavigator',
   'map', 'navtree', 'piechart', 'problemhosts', 'problems', 'problemsbysv', 'slareport', 'svggraph',
   'systeminfo', 'tophosts', 'topitems', 'toptriggers', 'trigover', 'url', 'web'
-] as const;
+] as const satisfies ReadonlyArray<WidgetTypeMessage<MessageId>>;
 type KnownWidgetType = (typeof WIDGET_TYPES)[number];
 
-/** Localized widget type name, or `null` for an unknown type (shown as the technical `type`). */
+/**
+ * Localized widget type name, or `null` for an unknown type (decision O-035): application APIs
+ * send the technical type id, and the UI shows that id itself when it has no `widget.type.<id>`.
+ */
 export function widgetTypeLabel(type: string): LocalizedText | null {
   return (WIDGET_TYPES as readonly string[]).includes(type)
     ? ({ id: `widget.type.${type as KnownWidgetType}` } as LocalizedText)
@@ -125,4 +150,30 @@ export function findingLevelLabel(blocks: ReadonlyArray<'export' | 'publication'
   if (exportBlocked) return { id: 'checks.level.blocks_export' };
   if (publicationBlocked) return { id: 'checks.level.blocks_publication' };
   return { id: 'checks.level.warning' };
+}
+
+export interface OverviewStep {
+  readonly label: LocalizedText;
+  readonly help: LocalizedText;
+  /** Workspace section that continues the step; absent while its screen is not built. */
+  readonly section?: DraftSection;
+}
+
+/**
+ * «Next steps» of «Overview» (mockup 07-01). A page needs a target dashboard for «Add page to
+ * dashboard»; a dashboard is created or published back, so it starts with bindings.
+ */
+export function overviewSteps(kind: DraftKind): ReadonlyArray<OverviewStep> {
+  const bindings: OverviewStep = {
+    label: { id: 'draft.overview.step.check_bindings' },
+    help: { id: 'draft.overview.step.check_bindings.help' },
+    section: 'bindings'
+  };
+  const plan: OverviewStep = {
+    label: { id: 'draft.overview.step.review_plan' },
+    help: { id: 'draft.overview.step.review_plan.help' },
+    section: 'publication'
+  };
+  if (kind === 'dashboard') return [bindings, plan];
+  return [{ label: { id: 'draft.overview.step.choose_target' }, help: { id: 'draft.overview.step.choose_target.help' } }, bindings, plan];
 }

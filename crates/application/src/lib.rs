@@ -6,9 +6,18 @@
 
 mod compatibility;
 pub mod connections;
+mod create_dashboard;
 mod generated_message_ids;
+pub mod publication;
+pub mod publish_journal;
 mod publisher;
+pub mod replace_host;
+mod replace_host_plan;
+pub mod resolver;
+mod session;
 mod settings;
+mod source_check;
+pub mod workcopy;
 
 use zdashstitch_core::ProductStage;
 use zdashstitch_zabbix::{Result as ZabbixResult, SnapshotSummary, VersionedDashboardSnapshot};
@@ -19,15 +28,34 @@ pub use compatibility::{
     analyze_draft_compatibility, analyze_project_compatibility,
     validate_portable_widget_for_create,
 };
+pub use create_dashboard::{
+    ConfirmedCreatePlan, CreatePlanError, CreatePlanPreview, CreatePublishReport, CreateRecovery,
+    CreateRefusal, NameCheck, SAVE_AS_COPY_OPERATION, SaveAsCopyRequest, VerifiedCreatePlan,
+    plan_save_as_copy, publish_save_as_copy_plan, reconcile_create, reconcile_save_as_copy,
+};
 pub use generated_message_ids::MessageId;
+pub use publish_journal::{
+    CloseManuallyRequest, DamagedJournal, JOURNAL_RETENTION_DAYS, JournalEntry, JournalError,
+    JournalListing, JournalProgress, JournalSource, JournalTarget, JournalTransition,
+    OperationKind, PublishJournal, QuarantineRequest, RecoveryReport, RetentionFailure,
+    RetentionReport, StartupReport, TargetKey, TargetRef, UpdateEvidence,
+    decide_update_reconciliation, reconcile_update,
+};
 pub use publisher::{
-    CapabilityCheck, CompatibilityReport, ConfirmedPlan, JournalState, PlanError, PlanPreview,
-    PublishReport, VerifiedPlan, build_verified_plan, publish_confirmed_plan,
+    CONTRACT_RESEND_WIDGET_TYPE, CapabilityCheck, CompatibilityFinding, CompatibilityReport,
+    ConfirmedPlan, FindingCode, FindingGroup, FindingSeverity, FindingSubject, JournalState,
+    PlanError, PlanInvalidReason, PlanPreview, PublishReport, VerifiedPlan, build_verified_plan,
+    publish_confirmed_plan,
+};
+pub use replace_host_plan::{ReplaceHostPlanRequest, plan_replace_host, publish_replace_host_plan};
+pub use session::{
+    EndSessionRequest, LocalSession, SessionEndError, SessionEnded, SessionGeneration, WriteStage,
 };
 pub use settings::{
     AppSettings, LocalePreference, ReducedMotionPreference, SettingsError, SettingsLoadError,
     SettingsStore, SettingsWarning, ThemePreference, check_storage_root,
 };
+pub use source_check::{ReplaceHostRecheck, SourceCheck, recheck_replace_host};
 
 /// Non-sensitive status presented by the local HTTP shell.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]

@@ -11,6 +11,7 @@
   {"name":"v2-package-in-v1-reader","type":"package","source":"examples/dashboard-v2.yaml","reader":"v1","code":"project_format"},
   {"name":"duplicate-widget-field","type":"document","file":"negative/duplicate-widget-field.yaml","code":"duplicate_widget_field"},
   {"name":"wrong-object-kind","type":"document","file":"negative/wrong-object-kind.yaml","code":"widget_field_object_kind"},
+  {"name":"too-many-pages","type":"document","file":"negative/too-many-pages.yaml","code":"page_count"},
   {"name":"widget-type-uppercase","type":"document","file":"negative/widget-type-uppercase.yaml","code":"widget_type"},
   {"name":"widget-name-too-long","type":"document","file":"negative/widget-name-too-long.yaml","code":"widget_name"},
   {"name":"widget-field-count","type":"document","file":"negative/widget-field-count.yaml","code":"widget_field_count"},
@@ -20,5 +21,10 @@
   {"name":"integer-in-item-field","type":"document","file":"negative/integer-in-item-field.yaml","code":"widget_field_value_kind"},
   {"name":"metric-in-host-field","type":"document","file":"negative/metric-in-host-field.yaml","code":"widget_field_value_kind"},
   {"name":"single-reference-multi","type":"document","file":"negative/single-reference-multi.yaml","code":"widget_single_reference_multi"},
-  {"name":"binary-item-field","type":"document","file":"negative/binary-item-field.yaml","code":"binary_item_value"}
+  {"name":"binary-item-field","type":"document","file":"negative/binary-item-field.yaml","code":"binary_item_value"},
+  {"name":"yaml-duplicate-key","type":"document","file":"negative/yaml-duplicate-key.yaml","code":"yaml_duplicate_key"},
+  {"name":"yaml-alias","type":"document","file":"negative/yaml-alias.yaml","code":"yaml_alias"},
+  {"name":"yaml-non-string-key","type":"document","file":"negative/yaml-non-string-key.yaml","code":"yaml_key"},
+  {"name":"yaml-depth","type":"document","file":"negative/yaml-depth.yaml","code":"yaml_depth"},
+  {"name":"yaml-unknown-tag","type":"document","file":"negative/yaml-unknown-tag.yaml","code":"yaml_invalid"}
 ]

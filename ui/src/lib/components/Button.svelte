@@ -11,6 +11,8 @@
     busy = false,
     disabled = false,
     leadingIcon,
+    id,
+    describedby,
     onclick
   }: {
     i18n: I18n;
@@ -20,12 +22,17 @@
     busy?: boolean;
     disabled?: boolean;
     leadingIcon?: Snippet;
+    id?: string;
+    /** ID of the element that tells which object the action belongs to (e.g. a card title). */
+    describedby?: string;
     onclick?: (event: MouseEvent) => void;
   } = $props();
 </script>
 
 <button
+  {id}
   {type}
+  aria-describedby={describedby}
   class:primary={variant === 'primary'}
   class:secondary={variant === 'secondary'}
   class:quiet={variant === 'quiet'}

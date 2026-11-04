@@ -97,9 +97,14 @@ td { min-height: var(--control-standard); padding: var(--space-2) var(--space-3)
 .split-pane { display: grid; grid-template-columns: minmax(0, var(--primary-size)) var(--space-2) minmax(0, 1fr); }
 .separator { min-width: var(--space-2); background: var(--border-default); cursor: col-resize; }
 
+/* Motion only when allowed: by the system unless «Reduce animation» is chosen explicitly
+   (`data-motion` on the root, P2-00G), or explicitly allowed in the settings. */
 @media (prefers-reduced-motion: no-preference) {
-  button { transition: background-color var(--motion-fast) ease; }
-  .busy { animation: component-spin var(--motion-standard) linear infinite; }
+  :root:not([data-motion='reduce']) button { transition: background-color var(--motion-fast) ease; }
+  :root:not([data-motion='reduce']) .busy { animation: component-spin var(--motion-standard) linear infinite; }
 }
+
+:root[data-motion='no-preference'] button { transition: background-color var(--motion-fast) ease; }
+:root[data-motion='no-preference'] .busy { animation: component-spin var(--motion-standard) linear infinite; }
 
 @keyframes component-spin { to { transform: rotate(1turn); } }

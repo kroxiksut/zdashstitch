@@ -2,7 +2,7 @@
 
 [package]
 name = "zdashstitch-core"
-version = "0.0.0"
+version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
@@ -21,8 +21,8 @@ path = "tests/portable_io.rs"
 cap-fs-ext.workspace = true
 cap-std.workspace = true
 serde.workspace = true
+serde-saphyr.workspace = true
 serde_json.workspace = true
-serde_yaml_ng.workspace = true
 thiserror.workspace = true
 time.workspace = true
 zip.workspace = true

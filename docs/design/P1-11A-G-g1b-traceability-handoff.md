@@ -29,7 +29,7 @@
 |---|---|---|
 | `00-foundations/00-02_P1-10_mascot-states.svg` | P1-10 | да (P2-00, P6-01) |
 | `06-settings/06-03_P1-09D_storage-move.svg` | P1-09D | да (P4-06) |
-| `06-settings/06-05_P1-09G_security-export.svg` | P1-09G | да (P4-06; «Завершить сессию» — P2-SEC-01E) |
+| `06-settings/06-05_P1-09G_security-export.svg` | P1-09G | да (P4-06; «Завершить сеанс» — P2-SEC-01E) |
 | `06-settings/06-06_P1-09G_diagnostics.svg` | P1-09G | да (P4-06, P6-02) |
 | `12-editor/12-01…12-04` (4 файла) | P1-04A—E | да (P4-03, P4-09) |
 | `12-editor/12-06_P1-04I_synthetic-preview.svg` | P1-04I | да (P4-03) |

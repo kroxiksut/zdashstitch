@@ -13,7 +13,7 @@
 //!     gateway: &zdashstitch_zabbix::ReadOnlyGateway,
 //!     update: &zdashstitch_zabbix::VerifiedDashboardUpdate,
 //! ) {
-//!     gateway.publish_verified_dashboard_update(update).await;
+//!     gateway.publish_verified_dashboard_update(update, || true).await;
 //! }
 //! ```
 //!
@@ -32,7 +32,7 @@
 //!     update: &zdashstitch_zabbix::VerifiedDashboardUpdate,
 //! ) {
 //!     let _ = gateway.publication_context();
-//!     let _ = gateway.publish_verified_dashboard_update(update).await;
+//!     let _ = gateway.publish_verified_dashboard_update(update, || true).await;
 //! }
 //! ```
 
@@ -86,6 +86,8 @@ pub enum ReadMethod {
     TemplateGet,
     ItemGet,
     GraphGet,
+    ItemPrototypeGet,
+    GraphPrototypeGet,
     DashboardGet,
     UserGet,
     UsergroupGet,
@@ -93,13 +95,15 @@ pub enum ReadMethod {
 }
 
 impl ReadMethod {
-    pub const ALL: [Self; 10] = [
+    pub const ALL: [Self; 12] = [
         Self::HostgroupGet,
         Self::TemplategroupGet,
         Self::HostGet,
         Self::TemplateGet,
         Self::ItemGet,
         Self::GraphGet,
+        Self::ItemPrototypeGet,
+        Self::GraphPrototypeGet,
         Self::DashboardGet,
         Self::UserGet,
         Self::UsergroupGet,
@@ -130,6 +134,8 @@ impl ReadMethod {
             Self::TemplateGet => "template.get",
             Self::ItemGet => "item.get",
             Self::GraphGet => "graph.get",
+            Self::ItemPrototypeGet => "itemprototype.get",
+            Self::GraphPrototypeGet => "graphprototype.get",
             Self::DashboardGet => "dashboard.get",
             Self::UserGet => "user.get",
             Self::UsergroupGet => "usergroup.get",
@@ -144,6 +150,8 @@ impl ReadMethod {
             Self::TemplateGet => "templateid",
             Self::ItemGet => "itemid",
             Self::GraphGet => "graphid",
+            Self::ItemPrototypeGet => "itemid",
+            Self::GraphPrototypeGet => "graphid",
             Self::DashboardGet => "dashboardid",
             Self::UserGet => "userid",
             Self::UsergroupGet => "usrgrpid",
@@ -157,12 +165,16 @@ impl ReadMethod {
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(crate) enum WriteMethod {
     DashboardUpdate,
+    /// Closed create path (`create.rs`); unreachable while the P2-06A
+    /// contracts are not `Supported`.
+    DashboardCreate,
 }
 
 impl WriteMethod {
     pub(crate) const fn api_method(self) -> &'static str {
         match self {
             Self::DashboardUpdate => "dashboard.update",
+            Self::DashboardCreate => "dashboard.create",
         }
     }
 }
@@ -180,7 +192,10 @@ pub fn read_only_allowlist() -> Vec<&'static str> {
 /// Every write method name a `ReadWriteGateway` can send.
 #[must_use]
 pub fn dashboard_write_allowlist() -> Vec<&'static str> {
-    vec![WriteMethod::DashboardUpdate.api_method()]
+    vec![
+        WriteMethod::DashboardUpdate.api_method(),
+        WriteMethod::DashboardCreate.api_method(),
+    ]
 }
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
@@ -224,6 +239,7 @@ pub struct ServerIdentity {
     endpoint_fingerprint: String,
     fingerprint: String,
     version: ZabbixVersion,
+    account_userid: String,
 }
 
 impl ServerIdentity {
@@ -242,7 +258,15 @@ impl ServerIdentity {
                 userid.as_bytes(),
             ]),
             version,
+            account_userid: userid.to_owned(),
         }
+    }
+
+    /// Zabbix `userid` of the signed-in account, a server ID kept in memory
+    /// only. It tells the account's own dashboards from others' (P1-03B).
+    #[must_use]
+    pub fn account_userid(&self) -> &str {
+        &self.account_userid
     }
 
     #[must_use]
@@ -412,13 +436,7 @@ impl ReadOnlyGateway {
             .transport
             .read(
                 ReadMethod::DashboardGet,
-                json!({
-                    "output": "extend",
-                    "selectPages": "extend",
-                    "selectUsers": "extend",
-                    "selectUserGroups": "extend",
-                    "sortfield": "dashboardid"
-                }),
+                crate::dashboards::snapshot_read_params(),
                 &self.session.token,
             )
             .await?;
@@ -549,6 +567,26 @@ impl ReadWriteGateway {
     pub(crate) fn session(&self) -> &Session {
         &self.reader.session
     }
+
+    /// Unit tests only: marks laboratory contracts as proven on a mock
+    /// transport. Not compiled into any other build.
+    #[cfg(test)]
+    pub(crate) fn set_write_contracts_for_test(
+        &mut self,
+        contracts: crate::DashboardWriteContracts,
+    ) {
+        self.reader.session.capabilities.dashboard_write_contracts = contracts;
+    }
+
+    /// Unit tests only: marks `dashboard.create` contracts as proven on a
+    /// mock transport. Not compiled into any other build.
+    #[cfg(test)]
+    pub(crate) fn set_create_contracts_for_test(
+        &mut self,
+        contracts: crate::DashboardCreateContracts,
+    ) {
+        self.reader.session.capabilities.dashboard_create_contracts = contracts;
+    }
 }
 
 fn inventory_params(method: InventoryMethod) -> Value {
@@ -584,6 +622,8 @@ mod tests {
             "template.get",
             "item.get",
             "graph.get",
+            "itemprototype.get",
+            "graphprototype.get",
             "dashboard.get",
             "user.get",
             "usergroup.get",
@@ -596,6 +636,9 @@ mod tests {
                 .iter()
                 .all(|method| method.ends_with(".get") || !method.contains("create"))
         );
-        assert_eq!(dashboard_write_allowlist(), vec!["dashboard.update"]);
+        assert_eq!(
+            dashboard_write_allowlist(),
+            vec!["dashboard.update", "dashboard.create"]
+        );
     }
 }

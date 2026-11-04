@@ -1,0 +1,207 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 1600 1000" fill="#17213a" role="img" aria-labelledby="title desc">
+  <title id="title">ZDashstitch — библиотека: профили оформления</title>
+  <desc id="desc">Светлый макет раздела «Библиотека → Профили оформления»: список профилей с типами виджетов, версией, использованием и происхождением, фильтры по типу и происхождению, поиск и сортировка; карточка выбранного профиля с совместимостью, использованием, предпросмотром на синтетике и действиями; два встроенных эталонных профиля; строки с состояниями «не проверено» и «ошибка в поле».</desc>
+  <defs>
+    <!-- Tabler Icons outline v3.49.0 (MIT), see assets/icons/THIRD_PARTY.md -->
+    <symbol id="ti-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/></symbol>
+    <symbol id="ti-info-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M12 9h.01"/><path d="M11 12h1v4h1"/></symbol>
+    <symbol id="ti-circle-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M9 12l2 2l4 -4"/></symbol>
+    <symbol id="ti-alert-triangle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0"/><path d="M12 16h.01"/></symbol>
+    <symbol id="ti-circle-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M10 10l4 4m0 -4l-4 4"/></symbol>
+    <symbol id="ti-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5l0 14"/><path d="M5 12l14 0"/></symbol>
+    <symbol id="ti-upload" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"/><path d="M7 9l5 -5l5 5"/><path d="M12 4l0 12"/></symbol>
+    <symbol id="ti-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"/><path d="M7 11l5 5l5 -5"/><path d="M12 4l0 12"/></symbol>
+    <symbol id="ti-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 9.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667l0 -8.666"/><path d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1"/></symbol>
+    <symbol id="ti-palette" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21a9 9 0 0 1 0 -18c4.97 0 9 3.582 9 8c0 1.06 -.474 2.078 -1.318 2.828c-.844 .75 -1.989 1.172 -3.182 1.172h-2.5a2 2 0 0 0 -1 3.75a1.3 1.3 0 0 1 -1 2.25"/><path d="M7.5 10.5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M11.5 7.5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M15.5 10.5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/></symbol>
+    <symbol id="ti-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6l6 -6"/></symbol>
+    <symbol id="ti-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"/><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"/></symbol>
+    <symbol id="ti-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065"/><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/></symbol>
+    <style>
+      text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+      .muted{fill:#667085}.white{fill:#ffffff}.small{font-size:14px}.xs{font-size:12px}.label{font-size:13px;font-weight:700;letter-spacing:.08em}
+      .title{font-size:24px;font-weight:750}.h3{font-size:17px;font-weight:700}.body{font-size:16px}.button{font-size:15px;font-weight:700}
+      .nav{font-size:17px}.badge{font-size:13px;font-weight:650}.row{font-size:15px;font-weight:650}
+      .mono{font-family:ui-monospace,"Cascadia Mono",Consolas,monospace;font-size:13px;fill:#344054}
+    </style>
+  </defs>
+  <rect width="1600" height="1000" fill="#f5f7fb"/>
+
+  <!-- App bar: global navigation (P1-01B §1) -->
+  <rect width="1600" height="72" fill="#ffffff" stroke="#e4e7ec"/>
+  <image href="../../../../assets/brand/icons/stezhik-head-1024.png" x="32" y="18" width="36" height="36" preserveAspectRatio="xMidYMid meet"/>
+  <text x="80" y="45" font-size="20" font-weight="750">ZDashstitch</text>
+  <text x="232" y="44" font-size="15" font-weight="500" fill="#475467">Начало</text>
+  <text x="318" y="44" font-size="15" font-weight="500" fill="#475467">Черновики</text>
+  <text x="430" y="44" font-size="15" font-weight="500" fill="#475467">Панели в Zabbix</text>
+  <text x="582" y="44" font-size="15" font-weight="700" fill="#1d3f86">Библиотека</text>
+  <rect x="582" y="67" width="88" height="4" rx="2" fill="#3156a3"/>
+  <text x="702" y="44" font-size="15" font-weight="500" fill="#475467">Подключения</text>
+  <rect x="1288" y="19" width="120" height="34" rx="17" fill="#eef4ff"/>
+  <text x="1348" y="41" font-size="14" text-anchor="middle" fill="#3156a3">Автономно</text>
+  <rect x="1424" y="18" width="144" height="36" rx="8" fill="#ffffff" stroke="#c9d3ea"/>
+  <use href="#ti-settings" x="1438" y="27" width="18" height="18" color="#475467"/>
+  <text x="1464" y="41" font-size="15" font-weight="600" fill="#17213a">Настройки</text>
+
+  <!-- Workspace -->
+  <!-- Title -->
+  <text x="48" y="124" class="title">Библиотека</text>
+  <text x="48" y="152" class="small muted">Снимки, страницы, каталоги метрик, профили оформления и заготовки виджетов на этом компьютере. Черновики — в разделе «Черновики».</text>
+  <rect x="1134" y="100" width="206" height="42" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <use href="#ti-plus" x="1150" y="112.0" width="18" height="18" color="#17213a"/>
+  <text x="1249" y="126" class="button" text-anchor="middle">Создать профиль</text>
+  <rect x="1356" y="100" width="196" height="42" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <use href="#ti-upload" x="1372" y="112.0" width="18" height="18" color="#17213a"/>
+  <text x="1466" y="126" class="button" text-anchor="middle">Импорт файлов</text>
+  <rect x="48" y="176" width="240" height="732" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="74" y="222" class="small">Снимки</text>
+  <text x="262" y="222" class="small muted" text-anchor="end">6</text>
+  <text x="74" y="268" class="small">Страницы</text>
+  <text x="262" y="268" class="small muted" text-anchor="end">2</text>
+  <text x="74" y="314" class="small">Каталоги метрик</text>
+  <text x="262" y="314" class="small muted" text-anchor="end">6</text>
+  <rect x="60" y="334" width="216" height="40" rx="8" fill="#eef4ff" stroke="#eef4ff"/>
+  <text x="74" y="360" class="small" fill="#1d3f86" font-weight="700">Профили оформления</text>
+  <text x="262" y="360" class="small muted" text-anchor="end">6</text>
+  <text x="74" y="406" class="small">Заготовки виджетов</text>
+  <text x="262" y="406" class="small muted" text-anchor="end">4</text>
+  <use href="#ti-info-circle" x="64" y="448" width="18" height="18" color="#667085"/>
+  <text x="90" y="462" class="xs muted">Профили и заготовки</text>
+  <text x="90" y="480" class="xs muted">экспортируются отдельными</text>
+  <text x="90" y="498" class="xs muted">файлами и в пакет панели</text>
+  <text x="90" y="516" class="xs muted">не входят.</text>
+  <rect x="304" y="176" width="776" height="732" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <rect x="1104" y="176" width="448" height="732" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
+  <rect x="328" y="196" width="78" height="32" rx="16" fill="#243746" stroke="#243746"/>
+  <text x="367.0" y="217" class="small" fill="#ffffff" text-anchor="middle" font-weight="650">Все 6</text>
+  <rect x="414" y="196" width="98" height="32" rx="16" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="463.0" y="217" class="small" text-anchor="middle" font-weight="600">График 5</text>
+  <rect x="520" y="196" width="230" height="32" rx="16" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="635.0" y="217" class="small" text-anchor="middle" font-weight="600">Значение элемента данных 1</text>
+  <rect x="752" y="193" width="304" height="38" rx="8" fill="#ffffff" stroke="#7a8d9b"/>
+  <use href="#ti-search" x="764" y="202" width="20" height="20" color="#667085"/>
+  <text x="794" y="217" class="small muted">Поиск по имени, описанию, тегу</text>
+  <rect x="328" y="240" width="160" height="32" rx="16" fill="#243746" stroke="#243746"/>
+  <text x="408.0" y="261" class="small" fill="#ffffff" text-anchor="middle" font-weight="650">Встроенные и мои</text>
+  <rect x="496" y="240" width="64" height="32" rx="16" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="528.0" y="261" class="small" text-anchor="middle" font-weight="600">Мои</text>
+  <rect x="568" y="240" width="110" height="32" rx="16" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="623.0" y="261" class="small" text-anchor="middle" font-weight="600">Встроенные</text>
+  <rect x="686" y="240" width="92" height="32" rx="16" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="732.0" y="261" class="small" text-anchor="middle" font-weight="600">Из файла</text>
+  <rect x="816" y="238" width="240" height="36" rx="8" fill="#ffffff" stroke="#7a8d9b"/>
+  <text x="830" y="264" class="body">Сортировка: по имени</text>
+  <use href="#ti-chevron-down" x="1026" y="249" width="18" height="18" color="#475467"/>
+  <rect x="328" y="292" width="728" height="34" rx="6" fill="#f8fafc" stroke="#eef0f4"/>
+  <text x="342" y="314" class="xs muted" font-weight="700">ИМЯ</text>
+  <text x="548" y="314" class="xs muted" font-weight="700">ТИПЫ ВИДЖЕТОВ</text>
+  <text x="800" y="314" class="xs muted" font-weight="700">ВЕРСИЯ</text>
+  <text x="860" y="314" class="xs muted" font-weight="700">ИСПОЛЬЗУЮТ</text>
+  <text x="960" y="314" class="xs muted" font-weight="700">ПРОИСХОЖДЕНИЕ</text>
+  <rect x="328" y="332" width="728" height="50" rx="8" fill="#eef4ff" stroke="#3156a3" stroke-width="2"/>
+  <text x="342" y="363" class="small" font-weight="650">Рост БД — столбцы</text>
+  <text x="548" y="363" class="small">График</text>
+  <text x="800" y="363" class="small">3</text>
+  <text x="860" y="363" class="small">12 · 2 черн.</text>
+  <text x="960" y="363" class="small">мой</text>
+  <line x1="328" y1="438" x2="1056" y2="438" stroke="#eef0f4"/>
+  <text x="342" y="419" class="small" font-weight="650">Рост БД — столбцы</text>
+  <text x="548" y="419" class="small">График</text>
+  <text x="800" y="419" class="small">1</text>
+  <text x="860" y="419" class="small" fill="#667085">—</text>
+  <text x="960" y="419" class="small" fill="#667085">встроенный</text>
+  <line x1="328" y1="494" x2="1056" y2="494" stroke="#eef0f4"/>
+  <text x="342" y="475" class="small" font-weight="650">Нагрузка CPU — линия</text>
+  <text x="548" y="475" class="small">График</text>
+  <text x="800" y="475" class="small">1</text>
+  <text x="860" y="475" class="small" fill="#667085">—</text>
+  <text x="960" y="475" class="small" fill="#667085">встроенный</text>
+  <line x1="328" y1="550" x2="1056" y2="550" stroke="#eef0f4"/>
+  <text x="342" y="531" class="small" font-weight="650">Значения: крупно</text>
+  <text x="548" y="531" class="small">Значение элемента данных</text>
+  <text x="800" y="531" class="small">2</text>
+  <text x="860" y="531" class="small">9 · 2 черн.</text>
+  <text x="960" y="531" class="small">мой</text>
+  <line x1="328" y1="606" x2="1056" y2="606" stroke="#eef0f4"/>
+  <text x="342" y="587" class="small" font-weight="650">Тёмные графики</text>
+  <text x="548" y="587" class="small">График</text>
+  <text x="800" y="587" class="small">5</text>
+  <text x="860" y="587" class="small" fill="#667085">—</text>
+  <rect x="944" y="568" width="108" height="26" rx="13" fill="#f2f4f7"/>
+  <text x="998" y="586" class="badge" text-anchor="middle" fill="#344054">Не проверено</text>
+  <line x1="328" y1="662" x2="1056" y2="662" stroke="#eef0f4"/>
+  <text x="342" y="643" class="small" font-weight="650">Пилот: столбцы</text>
+  <text x="548" y="643" class="small">График</text>
+  <text x="800" y="643" class="small">2</text>
+  <text x="860" y="643" class="small">1 · 1 черн.</text>
+  <rect x="944" y="624" width="112" height="26" rx="13" fill="#fef3f2"/>
+  <text x="1000" y="642" class="badge" text-anchor="middle" fill="#a32935">Ошибка в поле</text>
+  <text x="328" y="698" class="xs muted">«Используют» — виджеты · черновики. Использование, происхождение и время — локальные сведения;</text>
+  <text x="328" y="716" class="xs muted">в файл профиля они не попадают. «Не проверено» — файл для другого адаптера; «Ошибка в поле» — применить нельзя.</text>
+  <text x="328" y="734" class="xs muted">Встроенные — два эталона приложения, только чтение; «Рост БД — столбцы» (мой) — изменённая копия встроенного.</text>
+  <text x="328" y="764" class="xs muted">Пусто: «Профилей оформления пока нет. Создайте профиль из виджета в редакторе или импортируйте файл.»</text>
+  <use href="#ti-palette" x="1128" y="196" width="20" height="20" color="#1d3f86"/>
+  <text x="1156" y="212" class="h3">Рост БД — столбцы</text>
+  <rect x="1128" y="226" width="160" height="26" rx="13" fill="#eef4ff"/>
+  <text x="1208" y="244" class="badge" text-anchor="middle" fill="#1d3f86">Профиль оформления</text>
+  <rect x="1296" y="226" width="50" height="26" rx="13" fill="#f2f4f7"/>
+  <text x="1321" y="244" class="badge" text-anchor="middle" fill="#344054">Мой</text>
+  <text x="1128" y="284" class="small muted">Типы виджетов</text>
+  <text x="1252" y="284" class="small" font-weight="600">График (svggraph)</text>
+  <text x="1128" y="310" class="small muted">Версия</text>
+  <text x="1252" y="310" class="small" font-weight="600">3 · Zabbix 7.4.0+ (вычислено)</text>
+  <text x="1128" y="336" class="small muted">Состав</text>
+  <text x="1252" y="336" class="small" font-weight="600">8 полей · палитра 3 цвета</text>
+  <text x="1128" y="362" class="small muted">Создан</text>
+  <text x="1252" y="362" class="small" font-weight="600">здесь, 24.10.2026</text>
+  <text x="1128" y="388" class="small muted">Изменён</text>
+  <text x="1252" y="388" class="small" font-weight="600">26.10.2026, 10:12</text>
+  <text x="1128" y="414" class="small muted">Используют</text>
+  <text x="1252" y="414" class="small" font-weight="600">12 виджетов в 2 черновиках</text>
+  <text x="1252" y="434" class="xs" fill="#8a4b00">из них на прежней версии — 4</text>
+  <line x1="1128" y1="448" x2="1528" y2="448" stroke="#e4e7ec"/>
+  <text x="1128" y="474" class="label muted">ПРЕДПРОСМОТР · СИНТЕТИКА</text>
+  <rect x="1128" y="486" width="400" height="110" rx="8" fill="#ffffff" stroke="#e4e7ec"/>
+  <rect x="1432" y="494" width="86" height="26" rx="13" fill="#fff4e5"/>
+  <text x="1475" y="512" class="badge" text-anchor="middle" fill="#8a4b00">Синтетика</text>
+  <rect x="1144" y="564" width="22" height="18" fill="#3156a3"/>
+  <rect x="1144" y="552" width="22" height="12" fill="#8b5cf6"/>
+  <rect x="1144" y="544" width="22" height="8" fill="#1f6b43"/>
+  <rect x="1174" y="558" width="22" height="24" fill="#3156a3"/>
+  <rect x="1174" y="544" width="22" height="14" fill="#8b5cf6"/>
+  <rect x="1174" y="534" width="22" height="10" fill="#1f6b43"/>
+  <rect x="1204" y="552" width="22" height="30" fill="#3156a3"/>
+  <rect x="1204" y="536" width="22" height="16" fill="#8b5cf6"/>
+  <rect x="1204" y="524" width="22" height="12" fill="#1f6b43"/>
+  <rect x="1234" y="548" width="22" height="34" fill="#3156a3"/>
+  <rect x="1234" y="528" width="22" height="20" fill="#8b5cf6"/>
+  <rect x="1234" y="516" width="22" height="12" fill="#1f6b43"/>
+  <rect x="1264" y="542" width="22" height="40" fill="#3156a3"/>
+  <rect x="1264" y="520" width="22" height="22" fill="#8b5cf6"/>
+  <rect x="1264" y="506" width="22" height="14" fill="#1f6b43"/>
+  <rect x="1294" y="538" width="22" height="44" fill="#3156a3"/>
+  <rect x="1294" y="512" width="22" height="26" fill="#8b5cf6"/>
+  <rect x="1294" y="496" width="22" height="16" fill="#1f6b43"/>
+  <rect x="1324" y="532" width="22" height="50" fill="#3156a3"/>
+  <rect x="1324" y="504" width="22" height="28" fill="#8b5cf6"/>
+  <rect x="1324" y="486" width="22" height="18" fill="#1f6b43"/>
+  <line x1="1140" y1="582" x2="1516" y2="582" stroke="#7a8d9b"/>
+  <text x="1364" y="526" class="xs muted">легенда: 2 строки</text>
+  <text x="1364" y="544" class="xs muted">ось Y от 0</text>
+  <text x="1364" y="562" class="xs muted">накопление</text>
+  <rect x="1128" y="612" width="400" height="42" rx="10" fill="#3156a3" stroke="#3156a3"/>
+  <text x="1328" y="638" class="button white" text-anchor="middle">Изменить профиль</text>
+  <rect x="1128" y="666" width="194" height="42" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <use href="#ti-copy" x="1144" y="678.0" width="18" height="18" color="#17213a"/>
+  <text x="1237" y="692" class="button" text-anchor="middle">Дублировать</text>
+  <rect x="1334" y="666" width="194" height="42" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="1431" y="692" class="button" text-anchor="middle">Переименовать</text>
+  <rect x="1128" y="720" width="400" height="42" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <use href="#ti-download" x="1144" y="732.0" width="18" height="18" color="#17213a"/>
+  <text x="1340" y="746" class="button" text-anchor="middle">Экспорт в файл…</text>
+  <rect x="1128" y="774" width="400" height="42" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="1328" y="800" class="button" fill="#a32935" text-anchor="middle">Удалить</text>
+  <use href="#ti-info-circle" x="1128" y="832" width="18" height="18" color="#667085"/>
+  <text x="1154" y="846" class="xs muted">Черновики от профиля не зависят: значения</text>
+  <text x="1154" y="864" class="xs muted">останутся, метки «из профиля» будут сняты.</text>
+  <text x="1154" y="882" class="xs muted">Встроенный профиль не меняется: «Дублировать».</text>
+</svg>

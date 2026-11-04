@@ -75,6 +75,19 @@ describe('localization runtime', () => {
     expect(ru).toContain(russian.number(1234.5));
   });
 
+  it('treats select as standard ICU: an absent argument takes other, never an empty string (O-035)', () => {
+    const template = '{kind, select, page {Page {name}} other {Object {name}}}';
+    const types = { kind: 'technical', name: 'text' } as const;
+    expect(formatTemplate(template, { kind: 'page', name: 'A' }, types, 'en')).toBe('Page A');
+    expect(formatTemplate(template, { kind: 'dashboard', name: 'A' }, types, 'en')).toBe('Object A');
+    expect(formatTemplate(template, { kind: '', name: 'A' }, types, 'en')).toBe('Object A');
+    expect(formatTemplate(template, { kind: 'constructor', name: 'A' }, types, 'en')).toBe('Object A');
+    const absent = formatTemplate(template, {}, types, 'en');
+    expect(absent).not.toBe('');
+    expect(absent).toBe('Object —');
+    expect(formatTemplate('{sources, select, other {: {sources}}}', {}, { sources: 'text' }, 'en')).toBe(': —');
+  });
+
   it('renders an em dash for an absent optional bound', () => {
     expect(
       createI18n('en').t('compatibility.calculated_range', {

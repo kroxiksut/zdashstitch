@@ -74,5 +74,17 @@
   "common.duration.hours": {
     "message": "{count, plural, one {# час} few {# часа} many {# часов} other {# часа}}",
     "placeholders": {"count": "number"}
+  },
+  "common.state.verified": {
+    "message": "Проверено повторным чтением",
+    "placeholders": {}
+  },
+  "common.action.cancel": {
+    "message": "Отмена",
+    "placeholders": {}
+  },
+  "common.action.save_draft": {
+    "message": "Сохранить черновик",
+    "placeholders": {}
   }
 }

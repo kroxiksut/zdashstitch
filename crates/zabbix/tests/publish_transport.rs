@@ -13,8 +13,8 @@ use secrecy::SecretString;
 use serde_json::{Value, json};
 use tokio::task::JoinHandle;
 use zdashstitch_zabbix::{
-    Authentication, DashboardPublishOutcome, ItemFieldReplacement, ZabbixClient, ZabbixEndpoint,
-    verify_item_field_replacements,
+    Authentication, DashboardPublishOutcome, WidgetFieldReplacement, ZabbixClient, ZabbixEndpoint,
+    verify_widget_field_replacements,
 };
 
 #[derive(Clone, Copy)]
@@ -22,6 +22,13 @@ enum UpdateReply {
     Acknowledge,
     AcknowledgeWithStaleRead,
     LoseJsonRpcResult,
+    /// The server commits, then a proxy answers 502 (owner decision
+    /// 28.10.2026, item 11).
+    CommitThenBadGateway,
+    /// Nothing is committed and a proxy answers 502.
+    BadGatewayWithoutCommit,
+    /// The server refuses with a JSON-RPC error; nothing is committed.
+    RejectWithApiError,
 }
 
 struct MockData {
@@ -79,9 +86,36 @@ async fn rpc(State(state): State<MockState>, Json(body): Json<Value>) -> Respons
                 .lock()
                 .unwrap_or_else(std::sync::PoisonError::into_inner);
             data.update_calls += 1;
+            match data.reply {
+                UpdateReply::BadGatewayWithoutCommit => {
+                    return (StatusCode::BAD_GATEWAY, "bad gateway").into_response();
+                }
+                UpdateReply::RejectWithApiError => {
+                    return (
+                        StatusCode::OK,
+                        Json(json!({
+                            "jsonrpc": "2.0",
+                            "error": {
+                                "code": -32602,
+                                "message": "Invalid params.",
+                                "data": "Invalid parameter."
+                            },
+                            "id": id
+                        })),
+                    )
+                        .into_response();
+                }
+                _ => {}
+            }
             let before = data.dashboard.clone();
             apply_update(&mut data.dashboard, &body["params"]);
             let response_id = match data.reply {
+                UpdateReply::CommitThenBadGateway => {
+                    return (StatusCode::BAD_GATEWAY, "bad gateway").into_response();
+                }
+                UpdateReply::BadGatewayWithoutCommit | UpdateReply::RejectWithApiError => {
+                    unreachable!("answered before the commit")
+                }
                 UpdateReply::Acknowledge => id,
                 UpdateReply::AcknowledgeWithStaleRead => {
                     data.stale_dashboard = Some(before);
@@ -176,13 +210,13 @@ async fn mock_server(reply: UpdateReply) -> (ZabbixEndpoint, Arc<Mutex<MockData>
     (endpoint, data, task)
 }
 
-fn replacement() -> ItemFieldReplacement {
-    ItemFieldReplacement {
+fn replacement() -> WidgetFieldReplacement {
+    WidgetFieldReplacement {
         page_index: 0,
-        widget_index: 0,
+        widgetid: "13".to_owned(),
         field_name: "itemid.0".to_owned(),
-        expected_itemid: "101".to_owned(),
-        replacement_itemid: "202".to_owned(),
+        expected_value: "101".to_owned(),
+        replacement_value: "202".to_owned(),
     }
 }
 
@@ -211,7 +245,7 @@ async fn client_and_update(
         .next()
         .unwrap_or_else(|| panic!("source dashboard must exist"));
     let update =
-        verify_item_field_replacements(&source, &client.publication_context(), &[replacement()])
+        verify_widget_field_replacements(&source, &client.publication_context(), &[replacement()])
             .unwrap_or_else(|error| panic!("verified update: {error}"));
     (client, update, data, task)
 }
@@ -219,7 +253,9 @@ async fn client_and_update(
 #[tokio::test]
 async fn acknowledged_write_is_reread_and_verified() {
     let (client, update, data, task) = client_and_update(UpdateReply::Acknowledge).await;
-    let outcome = client.publish_verified_dashboard_update(&update).await;
+    let outcome = client
+        .publish_verified_dashboard_update(&update, || true)
+        .await;
     assert_eq!(outcome, DashboardPublishOutcome::Verified);
     assert_eq!(
         data.lock()
@@ -236,7 +272,9 @@ async fn changed_fingerprint_blocks_before_dashboard_update() {
     data.lock()
         .unwrap_or_else(std::sync::PoisonError::into_inner)
         .dashboard["pages"][0]["name"] = json!("concurrent edit");
-    let outcome = client.publish_verified_dashboard_update(&update).await;
+    let outcome = client
+        .publish_verified_dashboard_update(&update, || true)
+        .await;
     assert_eq!(outcome, DashboardPublishOutcome::Conflict);
     assert_eq!(
         data.lock()
@@ -250,7 +288,9 @@ async fn changed_fingerprint_blocks_before_dashboard_update() {
 #[tokio::test]
 async fn unusable_write_response_is_reconciled_without_retry() {
     let (client, update, data, task) = client_and_update(UpdateReply::LoseJsonRpcResult).await;
-    let outcome = client.publish_verified_dashboard_update(&update).await;
+    let outcome = client
+        .publish_verified_dashboard_update(&update, || true)
+        .await;
     assert_eq!(outcome, DashboardPublishOutcome::ReconciledVerified);
     assert_eq!(
         data.lock()
@@ -261,11 +301,70 @@ async fn unusable_write_response_is_reconciled_without_retry() {
     task.abort();
 }
 
+fn update_calls(data: &Arc<Mutex<MockData>>) -> usize {
+    data.lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .update_calls
+}
+
+/// Owner decision 28.10.2026, item 11: an HTTP status after the send is no
+/// known response (a proxy may answer after the server committed); the
+/// outcome is decided by read-only reconciliation, never by a retry.
+#[tokio::test]
+async fn http_status_after_a_committed_update_is_reconciled_as_verified() {
+    let (client, update, data, task) = client_and_update(UpdateReply::CommitThenBadGateway).await;
+    let outcome = client
+        .publish_verified_dashboard_update(&update, || true)
+        .await;
+    assert_eq!(outcome, DashboardPublishOutcome::ReconciledVerified);
+    assert_eq!(update_calls(&data), 1);
+    task.abort();
+}
+
+#[tokio::test]
+async fn http_status_without_a_commit_is_reconciled_as_failed() {
+    let (client, update, data, task) =
+        client_and_update(UpdateReply::BadGatewayWithoutCommit).await;
+    let outcome = client
+        .publish_verified_dashboard_update(&update, || true)
+        .await;
+    assert_eq!(outcome, DashboardPublishOutcome::ReconciledFailed);
+    let data = data
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner);
+    assert_eq!(data.update_calls, 1);
+    // The plan read, the read before the send, three reconciliation reads.
+    assert_eq!(data.dashboard_get_calls, 5);
+    drop(data);
+    task.abort();
+}
+
+/// A JSON-RPC error is a known answer of the server itself: it stays
+/// `FailedAfterResponse` without reconciliation reads.
+#[tokio::test]
+async fn api_error_after_send_stays_a_known_failure() {
+    let (client, update, data, task) = client_and_update(UpdateReply::RejectWithApiError).await;
+    let outcome = client
+        .publish_verified_dashboard_update(&update, || true)
+        .await;
+    assert_eq!(outcome, DashboardPublishOutcome::FailedAfterResponse);
+    let data = data
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner);
+    assert_eq!(data.update_calls, 1);
+    // The plan read and the read before the send; nothing after it.
+    assert_eq!(data.dashboard_get_calls, 2);
+    drop(data);
+    task.abort();
+}
+
 #[tokio::test]
 async fn stale_first_read_back_retries_only_the_read() {
     let (client, update, data, task) =
         client_and_update(UpdateReply::AcknowledgeWithStaleRead).await;
-    let outcome = client.publish_verified_dashboard_update(&update).await;
+    let outcome = client
+        .publish_verified_dashboard_update(&update, || true)
+        .await;
     assert_eq!(outcome, DashboardPublishOutcome::Verified);
     let data = data
         .lock()
@@ -302,10 +401,12 @@ async fn plan_bound_to_another_credential_is_blocked_before_send() {
         .next()
         .unwrap_or_else(|| panic!("source dashboard must exist"));
     let update =
-        verify_item_field_replacements(&source, &first.publication_context(), &[replacement()])
+        verify_widget_field_replacements(&source, &first.publication_context(), &[replacement()])
             .unwrap_or_else(|error| panic!("verified update: {error}"));
 
-    let outcome = second.publish_verified_dashboard_update(&update).await;
+    let outcome = second
+        .publish_verified_dashboard_update(&update, || true)
+        .await;
     assert_eq!(outcome, DashboardPublishOutcome::FailedBeforeSend);
     assert_eq!(
         data.lock()

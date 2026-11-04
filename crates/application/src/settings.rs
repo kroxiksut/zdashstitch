@@ -15,6 +15,7 @@ use cap_std::{
 };
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
+use zdashstitch_core::formats::strict::{self, ParseError};
 
 use crate::MessageId;
 
@@ -38,13 +39,17 @@ pub enum LocalePreference {
     Ru,
 }
 
+/// Interface theme. `high_contrast` is the in-application light-based
+/// high-contrast theme (owner decision O-038, 2026-10-28); the operating
+/// system contrast mode (`forced-colors`) still takes priority over any theme.
 #[derive(Clone, Copy, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
-#[serde(rename_all = "lowercase")]
+#[serde(rename_all = "snake_case")]
 pub enum ThemePreference {
     #[default]
     System,
     Light,
     Dark,
+    HighContrast,
 }
 
 #[derive(Clone, Copy, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
@@ -206,7 +211,7 @@ pub enum SettingsError {
     #[error("settings YAML is invalid")]
     InvalidYaml {
         #[source]
-        source: serde_yaml_ng::Error,
+        source: ParseError,
         line: Option<usize>,
         column: Option<usize>,
         key: Option<String>,
@@ -289,7 +294,7 @@ impl SettingsStore {
         }
         remove_stale_temporaries(&directory);
 
-        let raw = serde_yaml_ng::to_string(settings)
+        let raw = strict::yaml_to_string(settings)
             .map_err(|source| SettingsError::InvalidYaml {
                 source,
                 line: None,
@@ -428,16 +433,19 @@ fn load_settings_file(directory: &Dir, name: &str) -> Result<Option<AppSettings>
     if raw.len() > MAX_SETTINGS_BYTES {
         return Err(SettingsError::FileTooLarge);
     }
+    // Strict loader: anchors/aliases, duplicate or non-string keys, tags and
+    // deep nesting are rejected like in portable project files (P0-11).
     let settings: AppSettings =
-        serde_yaml_ng::from_slice(&raw).map_err(|source| invalid_yaml_error(source, &raw))?;
+        strict::yaml_from_slice(&raw).map_err(|source| invalid_yaml_error(source, &raw))?;
     settings.validate()?;
     Ok(Some(settings))
 }
 
-fn invalid_yaml_error(source: serde_yaml_ng::Error, raw: &[u8]) -> SettingsError {
-    let location = source.location();
-    let line = location.as_ref().map(serde_yaml_ng::Location::line);
-    let column = location.as_ref().map(serde_yaml_ng::Location::column);
+fn invalid_yaml_error(source: ParseError, raw: &[u8]) -> SettingsError {
+    let line = source.line().and_then(|line| usize::try_from(line).ok());
+    let column = source
+        .column()
+        .and_then(|column| usize::try_from(column).ok());
     let key = line
         .and_then(|line| {
             String::from_utf8_lossy(raw)
@@ -459,7 +467,7 @@ fn invalid_yaml_error(source: serde_yaml_ng::Error, raw: &[u8]) -> SettingsError
     }
 }
 
-fn platform_paths(
+pub(crate) fn platform_paths(
     environment: impl Fn(&str) -> Option<std::ffi::OsString>,
 ) -> Result<(PathBuf, PathBuf), SettingsError> {
     #[cfg(target_os = "windows")]
@@ -661,6 +669,95 @@ mod tests {
         }
     }
 
+    /// O-038: `high_contrast` is stored as is and survives save and load.
+    #[test]
+    fn high_contrast_theme_round_trips_as_snake_case() {
+        let temporary = tempdir().unwrap_or_else(|error| panic!("temp directory: {error}"));
+        let directory = temporary.path().join("config");
+        let store = SettingsStore::at(directory.clone());
+        let mut settings = settings_with_root(temporary.path(), "root");
+        settings.theme = ThemePreference::HighContrast;
+        store
+            .save(&settings)
+            .unwrap_or_else(|error| panic!("save: {error}"));
+        let raw = fs::read_to_string(directory.join(SETTINGS_FILE))
+            .unwrap_or_else(|error| panic!("read settings: {error}"));
+        assert!(raw.contains("theme: high_contrast\n"), "{raw}");
+        assert_eq!(
+            store.load().unwrap_or_else(|error| panic!("load: {error}")),
+            Some(settings)
+        );
+    }
+
+    /// Theme values outside the closed set fail closed, including spellings
+    /// close to `high_contrast`.
+    #[test]
+    fn unknown_theme_values_are_rejected() {
+        let temporary = tempdir().unwrap_or_else(|error| panic!("temp directory: {error}"));
+        let directory = temporary.path().join("config");
+        let store = SettingsStore::at(directory.clone());
+        store
+            .save(&settings_with_root(temporary.path(), "root"))
+            .unwrap_or_else(|error| panic!("save: {error}"));
+        let original = fs::read_to_string(directory.join(SETTINGS_FILE))
+            .unwrap_or_else(|error| panic!("read settings: {error}"));
+        assert!(original.contains("theme: system\n"));
+        for theme in ["light", "dark", "high_contrast"] {
+            let document = original.replacen("theme: system\n", &format!("theme: {theme}\n"), 1);
+            fs::write(directory.join(SETTINGS_FILE), document)
+                .unwrap_or_else(|error| panic!("write fixture: {error}"));
+            assert!(store.load().is_ok(), "{theme} must be accepted");
+        }
+        for theme in [
+            "highcontrast",
+            "high-contrast",
+            "High_Contrast",
+            "contrast",
+            "sepia",
+            "\"\"",
+        ] {
+            let document = original.replacen("theme: system\n", &format!("theme: {theme}\n"), 1);
+            fs::write(directory.join(SETTINGS_FILE), document)
+                .unwrap_or_else(|error| panic!("write fixture: {error}"));
+            assert!(store.load().is_err(), "{theme} must be rejected");
+        }
+    }
+
+    /// P0-11: settings use the strict YAML loader with reference codes.
+    #[test]
+    fn duplicate_keys_and_aliases_are_rejected_with_reference_codes() {
+        let temporary = tempdir().unwrap_or_else(|error| panic!("temp directory: {error}"));
+        let directory = temporary.path().join("config");
+        let store = SettingsStore::at(directory.clone());
+        store
+            .save(&settings_with_root(temporary.path(), "root"))
+            .unwrap_or_else(|error| panic!("save: {error}"));
+        let original = fs::read_to_string(directory.join(SETTINGS_FILE))
+            .unwrap_or_else(|error| panic!("read settings: {error}"));
+        assert!(original.contains("theme: system\n"));
+        for (code, document) in [
+            ("yaml_duplicate_key", format!("{original}theme: dark\n")),
+            (
+                "yaml_alias",
+                original.replacen("theme: system\n", "theme: &theme system\n", 1),
+            ),
+            ("yaml_key", format!("{original}1: one\n")),
+        ] {
+            fs::write(directory.join(SETTINGS_FILE), &document)
+                .unwrap_or_else(|error| panic!("write fixture: {error}"));
+            let error = match store.load() {
+                Err(error) => error,
+                Ok(_) => panic!("{code} must be rejected"),
+            };
+            match error.error.as_ref() {
+                SettingsError::InvalidYaml { source, .. } => {
+                    assert_eq!(source.code(), code);
+                }
+                other => panic!("{code}: unexpected error {other:?}"),
+            }
+        }
+    }
+
     #[test]
     fn settings_file_link_is_rejected_when_platform_allows_creating_one() {
         let temporary = tempdir().unwrap_or_else(|error| panic!("temp directory: {error}"));
@@ -775,7 +872,7 @@ mod tests {
             .save(&committed)
             .unwrap_or_else(|error| panic!("save: {error}"));
         let uncommitted = settings_with_root(temporary.path(), "uncommitted");
-        let raw = serde_yaml_ng::to_string(&uncommitted)
+        let raw = strict::yaml_to_string(&uncommitted)
             .unwrap_or_else(|error| panic!("serialize: {error}"));
         // A foreign process ID cannot match this test process.
         let stale = directory.join(format!("{TEMP_PREFIX}0-7{TEMP_SUFFIX}"));

@@ -1,0 +1,1649 @@
+{
+  "publication.title": {
+    "message": "Предпросмотр и публикация",
+    "placeholders": {}
+  },
+  "publication.a11y.steps": {
+    "message": "Шаги публикации",
+    "placeholders": {}
+  },
+  "publication.step.target": {
+    "message": "Назначение",
+    "placeholders": {}
+  },
+  "publication.step.checks": {
+    "message": "Проверки",
+    "placeholders": {}
+  },
+  "publication.step.changes": {
+    "message": "Изменения",
+    "placeholders": {}
+  },
+  "publication.step.confirm": {
+    "message": "Подтверждение",
+    "placeholders": {}
+  },
+  "publication.step.write": {
+    "message": "Запись и проверка",
+    "placeholders": {}
+  },
+  "publication.context.operation": {
+    "message": "Операция",
+    "placeholders": {}
+  },
+  "publication.context.source": {
+    "message": "Источник (база)",
+    "placeholders": {}
+  },
+  "publication.context.target": {
+    "message": "Целевая панель",
+    "placeholders": {}
+  },
+  "publication.context.target_not_chosen": {
+    "message": "Не выбрана",
+    "placeholders": {}
+  },
+  "publication.context.connection": {
+    "message": "Подключение",
+    "placeholders": {}
+  },
+  "publication.context.scope": {
+    "message": "Область",
+    "placeholders": {}
+  },
+  "publication.context.scope_value": {
+    "message": "{changed} из {total, plural, one {# виджета} few {# виджетов} many {# виджетов} other {# виджета}}",
+    "placeholders": {
+      "changed": "number",
+      "total": "number"
+    }
+  },
+  "publication.context.pages_value": {
+    "message": "{count, plural, one {# страница} few {# страницы} many {# страниц} other {# страницы}}",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "publication.preview.read_only_note": {
+    "message": "Проверки выполняются чтением, на сервере ничего не меняется до подтверждения записи.",
+    "placeholders": {}
+  },
+  "publication.none.title": {
+    "message": "Публиковать пока нечего",
+    "placeholders": {}
+  },
+  "publication.none.body": {
+    "message": "Выберите изменение в разделе «Привязки»: предпросмотр появится после расчёта соответствий.",
+    "placeholders": {}
+  },
+  "publication.preflight.title": {
+    "message": "Предварительные проверки",
+    "placeholders": {}
+  },
+  "publication.preflight.blocked": {
+    "message": "Публикация заблокирована",
+    "placeholders": {}
+  },
+  "publication.check.summary.ready": {
+    "message": "Готово к подтверждению",
+    "placeholders": {}
+  },
+  "publication.check.recheck": {
+    "message": "Проверить снова",
+    "placeholders": {}
+  },
+  "publication.check.summary.plan_not_built": {
+    "message": "План записи не создаётся, пока есть блокировки.",
+    "placeholders": {}
+  },
+  "publication.check.count.blocking": {
+    "message": "Блокируют: {count}",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "publication.check.count.warnings": {
+    "message": "Предупреждения: {count}",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "publication.check.status.blocks": {
+    "message": "Блокирует",
+    "placeholders": {}
+  },
+  "publication.check.status.warning": {
+    "message": "Предупреждение",
+    "placeholders": {}
+  },
+  "publication.check.group.connection": {
+    "message": "Подключение и права",
+    "placeholders": {}
+  },
+  "publication.check.group.source": {
+    "message": "Источник",
+    "placeholders": {}
+  },
+  "publication.check.group.widgets": {
+    "message": "Виджеты и поля",
+    "placeholders": {}
+  },
+  "publication.check.group.bindings": {
+    "message": "Привязки",
+    "placeholders": {}
+  },
+  "publication.check.group.plan": {
+    "message": "План",
+    "placeholders": {}
+  },
+  "publication.check.fixed_in": {
+    "message": "Исправляется: {section}",
+    "placeholders": {
+      "section": "text"
+    }
+  },
+  "publication.check.confirm_kept": {
+    "message": "Подтвердите список виджетов, которые останутся на старом узле",
+    "placeholders": {}
+  },
+  "publication.check.action.confirm_kept": {
+    "message": "Подтвердить список ({count})",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "publication.check.action.open_bindings": {
+    "message": "Открыть привязки",
+    "placeholders": {}
+  },
+  "publication.check.none": {
+    "message": "Замечаний нет.",
+    "placeholders": {}
+  },
+  "publication.finding.no_changes": {
+    "message": "Черновик ничего не меняет на сервере.",
+    "placeholders": {}
+  },
+  "publication.finding.capability_not_verified": {
+    "message": "Не подтверждено для этого сервера: {capability}",
+    "placeholders": {
+      "capability": "technical"
+    }
+  },
+  "publication.finding.connection_required": {
+    "message": "Для проверки сервера нужно подключение к Zabbix.",
+    "placeholders": {}
+  },
+  "publication.finding.write_mode_required": {
+    "message": "Подключение в режиме «Только чтение»: для публикации нужен режим «Чтение-запись».",
+    "placeholders": {}
+  },
+  "publication.finding.server_version_mismatch": {
+    "message": "Версия сервера отличается от снимка ({base_version}).",
+    "placeholders": {
+      "base_version": "technical"
+    }
+  },
+  "publication.finding.write_contract_unverified": {
+    "message": "Не подтверждено лабораторным контрактом: {contract}",
+    "placeholders": {
+      "contract": "text"
+    }
+  },
+  "publication.finding.target_host_not_visible": {
+    "message": "Новый узел сети не найден или нет доступа.",
+    "placeholders": {}
+  },
+  "publication.finding.binding_unresolved": {
+    "message": "Ссылка не сопоставлена",
+    "placeholders": {}
+  },
+  "publication.finding.source_unverified": {
+    "message": "Ссылку проверить нельзя: она может указывать на заменяемый узел",
+    "placeholders": {}
+  },
+  "publication.finding.decision_invalid": {
+    "message": "Решение больше не подходит ссылке",
+    "placeholders": {}
+  },
+  "publication.finding.binding_stale": {
+    "message": "Привязка устарела: проверьте её заново",
+    "placeholders": {}
+  },
+  "publication.finding.binding_invalid": {
+    "message": "Привязка недействительна",
+    "placeholders": {}
+  },
+  "publication.finding.match_differences": {
+    "message": "Сопоставлено с отличиями: {differences}",
+    "placeholders": {
+      "differences": "text"
+    }
+  },
+  "publication.finding.kept_on_source": {
+    "message": "Останется на {host}",
+    "placeholders": {
+      "host": "text"
+    }
+  },
+  "publication.finding.kept_on_source_confirmation_stale": {
+    "message": "Список изменился после подтверждения: подтвердите его снова",
+    "placeholders": {}
+  },
+  "publication.finding.scope_link_crossing.provider_outside": {
+    "message": "Связь виджетов пересекает границу области: виджет-источник вне области",
+    "placeholders": {}
+  },
+  "publication.finding.scope_link_crossing.consumer_outside": {
+    "message": "Связь виджетов пересекает границу области: виджет-получатель вне области",
+    "placeholders": {}
+  },
+  "publication.finding.unknown": {
+    "message": "Код замечания: {code}",
+    "placeholders": {
+      "code": "technical"
+    }
+  },
+  "publication.contract.update_one_page_with_full_fields": {
+    "message": "обновление страницы со всеми полями",
+    "placeholders": {}
+  },
+  "publication.contract.preserve_untouched_pages": {
+    "message": "сохранение незатронутых страниц",
+    "placeholders": {}
+  },
+  "publication.contract.preserve_widget_references": {
+    "message": "сохранение связей виджетов",
+    "placeholders": {}
+  },
+  "publication.contract.reconcile_unknown_outcome": {
+    "message": "сверка неизвестного результата",
+    "placeholders": {}
+  },
+  "publication.contract.item_widget_itemid": {
+    "message": "элемент данных виджета «Значение элемента данных»",
+    "placeholders": {}
+  },
+  "publication.contract.svggraph_dataset_itemids": {
+    "message": "элементы данных наборов данных «Графика»",
+    "placeholders": {}
+  },
+  "publication.contract.svggraph_dataset_hosts": {
+    "message": "шаблоны узлов наборов данных «Графика»",
+    "placeholders": {}
+  },
+  "publication.contract.update_several_pages": {
+    "message": "несколько страниц в одном обновлении",
+    "placeholders": {}
+  },
+  "publication.diff.tab.local": {
+    "message": "Мои изменения: база → черновик",
+    "placeholders": {}
+  },
+  "publication.diff.tab.remote": {
+    "message": "На сервере: база → Zabbix сейчас",
+    "placeholders": {}
+  },
+  "publication.diff.no_changes": {
+    "message": "Без изменений",
+    "placeholders": {}
+  },
+  "publication.diff.filter.label": {
+    "message": "Показать",
+    "placeholders": {}
+  },
+  "publication.diff.filter.changed": {
+    "message": "Изменены",
+    "placeholders": {}
+  },
+  "publication.diff.filter.kept": {
+    "message": "Остаются",
+    "placeholders": {}
+  },
+  "publication.diff.filter.untouched": {
+    "message": "Без изменений",
+    "placeholders": {}
+  },
+  "publication.diff.filter.unresolved": {
+    "message": "Не решено",
+    "placeholders": {}
+  },
+  "publication.diff.search": {
+    "message": "Поиск по имени виджета, полю или значению",
+    "placeholders": {}
+  },
+  "publication.diff.column.object": {
+    "message": "Объект",
+    "placeholders": {}
+  },
+  "publication.diff.column.change": {
+    "message": "Изменение",
+    "placeholders": {}
+  },
+  "publication.diff.column.before": {
+    "message": "Было (база)",
+    "placeholders": {}
+  },
+  "publication.diff.column.after": {
+    "message": "Станет",
+    "placeholders": {}
+  },
+  "publication.diff.change.field": {
+    "message": "{count, plural, one {Изменено # поле} few {Изменены # поля} many {Изменено # полей} other {Изменено # поля}}",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "publication.diff.change.kept": {
+    "message": "Останется на старом",
+    "placeholders": {}
+  },
+  "publication.diff.change.unresolved": {
+    "message": "Не решено",
+    "placeholders": {}
+  },
+  "publication.diff.page_summary": {
+    "message": "{changed} из {total} виджетов изменены",
+    "placeholders": {
+      "changed": "number",
+      "total": "number"
+    }
+  },
+  "publication.diff.matching_by_id": {
+    "message": "Виджеты сопоставляются по идентификаторам Zabbix из базы: при записи они передаются и сохраняются.",
+    "placeholders": {}
+  },
+  "publication.diff.out_of_scope": {
+    "message": "Вне области",
+    "placeholders": {}
+  },
+  "publication.diff.empty_filter": {
+    "message": "Нет виджетов, подходящих под фильтр и поиск.",
+    "placeholders": {}
+  },
+  "publication.diff.remote_later": {
+    "message": "Чтобы сравнить с текущим состоянием сервера, выполните «Проверить снова» через подключение черновика.",
+    "placeholders": {}
+  },
+  "publication.diff.caption": {
+    "message": "Изменения на странице {page}",
+    "placeholders": {
+      "page": "text"
+    }
+  },
+  "publication.diff.inspector.title": {
+    "message": "Выбрано",
+    "placeholders": {}
+  },
+  "publication.diff.inspector.none": {
+    "message": "Выберите виджет, чтобы увидеть изменения.",
+    "placeholders": {}
+  },
+  "publication.diff.inspector.changed_fields": {
+    "message": "Изменённые поля",
+    "placeholders": {}
+  },
+  "publication.diff.inspector.sources": {
+    "message": "Источники данных",
+    "placeholders": {}
+  },
+  "publication.diff.inspector.series": {
+    "message": "Набор данных {index}",
+    "placeholders": {
+      "index": "number"
+    }
+  },
+  "publication.diff.inspector.unchanged": {
+    "message": "Не изменяется",
+    "placeholders": {}
+  },
+  "publication.diff.inspector.unchanged_body": {
+    "message": "Положение, размер, период обновления и все остальные поля.",
+    "placeholders": {}
+  },
+  "publication.tech.title": {
+    "message": "Технические сведения",
+    "placeholders": {}
+  },
+  "publication.tech.widgetid": {
+    "message": "ID виджета",
+    "placeholders": {}
+  },
+  "publication.tech.pageid": {
+    "message": "ID страницы",
+    "placeholders": {}
+  },
+  "publication.tech.widget_type": {
+    "message": "Код типа виджета",
+    "placeholders": {}
+  },
+  "publication.tech.fields": {
+    "message": "Коды полей",
+    "placeholders": {}
+  },
+  "publication.tech.base": {
+    "message": "Отпечаток базы",
+    "placeholders": {}
+  },
+  "publication.tech.local": {
+    "message": "Отпечаток черновика",
+    "placeholders": {}
+  },
+  "publication.tech.revision": {
+    "message": "Ревизия черновика",
+    "placeholders": {}
+  },
+  "publication.later.hint": {
+    "message": "Публикация появится позже: план не создаётся, ничего не записывается.",
+    "placeholders": {}
+  },
+  "publication.kept.confirmed_done": {
+    "message": "Список подтверждён",
+    "placeholders": {}
+  },
+  "publication.plan.invalidated": {
+    "message": "План больше не действует: {reason}. Создайте новый предпросмотр.",
+    "placeholders": {
+      "reason": "text"
+    }
+  },
+  "publication.plan.reason.draft_changed": {
+    "message": "черновик изменён после предпросмотра",
+    "placeholders": {}
+  },
+  "publication.plan.reason.target_changed": {
+    "message": "изменились цель или действие",
+    "placeholders": {}
+  },
+  "publication.plan.reason.connection_changed": {
+    "message": "изменились подключение, режим или учётные данные",
+    "placeholders": {}
+  },
+  "publication.plan.reason.bindings_changed": {
+    "message": "изменились привязки",
+    "placeholders": {}
+  },
+  "publication.plan.reason.source_changed": {
+    "message": "панель на сервере изменилась или требует повторной проверки",
+    "placeholders": {}
+  },
+  "publication.plan.reason.app_restarted": {
+    "message": "приложение перезапущено",
+    "placeholders": {}
+  },
+  "publication.plan.reason.session_ended": {
+    "message": "локальный сеанс завершён",
+    "placeholders": {}
+  },
+  "publication.plan.reason.unknown": {
+    "message": "неизвестная причина ({code})",
+    "placeholders": {
+      "code": "technical"
+    }
+  },
+  "publication.finding.dashboard_not_editable": {
+    "message": "Нет прав на изменение целевой панели",
+    "placeholders": {}
+  },
+  "publication.contract.resend_widget_type": {
+    "message": "повторная отправка неизменённого виджета {widget_type} на изменённой странице",
+    "placeholders": {
+      "widget_type": "technical"
+    }
+  },
+  "intent.save_as_copy": {
+    "message": "Сохранить копию",
+    "placeholders": {}
+  },
+  "intent.replace_item_fields": {
+    "message": "Замена элементов данных",
+    "placeholders": {}
+  },
+  "intent.unknown": {
+    "message": "Операция {code}",
+    "placeholders": {
+      "code": "technical"
+    }
+  },
+  "publication.context.target_same": {
+    "message": "Та же панель на сервере",
+    "placeholders": {}
+  },
+  "publication.context.target_new": {
+    "message": "Новая панель «{name}»",
+    "placeholders": {
+      "name": "text"
+    }
+  },
+  "publication.context.target_hint": {
+    "message": "выбрана на шаге «Назначение»",
+    "placeholders": {}
+  },
+  "publication.expected.title": {
+    "message": "Ожидаемый результат: {summary}",
+    "placeholders": {
+      "summary": "text"
+    }
+  },
+  "publication.expected.replace_host": {
+    "message": "{count, plural, one {в # виджете узел сети {source} заменяется на {target}; остальное содержимое панели не меняется} few {в # виджетах узел сети {source} заменяется на {target}; остальное содержимое панели не меняется} many {в # виджетах узел сети {source} заменяется на {target}; остальное содержимое панели не меняется} other {в # виджета узел сети {source} заменяется на {target}; остальное содержимое панели не меняется}}",
+    "placeholders": {
+      "count": "number",
+      "source": "text",
+      "target": "text"
+    }
+  },
+  "publication.expected.save_as_copy": {
+    "message": "{pages, plural, one {новая личная панель «{name}» из # страницы; исходная панель не меняется} few {новая личная панель «{name}» из # страниц; исходная панель не меняется} many {новая личная панель «{name}» из # страниц; исходная панель не меняется} other {новая личная панель «{name}» из # страницы; исходная панель не меняется}}",
+    "placeholders": {
+      "pages": "number",
+      "name": "text"
+    }
+  },
+  "publication.expected.choose_action": {
+    "message": "выберите действие на шаге «Назначение»",
+    "placeholders": {}
+  },
+  "publication.target.title": {
+    "message": "Действие",
+    "placeholders": {}
+  },
+  "publication.target.choose_explicitly": {
+    "message": "Выберите явно: варианта по умолчанию нет.",
+    "placeholders": {}
+  },
+  "publication.target.save_copy": {
+    "message": "Сохранить копию",
+    "placeholders": {}
+  },
+  "publication.target.save_copy_hint": {
+    "message": "Новая панель с заменой узла сети. Исходная панель не изменяется.",
+    "placeholders": {}
+  },
+  "publication.target.update_source": {
+    "message": "Обновить исходную панель «{dashboard_name}»",
+    "placeholders": {
+      "dashboard_name": "text"
+    }
+  },
+  "publication.target.update_source_hint": {
+    "message": "Изменяет существующую панель на сервере одним запросом после подтверждения.",
+    "placeholders": {}
+  },
+  "publication.target.update_visible_to_all": {
+    "message": "Панель увидят изменённой все, у кого есть к ней доступ.",
+    "placeholders": {}
+  },
+  "publication.target.name": {
+    "message": "Имя новой панели",
+    "placeholders": {}
+  },
+  "publication.target.name_server_check": {
+    "message": "Имя панели уникально на всём сервере, включая панели, которые вам не видны. Окончательно это проверяет сервер при записи.",
+    "placeholders": {}
+  },
+  "publication.target.name_required": {
+    "message": "Введите имя новой панели.",
+    "placeholders": {}
+  },
+  "publication.target.no_retarget": {
+    "message": "Сменить цель на другую панель нельзя: замена узла сети записывается в исходную панель или в её копию.",
+    "placeholders": {}
+  },
+  "publication.untouched.title": {
+    "message": "Не изменяется",
+    "placeholders": {}
+  },
+  "publication.untouched.widgets": {
+    "message": "{count, plural, one {# виджет без ссылок на {host} передаётся как есть, с прежним идентификатором} few {# виджета без ссылок на {host} передаются как есть, с прежними идентификаторами} many {# виджетов без ссылок на {host} передаются как есть, с прежними идентификаторами} other {# виджета без ссылок на {host} передаются как есть, с прежними идентификаторами}}",
+    "placeholders": {
+      "count": "number",
+      "host": "text"
+    }
+  },
+  "publication.untouched.pages": {
+    "message": "Страницы, их порядок и периоды; имя и свойства панели",
+    "placeholders": {}
+  },
+  "publication.untouched.access": {
+    "message": "Владелец и доступ не передаются в запросе, поэтому сохраняются",
+    "placeholders": {}
+  },
+  "publication.untouched.zabbix_objects": {
+    "message": "Узлы сети, шаблоны, элементы данных и триггеры не изменяются никогда",
+    "placeholders": {}
+  },
+  "publication.untouched.source": {
+    "message": "Исходная панель «{dashboard_name}» не изменяется",
+    "placeholders": {
+      "dashboard_name": "text"
+    }
+  },
+  "publication.access.title": {
+    "message": "Владелец и доступ",
+    "placeholders": {}
+  },
+  "publication.access.copy_private": {
+    "message": "Новая панель — личная, владелец — вы. Запись доступа включится после её лабораторной проверки.",
+    "placeholders": {}
+  },
+  "publication.access.update_not_sent": {
+    "message": "Эта публикация не меняет владельца и доступ: в запросе их нет.",
+    "placeholders": {}
+  },
+  "publication.action.next_checks": {
+    "message": "Далее: проверки",
+    "placeholders": {}
+  },
+  "publication.action.next_changes": {
+    "message": "Далее: изменения",
+    "placeholders": {}
+  },
+  "publication.action.next_confirm": {
+    "message": "Далее: подтверждение",
+    "placeholders": {}
+  },
+  "publication.action.back_target": {
+    "message": "Назад: назначение",
+    "placeholders": {}
+  },
+  "publication.action.back_checks": {
+    "message": "Назад: проверки",
+    "placeholders": {}
+  },
+  "publication.action.back_changes": {
+    "message": "Назад: изменения",
+    "placeholders": {}
+  },
+  "publication.action.confirm_dialog": {
+    "message": "Подтвердить запись…",
+    "placeholders": {}
+  },
+  "publication.action.confirm_write": {
+    "message": "Записать в Zabbix",
+    "placeholders": {}
+  },
+  "publication.action.reconcile": {
+    "message": "Проверить результат",
+    "placeholders": {}
+  },
+  "publication.action.open_in_zabbix": {
+    "message": "Открыть в Zabbix",
+    "placeholders": {}
+  },
+  "publication.action.open_journal": {
+    "message": "Журнал операции",
+    "placeholders": {}
+  },
+  "publication.action.back_to_draft": {
+    "message": "Вернуться к черновику",
+    "placeholders": {}
+  },
+  "publication.action.new_preview": {
+    "message": "Новый предпросмотр",
+    "placeholders": {}
+  },
+  "publication.action.open_server": {
+    "message": "Открыть «Панели в Zabbix»",
+    "placeholders": {}
+  },
+  "publication.confirm.requirements": {
+    "message": "Для подтверждения нужны режим «Чтение-запись» подключения черновика, выбранное действие и проверки без блокировок.",
+    "placeholders": {}
+  },
+  "publication.confirm.building": {
+    "message": "План создаётся и проверяется…",
+    "placeholders": {}
+  },
+  "publication.confirm.target_line": {
+    "message": "Цель: {target}.",
+    "placeholders": {
+      "target": "text"
+    }
+  },
+  "publication.confirm.title": {
+    "message": "Подтвердите запись панели",
+    "placeholders": {}
+  },
+  "publication.confirm.question_update": {
+    "message": "{count, plural, one {Записать # проверенное изменение в панель «{dashboard_name}»?} few {Записать # проверенных изменения в панель «{dashboard_name}»?} many {Записать # проверенных изменений в панель «{dashboard_name}»?} other {Записать # проверенного изменения в панель «{dashboard_name}»?}}",
+    "placeholders": {
+      "count": "number",
+      "dashboard_name": "text"
+    }
+  },
+  "publication.confirm.question_create": {
+    "message": "Создать новую панель «{name}»?",
+    "placeholders": {
+      "name": "text"
+    }
+  },
+  "publication.confirm.field.connection": {
+    "message": "Подключение",
+    "placeholders": {}
+  },
+  "publication.confirm.connection_value": {
+    "message": "{profile} · Zabbix {version} · чтение-запись",
+    "placeholders": {
+      "profile": "text",
+      "version": "technical"
+    }
+  },
+  "publication.confirm.field.dashboard": {
+    "message": "Панель",
+    "placeholders": {}
+  },
+  "publication.confirm.dashboard_existing": {
+    "message": "«{dashboard_name}» — существующая, обновляется",
+    "placeholders": {
+      "dashboard_name": "text"
+    }
+  },
+  "publication.confirm.dashboard_new": {
+    "message": "«{name}» — новая, личная",
+    "placeholders": {
+      "name": "text"
+    }
+  },
+  "publication.confirm.field.action": {
+    "message": "Действие",
+    "placeholders": {}
+  },
+  "publication.confirm.api_update": {
+    "message": "Один запрос изменения панели",
+    "placeholders": {}
+  },
+  "publication.confirm.api_create": {
+    "message": "Один запрос создания панели",
+    "placeholders": {}
+  },
+  "publication.confirm.field.changes": {
+    "message": "Изменяется",
+    "placeholders": {}
+  },
+  "publication.confirm.changes_update": {
+    "message": "{count, plural, one {# поле: узел сети {source} → {target}} few {# поля: узел сети {source} → {target}} many {# полей: узел сети {source} → {target}} other {# поля: узел сети {source} → {target}}}",
+    "placeholders": {
+      "count": "number",
+      "source": "text",
+      "target": "text"
+    }
+  },
+  "publication.confirm.changes_create": {
+    "message": "{pages, plural, one {# страница со всеми виджетами} few {# страницы со всеми виджетами} many {# страниц со всеми виджетами} other {# страницы со всеми виджетами}}",
+    "placeholders": {
+      "pages": "number"
+    }
+  },
+  "publication.confirm.field.unchanged": {
+    "message": "Не изменяется",
+    "placeholders": {}
+  },
+  "publication.confirm.unchanged_update": {
+    "message": "{count, plural, one {# виджет, страницы, свойства, владелец и доступ} few {# виджета, страницы, свойства, владелец и доступ} many {# виджетов, страницы, свойства, владелец и доступ} other {# виджета, страницы, свойства, владелец и доступ}}",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "publication.confirm.field.warnings": {
+    "message": "Предупреждения",
+    "placeholders": {}
+  },
+  "publication.confirm.warnings_reviewed": {
+    "message": "{count, plural, one {# предупреждение — просмотрено} few {# предупреждения — просмотрены} many {# предупреждений — просмотрены} other {# предупреждения — просмотрены}}",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "publication.confirm.field.kept": {
+    "message": "Остаётся на {host}",
+    "placeholders": {
+      "host": "text"
+    }
+  },
+  "publication.confirm.kept_confirmed": {
+    "message": "{count, plural, one {# ссылка — список подтверждён} few {# ссылки — список подтверждён} many {# ссылок — список подтверждён} other {# ссылки — список подтверждён}}",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "publication.confirm.field.plan": {
+    "message": "План",
+    "placeholders": {}
+  },
+  "publication.confirm.plan_once": {
+    "message": "Действует один раз; создан в {time}",
+    "placeholders": {
+      "time": "datetime"
+    }
+  },
+  "publication.confirm.reread": {
+    "message": "Перед отправкой панель будет прочитана ещё раз. Если она изменилась после проверки в {time}, запись не выполнится.",
+    "placeholders": {
+      "time": "datetime"
+    }
+  },
+  "publication.confirm.create_name_check": {
+    "message": "Имя окончательно проверяет сервер при записи: его может занимать панель, которая вам не видна.",
+    "placeholders": {}
+  },
+  "publication.confirm.invalid_when": {
+    "message": "План станет недействительным при изменении черновика, цели, подключения, режима или прав — тогда нужен новый предпросмотр.",
+    "placeholders": {}
+  },
+  "publication.confirm.no_cancel_after_send": {
+    "message": "После отправки отменить запись нельзя; результат проверяется повторным чтением.",
+    "placeholders": {}
+  },
+  "publication.stages.title": {
+    "message": "Этапы",
+    "placeholders": {}
+  },
+  "publication.stage.pre_read": {
+    "message": "Чтение перед записью",
+    "placeholders": {}
+  },
+  "publication.stage.name_check": {
+    "message": "Проверка имени",
+    "placeholders": {}
+  },
+  "publication.stage.write": {
+    "message": "Запись",
+    "placeholders": {}
+  },
+  "publication.stage.read_back": {
+    "message": "Повторное чтение",
+    "placeholders": {}
+  },
+  "publication.stage.structure": {
+    "message": "Структура",
+    "placeholders": {}
+  },
+  "publication.stage.sources": {
+    "message": "Источники данных",
+    "placeholders": {}
+  },
+  "publication.stage.display": {
+    "message": "Отображение",
+    "placeholders": {}
+  },
+  "publication.stage.display_not_checked": {
+    "message": "Не проверяется автоматически: откройте панель в Zabbix",
+    "placeholders": {}
+  },
+  "publication.stage.waiting": {
+    "message": "Ожидание ответа сервера…",
+    "placeholders": {}
+  },
+  "publication.stage.sending": {
+    "message": "Отправка одного проверенного запроса…",
+    "placeholders": {}
+  },
+  "publication.stage.pre_read_done": {
+    "message": "Панель совпадает с базой",
+    "placeholders": {}
+  },
+  "publication.stage.name_check_done": {
+    "message": "Среди видимых панелей имя свободно",
+    "placeholders": {}
+  },
+  "publication.stage.write_done": {
+    "message": "Один запрос, ответ получен",
+    "placeholders": {}
+  },
+  "publication.stage.write_unknown": {
+    "message": "Запрос отправлен, ответ не получен: панель могла быть записана.",
+    "placeholders": {}
+  },
+  "publication.stage.not_sent": {
+    "message": "Не отправлено",
+    "placeholders": {}
+  },
+  "publication.stage.read_back_done": {
+    "message": "Панель прочитана",
+    "placeholders": {}
+  },
+  "publication.stage.not_done": {
+    "message": "Не выполнено",
+    "placeholders": {}
+  },
+  "publication.stage.structure_done": {
+    "message": "Изменено как в плане; нетронутые виджеты, страницы и идентификаторы на месте; неизвестные поля на месте",
+    "placeholders": {}
+  },
+  "publication.stage.sources_done": {
+    "message": "Ссылки указывают на элементы данных из плана",
+    "placeholders": {}
+  },
+  "publication.stage.at": {
+    "message": "{time}",
+    "placeholders": {
+      "time": "datetime"
+    }
+  },
+  "publication.state.verified": {
+    "message": "Проверено повторным чтением",
+    "placeholders": {}
+  },
+  "publication.state.conflict": {
+    "message": "Изменена на сервере",
+    "placeholders": {}
+  },
+  "publication.state.failed_before_send": {
+    "message": "Не отправлено",
+    "placeholders": {}
+  },
+  "publication.state.failed_after_response": {
+    "message": "Ошибка после ответа сервера",
+    "placeholders": {}
+  },
+  "publication.state.unknown_outcome": {
+    "message": "Результат публикации неизвестен",
+    "placeholders": {}
+  },
+  "publication.state.reconciled_verified": {
+    "message": "Сверено: записано",
+    "placeholders": {}
+  },
+  "publication.state.reconciled_failed": {
+    "message": "Сверено: не записано",
+    "placeholders": {}
+  },
+  "publication.state.manual_check_required": {
+    "message": "Нужна проверка вручную",
+    "placeholders": {}
+  },
+  "publication.state.submitting": {
+    "message": "Запись без итога",
+    "placeholders": {}
+  },
+  "publication.state.confirmed": {
+    "message": "Подтверждено, не отправлено",
+    "placeholders": {}
+  },
+  "publication.state.closed_manually": {
+    "message": "Закрыто вручную, результат не проверен",
+    "placeholders": {}
+  },
+  "publication.result.verified_body": {
+    "message": "Структура и источники данных проверены. Проверьте отображение панели в Zabbix.",
+    "placeholders": {}
+  },
+  "publication.result.unknown_body": {
+    "message": "Не повторяйте публикацию. Прочитайте панель, чтобы определить результат.",
+    "placeholders": {}
+  },
+  "publication.result.failed_after_response_body": {
+    "message": "Сервер ответил, но результат не совпадает с планом. Доступна только сверка чтением, затем — новый план.",
+    "placeholders": {}
+  },
+  "publication.result.failed_before_send_body": {
+    "message": "Ничего не отправлено: {reason}",
+    "placeholders": {
+      "reason": "text"
+    }
+  },
+  "publication.result.reconciled_verified_body": {
+    "message": "Сверено чтением: панель как в плане.",
+    "placeholders": {}
+  },
+  "publication.result.reconciled_failed_body": {
+    "message": "Сверено чтением: ничего не записано. Создайте новый предпросмотр.",
+    "placeholders": {}
+  },
+  "publication.result.manual_body": {
+    "message": "Чтение не нашло ровно одну панель как в плане: ни одной, несколько или структура другая. Проверьте в Zabbix; новая запись в эту цель заблокирована, пока результат не сверен или операция не закрыта без сверки.",
+    "placeholders": {}
+  },
+  "publication.result.manual_update_body": {
+    "message": "Панель не совпадает ни с планом, ни с базой или не видна. Проверьте её в Zabbix; новая запись в неё заблокирована, пока результат не сверен или операция не закрыта без сверки.",
+    "placeholders": {}
+  },
+  "publication.result.closed_manually_body": {
+    "message": "Закрыто без сверки: результат остаётся неизвестным. Новая публикация начнётся с повторного чтения.",
+    "placeholders": {}
+  },
+  "publication.result.base_advanced": {
+    "message": "Снимок после записи стал новой базой черновика.",
+    "placeholders": {}
+  },
+  "publication.result.base_not_advanced": {
+    "message": "Черновик сохранил прежнюю базу; перед следующей публикацией проверьте источник.",
+    "placeholders": {}
+  },
+  "publication.result.copy_created": {
+    "message": "Новая панель «{name}» добавлена в список панелей, созданных из этого черновика.",
+    "placeholders": {
+      "name": "text"
+    }
+  },
+  "publication.result.journal_error": {
+    "message": "Журнал не смог записать итог ({code}): операция считается незавершённой.",
+    "placeholders": {
+      "code": "technical"
+    }
+  },
+  "errors.publication.name_taken_maybe_hidden": {
+    "message": "Имя занято, возможно, недоступной вам панелью. Панель не создана; выберите другое имя.",
+    "placeholders": {}
+  },
+  "publication.reconcile.title": {
+    "message": "Что покажет проверка результата",
+    "placeholders": {}
+  },
+  "publication.reconcile.column.found": {
+    "message": "Найдено",
+    "placeholders": {}
+  },
+  "publication.reconcile.column.result": {
+    "message": "Итог",
+    "placeholders": {}
+  },
+  "publication.reconcile.column.next": {
+    "message": "Дальше",
+    "placeholders": {}
+  },
+  "publication.reconcile.found_one": {
+    "message": "Одна панель, структура как в плане",
+    "placeholders": {}
+  },
+  "publication.reconcile.found_none_or_other": {
+    "message": "Ни одной, несколько или структура другая",
+    "placeholders": {}
+  },
+  "publication.reconcile.found_expected": {
+    "message": "Панель как в плане",
+    "placeholders": {}
+  },
+  "publication.reconcile.found_base": {
+    "message": "Панель как в базе",
+    "placeholders": {}
+  },
+  "publication.reconcile.found_other": {
+    "message": "Другое содержимое или не видна",
+    "placeholders": {}
+  },
+  "publication.reconcile.next_continue": {
+    "message": "можно продолжать",
+    "placeholders": {}
+  },
+  "publication.reconcile.next_new_preview": {
+    "message": "новый предпросмотр",
+    "placeholders": {}
+  },
+  "publication.reconcile.next_open": {
+    "message": "открыть в Zabbix",
+    "placeholders": {}
+  },
+  "publication.reconcile.write_blocked": {
+    "message": "Новая запись в эту цель заблокирована, пока результат не сверен.",
+    "placeholders": {}
+  },
+  "publication.reconcile.create_note": {
+    "message": "Только чтение: панель ищется по точному имени и отпечатку структуры. Повторной отправки нет.",
+    "placeholders": {}
+  },
+  "publication.reconcile.update_note": {
+    "message": "Только чтение: панель сравнивается с ожидаемым результатом и с базой. Повторной отправки нет.",
+    "placeholders": {}
+  },
+  "publication.reconcile.read_only_enough": {
+    "message": "Для проверки достаточно режима «Только чтение».",
+    "placeholders": {}
+  },
+  "publication.journal.title": {
+    "message": "Журнал",
+    "placeholders": {}
+  },
+  "publication.journal.description": {
+    "message": "Локальная запись операции. В ней нет содержимого запроса, секретов и ответов сервера.",
+    "placeholders": {}
+  },
+  "publication.journal.field.state": {
+    "message": "Состояние",
+    "placeholders": {}
+  },
+  "publication.journal.field.started": {
+    "message": "Начата",
+    "placeholders": {}
+  },
+  "publication.journal.field.finished": {
+    "message": "Завершена",
+    "placeholders": {}
+  },
+  "publication.journal.field.sent": {
+    "message": "Отправлено",
+    "placeholders": {}
+  },
+  "publication.journal.field.repeats": {
+    "message": "Повторных записей",
+    "placeholders": {}
+  },
+  "publication.journal.field.operation": {
+    "message": "Операция",
+    "placeholders": {}
+  },
+  "publication.journal.field.operation_id": {
+    "message": "Идентификатор операции",
+    "placeholders": {}
+  },
+  "publication.journal.field.connection": {
+    "message": "Подключение",
+    "placeholders": {}
+  },
+  "publication.journal.field.server_version": {
+    "message": "Версия Zabbix",
+    "placeholders": {}
+  },
+  "publication.journal.field.target": {
+    "message": "Цель",
+    "placeholders": {}
+  },
+  "publication.journal.field.source": {
+    "message": "Источник",
+    "placeholders": {}
+  },
+  "publication.journal.field.sends": {
+    "message": "Запросов записи",
+    "placeholders": {}
+  },
+  "publication.journal.field.evidence": {
+    "message": "Что нашла проверка",
+    "placeholders": {}
+  },
+  "publication.journal.field.closed_by": {
+    "message": "Закрыл",
+    "placeholders": {}
+  },
+  "publication.journal.field.transitions": {
+    "message": "Состояния",
+    "placeholders": {}
+  },
+  "publication.journal.transition": {
+    "message": "{state} — {time}",
+    "placeholders": {
+      "state": "text",
+      "time": "datetime"
+    }
+  },
+  "publication.journal.disk_note": {
+    "message": "Запись журнала сделана на диск до отправки. После перезапуска операция покажется до любых новых записей.",
+    "placeholders": {}
+  },
+  "publication.journal.target_existing": {
+    "message": "Панель «{name}»",
+    "placeholders": {
+      "name": "text"
+    }
+  },
+  "publication.journal.target_existing_unnamed": {
+    "message": "Существующая панель",
+    "placeholders": {}
+  },
+  "publication.journal.target_new": {
+    "message": "Новая панель «{name}»",
+    "placeholders": {
+      "name": "text"
+    }
+  },
+  "publication.journal.source_draft": {
+    "message": "Черновик «{name}», ревизия {revision}",
+    "placeholders": {
+      "name": "text",
+      "revision": "number"
+    }
+  },
+  "publication.journal.source_removed": {
+    "message": "Удалённый черновик",
+    "placeholders": {}
+  },
+  "publication.journal.profile_removed": {
+    "message": "Удалённый профиль подключения",
+    "placeholders": {}
+  },
+  "publication.evidence.unknown": {
+    "message": "Код: {code}",
+    "placeholders": {
+      "code": "technical"
+    }
+  },
+  "publication.evidence.read_back_matches": {
+    "message": "повторное чтение совпало с планом",
+    "placeholders": {}
+  },
+  "publication.evidence.reconcile_confirmed": {
+    "message": "найдена ровно панель из плана",
+    "placeholders": {}
+  },
+  "publication.evidence.dashboard_name_taken": {
+    "message": "имя занято",
+    "placeholders": {}
+  },
+  "publication.evidence.reconcile_not_found": {
+    "message": "панелей с этим именем нет",
+    "placeholders": {}
+  },
+  "publication.evidence.reconcile_ambiguous": {
+    "message": "несколько панелей с этим именем",
+    "placeholders": {}
+  },
+  "publication.evidence.reconcile_structure_mismatch": {
+    "message": "панель с другой структурой",
+    "placeholders": {}
+  },
+  "publication.evidence.expected_found": {
+    "message": "панель как в плане",
+    "placeholders": {}
+  },
+  "publication.evidence.source_found": {
+    "message": "панель как в базе",
+    "placeholders": {}
+  },
+  "publication.evidence.other_found": {
+    "message": "другое состояние панели",
+    "placeholders": {}
+  },
+  "publication.evidence.not_visible": {
+    "message": "панели нет или она не видна",
+    "placeholders": {}
+  },
+  "publication.conflict.title": {
+    "message": "Панель «{dashboard_name}» изменилась на сервере после копирования",
+    "placeholders": {
+      "dashboard_name": "text"
+    }
+  },
+  "publication.conflict.body": {
+    "message": "Старый план нельзя опубликовать, обновление этой панели остановлено. Ваш черновик не изменён и сохранён.",
+    "placeholders": {}
+  },
+  "publication.conflict.detected_at": {
+    "message": "Изменения обнаружены при проверке в {time}: сервер не совпадает со снимком {snapshot}.",
+    "placeholders": {
+      "time": "datetime",
+      "snapshot": "datetime"
+    }
+  },
+  "publication.conflict.missing_title": {
+    "message": "Панель «{dashboard_name}» не найдена на сервере или недоступна",
+    "placeholders": {
+      "dashboard_name": "text"
+    }
+  },
+  "publication.conflict.missing_body": {
+    "message": "Обновить её нельзя. Черновик не изменён: его можно сохранить новой панелью.",
+    "placeholders": {}
+  },
+  "publication.conflict.stale_title": {
+    "message": "Версия сервера отличается от снимка",
+    "placeholders": {}
+  },
+  "publication.conflict.stale_body": {
+    "message": "Источник нельзя сравнить с базой. Скопируйте панель заново или сохраните черновик новой панелью.",
+    "placeholders": {}
+  },
+  "publication.conflict.column.object": {
+    "message": "Объект",
+    "placeholders": {}
+  },
+  "publication.conflict.column.server": {
+    "message": "Изменение на сервере",
+    "placeholders": {}
+  },
+  "publication.conflict.column.mine": {
+    "message": "Мои изменения",
+    "placeholders": {}
+  },
+  "publication.conflict.caption": {
+    "message": "На сервере: база → Zabbix сейчас",
+    "placeholders": {}
+  },
+  "publication.conflict.object.dashboard": {
+    "message": "Панель",
+    "placeholders": {}
+  },
+  "publication.conflict.object.page": {
+    "message": "Страница {number}. {name}",
+    "placeholders": {
+      "number": "number",
+      "name": "text"
+    }
+  },
+  "publication.conflict.object.widget": {
+    "message": "{name} · {widget_type}",
+    "placeholders": {
+      "name": "text",
+      "widget_type": "technical"
+    }
+  },
+  "publication.conflict.change.dashboard_properties": {
+    "message": "Изменены свойства панели",
+    "placeholders": {}
+  },
+  "publication.conflict.change.access": {
+    "message": "Изменены владелец или доступ",
+    "placeholders": {}
+  },
+  "publication.conflict.change.page_added": {
+    "message": "Страница добавлена",
+    "placeholders": {}
+  },
+  "publication.conflict.change.page_removed": {
+    "message": "Страница удалена",
+    "placeholders": {}
+  },
+  "publication.conflict.change.page_renamed": {
+    "message": "Страница переименована",
+    "placeholders": {}
+  },
+  "publication.conflict.change.page_changed": {
+    "message": "Изменены период или порядок страницы",
+    "placeholders": {}
+  },
+  "publication.conflict.change.widget_added": {
+    "message": "Виджет добавлен",
+    "placeholders": {}
+  },
+  "publication.conflict.change.widget_removed": {
+    "message": "Виджет удалён",
+    "placeholders": {}
+  },
+  "publication.conflict.change.widget_changed": {
+    "message": "Виджет изменён",
+    "placeholders": {}
+  },
+  "publication.conflict.change.widget_moved": {
+    "message": "Виджет перемещён или изменён размер",
+    "placeholders": {}
+  },
+  "publication.conflict.mine.host_replaced": {
+    "message": "Заменён узел сети",
+    "placeholders": {}
+  },
+  "publication.conflict.mine.none": {
+    "message": "—",
+    "placeholders": {}
+  },
+  "publication.conflict.overlap": {
+    "message": "{count, plural, one {Пересекается с вашими изменениями: # виджет} few {Пересекается с вашими изменениями: # виджета} many {Пересекается с вашими изменениями: # виджетов} other {Пересекается с вашими изменениями: # виджета}}",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "publication.conflict.truncated": {
+    "message": "{count, plural, one {Ещё # изменение не показано} few {Ещё # изменения не показаны} many {Ещё # изменений не показаны} other {Ещё # изменения не показаны}}",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "publication.conflict.no_author": {
+    "message": "Кто и когда изменил панель, Zabbix API не сообщает: известно только, что панель отличается от снимка. Автоматического слияния нет.",
+    "placeholders": {}
+  },
+  "publication.conflict.next_title": {
+    "message": "Что дальше",
+    "placeholders": {}
+  },
+  "publication.conflict.save_copy_hint": {
+    "message": "Ваша версия станет новой панелью. Изменённая на сервере панель не трогается.",
+    "placeholders": {}
+  },
+  "workcopy.refetch.action": {
+    "message": "Скопировать заново",
+    "placeholders": {}
+  },
+  "publication.conflict.refetch_hint": {
+    "message": "Новая копия с сервера, замена узла сети рассчитывается на ней заново; решения принимаются вручную. Этот черновик остаётся как есть.",
+    "placeholders": {}
+  },
+  "publication.conflict.overwrite": {
+    "message": "Обновить поверх — недоступно",
+    "placeholders": {}
+  },
+  "publication.conflict.overwrite_unavailable": {
+    "message": "Обновить поверх нельзя: запись затёрла бы чужие изменения. Автоматического слияния нет.",
+    "placeholders": {}
+  },
+  "publication.conflict.recheck_hint": {
+    "message": "Проверить снова: если панель на сервере вернули к снимку, конфликт исчезнет.",
+    "placeholders": {}
+  },
+  "publication.conflict.refetched": {
+    "message": "Создана новая копия «{name}».",
+    "placeholders": {
+      "name": "text"
+    }
+  },
+  "publication.conflict.refetch_not_replayed": {
+    "message": "Замену узла сети на новой копии рассчитать заново не удалось ({code}): задайте её в «Привязках».",
+    "placeholders": {
+      "code": "technical"
+    }
+  },
+  "publication.conflict.open_new_copy": {
+    "message": "Открыть новую копию",
+    "placeholders": {}
+  },
+  "publication.journal_block": {
+    "message": "Незавершённая операция блокирует эту панель: сначала проверьте её результат.",
+    "placeholders": {}
+  },
+  "publication.journal_block_damaged": {
+    "message": "Повреждённый файл журнала блокирует эту панель: сначала уберите его в карантин.",
+    "placeholders": {}
+  },
+  "errors.publication.plan_not_found": {
+    "message": "Плана больше нет: он использован, отменён или завершён вместе с сеансом. Создайте новый предпросмотр.",
+    "placeholders": {}
+  },
+  "errors.publication.plan_mismatch": {
+    "message": "Подтверждение не совпадает с показанным планом; ничего не отправлено. Создайте новый предпросмотр.",
+    "placeholders": {}
+  },
+  "errors.publication.blocked": {
+    "message": "Публикация заблокирована: исправьте находки на шаге «Проверки».",
+    "placeholders": {}
+  },
+  "errors.publication.target_blocked": {
+    "message": "Незавершённая операция {operation_id} блокирует эту цель, пока её результат не сверен.",
+    "placeholders": {
+      "operation_id": "technical"
+    }
+  },
+  "errors.publication.journal_damaged": {
+    "message": "Повреждённый файл журнала {operation_id} блокирует публикацию, пока он не убран в карантин.",
+    "placeholders": {
+      "operation_id": "technical"
+    }
+  },
+  "errors.publication.local_mismatch": {
+    "message": "Проверенное обновление не совпадает с черновиком; ничего не отправлено.",
+    "placeholders": {}
+  },
+  "errors.publication.reconcile_server_changed": {
+    "message": "Проверить результат можно только на том же сервере той же учётной записью, что и операция.",
+    "placeholders": {}
+  },
+  "errors.publication.reconcile_partial_visibility": {
+    "message": "Прочитать все панели с этим именем не удалось, итог не определён. Проверьте ещё раз.",
+    "placeholders": {}
+  },
+  "errors.publication.reconcile_not_needed": {
+    "message": "У операции уже есть итог.",
+    "placeholders": {}
+  },
+  "errors.publication.operation_running": {
+    "message": "Операция ещё выполняется.",
+    "placeholders": {}
+  },
+  "errors.publication.operation_not_found": {
+    "message": "Запись журнала не найдена.",
+    "placeholders": {}
+  },
+  "errors.publication.journal_not_damaged": {
+    "message": "Файл журнала читается: сверьте результат или закройте операцию.",
+    "placeholders": {}
+  },
+  "errors.publication.quarantine_exists": {
+    "message": "Файл с таким именем уже в карантине.",
+    "placeholders": {}
+  },
+  "errors.publication.journal_write_failed": {
+    "message": "Журнал публикации записать не удалось; ничего не отправлено.",
+    "placeholders": {}
+  },
+  "errors.publication.code": {
+    "message": "Публикация отклонена: {code}",
+    "placeholders": {
+      "code": "technical"
+    }
+  },
+  "startup.recovery.found": {
+    "message": "{count, plural, one {Найдена незавершённая операция} few {Найдены # незавершённые операции} many {Найдено # незавершённых операций} other {Найдено # незавершённой операции}}",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "startup.recovery.body": {
+    "message": "{intent}: {object_kind}, источник — {source}, цель — {target} в подключении «{profile}». Отправлено в {time}. Не публикуйте в эту цель снова, пока результат не проверен.",
+    "placeholders": {
+      "intent": "text",
+      "object_kind": "text",
+      "source": "text",
+      "target": "text",
+      "profile": "text",
+      "time": "datetime"
+    }
+  },
+  "startup.recovery.state": {
+    "message": "Состояние: {state}",
+    "placeholders": {
+      "state": "text"
+    }
+  },
+  "startup.recovery.connect_first": {
+    "message": "Подключитесь к «{profile}», чтобы проверить результат. Достаточно режима «Только чтение».",
+    "placeholders": {
+      "profile": "text"
+    }
+  },
+  "startup.recovery.action.connect": {
+    "message": "Подключиться",
+    "placeholders": {}
+  },
+  "startup.recovery.action.open_draft": {
+    "message": "Открыть черновик",
+    "placeholders": {}
+  },
+  "startup.recovery.close_unverified": {
+    "message": "Закрыть без сверки",
+    "placeholders": {}
+  },
+  "startup.recovery.close_unverified.title": {
+    "message": "Закрыть без сверки?",
+    "placeholders": {}
+  },
+  "startup.recovery.close_unverified.confirm": {
+    "message": "Закрыть операцию {operation_id} в «{target}», отправленную в {time}, без сверки? Результат останется неизвестным; запись в журнале сохранится.",
+    "placeholders": {
+      "operation_id": "technical",
+      "target": "text",
+      "time": "datetime"
+    }
+  },
+  "startup.recovery.closed_manually": {
+    "message": "Закрыто вручную, результат не проверен",
+    "placeholders": {}
+  },
+  "startup.recovery.damaged.title": {
+    "message": "{count, plural, one {Повреждённый файл журнала блокирует публикацию} few {# повреждённых файла журнала блокируют публикацию} many {# повреждённых файлов журнала блокируют публикацию} other {# повреждённого файла журнала блокируют публикацию}}",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "startup.recovery.damaged.body_target": {
+    "message": "Файл журнала {operation_id} не читается ({code}). Публикация в «{target}» заблокирована, пока файл не убран в карантин.",
+    "placeholders": {
+      "operation_id": "technical",
+      "code": "technical",
+      "target": "text"
+    }
+  },
+  "startup.recovery.damaged.body_all": {
+    "message": "Файл журнала {operation_id} не читается ({code}), его цель неизвестна: любая публикация заблокирована, пока файл не убран в карантин.",
+    "placeholders": {
+      "operation_id": "technical",
+      "code": "technical"
+    }
+  },
+  "startup.recovery.quarantine": {
+    "message": "Убрать в карантин",
+    "placeholders": {}
+  },
+  "startup.recovery.quarantine.title": {
+    "message": "Убрать файл журнала в карантин?",
+    "placeholders": {}
+  },
+  "startup.recovery.quarantine.confirm": {
+    "message": "Файл {operation_id} без изменений переносится в journal/quarantine и перестаёт блокировать публикацию. Ничего не удаляется и не отправляется. Если эта операция дошла до сервера, проверьте панель в Zabbix перед новой публикацией.",
+    "placeholders": {
+      "operation_id": "technical"
+    }
+  },
+  "startup.recovery.quarantined": {
+    "message": "Файл журнала убран в карантин.",
+    "placeholders": {}
+  },
+  "startup.recovery.closed": {
+    "message": "Операция закрыта без сверки.",
+    "placeholders": {}
+  },
+  "startup.recovery.load_failed": {
+    "message": "Журнал публикации прочитать не удалось ({code}).",
+    "placeholders": {
+      "code": "technical"
+    }
+  },
+  "startup.recovery.a11y.region": {
+    "message": "Незавершённые операции публикации",
+    "placeholders": {}
+  },
+  "publication.journal.close": {
+    "message": "Закрыть",
+    "placeholders": {}
+  },
+  "publication.diff.remote_current": {
+    "message": "На сервере после снимка ничего не менялось.",
+    "placeholders": {}
+  },
+  "publication.confirm.offline": {
+    "message": "Для записи нужно подключение черновика в режиме «Чтение-запись».",
+    "placeholders": {}
+  },
+  "publication.confirm.summary_title": {
+    "message": "Готово к записи",
+    "placeholders": {}
+  },
+  "publication.checks.source_title": {
+    "message": "Источник",
+    "placeholders": {}
+  },
+  "publication.checks.source_current": {
+    "message": "Панель на сервере совпадает со снимком · проверено {time}",
+    "placeholders": {
+      "time": "datetime"
+    }
+  },
+  "publication.checks.source_not_checked": {
+    "message": "Ещё не сверено с сервером",
+    "placeholders": {}
+  },
+  "publication.checks.checking": {
+    "message": "Чтение сервера…",
+    "placeholders": {}
+  },
+  "publication.step.unavailable_reason": {
+    "message": "Доступно после успешных проверок",
+    "placeholders": {}
+  }
+}

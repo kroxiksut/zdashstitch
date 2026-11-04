@@ -2,7 +2,7 @@
 
 [package]
 name = "zdashstitch-application"
-version = "0.0.0"
+version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
@@ -17,7 +17,6 @@ secrecy.workspace = true
 serde_json.workspace = true
 sha2.workspace = true
 serde.workspace = true
-serde_yaml_ng.workspace = true
 thiserror.workspace = true
 zdashstitch-core = { path = "../core" }
 zdashstitch-template-import = { path = "../template_import" }

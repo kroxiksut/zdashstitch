@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "build": "vite build",
+    "build": "vite build && node scripts/check-dist.mjs normal dist",
+    "build:demo": "vite build --mode demo --outDir dist-demo && node scripts/check-dist.mjs demo dist-demo",
     "check": "python ../tools/build_i18n.py --check && python ../tools/check_ui_contracts.py && svelte-check --tsconfig ./tsconfig.json",
     "dev": "vite",
     "test": "vitest run"

@@ -64,7 +64,10 @@ async fn lab_connection_check_reports_codes() {
         .create_profile(&ProfileInput {
             name: "Lab".to_owned(),
             address: address.clone(),
-            auth: AuthInput::Password { username },
+            auth: AuthInput::Password {
+                username,
+                store_password: false,
+            },
             trust: TrustInput::System,
             confirm_plain_http_token_storage: false,
         })

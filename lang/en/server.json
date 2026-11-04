@@ -1,0 +1,450 @@
+{
+  "server.tab.dashboards": {
+    "message": "Dashboards",
+    "placeholders": {}
+  },
+  "server.tab.templates": {
+    "message": "Templates",
+    "placeholders": {}
+  },
+  "server.subtitle": {
+    "message": "{profile} · Zabbix {version} · {mode}. The server is not changed on this screen.",
+    "placeholders": {"profile": "text", "version": "technical", "mode": "text"}
+  },
+  "server.owner.you": {
+    "message": "you",
+    "placeholders": {}
+  },
+  "server.owner.other": {
+    "message": "another user",
+    "placeholders": {}
+  },
+  "server.column.editable": {
+    "message": "Editing",
+    "placeholders": {}
+  },
+  "server.column.mine": {
+    "message": "On this computer",
+    "placeholders": {}
+  },
+  "server.editable_count": {
+    "message": "{editable} of {total}",
+    "placeholders": {"editable": "number", "total": "number"}
+  },
+  "server.visibility_note": {
+    "message": "Only dashboards visible to the connection account are shown. If a dashboard is missing, it does not exist or you lack permissions — Zabbix does not distinguish these cases.",
+    "placeholders": {}
+  },
+  "server.action.copy": {
+    "message": "Copy from server",
+    "placeholders": {}
+  },
+  "server.action.open_copy": {
+    "message": "Open copy",
+    "placeholders": {}
+  },
+  "server.actions_start_with_copy": {
+    "message": "Every action starts with a copy: the server changes only from Publication by a verified plan.",
+    "placeholders": {}
+  },
+  "copy.title": {
+    "message": "Copy {dashboard_name} from server",
+    "placeholders": {"dashboard_name": "text"}
+  },
+  "copy.saved.snapshot": {
+    "message": "Snapshot: the dashboard as read, unchanged. Everything later is compared with it (base).",
+    "placeholders": {}
+  },
+  "copy.saved.draft": {
+    "message": "Draft: a copy for editing. Edits are stored separately from the snapshot, so copying again does not lose them.",
+    "placeholders": {}
+  },
+  "copy.saved.access": {
+    "message": "Owner and sharing: for restoring on publication. Never written to files or exports.",
+    "placeholders": {}
+  },
+  "copy.not_saved": {
+    "message": "Metric values, host data, passwords and tokens.",
+    "placeholders": {}
+  },
+  "copy.read_twice": {
+    "message": "The dashboard is read twice. If it changes while being read, no copy is created.",
+    "placeholders": {}
+  },
+  "copy.existing": {
+    "message": "You already have a copy of this dashboard from {time}. A new copy is created separately; the existing one is not changed.",
+    "placeholders": {"time": "datetime"}
+  },
+  "errors.import.inconsistent": {
+    "message": "The dashboard changed while it was being read. No copy was created; try again.",
+    "placeholders": {}
+  },
+  "dashboards.visibility.private": {
+    "message": "Private",
+    "placeholders": {}
+  },
+  "dashboards.permission.not_visible_or_denied": {
+    "message": "No dashboards found, or your account cannot view them",
+    "placeholders": {}
+  },
+  "intent.replace_host": {
+    "message": "Replace host",
+    "placeholders": {}
+  },
+  "errors.storage.linked": {
+    "message": "The path contains a symbolic link or junction.",
+    "placeholders": {}
+  },
+  "dashboards.visibility.shared": {
+    "message": "Shared",
+    "placeholders": {}
+  },
+  "server.column.name": {
+    "message": "Name",
+    "placeholders": {}
+  },
+  "server.column.owner": {
+    "message": "Owner",
+    "placeholders": {}
+  },
+  "server.column.access": {
+    "message": "Access",
+    "placeholders": {}
+  },
+  "server.column.pages": {
+    "message": "Pages",
+    "placeholders": {}
+  },
+  "server.column.widgets": {
+    "message": "Widgets",
+    "placeholders": {}
+  },
+  "server.filter.legend": {
+    "message": "Owner and access",
+    "placeholders": {}
+  },
+  "server.filter.mine": {
+    "message": "Mine",
+    "placeholders": {}
+  },
+  "server.filter.shared": {
+    "message": "Shared",
+    "placeholders": {}
+  },
+  "server.search.placeholder": {
+    "message": "Search by dashboard name",
+    "placeholders": {}
+  },
+  "server.search.action": {
+    "message": "Search",
+    "placeholders": {}
+  },
+  "server.action.refresh": {
+    "message": "Refresh list",
+    "placeholders": {}
+  },
+  "server.action.clone": {
+    "message": "Clone",
+    "placeholders": {}
+  },
+  "server.mine.copy": {
+    "message": "copy · {date}",
+    "placeholders": {"date": "date"}
+  },
+  "server.mine.unknown": {
+    "message": "unknown",
+    "placeholders": {}
+  },
+  "server.details.owner": {
+    "message": "Owner — {owner}",
+    "placeholders": {"owner": "text"}
+  },
+  "server.details.pages": {
+    "message": "Pages",
+    "placeholders": {}
+  },
+  "server.details.widgets": {
+    "message": "Widgets",
+    "placeholders": {}
+  },
+  "server.details.editable": {
+    "message": "Editing supported: {count}",
+    "placeholders": {"count": "number"}
+  },
+  "server.details.not_editable": {
+    "message": "Editing not supported: {count}",
+    "placeholders": {"count": "number"}
+  },
+  "server.details.copied_as_is": {
+    "message": "copied as is",
+    "placeholders": {}
+  },
+  "server.details.type_count": {
+    "message": "{type} {count}",
+    "placeholders": {"type": "text", "count": "number"}
+  },
+  "server.details.existing_copy": {
+    "message": "There is a copy from {time}.",
+    "placeholders": {"time": "datetime"}
+  },
+  "server.details.select_hint": {
+    "message": "Select a dashboard to see its pages and actions.",
+    "placeholders": {}
+  },
+  "server.take_page.legend": {
+    "message": "Page to take",
+    "placeholders": {}
+  },
+  "server.list.truncated": {
+    "message": "{count, plural, one {Only the first # dashboard was read.} other {Only the first # dashboards were read.}} Narrow the search to see the others.",
+    "placeholders": {"count": "number"}
+  },
+  "server.list.copies_unknown": {
+    "message": "Local copies could not be checked: the local storage cannot be read.",
+    "placeholders": {}
+  },
+  "server.list.load_failed": {
+    "message": "Could not load the dashboard list",
+    "placeholders": {}
+  },
+  "server.preview.load_failed": {
+    "message": "Could not read the dashboard",
+    "placeholders": {}
+  },
+  "server.empty.offline": {
+    "message": "Connect to Zabbix to see dashboards",
+    "placeholders": {}
+  },
+  "server.empty.other_connection": {
+    "message": "This connection is not active. Connect to it to see its dashboards.",
+    "placeholders": {}
+  },
+  "server.pagination.label": {
+    "message": "Dashboard list pages",
+    "placeholders": {}
+  },
+  "server.pagination.previous": {
+    "message": "Previous",
+    "placeholders": {}
+  },
+  "server.pagination.next": {
+    "message": "Next",
+    "placeholders": {}
+  },
+  "server.templates.later": {
+    "message": "Importing templates into the library will be available later.",
+    "placeholders": {}
+  },
+  "copy.breadcrumb": {
+    "message": "Copying",
+    "placeholders": {}
+  },
+  "copy.scope.whole": {
+    "message": "Whole dashboard: {summary}. The “Take a page” action takes one page.",
+    "placeholders": {"summary": "text"}
+  },
+  "copy.section.composition": {
+    "message": "Contents",
+    "placeholders": {}
+  },
+  "copy.page_summary": {
+    "message": "{widgets}: editing supported — {editable}, not — {other}",
+    "placeholders": {"widgets": "text", "editable": "number", "other": "number"}
+  },
+  "copy.widget.editable": {
+    "message": "editing supported",
+    "placeholders": {}
+  },
+  "copy.widget.as_is": {
+    "message": "copied as is",
+    "placeholders": {}
+  },
+  "copy.section.dependencies": {
+    "message": "Dependencies",
+    "placeholders": {}
+  },
+  "copy.dep.hosts": {
+    "message": "Hosts",
+    "placeholders": {}
+  },
+  "copy.dep.items": {
+    "message": "Items",
+    "placeholders": {}
+  },
+  "copy.dep.by_id_or_pattern": {
+    "message": "{total, plural, one {# reference} other {# references}}: {by_id} by ID, {by_pattern} by name pattern",
+    "placeholders": {"total": "number", "by_id": "number", "by_pattern": "number"}
+  },
+  "copy.dep.graphs": {
+    "message": "Graphs",
+    "placeholders": {}
+  },
+  "copy.dep.references": {
+    "message": "Links between widgets",
+    "placeholders": {}
+  },
+  "copy.dep.references_value": {
+    "message": "{count} — kept together with the widgets",
+    "placeholders": {"count": "number"}
+  },
+  "copy.dep.unknown_fields": {
+    "message": "Unknown fields",
+    "placeholders": {}
+  },
+  "copy.dep.unknown_fields_value": {
+    "message": "{count} — kept as is, not changed",
+    "placeholders": {"count": "number"}
+  },
+  "copy.dep.other": {
+    "message": "Other references",
+    "placeholders": {}
+  },
+  "copy.dep.not_copied": {
+    "message": "Hosts and items are not copied: the copy keeps references to them.",
+    "placeholders": {}
+  },
+  "copy.section.saved": {
+    "message": "What is saved on this computer",
+    "placeholders": {}
+  },
+  "copy.section.not_saved": {
+    "message": "Not saved",
+    "placeholders": {}
+  },
+  "copy.existing.refetch_hint": {
+    "message": "To update the base of the existing copy, use “Copy again” in its overview.",
+    "placeholders": {}
+  },
+  "copy.action.new_copy": {
+    "message": "New copy",
+    "placeholders": {}
+  },
+  "copy.action.open_mine": {
+    "message": "Open my copy",
+    "placeholders": {}
+  },
+  "copy.progress": {
+    "message": "Reading the dashboard twice and saving the copy…",
+    "placeholders": {}
+  },
+  "copy.result.created": {
+    "message": "Copy created: {name}",
+    "placeholders": {"name": "text"}
+  },
+  "copy.result.metadata_partial": {
+    "message": "Units and value mappings were read only for some items.",
+    "placeholders": {}
+  },
+  "copy.result.metadata_unavailable": {
+    "message": "Units and value mappings of items could not be read; the copy was created without them.",
+    "placeholders": {}
+  },
+  "copy.result.failed": {
+    "message": "No copy was created",
+    "placeholders": {}
+  },
+  "errors.workcopy.not_visible_or_denied": {
+    "message": "The dashboard was not found, or your account cannot view it.",
+    "placeholders": {}
+  },
+  "errors.workcopy.page_not_found": {
+    "message": "The page is no longer on the dashboard. No copy was created.",
+    "placeholders": {}
+  },
+  "errors.workcopy.search_invalid": {
+    "message": "Enter a search of {max, plural, one {up to # character} other {up to # characters}} without control characters.",
+    "placeholders": {"max": "number"}
+  },
+  "errors.drafts.name_invalid": {
+    "message": "Enter a name of {max, plural, one {up to # character} other {up to # characters}} without control characters.",
+    "placeholders": {"max": "number"}
+  },
+  "errors.workcopy.corrupt": {
+    "message": "The draft file is damaged. It was not changed.",
+    "placeholders": {}
+  },
+  "errors.workcopy.too_large": {
+    "message": "The draft file is too large; it was not read.",
+    "placeholders": {}
+  },
+  "errors.workcopy.unsupported_operation": {
+    "message": "The draft contains changes from a newer version of ZDashstitch. It was not changed.",
+    "placeholders": {}
+  },
+  "errors.snapshot.missing": {
+    "message": "The snapshot of this copy was not found.",
+    "placeholders": {}
+  },
+  "errors.snapshot.corrupt": {
+    "message": "The snapshot of this copy is damaged. It was not changed.",
+    "placeholders": {}
+  },
+  "errors.snapshot.too_large": {
+    "message": "The dashboard is too large to be saved as a snapshot. No copy was created.",
+    "placeholders": {}
+  },
+  "errors.snapshot.unsupported_adapter": {
+    "message": "The snapshot was made for a Zabbix version this build does not support.",
+    "placeholders": {}
+  },
+  "errors.snapshot.shape_invalid": {
+    "message": "Zabbix returned the dashboard in an unexpected form. No copy was created.",
+    "placeholders": {}
+  },
+  "errors.workcopy.storage_unavailable": {
+    "message": "Local storage is unavailable: drafts cannot be read or saved.",
+    "placeholders": {}
+  },
+  "errors.workcopy.storage_file_too_large": {
+    "message": "A file in local storage is too large; it was not read.",
+    "placeholders": {}
+  },
+  "errors.workcopy.storage_limit_reached": {
+    "message": "The local storage limit is reached. Nothing was saved.",
+    "placeholders": {}
+  },
+  "errors.workcopy.storage_write_failed": {
+    "message": "Could not write to local storage. Nothing was saved.",
+    "placeholders": {}
+  },
+  "errors.workcopy.settings_unavailable": {
+    "message": "The settings file cannot be read, so the storage location is unknown. Nothing was read or saved.",
+    "placeholders": {}
+  },
+  "errors.import.policy": {
+    "message": "The file was rejected by import safety policy ({code}).",
+    "placeholders": {"code": "technical"}
+  },
+  "errors.import.unsafe_structure": {
+    "message": "The file contains a structure that is not allowed for safe import ({code}).",
+    "placeholders": {"code": "technical"}
+  },
+  "errors.import.parse": {
+    "message": "The {format} file could not be parsed.",
+    "placeholders": {"format": "technical"}
+  },
+  "errors.import.validation": {
+    "message": "The imported data is inconsistent ({code}).",
+    "placeholders": {"code": "technical"}
+  },
+  "server.action.preview": {
+    "message": "Preview",
+    "placeholders": {}
+  },
+  "server.preview.breadcrumb": {
+    "message": "Preview",
+    "placeholders": {}
+  },
+  "server.preview.badge": {
+    "message": "View only",
+    "placeholders": {}
+  },
+  "server.preview.note": {
+    "message": "Read from the server for viewing only: nothing is saved on this computer. To change the dashboard, copy it first.",
+    "placeholders": {}
+  },
+  "server.preview.page_to_take": {
+    "message": "Page to take",
+    "placeholders": {}
+  }
+}

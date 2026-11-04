@@ -59,7 +59,7 @@ There are no fixed version numbers or dates for the directions below. Order is c
 
 ## F-05 — richer visuals and Custom Widgets
 
-- Faster styling presets, layout tooling and themes within supported native Zabbix widgets.
+- The MVP already includes base style profiles and single-widget blueprints for `svggraph` and `item` (O-012, option B). F-05 extends them: profiles for more widget types, variants within a profile, layout tooling and themes within supported native Zabbix widgets.
 - Separately installed Zabbix UI Custom Widgets for use cases such as heatmaps or advanced indicators.
 - PHP/JS/CSS server modules require their own delivery, compatibility and security lifecycle and never enter data-only packages.
 

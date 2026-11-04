@@ -1,4 +1,8 @@
 {
+  "shell.demo.marker": {
+    "message": "Demo data",
+    "placeholders": {}
+  },
   "connection.list.title": {
     "message": "Connections",
     "placeholders": {}

@@ -2,6 +2,8 @@
 
 [workspace]
 members = [
+    "apps/desktop",
+    "apps/desktop_window",
     "apps/local_server",
     "crates/application",
     "crates/core",
@@ -11,6 +13,7 @@ members = [
 resolver = "3"
 
 [workspace.package]
+version = "0.0.0"
 edition = "2024"
 rust-version = "1.94.1"
 license = "MIT OR Apache-2.0"
@@ -27,18 +30,22 @@ reqwest = { version = "0.13.2", default-features = false, features = ["json", "r
 rfd = { version = "=0.17.2", default-features = false }
 secrecy = "0.10.3"
 serde = { version = "1.0.229", features = ["derive"] }
+serde-saphyr = { version = "=2.0.0", default-features = false, features = ["deserialize", "serialize"] }
 serde_json = "1.0.145"
 sha2 = "0.10.9"
-serde_yaml_ng = "0.10.0"
+# Native program window (O-036, 2026-10-28): only `apps/desktop_window` uses these; the launcher
+# and the browser-only server never link a web engine. `dbus` is off: no libdbus at build or run.
+tao = { version = "=0.37.2", default-features = false, features = ["rwh_06", "x11"] }
 tempfile = "3.23.0"
 thiserror = "2.0.21"
-time = { version = "0.3.55", features = ["parsing"] }
+time = { version = "0.3.55", features = ["formatting", "parsing"] }
 tokio = { version = "1.54.1", features = ["macros", "net", "rt-multi-thread", "signal", "sync", "time"] }
 tower = { version = "0.5.2", features = ["util"] }
 tower-http = { version = "0.7.1", features = ["fs", "trace"] }
 unicode-normalization = { version = "=0.1.26", default-features = false, features = ["std"] }
 url = "2.5.8"
-zip = { version = "8.6.0", default-features = false, features = ["deflate"] }
+wry = "=0.57.1"
+zip = { version = "9.1.1", default-features = false, features = ["deflate"] }
 
 [workspace.lints.rust]
 unsafe_code = "deny"

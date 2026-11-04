@@ -8,25 +8,34 @@ use axum::{Extension, Json, Router, extract::DefaultBodyLimit, middleware, routi
 use serde::Serialize;
 use tower_http::services::{ServeDir, ServeFile};
 
+mod about;
 mod browser_transfer;
+mod connections;
+mod drafts;
 mod file_dialog;
+pub mod instance;
 mod security;
 mod selections;
+mod session_end;
+mod settings;
+pub mod startup;
 
 pub use browser_transfer::{
     BrowserTransferService, DownloadHandle, TransferError, UploadReceipt, UploadSetHandle,
     UploadedFile,
 };
+pub use connections::ConnectionsHandle;
 pub use file_dialog::{
     DialogCancellation, DialogErrorCode, DialogIntent, FileDialogService, NativeDialogBackend,
 };
 pub use security::{
-    AttachmentResponse, CSRF_HEADER, InitialBootstrap, JSON_BODY_LIMIT, LocalSecurity,
-    SecurityInitError, UPLOAD_BODY_LIMIT, UPLOAD_COUNT_LIMIT,
+    AttachmentResponse, BootstrapIssueError, CSRF_HEADER, InitialBootstrap, JSON_BODY_LIMIT,
+    LocalSecurity, SecurityInitError, UPLOAD_BODY_LIMIT, UPLOAD_COUNT_LIMIT,
 };
 pub use selections::{
     OpaqueSelection, SelectionError, SelectionKind, SelectionRegistry, SelectionRegistryLimits,
 };
+pub use session_end::{EraseFuture, SessionMemory, end_session_on_close, end_session_on_exit};
 
 /// Non-sensitive health response consumed by the bundled UI.
 #[derive(Debug, Serialize)]
@@ -41,6 +50,35 @@ pub struct HealthResponse {
 /// the same session, origin, content-type, body-limit and CSRF boundary.
 pub fn build_router(ui_dir: impl AsRef<Path>, security: LocalSecurity) -> Router {
     build_router_with_api(ui_dir, security, Router::new())
+}
+
+/// The HTTP application with the connection routes (P2-01G) over `connections`.
+pub fn build_router_with_connections(
+    ui_dir: impl AsRef<Path>,
+    security: LocalSecurity,
+    connections: ConnectionsHandle,
+) -> Router {
+    // «End session» (P2-SEC-01E) erases the active connection's secrets.
+    if let Some(service) = connections.service() {
+        security.register_session_memory(service);
+    }
+    // Copies of server dashboards and local drafts (P2-05D).
+    let api = connections::routes(connections.clone()).merge(drafts::routes(
+        connections.clone(),
+        drafts::DraftsHandle::from_settings(),
+    ));
+    // Publication (P2-04E/F): plans live in memory only and are erased with
+    // the session.
+    let plans = std::sync::Arc::new(drafts::PlanRegistry::default());
+    security.register_session_memory(plans.clone());
+    let api = api.merge(drafts::publication_routes(
+        connections,
+        drafts::DraftsHandle::from_settings(),
+        plans,
+    ));
+    // «Settings → Appearance» (P2-00G): language, theme, reduced motion.
+    let api = api.merge(settings::routes(settings::SettingsHandle::platform()));
+    build_router_with_api(ui_dir, security, api)
 }
 
 pub fn build_router_with_transfer_service(
@@ -72,10 +110,13 @@ fn build_router_with_api_and_transfers(
 ) -> Router {
     let ui_dir = ui_dir.as_ref().to_path_buf();
     let index = ui_dir.join("index.html");
-    let ui = ServeDir::new(ui_dir).not_found_service(ServeFile::new(index));
+    let files = ServeDir::new(ui_dir);
+    let index = ServeFile::new(index);
     let api = Router::new()
         .route("/health", get(health))
         .route("/session", get(security::session))
+        .route("/about", get(about::about))
+        .merge(session_end::routes())
         .merge(browser_transfer::routes())
         .merge(additional_api)
         .fallback(security::api_not_found)
@@ -93,12 +134,56 @@ fn build_router_with_api_and_transfers(
 
     Router::new()
         .nest("/api", api)
-        .fallback_service(ui)
+        .fallback(move |request: axum::extract::Request| {
+            let (files, index) = (files.clone(), index.clone());
+            async move { serve_ui(files, index, request).await }
+        })
         .layer(middleware::from_fn_with_state(
             security.clone(),
             security::host_and_security_headers,
         ))
         .with_state(security)
+}
+
+/// Static files plus SPA deep links: a missing path without a file extension is a
+/// client route and gets `index.html` with 200; a missing asset-like path
+/// (`/assets/x.js`, `/favicon.ico`) stays 404. `/api/*` never reaches here.
+async fn serve_ui(
+    mut files: ServeDir,
+    mut index: ServeFile,
+    request: axum::extract::Request,
+) -> axum::response::Response {
+    use axum::{http::StatusCode, response::IntoResponse};
+
+    let is_read = matches!(
+        *request.method(),
+        axum::http::Method::GET | axum::http::Method::HEAD
+    );
+    let looks_like_asset = request
+        .uri()
+        .path()
+        .rsplit('/')
+        .next()
+        .is_some_and(|segment| segment.contains('.'));
+    let (method, headers) = (request.method().clone(), request.headers().clone());
+    match files.try_call(request).await {
+        Ok(response) if response.status() != StatusCode::NOT_FOUND => {
+            return response.into_response();
+        }
+        Ok(_) => {}
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+    }
+    if !is_read || looks_like_asset {
+        return StatusCode::NOT_FOUND.into_response();
+    }
+    let mut fallback = axum::http::Request::new(axum::body::Body::empty());
+    *fallback.method_mut() = method;
+    *fallback.headers_mut() = headers;
+    match index.try_call(fallback).await {
+        Ok(response) => response.into_response(),
+        Err(_) => StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+    }
 }
 
 /// Default UI build directory, resolved independently from the process CWD.
@@ -310,13 +395,22 @@ mod tests {
         );
     }
 
+    /// The publication routes exist (P2-04F), but there is no generic
+    /// publish route, every publication route is behind `protect_api`, and
+    /// a write needs a live plan handle that only the server's own planner
+    /// issues: an HTTP body can never carry a plan or a payload.
     #[tokio::test]
     async fn forged_verified_plan_cannot_enter_through_http() {
         let (security, code) = security();
-        let router = build_router("missing-ui", security);
+        let router = super::build_router_with_connections(
+            "missing-ui",
+            security,
+            super::ConnectionsHandle::unavailable(),
+        );
         let cookie = session_cookie(&router, &code).await;
         let csrf = csrf_token(&router, &cookie).await;
-        let response = router
+        let generic = router
+            .clone()
             .oneshot(api_request(
                 "POST",
                 "/api/publish",
@@ -327,11 +421,40 @@ mod tests {
             ))
             .await
             .unwrap_or_else(|error| panic!("router must respond: {error}"));
-
         assert!(matches!(
-            response.status(),
+            generic.status(),
             StatusCode::METHOD_NOT_ALLOWED | StatusCode::NOT_FOUND
         ));
+
+        let confirm = "/api/drafts/wc-00000000000000000000000000000000/publication/confirm";
+        let post = |cookie: &str, csrf: Option<&str>, body: &'static str| {
+            api_request(
+                "POST",
+                confirm,
+                cookie,
+                csrf,
+                "application/json",
+                Body::from(body),
+            )
+        };
+        let forged = r#"{"handle":"plan-0","plan_id":"forged","confirmed":true,"update_params":{"method":"dashboard.update"}}"#;
+        let unknown = r#"{"handle":"plan-0","plan_id":"forged","confirmed":true}"#;
+        assert_eq!(
+            status(&router, post(&cookie, Some(&csrf), forged)).await,
+            StatusCode::BAD_REQUEST
+        );
+        assert_eq!(
+            status(&router, post(&cookie, Some(&csrf), unknown)).await,
+            StatusCode::NOT_FOUND
+        );
+        assert_eq!(
+            status(&router, post("missing=1", Some(&csrf), unknown)).await,
+            StatusCode::UNAUTHORIZED
+        );
+        assert_eq!(
+            status(&router, post(&cookie, None, unknown)).await,
+            StatusCode::FORBIDDEN
+        );
     }
 
     #[tokio::test]
@@ -854,6 +977,75 @@ mod tests {
             .body(Body::empty())
             .unwrap_or_else(|error| panic!("request must be valid: {error}"));
         assert_eq!(status(&router, second).await, StatusCode::NOT_FOUND);
+    }
+
+    #[tokio::test]
+    async fn spa_deep_links_serve_index_but_missing_assets_and_api_stay_404() {
+        let dir = tempdir().unwrap_or_else(|error| panic!("temp dir must exist: {error}"));
+        fs::write(dir.path().join("index.html"), "<main>static</main>")
+            .unwrap_or_else(|error| panic!("fixture must be writable: {error}"));
+        let (spa_security, _) = security();
+        let router = build_router(dir.path(), spa_security);
+        let get = |uri: &str| {
+            Request::builder()
+                .uri(uri)
+                .header(header::HOST, format!("127.0.0.1:{PORT}"))
+                .body(Body::empty())
+                .unwrap_or_else(|error| panic!("request must be valid: {error}"))
+        };
+        let index_response = router
+            .clone()
+            .oneshot(get("/"))
+            .await
+            .unwrap_or_else(|error| panic!("router must respond: {error}"));
+        let expected_csp = index_response
+            .headers()
+            .get(header::CONTENT_SECURITY_POLICY)
+            .cloned();
+        assert!(expected_csp.is_some());
+        for uri in ["/drafts", "/connections/new", "/settings/about"] {
+            let response = router
+                .clone()
+                .oneshot(get(uri))
+                .await
+                .unwrap_or_else(|error| panic!("router must respond: {error}"));
+            assert_eq!(response.status(), StatusCode::OK, "{uri}");
+            assert_eq!(
+                response.headers().get(header::CONTENT_SECURITY_POLICY),
+                expected_csp.as_ref()
+            );
+            assert_eq!(
+                response.headers().get(header::X_CONTENT_TYPE_OPTIONS),
+                Some(&header::HeaderValue::from_static("nosniff"))
+            );
+            let body = response
+                .into_body()
+                .collect()
+                .await
+                .unwrap_or_else(|error| panic!("body must be readable: {error}"))
+                .to_bytes();
+            assert_eq!(&body[..], b"<main>static</main>");
+        }
+        for uri in ["/assets/x.js", "/favicon.ico"] {
+            let response = router
+                .clone()
+                .oneshot(get(uri))
+                .await
+                .unwrap_or_else(|error| panic!("router must respond: {error}"));
+            assert_eq!(response.status(), StatusCode::NOT_FOUND, "{uri}");
+        }
+        let api = router
+            .oneshot(get("/api/x"))
+            .await
+            .unwrap_or_else(|error| panic!("router must respond: {error}"));
+        assert_ne!(api.status(), StatusCode::OK);
+        let body = api
+            .into_body()
+            .collect()
+            .await
+            .unwrap_or_else(|error| panic!("body must be readable: {error}"))
+            .to_bytes();
+        assert_ne!(&body[..], b"<main>static</main>");
     }
 
     #[tokio::test]

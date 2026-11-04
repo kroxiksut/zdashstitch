@@ -30,14 +30,13 @@ PLACEHOLDER_TYPES = {
     "technical",
     "technical_optional",
     "text",
-    "text_optional",
     "number",
     "date",
     "datetime",
 }
-# `select` chooses a branch by a string value. An absent optional argument renders nothing,
-# which is how a message spells an optional suffix such as `{sources, select, other {: {sources}}}`.
-SELECT_ARGUMENT_TYPES = {"technical", "technical_optional", "text", "text_optional"}
+# Standard ICU `select` (decision O-035): the argument is required and the `other` branch is
+# mandatory. An optional part of a phrase is a separate message ID, never an empty branch.
+SELECT_ARGUMENT_TYPES = {"technical", "text"}
 
 
 class CatalogError(ValueError):
@@ -225,7 +224,9 @@ def validate_entry(path: Path, message_id: str, entry: Any, locale: str | None =
             raise CatalogError(f"{path}: {message_id}: plural argument {name} must be declared number")
     for name in sorted(select_arguments):
         if placeholders.get(name) not in SELECT_ARGUMENT_TYPES:
-            raise CatalogError(f"{path}: {message_id}: select argument {name} must be declared text")
+            raise CatalogError(
+                f"{path}: {message_id}: select argument {name} must be declared text or technical"
+            )
     declared = set(placeholders)
     if used != declared:
         raise CatalogError(
@@ -294,7 +295,6 @@ def ts_type(type_name: str) -> str:
         "technical": "string",
         "technical_optional": "string | undefined",
         "text": "string",
-        "text_optional": "string | undefined",
         "number": "number",
         "date": "Date | number",
         "datetime": "Date | number",

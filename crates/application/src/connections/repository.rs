@@ -14,6 +14,7 @@ use cap_std::{
     fs::{Dir, OpenOptions},
 };
 use serde::{Deserialize, Serialize};
+use zdashstitch_core::formats::strict;
 use zdashstitch_zabbix::TrustAnchors;
 
 use super::ConnectionError;
@@ -71,7 +72,9 @@ impl ProfileRepository {
         let Some(raw) = read_bounded(&directory, PROFILES_FILE, MAX_PROFILES_BYTES)? else {
             return Ok(Vec::new());
         };
-        let file: ProfilesFile = serde_yaml_ng::from_slice(&raw)
+        // Strict loader: anchors/aliases, duplicate or non-string keys, tags and
+        // deep nesting are rejected (P0-11).
+        let file: ProfilesFile = strict::yaml_from_slice(&raw)
             .map_err(|_| ConnectionError::new("profile_store_invalid"))?;
         if file.format != PROFILES_FORMAT || file.profiles.len() > MAX_PROFILES {
             return Err(ConnectionError::new("profile_store_invalid"));
@@ -100,7 +103,7 @@ impl ProfileRepository {
             format: PROFILES_FORMAT.to_owned(),
             profiles: profiles.to_vec(),
         };
-        let raw = serde_yaml_ng::to_string(&file)
+        let raw = strict::yaml_to_string(&file)
             .map_err(|_| ConnectionError::new("profile_store_invalid"))?
             .into_bytes();
         if raw.len() > MAX_PROFILES_BYTES {

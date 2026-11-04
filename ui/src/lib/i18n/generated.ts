@@ -2,7 +2,263 @@
 
 export const catalogs = {
   "en": {
+    "about.copied": "Details copied",
+    "about.copyright": "Copyright © 2026 Fyodor Malkov",
+    "about.data.copy_path": "Copy path: {name}",
+    "about.data.journal": "Operation journal",
+    "about.data.paths_local_only": "Full paths are shown only here and are not included in reports.",
+    "about.data.settings_file": "Settings file",
+    "about.data.storage": "Storage",
+    "about.data.title": "Data on this computer",
+    "about.error.unavailable": "Build information could not be loaded.",
+    "about.field.build": "Build",
+    "about.field.build_unknown": "Unknown",
+    "about.field.platform": "Platform",
+    "about.field.version": "Version",
+    "about.field.zabbix": "Zabbix",
+    "about.field.zabbix_value": "{versions} (adapter {adapter}, verified on {verified})",
+    "about.license.brand": "ZDashstitch artwork (logo and Stezhik)",
+    "about.license.code": "Program and source code",
+    "about.license.code_choice": "MIT OR Apache-2.0, at the recipient's choice",
+    "about.license.docs": "Documentation and original visuals",
+    "about.license.docs_value": "CC BY 4.0",
+    "about.license.tabler": "Tabler Icons notice (MIT)",
+    "about.license.text": "License text",
+    "about.license.text_apache": "Apache-2.0 text",
+    "about.license.text_mit": "MIT text",
+    "about.license.text_original": "License texts are shown in the original language.",
+    "about.license.title": "ZDashstitch licenses",
+    "about.license.zabbix_note": "Zabbix is a separate product; its licenses and trademarks do not transfer to ZDashstitch.",
+    "about.report.copy": "Copy details for a report",
+    "about.report.copy_failed": "Copying is not available here. Select the text below and copy it manually.",
+    "about.report.preview": "Details for a report",
+    "about.report.scope": "without server addresses, names and secrets",
+    "about.subtitle": "Build and license information. Shown without any network access.",
+    "about.tagline": "Local editor for global Zabbix dashboards",
+    "about.third_party.column.component": "Component",
+    "about.third_party.column.license": "License",
+    "about.third_party.column.version": "Version",
+    "about.third_party.empty": "No components match the search.",
+    "about.third_party.filter.all": "All {count}",
+    "about.third_party.filter.icons": "Icons {count}",
+    "about.third_party.filter.rust": "Rust {count}",
+    "about.third_party.filter.ui": "Interface {count}",
+    "about.third_party.filters": "Component type",
+    "about.third_party.icons_summary": "{count, plural, one {interface icon: # icon} other {interface icons: # icons}}",
+    "about.third_party.missing": "The license list is not embedded in this build.",
+    "about.third_party.more": "{count, plural, one {and # more component} other {and # more components}}",
+    "about.third_party.search": "Search by name or license",
+    "about.third_party.show_all": "Show all {count}",
+    "about.third_party.subtitle": "The list is built with the program; license texts are embedded in it.",
+    "about.third_party.title": "Third-party components",
     "about.title": "About and licenses",
+    "bindings.a11y.steps": "Wizard steps",
+    "bindings.action.back": "Back",
+    "bindings.action.check_all": "Check all",
+    "bindings.action.connect": "Open connections",
+    "bindings.action.next_dependencies": "Next: dependencies",
+    "bindings.action.next_mapping": "Next: mapping",
+    "bindings.action.next_new_host": "Next: new host",
+    "bindings.action.next_summary": "Next: summary",
+    "bindings.action.reset_all": "Reset all bindings",
+    "bindings.action.retry": "Try again",
+    "bindings.action.to_publication": "To publication",
+    "bindings.calculated.done": "Mapping calculated",
+    "bindings.calculated_at": "Calculated {time} · Zabbix {version}",
+    "bindings.candidates.legend": "Candidates on {host}",
+    "bindings.candidates.none": "There are no candidates on the new host.",
+    "bindings.change.changed": "Will change",
+    "bindings.change.kept_on_source": "Stays on the old host",
+    "bindings.change.unresolved": "Not resolved",
+    "bindings.change.untouched": "Not changed",
+    "bindings.check_reason.candidate_not_visible": "The chosen item is not found or not visible",
+    "bindings.check_reason.reference_added": "A new reference to the host was found",
+    "bindings.check_reason.reference_gone": "The reference is no longer found",
+    "bindings.check_reason.resolution_changed": "The data on the server changed",
+    "bindings.check_reason.server_version_changed": "The Zabbix version changed",
+    "bindings.check_reason.target_not_visible": "The new host is not found or not visible",
+    "bindings.checked.done": "Bindings checked",
+    "bindings.checked_at": "Checked again {time}",
+    "bindings.command_failed": "The action was not performed",
+    "bindings.decision.applied_candidate": "Chosen: {key}",
+    "bindings.decision.applied_keep": "Kept on the source host by your decision",
+    "bindings.decision.choose": "Choose",
+    "bindings.decision.done": "Decision saved in the draft",
+    "bindings.decision.invalid": "The decision no longer fits this row; decide again.",
+    "bindings.decision.keep_hint": "The field keeps {host}; the widget joins the list that must be confirmed before publication.",
+    "bindings.decision.keep_on_source": "Keep on the source host",
+    "bindings.decision.undo": "Undo decision",
+    "bindings.decision.undone": "Decision undone",
+    "bindings.decision.unresolved": "Without a decision the reference blocks publication.",
+    "bindings.deps.choose_host": "Choose the host to replace to see its references.",
+    "bindings.deps.column.outcome": "What happens",
+    "bindings.deps.column.reference": "How it refers",
+    "bindings.deps.column.type": "Type",
+    "bindings.deps.column.widget": "Widget",
+    "bindings.deps.count.changes": "Will change: {count}",
+    "bindings.deps.count.kept": "Stay on the old host: {count}",
+    "bindings.deps.count.unverified": "Not found or no access: {count}",
+    "bindings.deps.page_summary": "{widgets, plural, one {# widget} other {# widgets}} · {references, plural, one {# reference} other {# references}}",
+    "bindings.deps.pattern_rule": "A host pattern by name changes only if it equals the visible name of {host} without «*»; masks do not change.",
+    "bindings.deps.title": "References to {host}",
+    "bindings.difference.origin": "template origin",
+    "bindings.difference.pattern_coverage": "pattern coverage",
+    "bindings.difference.units": "units",
+    "bindings.difference.value_type": "type of information",
+    "bindings.draft_only": "Only the draft changes. The dashboard on the server is not changed until you publish a verified plan.",
+    "bindings.evidence.coverage": "Item pattern {pattern}: {source} on the old host, {target} on the new host",
+    "bindings.evidence.differences": "Differs: {differences}",
+    "bindings.evidence.key": "Item key: {key}",
+    "bindings.evidence.no_units": "Units: none",
+    "bindings.evidence.origin.lld": "Discovered by LLD from prototype {key}",
+    "bindings.evidence.origin.own": "Own item of the host",
+    "bindings.evidence.origin.template": "Inherited from a template",
+    "bindings.evidence.source_item": "Item on the old host",
+    "bindings.evidence.target_item": "Item on the new host",
+    "bindings.evidence.units": "Units: {units}",
+    "bindings.evidence.value_type": "Type of information: {type}",
+    "bindings.fitness.editable": "Editable",
+    "bindings.fitness.read_only": "Recognised, editing not supported",
+    "bindings.fitness.unsupported": "Unsupported dependency",
+    "bindings.history.empty": "No entries yet.",
+    "bindings.history.op.replace_host": "Replacement calculated",
+    "bindings.history.op.replace_host_confirm_kept": "List confirmed",
+    "bindings.history.op.replace_host_decision": "Decision recorded",
+    "bindings.history.op.unknown": "Operation {op}",
+    "bindings.history.title": "Binding history",
+    "bindings.inspector.field": "Field: {field}",
+    "bindings.inspector.none": "Choose a row to see candidates and evidence.",
+    "bindings.inspector.title": "Selected reference",
+    "bindings.intent.clone": "Clone dashboard",
+    "bindings.intent.title": "Intent",
+    "bindings.kept.by_decision": "by your decision",
+    "bindings.kept.confirmed": "List confirmed",
+    "bindings.kept.not_blocking": "This does not block the replacement, but the list must be confirmed before publication.",
+    "bindings.kept.title": "{count, plural, one {Stays on {host}: # widget} other {Stays on {host}: # widgets}}",
+    "bindings.kept.unconfirmed": "List not confirmed",
+    "bindings.load_failed": "Bindings could not be loaded",
+    "bindings.local_only": "Bindings are stored only on this computer, with the draft. Zabbix IDs and the connection never go into export files.",
+    "bindings.mapping.candidates": "Candidates",
+    "bindings.mapping.candidates_count": "{count, plural, one {# candidate} other {# candidates}}",
+    "bindings.mapping.caption": "Mapping of references",
+    "bindings.mapping.choose_lld_instance": "Choose an instance manually",
+    "bindings.mapping.column.match": "Match",
+    "bindings.mapping.column.source": "Source ({host})",
+    "bindings.mapping.column.target": "Target ({host})",
+    "bindings.mapping.column.widget": "Widget",
+    "bindings.mapping.empty_filter": "No rows with this status.",
+    "bindings.mapping.filter": "Filter by match",
+    "bindings.mapping.keyboard_hint": "Arrow keys move between rows; Enter opens candidates.",
+    "bindings.mapping.no_rows": "The scope has no references to the replaced host.",
+    "bindings.mapping.no_target": "no target",
+    "bindings.mapping.similar_name_not_proof": "A similar name is not proof: only the same key, value type and units count as exact.",
+    "bindings.mapping.target_missing": "The new host is not found or not visible",
+    "bindings.mapping.title": "Replace host: {source} → {target}",
+    "bindings.match.ambiguous": "Multiple candidates",
+    "bindings.match.compatible": "Compatible with differences",
+    "bindings.match.denied": "Not found or not visible with current permissions",
+    "bindings.match.exact": "Exact match",
+    "bindings.match.missing": "No matching item",
+    "bindings.match.unresolved_lld": "LLD instance is not available on the target",
+    "bindings.match_short.ambiguous": "Ambiguous",
+    "bindings.match_short.compatible": "With differences",
+    "bindings.match_short.denied": "Not found or no access",
+    "bindings.match_short.exact": "Exact",
+    "bindings.match_short.missing": "Not found",
+    "bindings.match_short.unresolved_lld": "Not found (LLD)",
+    "bindings.match_short.unverified": "Not checked",
+    "bindings.new_host.chosen": "New host: {host}",
+    "bindings.new_host.empty": "No hosts found, or the account cannot see them",
+    "bindings.new_host.groups": "Groups: {groups}",
+    "bindings.new_host.legend": "New host instead of {host}",
+    "bindings.new_host.no_templates": "No templates are linked to {host}.",
+    "bindings.new_host.partial": "{found} of {total} source templates — some metrics will not be found",
+    "bindings.new_host.same_connection": "Hosts come from the same connection as the source dashboard.",
+    "bindings.new_host.search": "Search by host name",
+    "bindings.new_host.search_action": "Find",
+    "bindings.new_host.truncated": "Only the first hosts are shown: {count}. Refine the search.",
+    "bindings.new_host.visible_only": "Only hosts visible to the account are shown. If a host is missing, it does not exist or there are not enough permissions.",
+    "bindings.offline.body": "Connect through the profile the copy was made with. The stored mapping and the preview work without a connection.",
+    "bindings.offline.check_all": "«Check all» needs a connection.",
+    "bindings.offline.title": "A connection is needed to choose hosts",
+    "bindings.outcome.changes": "will change",
+    "bindings.outcome.kept": "stays on {host}",
+    "bindings.plan_invalid_note": "Any change of bindings makes a publication plan invalid.",
+    "bindings.progress.calculating": "Calculating the mapping: only reading, nothing changes on the server…",
+    "bindings.progress.checking": "Checking all bindings…",
+    "bindings.progress.inventory": "Reading the references of the draft…",
+    "bindings.progress.saving": "Saving in the draft…",
+    "bindings.progress.search": "Searching hosts…",
+    "bindings.reason.classic_graph_contract_pending": "Changing classic graphs is not supported until the laboratory check",
+    "bindings.reason.field_not_replaceable": "This field is not changed by host replacement",
+    "bindings.reason.graph_name_not_found": "The new host has no graph with the same name",
+    "bindings.reason.host_field_not_supported": "Changing the host field of this widget type is not supported",
+    "bindings.reason.host_mask": "Host masks with «*» are not changed",
+    "bindings.reason.host_wildcard_all": "The mask «*» matches every host and is not changed",
+    "bindings.reason.item_patterns_without_target_items": "Item patterns find no items on the new host",
+    "bindings.reason.key_not_found": "The new host has no item with the same key",
+    "bindings.reason.lld_instance_missing": "The item was found by LLD; the new host has no such instance",
+    "bindings.reason.not_found_or_no_access": "Not found or not visible with current permissions",
+    "bindings.reason.origin_differs": "The template origin differs",
+    "bindings.reason.pattern_coverage_differs": "Item patterns match a different number of items",
+    "bindings.reason.pattern_field_not_supported": "Changing this pattern field is not supported",
+    "bindings.reason.prototype_owner_unknown": "A prototype: its host cannot be checked",
+    "bindings.reason.several_target_candidates": "Several items on the new host have the same key",
+    "bindings.reason.target_name_is_mask": "The visible name of the new host contains «*»",
+    "bindings.reason.units_differ": "Units differ",
+    "bindings.reason.unknown": "Reason code: {code}",
+    "bindings.reason.unknown_field": "Unknown field: kept as is",
+    "bindings.reason.unknown_widget": "Unknown widget type: kept as is",
+    "bindings.reason.value_type_differs": "The type of information differs",
+    "bindings.reason.value_type_incompatible": "The type of information does not fit this widget",
+    "bindings.reason.widget_not_editable": "Changing this widget type is not supported",
+    "bindings.ref.by_id": "item (ID)",
+    "bindings.ref.graph_id": "graph (ID)",
+    "bindings.ref.host_id": "host (ID)",
+    "bindings.ref.host_mask": "host mask (*)",
+    "bindings.ref.host_name_pattern": "host pattern: name",
+    "bindings.ref.prototype": "prototype",
+    "bindings.reset.body": "The replacement and every decision are removed from the draft. The server is not changed.",
+    "bindings.reset.done": "All bindings are reset",
+    "bindings.reset.title": "Reset all bindings?",
+    "bindings.scope.choose_pages": "Pages in the scope",
+    "bindings.scope.choose_widgets": "Widgets in the scope",
+    "bindings.scope.empty_selection": "Choose at least one page or widget.",
+    "bindings.scope.pages": "Selected pages",
+    "bindings.scope.partial_warning": "References to {host} outside the scope stay unchanged: {count}",
+    "bindings.scope.whole": "Whole dashboard: {pages} pages, {widgets} widgets",
+    "bindings.scope.whole_page": "Whole page: {widgets} widgets",
+    "bindings.scope.widgets": "Selected widgets",
+    "bindings.source.none": "The draft does not reference any host visible to the account.",
+    "bindings.source.option_detail": "{references, plural, one {# reference} other {# references}} in {widgets, plural, one {# widget} other {# widgets}}",
+    "bindings.source.unattributed": "{count, plural, one {# reference cannot be checked: the object is hidden, deleted or a prototype.} other {# references cannot be checked: the objects are hidden, deleted or prototypes.}}",
+    "bindings.source_evidence": "Matching evidence",
+    "bindings.state.checked": "Checked",
+    "bindings.state.invalid": "Invalid",
+    "bindings.state.stale": "Out of date",
+    "bindings.step.dependencies": "Dependencies",
+    "bindings.step.done": "done",
+    "bindings.step.mapping": "Mapping",
+    "bindings.step.new_host": "New host",
+    "bindings.step.scope": "Scope",
+    "bindings.step.summary": "Summary",
+    "bindings.step.unavailable": "not available yet",
+    "bindings.stored.change_hint": "To choose another host or scope, reset all bindings first.",
+    "bindings.stored.title": "Stored replacement: {source} → {target}",
+    "bindings.summary.blocked": "{count, plural, one {Publication is blocked: # blocker} other {Publication is blocked: # blockers}}",
+    "bindings.summary.changes": "Will change: references — {fields}, widgets — {widgets}",
+    "bindings.summary.kept": "Stay on the old host: {count}",
+    "bindings.summary.only_changes": "Other series, settings, geometry and sharing do not change.",
+    "bindings.summary.title": "Replacement summary",
+    "bindings.summary.unresolved": "Not resolved (blocks publication): {count}",
+    "bindings.summary.untouched": "Not changed: widgets — {widgets}",
+    "bindings.targets.templates_coverage": "{found} of {total} source templates on the host",
+    "bindings.value_type.binary": "Binary",
+    "bindings.value_type.character": "Character",
+    "bindings.value_type.float": "Numeric (float)",
+    "bindings.value_type.log": "Log",
+    "bindings.value_type.text": "Text",
+    "bindings.value_type.unsigned": "Numeric (unsigned)",
     "checks.empty": "No issues found in {count} objects",
     "checks.group.compatibility": "Compatibility",
     "checks.group.passed": "Passed: {count}",
@@ -23,11 +279,13 @@ export const catalogs = {
     "checks.summary.publication_blocked": "{count, plural, one {Publication — blocked: # issue} other {Publication — blocked: # issues}}",
     "checks.summary.publication_ready": "Publication — possible after server checks",
     "checks.summary.save_always": "Save locally — always possible",
+    "common.action.cancel": "Cancel",
     "common.action.copy": "Copy",
     "common.action.delete": "Delete",
     "common.action.duplicate": "Duplicate",
     "common.action.open": "Open",
     "common.action.rename": "Rename",
+    "common.action.save_draft": "Save draft",
     "common.count.items": "{count, plural, one {# item} other {# items}}",
     "common.duration.hours": "{count, plural, one {# hour} other {# hours}}",
     "common.duration.minutes": "{count, plural, one {# minute} other {# minutes}}",
@@ -42,15 +300,254 @@ export const catalogs = {
     "common.state.offline": "Offline",
     "common.state.read_only": "Read-only",
     "common.state.read_write": "Read-write",
+    "common.state.verified": "Verified by reading back from Zabbix",
     "compatibility.calculated_range": "Calculated Zabbix compatibility starts at {minimum}; the exclusive upper bound is {maximum_exclusive}.",
     "compatibility.declared_mismatch": "Calculated compatibility ({minimum} to {maximum_exclusive}) differs from the declared range ({declared_minimum} to {declared_maximum_exclusive}).",
     "compatibility.empty_draft": "The draft has no widgets, so its Zabbix compatibility cannot be determined.",
     "compatibility.no_common_range": "The widgets do not have a common supported Zabbix version range.",
     "compatibility.unknown_widget_field": "Compatibility is unknown for field {field} of type {field_type} in widget {widget_type}.",
     "compatibility.unknown_widget_type": "Compatibility is unknown for widget type {widget_type}.",
+    "connection.a11y.profiles": "Connection profiles",
+    "connection.a11y.steps": "Check steps",
+    "connection.action.back_to_list": "Back to connections",
+    "connection.action.cancel": "Cancel",
+    "connection.action.check": "Check",
+    "connection.action.confirm_new_server": "Confirm the new server and connect",
+    "connection.action.connect": "Connect",
+    "connection.action.continue_offline": "Continue without a connection",
+    "connection.action.disconnect": "Disconnect",
+    "connection.action.edit": "Edit",
+    "connection.action.enable_writes": "Enable dashboard writes",
+    "connection.action.fix_address": "Change address",
+    "connection.action.fix_sign_in": "Change sign-in details",
+    "connection.action.forget_password": "Forget stored password",
+    "connection.action.forget_token": "Forget stored token",
+    "connection.action.new": "New connection",
+    "connection.action.retry": "Retry",
+    "connection.action.save": "Save",
+    "connection.action.set_read_only": "Return to read-only",
+    "connection.action.sign_in": "Sign in",
+    "connection.action.test": "Test connection",
+    "connection.action.use_default_account": "Fill in the default account",
+    "connection.auth.mfa_token_required": "Password sign-in cannot be used for this MFA account. Use an API token allowed by your administrator.",
+    "connection.card.auth.password": "user name and password, the password only in memory",
+    "connection.card.auth.password_os_store": "user name and password in the system credential store",
+    "connection.card.auth.token_memory": "API token, only in memory",
+    "connection.card.auth.token_os_store": "API token in the system credential store",
+    "connection.card.checked_at": "checked {time}",
+    "connection.card.never_checked": "not checked yet",
+    "connection.connect_failed": "Could not connect to {profile}.",
+    "connection.connected": "Connected to {profile} in read-only mode.",
+    "connection.credential_save_failed": "The password or token could not be stored in the system credential store; it is kept in memory until you disconnect.",
+    "connection.default_password.acknowledge": "Got it",
+    "connection.default_password.body": "Connection {profile} signed in with the default Zabbix password. Change it on a production server.",
+    "connection.default_password.dont_show": "Do not show again for this connection",
+    "connection.default_password.title": "The default password is used",
+    "connection.delete.body": "Drafts, working copies and snapshots are kept. A stored password or token is removed from this computer; a token stays valid in Zabbix until it is revoked there.",
+    "connection.delete.credential_left": "The stored password or token could not be removed from the system credential store.",
+    "connection.delete.disconnect_first": "The connection is active and will be closed first.",
+    "connection.delete.title": "Delete connection {profile}?",
+    "connection.deleted": "Connection {profile} deleted.",
+    "connection.disconnected": "Disconnected from {profile}. Local work is still available.",
+    "connection.duplicate.name": "{profile} (copy)",
+    "connection.editor.section.mode": "Mode after connecting",
+    "connection.editor.section.profile": "Profile",
+    "connection.editor.section.sign_in": "Sign-in",
+    "connection.editor.section.trust": "Certificate trust",
+    "connection.editor.title_edit": "Edit connection {profile}",
+    "connection.editor.title_new": "New connection",
+    "connection.enable_writes.available": "Creating a dashboard, saving a copy, cloning, adding pages and widgets, replacing a host in a dashboard.",
+    "connection.enable_writes.available_title": "Becomes available",
+    "connection.enable_writes.context": "Connection {profile} · Zabbix {version}",
+    "connection.enable_writes.duration": "Until you disconnect or restart the application, then read-only again.",
+    "connection.enable_writes.duration_title": "Duration",
+    "connection.enable_writes.enabled": "Dashboard writes are allowed for {profile} until you disconnect.",
+    "connection.enable_writes.never": "Hosts, templates, items, triggers and users are never changed.",
+    "connection.enable_writes.never_title": "Never changed",
+    "connection.enable_writes.no_extra_rights": "Your Zabbix account permissions are not extended.",
+    "connection.enable_writes.plan_only": "Every write happens only after preview, checks and confirmation of the plan.",
+    "connection.enable_writes.return_hint": "You can return to read-only at any time with the button in the header.",
+    "connection.enable_writes.title": "Allow dashboard writes?",
+    "connection.forget_password.done": "The password is removed from this computer.",
+    "connection.forget_token.not_revoked": "The token is removed from this computer but stays valid in Zabbix until it is revoked there.",
+    "connection.form.api_token": "API token",
+    "connection.form.api_url": "API address: {url}",
+    "connection.form.api_url_pending": "The API address appears once the Zabbix address is valid.",
+    "connection.form.auth_method": "Authentication method",
+    "connection.form.auth_password": "User name and password",
+    "connection.form.custom_ca": "Trusted CA certificate",
+    "connection.form.custom_ca_choose": "PEM file with the CA certificate",
+    "connection.form.custom_ca_fingerprint": "SHA-256 fingerprint: {fingerprint}",
+    "connection.form.custom_ca_hint": "PEM file, only for this connection",
+    "connection.form.custom_ca_loaded": "{count, plural, one {# certificate loaded} other {# certificates loaded}}",
+    "connection.form.custom_ca_loading": "Loading the certificate…",
+    "connection.form.custom_ca_required": "Choose a PEM file with the CA certificate.",
+    "connection.form.default_account_hint": "Fills in Admin and zabbix, the account of a new Zabbix installation. The button saves nothing by itself.",
+    "connection.form.endpoint": "Zabbix URL",
+    "connection.form.endpoint_hint": "As in the browser address bar, with port and path",
+    "connection.form.has_errors": "Check the highlighted fields.",
+    "connection.form.http_confirm": "Store the token even though HTTP sends it in clear text",
+    "connection.form.http_confirm_password": "Store the password even though HTTP sends it in clear text",
+    "connection.form.mfa_hint": "Password sign-in through the API is not available for accounts with MFA: use an API token issued by your administrator.",
+    "connection.form.mode_read_only": "Read-only. Dashboard writes are enabled separately and only until you disconnect.",
+    "connection.form.password": "Password",
+    "connection.form.password_not_stored": "Without storing, the password is kept only in the application memory until you disconnect or end the session; then it is asked again.",
+    "connection.form.password_stored": "The password is kept in the system credential store. Leave the field empty to keep it.",
+    "connection.form.profile_name": "Profile name",
+    "connection.form.rename_keeps_server": "Renaming the profile does not change the server. Changing the address, port or path does.",
+    "connection.form.rules.http": "With http, sign-in data travels in clear text; a password or token can be stored for such a profile only after explicit confirmation.",
+    "connection.form.rules.port_path": "A port and a base path are allowed.",
+    "connection.form.rules.rejected": "A user name or password, a query (?…) and a fragment (#…) are not allowed in the address.",
+    "connection.form.rules.scheme": "The address starts with http or https.",
+    "connection.form.rules.title": "Address rules",
+    "connection.form.secret_in_memory": "Kept in the application memory until you disconnect or end the session. Leave the field empty to keep it.",
+    "connection.form.server_changed.body": "After saving, bindings and publication plans of this connection must be checked again.",
+    "connection.form.server_changed.title": "This is a different server",
+    "connection.form.store_password": "Store the password in the system credential store",
+    "connection.form.store_password_hint": "An API token is safer: it can have an expiry date and can be revoked in Zabbix without changing the password.",
+    "connection.form.store_token": "Store the token in the system credential store",
+    "connection.form.tls_no_bypass": "Certificate verification cannot be disabled.",
+    "connection.form.token_at_connect": "Without storing, the token is kept only in the application memory until you disconnect or end the session; then it is asked again.",
+    "connection.form.token_stored": "The token is kept in the system credential store. Leave the field empty to keep it.",
+    "connection.form.trust_custom_ca": "Add a trusted CA certificate",
+    "connection.form.trust_system": "System certificate store",
+    "connection.form.username": "User name",
+    "connection.identity.accepted": "The new server was confirmed.",
+    "connection.identity.changed": "Another server answers at this address. Confirm that it is the intended server; bindings and plans of this connection will need to be checked again.",
+    "connection.identity.first_seen": "First connection: the server identity is recorded.",
+    "connection.identity.version_changed": "The server was updated from {previous_version} to {version}; publication plans must be built again.",
+    "connection.list.empty": "No connections yet",
+    "connection.list.empty_help": "Local drafts do not need a server. Add a connection to copy dashboards from Zabbix or to publish them.",
+    "connection.list.load_failed": "The connection list could not be loaded.",
+    "connection.list.no_secrets": "Passwords and tokens are not shown on this screen and are not written to files, logs or reports.",
+    "connection.list.subtitle": "Zabbix server profiles. Local drafts work without a connection.",
     "connection.list.title": "Connections",
+    "connection.logout_failed": "Sign-out on the server could not be confirmed; the session was closed in the application anyway.",
+    "connection.mode.read_only": "read-only",
+    "connection.mode.read_only_help": "Server data can be read; Zabbix objects will not be changed.",
+    "connection.mode.read_write": "read-write",
+    "connection.mode.read_write_help": "Only verified global-dashboard operations can be written after preview and confirmation.",
+    "connection.read_only_restored": "Read-only mode restored; publication plans of this connection are no longer valid.",
+    "connection.result.version": "Zabbix {version}",
+    "connection.saved": "Connection {profile} saved.",
+    "connection.sign_in.description": "Server address: {address}",
+    "connection.sign_in.in_progress": "Signing in…",
+    "connection.sign_in.locked": "Zabbix temporarily blocked sign-in for 30 seconds. Try again in {seconds, plural, one {# second} other {# seconds}}.",
+    "connection.sign_in.password_memory_only": "The password is kept only in memory until you disconnect or end the session.",
+    "connection.sign_in.password_required": "Enter the password.",
+    "connection.sign_in.password_will_be_stored": "After a successful connection the password is stored in the system credential store.",
+    "connection.sign_in.title": "Sign in to {profile}",
+    "connection.sign_in.token_memory_only": "The token is kept only in memory until you disconnect or end the session.",
+    "connection.sign_in.token_required": "Enter the API token.",
+    "connection.sign_in.token_will_be_stored": "After a successful connection the token is stored in the system credential store.",
+    "connection.sign_in.username": "User name: {username}",
+    "connection.sign_in.username_hint": "The user name can be changed only in the connection profile.",
+    "connection.sign_in.waiting": "Waiting for the server. For LDAP accounts this can take longer.",
+    "connection.state.connected_mode": "Connected · {mode}",
+    "connection.state.connecting": "Connecting…",
+    "connection.state.context_changed": "Server changed · {profile}",
+    "connection.state.last_check_failed": "Last check: error",
+    "connection.state.needs_sign_in": "Sign-in required",
     "connection.state.not_connected": "Not connected",
+    "connection.state.read_only_profile": "Read-only · {profile}",
+    "connection.state.read_write_profile": "Read-write · {profile}",
+    "connection.test.capabilities_denied": "Not available to this account: {methods}. Related features will be unavailable; you can continue read-only.",
+    "connection.test.crumb": "Check",
+    "connection.test.details.code": "Code",
+    "connection.test.details.method": "Method",
+    "connection.test.details.step": "Step",
+    "connection.test.details.time": "Time",
+    "connection.test.details.title": "Technical details",
+    "connection.test.details.version": "Zabbix version",
+    "connection.test.during_sign_in": "The connection failed during sign-in.",
+    "connection.test.failed_at": "The check stopped at step {step}.",
+    "connection.test.idle": "The check has not been run yet.",
+    "connection.test.lockout_hint": "Zabbix blocks sign-in for 30 seconds after 5 failed attempts.",
+    "connection.test.not_checked": "Not checked: {reason}",
+    "connection.test.passed": "All steps passed.",
+    "connection.test.reason.api": "a Zabbix API must be found",
+    "connection.test.reason.auth": "a successful sign-in is required",
+    "connection.test.reason.endpoint": "the server must be reachable",
+    "connection.test.reason.identity": "the server identity must be confirmed",
+    "connection.test.report.copied": "Report copied.",
+    "connection.test.report.copy": "Copy report",
+    "connection.test.report.copy_failed": "The report could not be copied to the clipboard.",
+    "connection.test.report.include_address": "Include the server address in the report",
+    "connection.test.report.scope": "The report contains no password, token, server responses or file paths; the address only if selected.",
+    "connection.test.result.api": "Zabbix API {version} found.",
+    "connection.test.result.auth_password": "Signed in with user name and password.",
+    "connection.test.result.auth_token": "Signed in with the API token.",
+    "connection.test.result.capabilities": "All required read methods are available.",
+    "connection.test.result.endpoint": "Connection established, certificate verified.",
+    "connection.test.result.identity_matches": "Same server as at the previous connection.",
+    "connection.test.running": "Checking the connection…",
+    "connection.test.status.failed": "Error",
+    "connection.test.status.not_checked": "Not checked",
+    "connection.test.status.notice": "Passed with a note",
+    "connection.test.status.passed": "Passed",
+    "connection.test.step.api": "Zabbix API",
+    "connection.test.step.auth": "Sign-in",
+    "connection.test.step.capabilities": "Permissions and capabilities",
+    "connection.test.step.endpoint": "Address and TLS",
+    "connection.test.step.identity": "Server identity",
+    "connection.test.step_heading": "{number}. {name}",
+    "connection.test.subtitle": "Steps run in order; a step starts only after the previous one passed.",
+    "connection.test.title": "Check connection {profile}",
+    "connection.warning.http": "HTTP without encryption: sign-in data is sent in clear text",
+    "copy.action.new_copy": "New copy",
+    "copy.action.open_mine": "Open my copy",
+    "copy.breadcrumb": "Copying",
+    "copy.dep.by_id_or_pattern": "{total, plural, one {# reference} other {# references}}: {by_id} by ID, {by_pattern} by name pattern",
+    "copy.dep.graphs": "Graphs",
+    "copy.dep.hosts": "Hosts",
+    "copy.dep.items": "Items",
+    "copy.dep.not_copied": "Hosts and items are not copied: the copy keeps references to them.",
+    "copy.dep.other": "Other references",
+    "copy.dep.references": "Links between widgets",
+    "copy.dep.references_value": "{count} — kept together with the widgets",
+    "copy.dep.unknown_fields": "Unknown fields",
+    "copy.dep.unknown_fields_value": "{count} — kept as is, not changed",
+    "copy.existing": "You already have a copy of this dashboard from {time}. A new copy is created separately; the existing one is not changed.",
+    "copy.existing.refetch_hint": "To update the base of the existing copy, use “Copy again” in its overview.",
+    "copy.not_saved": "Metric values, host data, passwords and tokens.",
+    "copy.page_summary": "{widgets}: editing supported — {editable}, not — {other}",
+    "copy.progress": "Reading the dashboard twice and saving the copy…",
+    "copy.read_twice": "The dashboard is read twice. If it changes while being read, no copy is created.",
+    "copy.result.created": "Copy created: {name}",
+    "copy.result.failed": "No copy was created",
+    "copy.result.metadata_partial": "Units and value mappings were read only for some items.",
+    "copy.result.metadata_unavailable": "Units and value mappings of items could not be read; the copy was created without them.",
+    "copy.saved.access": "Owner and sharing: for restoring on publication. Never written to files or exports.",
+    "copy.saved.draft": "Draft: a copy for editing. Edits are stored separately from the snapshot, so copying again does not lose them.",
+    "copy.saved.snapshot": "Snapshot: the dashboard as read, unchanged. Everything later is compared with it (base).",
+    "copy.scope.whole": "Whole dashboard: {summary}. The “Take a page” action takes one page.",
+    "copy.section.composition": "Contents",
+    "copy.section.dependencies": "Dependencies",
+    "copy.section.not_saved": "Not saved",
+    "copy.section.saved": "What is saved on this computer",
+    "copy.title": "Copy {dashboard_name} from server",
+    "copy.widget.as_is": "copied as is",
+    "copy.widget.editable": "editing supported",
+    "dashboards.permission.not_visible_or_denied": "No dashboards found, or your account cannot view them",
     "dashboards.summary.pages_widgets": "{pages, plural, one {# page} other {# pages}}, {widgets, plural, one {# widget} other {# widgets}}",
+    "dashboards.visibility.private": "Private",
+    "dashboards.visibility.shared": "Shared",
+    "desktop.browser.open_failed": "The browser did not open. Open this one-time address in the browser within two minutes: {url}",
+    "desktop.close.writing.body": "The window cannot be closed while a write to Zabbix is running. Wait for the write to finish or for its result to become known.",
+    "desktop.close.writing.title": "Writing to Zabbix",
+    "desktop.fallback.choice.browser": "Continue in the browser",
+    "desktop.fallback.choice.install": "I will install and restart",
+    "desktop.fallback.choice.yes_no": "«Yes»: continue in the browser. «No»: I will install and restart; the download page opens in the browser.",
+    "desktop.fallback.install.astra_1_7": "Astra Linux 1.7 has no WebKitGTK 4.1: continue in the browser.",
+    "desktop.fallback.install.debian": "Debian, Astra Linux 1.8: {command}",
+    "desktop.fallback.install.red_os": "RED OS 8: {command}",
+    "desktop.fallback.install.webkitgtk": "Install WebKitGTK 4.1:",
+    "desktop.fallback.install.webview2": "Install Microsoft Edge WebView2 Runtime: {url}",
+    "desktop.fallback.opening_browser": "The program opens in the browser.",
+    "desktop.fallback.reason.engine_missing": "The system web engine that shows the program window is not installed.",
+    "desktop.fallback.reason.start_failed": "The program window could not start.",
+    "desktop.fallback.restart": "After installing, start ZDashstitch again.",
+    "desktop.fallback.title": "The program window is unavailable",
     "diagnostics.title": "Diagnostics",
     "draft.a11y.sections": "Draft sections",
     "draft.action.check_source": "Check source",
@@ -69,6 +566,7 @@ export const catalogs = {
     "draft.nav.overview": "Overview",
     "draft.nav.publication": "Publication",
     "draft.nav.structure": "Structure",
+    "draft.nav.title": "Draft sections",
     "draft.overview.composition.dashboard": "Dashboard contents",
     "draft.overview.composition.help": "Sizes are in Zabbix grid cells. Order and moves are in “Structure”.",
     "draft.overview.composition.page": "Page contents",
@@ -78,6 +576,7 @@ export const catalogs = {
     "draft.overview.needs_connection": "needs a connection",
     "draft.overview.next_steps": "Next steps",
     "draft.overview.origin": "Origin",
+    "draft.overview.publish_unavailable": "Unavailable: no target selected, no checks run.",
     "draft.overview.selection_note": "Selected widgets define the scope, for example “Add widgets to page”.",
     "draft.overview.snapshot": "Snapshot",
     "draft.overview.snapshot_from": "snapshot of {date}",
@@ -87,6 +586,7 @@ export const catalogs = {
     "draft.overview.step.choose_target": "Choose a target dashboard",
     "draft.overview.step.choose_target.help": "Needed for “Add page to dashboard”.",
     "draft.overview.step.numbered": "{number}. {step}",
+    "draft.overview.step.open_section": "Go to “{section}”",
     "draft.overview.step.review_plan": "Review the plan",
     "draft.overview.step.review_plan.help": "Writing only by a verified plan.",
     "draft.overview.target": "Target",
@@ -98,7 +598,8 @@ export const catalogs = {
     "draft.preview.screen_width": "Screen width: {width} px",
     "draft.preview.synthetic.toggle": "Show synthetic data",
     "draft.preview.title": "Page preview",
-    "draft.provenance.assembled": "{count, plural, one {Built from # page} other {Built from # pages}}{sources, select, other {: {sources}}}",
+    "draft.provenance.assembled": "{count, plural, one {Built from # page} other {Built from # pages}}",
+    "draft.provenance.assembled_with_sources": "{count, plural, one {Built from # page: {sources}} other {Built from # pages: {sources}}}",
     "draft.provenance.created_here": "Created here",
     "draft.provenance.imported_file": "Imported from a file",
     "draft.provenance.legacy_file": "Old-format file",
@@ -121,19 +622,24 @@ export const catalogs = {
     "draft.structure.slideshow.on": "on",
     "draft.structure.widget_geometry": "{type} · {x}, {y} · {width} × {height}",
     "drafts.action.create": "Create",
+    "drafts.action.export_file": "Export to file…",
     "drafts.action.make_portable": "Make portable for export…",
     "drafts.column.kind": "Type",
     "drafts.column.name": "Name",
     "drafts.column.origin": "Origin",
     "drafts.column.source": "Source",
     "drafts.column.state": "State",
+    "drafts.copy_name": "{name} (copy {number})",
     "drafts.created_from_copy": "Created from this copy",
+    "drafts.created_from_draft": "Created from this draft",
+    "drafts.damaged": "{count, plural, one {# draft could not be read} other {# drafts could not be read}}; the files were not changed.",
     "drafts.delete.safe": "Deleting does not touch dashboards on the server. The snapshot is deleted only if nothing else refers to it; the journal entry stays.",
     "drafts.details.base": "Base",
     "drafts.details.base_snapshot": "Snapshot {time}",
     "drafts.details.changed_on_server_at": "Changed on server ({time})",
     "drafts.details.connection": "Connection",
     "drafts.details.created_item": "“{name}” — created {time}",
+    "drafts.details.created_not_found": "Not found at the last check",
     "drafts.details.freshness": "Freshness",
     "drafts.details.local": "Locally",
     "drafts.details.source": "Source",
@@ -142,15 +648,134 @@ export const catalogs = {
     "drafts.filter.local": "Local",
     "drafts.filter.pages": "Pages",
     "drafts.filter.server_copies": "Copies from server",
+    "drafts.list.open_hint": "Click a name to open the draft. Click elsewhere in the row, or press Space on the name, to show its details.",
+    "drafts.load_failed": "Could not load local drafts",
+    "drafts.name.source_connection": "({connection})",
+    "drafts.rename.description": "Only the local name changes. The dashboard on the server is not changed.",
+    "drafts.rename.done": "Renamed: {name}",
+    "drafts.rename.title": "Rename draft",
+    "drafts.search.no_results": "No drafts match the filters and search.",
     "drafts.search.placeholder": "Search by name",
     "drafts.server_copy_export_hint": "A copy from server is exported only after it is made portable.",
     "drafts.sort_hint": "Sorted by last change",
     "drafts.state.changed_on_server": "Changed on server",
+    "drafts.state.current": "Checked",
     "drafts.state.modified": "Changed",
     "drafts.state.saved": "Saved",
+    "drafts.state.source_missing": "Source missing",
+    "drafts.state.stale": "Out of date",
     "drafts.subtitle": "Local dashboards and pages. Stored only on this computer; saving is not publishing.",
     "drafts.title": "Drafts",
     "editor.unavailable_yet": "The page editor will appear in a later version.",
+    "errors.address.fragment": "Remove the fragment (#…) from the address.",
+    "errors.address.host": "The address has no server name.",
+    "errors.address.query": "Remove the query (?…) from the address.",
+    "errors.address.scheme": "The address must start with http or https.",
+    "errors.address.syntax": "This is not a valid address.",
+    "errors.address.userinfo": "Remove the user name or password from the address; sign-in details are entered in the sign-in section.",
+    "errors.auth.credentials_or_directory": "Sign-in failed. Check the credentials. For LDAP accounts, the directory may also be unavailable.",
+    "errors.auth.mfa_token_required": "This MFA account cannot use password API sign-in. Use an API token allowed by your administrator.",
+    "errors.auth.session_expired": "The Zabbix session has expired. Sign in again.",
+    "errors.auth.token_expired": "The API token has expired.",
+    "errors.auth.token_invalid_or_disabled": "The API token is invalid or disabled.",
+    "errors.connection.api_error": "Zabbix returned an error for {method}.",
+    "errors.connection.api_not_found": "No Zabbix API was found at this address. Check the base path.",
+    "errors.connection.dns_unresolvable": "The server name could not be resolved. Check the Zabbix address.",
+    "errors.connection.failed": "Could not connect to the server. Check the address and the network.",
+    "errors.connection.not_connected": "This connection is not active.",
+    "errors.connection.random_unavailable": "The system random number source is unavailable.",
+    "errors.connection.refused": "The server refused the connection. Check the address, port and service.",
+    "errors.connection.request_invalid": "The application sent an invalid request. Reload the page and try again.",
+    "errors.connection.secret_invalid": "The password or token is too long.",
+    "errors.connection.secret_required": "Enter the password or API token.",
+    "errors.connection.service_unavailable": "Connections are unavailable: the settings folder of this computer could not be found.",
+    "errors.connection.unexpected_response": "The server returned an unexpected response. Check the base path.",
+    "errors.connection.unknown": "The operation failed ({code}).",
+    "errors.connection.unreachable_or_timeout": "The server is unreachable or did not respond in time.",
+    "errors.connection.version_unsupported": "Zabbix {version} is not supported. You can continue working offline.",
+    "errors.connection.writes_not_confirmed": "Dashboard writes were not confirmed.",
+    "errors.credential.locked": "The system credential store is locked or access was denied.",
+    "errors.credential.missing": "No password or token is stored for this connection.",
+    "errors.credential.unavailable": "The system credential store is unavailable on this computer.",
+    "errors.drafts.name_invalid": "Enter a name of {max, plural, one {up to # character} other {up to # characters}} without control characters.",
+    "errors.import.inconsistent": "The dashboard changed while it was being read. No copy was created; try again.",
+    "errors.import.parse": "The {format} file could not be parsed.",
+    "errors.import.policy": "The file was rejected by import safety policy ({code}).",
+    "errors.import.unsafe_structure": "The file contains a structure that is not allowed for safe import ({code}).",
+    "errors.import.validation": "The imported data is inconsistent ({code}).",
+    "errors.permission.api_method": "This account cannot call {method}.",
+    "errors.permission.system_access": "This account has no access to Zabbix.",
+    "errors.profile.limit_reached": "No more than {max, plural, one {# connection profile} other {# connection profiles}} can be saved.",
+    "errors.profile.name_invalid": "Enter a profile name of {max_chars, plural, one {up to # character} other {up to # characters}} without control characters.",
+    "errors.profile.not_found": "This connection profile no longer exists.",
+    "errors.profile.plain_http_unconfirmed": "Confirm that the password or token may be stored for an HTTP address.",
+    "errors.profile.store_invalid": "The connection profile file is damaged. It was not changed.",
+    "errors.profile.store_linked_path": "The connection profile file is a link; for safety it is neither read nor written.",
+    "errors.profile.store_too_large": "The connection profile file is too large.",
+    "errors.profile.store_unavailable": "Connection profiles cannot be read or saved on this computer.",
+    "errors.profile.username_invalid": "Enter a user name of {max_chars, plural, one {up to # character} other {up to # characters}} without control characters.",
+    "errors.publication.blocked": "Publication is blocked: fix the findings in «Checks».",
+    "errors.publication.code": "Publication was refused: {code}",
+    "errors.publication.journal_damaged": "The damaged journal file {operation_id} blocks publication until it is moved to quarantine.",
+    "errors.publication.journal_not_damaged": "The journal file is readable: check the result or close the operation instead.",
+    "errors.publication.journal_write_failed": "The publication journal could not be written; nothing was sent.",
+    "errors.publication.local_mismatch": "The verified update does not reproduce the draft; nothing was sent.",
+    "errors.publication.name_taken_maybe_hidden": "The name is taken, possibly by a dashboard you cannot see. Nothing was created; choose another name.",
+    "errors.publication.operation_not_found": "The journal entry is not found.",
+    "errors.publication.operation_running": "The operation is still running.",
+    "errors.publication.plan_mismatch": "The confirmation does not match the plan shown; nothing was sent. Build a new preview.",
+    "errors.publication.plan_not_found": "The plan no longer exists: it was used, cancelled or ended with the session. Build a new preview.",
+    "errors.publication.quarantine_exists": "A file with this name is already in quarantine.",
+    "errors.publication.reconcile_not_needed": "The operation already has a result.",
+    "errors.publication.reconcile_partial_visibility": "Not every dashboard with this name could be read, so nothing was decided. Check again.",
+    "errors.publication.reconcile_server_changed": "The result can be checked only on the same server with the same account as the operation.",
+    "errors.publication.target_blocked": "The unfinished operation {operation_id} blocks this target until its result is checked.",
+    "errors.replace_host.binding_not_found": "The reference is no longer in the mapping. Reload the bindings.",
+    "errors.replace_host.candidate_not_visible": "The chosen item is not among the offered candidates.",
+    "errors.replace_host.candidate_value_type_incompatible": "The type of information of this item does not fit the graph.",
+    "errors.replace_host.changed_concurrently": "The draft changed in another window. Reload it and try again.",
+    "errors.replace_host.decision_not_applicable": "This decision is not available for this row.",
+    "errors.replace_host.host_objects_limit": "The host has too many items or graphs to compare.",
+    "errors.replace_host.internal": "The draft could not be compared with the snapshot.",
+    "errors.replace_host.kept_changed": "The list changed after it was shown. Check it again and confirm.",
+    "errors.replace_host.kept_empty": "There is nothing to confirm.",
+    "errors.replace_host.not_calculated": "The draft has no host replacement yet.",
+    "errors.replace_host.operation_not_found": "The entry was already removed.",
+    "errors.replace_host.other_connection": "Another connection is active. Bindings use the connection the copy was made with.",
+    "errors.replace_host.pending": "The draft already has another replacement. Reset all bindings first.",
+    "errors.replace_host.same_host": "Choose another host: the new host is the replaced one.",
+    "errors.replace_host.scope_invalid": "The scope does not match the draft. Choose pages or widgets again.",
+    "errors.replace_host.scope_outside_draft": "The scope is outside the page of this draft.",
+    "errors.replace_host.source_not_visible": "The replaced host is not found or not visible.",
+    "errors.snapshot.corrupt": "The snapshot of this copy is damaged. It was not changed.",
+    "errors.snapshot.missing": "The snapshot of this copy was not found.",
+    "errors.snapshot.shape_invalid": "Zabbix returned the dashboard in an unexpected form. No copy was created.",
+    "errors.snapshot.too_large": "The dashboard is too large to be saved as a snapshot. No copy was created.",
+    "errors.snapshot.unsupported_adapter": "The snapshot was made for a Zabbix version this build does not support.",
+    "errors.storage.linked": "The path contains a symbolic link or junction.",
+    "errors.tls.name_mismatch": "The certificate was issued for a different name. Check the address or the certificate; TLS verification cannot be disabled.",
+    "errors.tls.time_invalid": "The server certificate is not valid for the current time.",
+    "errors.tls.untrusted": "The server certificate is not trusted. Add an approved CA certificate; TLS verification cannot be disabled.",
+    "errors.trust.changed": "The stored CA certificate was changed outside the application. Choose the file again.",
+    "errors.trust.empty": "The file contains no certificate.",
+    "errors.trust.invalid_pem": "The file is not a valid PEM certificate.",
+    "errors.trust.missing": "The stored CA certificate is missing. Choose the file again.",
+    "errors.trust.private_key": "The file contains a private key; choose a file with the CA certificate only.",
+    "errors.trust.rejected": "This certificate cannot be used as a trusted CA certificate.",
+    "errors.trust.too_large": "The certificate file is too large.",
+    "errors.trust.too_many_certificates": "The file contains too many certificates.",
+    "errors.trust.upload_invalid": "Choose exactly one PEM file.",
+    "errors.workcopy.corrupt": "The draft file is damaged. It was not changed.",
+    "errors.workcopy.not_visible_or_denied": "The dashboard was not found, or your account cannot view it.",
+    "errors.workcopy.page_not_found": "The page is no longer on the dashboard. No copy was created.",
+    "errors.workcopy.search_invalid": "Enter a search of {max, plural, one {up to # character} other {up to # characters}} without control characters.",
+    "errors.workcopy.settings_unavailable": "The settings file cannot be read, so the storage location is unknown. Nothing was read or saved.",
+    "errors.workcopy.storage_file_too_large": "A file in local storage is too large; it was not read.",
+    "errors.workcopy.storage_limit_reached": "The local storage limit is reached. Nothing was saved.",
+    "errors.workcopy.storage_unavailable": "Local storage is unavailable: drafts cannot be read or saved.",
+    "errors.workcopy.storage_write_failed": "Could not write to local storage. Nothing was saved.",
+    "errors.workcopy.too_large": "The draft file is too large; it was not read.",
+    "errors.workcopy.unsupported_operation": "The draft contains changes from a newer version of ZDashstitch. It was not changed.",
     "http.security.api_not_found": "The requested local API endpoint does not exist.",
     "http.security.body_too_large": "The request is larger than the allowed limit.",
     "http.security.bootstrap_invalid": "The one-time startup link is invalid or has expired.",
@@ -167,6 +792,10 @@ export const catalogs = {
     "http.transfer.total_too_large": "The browser file transfer exceeds the total size limit.",
     "http.transfer.unavailable": "The browser file transfer could not be initialized.",
     "intent.append_page": "Add page to dashboard",
+    "intent.replace_host": "Replace host",
+    "intent.replace_item_fields": "Replace items",
+    "intent.save_as_copy": "Save as copy",
+    "intent.unknown": "Operation {code}",
     "library.title": "Library",
     "nav.connections": "Connections",
     "nav.drafts": "Drafts",
@@ -179,22 +808,450 @@ export const catalogs = {
     "object.origin.local": "Local",
     "object.origin.server_copy": "Copy from server",
     "object.page.numbered": "{number}. {name}",
-    "object.page.untitled": "Untitled",
+    "object.page.unnamed": "Page {number}",
     "object.page.widget_count": "{count, plural, one {# widget} other {# widgets}}",
+    "publication.a11y.steps": "Publication steps",
+    "publication.access.copy_private": "The new dashboard is private and you are its owner. Writing sharing is turned on after its laboratory check.",
+    "publication.access.title": "Owner and sharing",
+    "publication.access.update_not_sent": "This publication does not change the owner or sharing: the request does not contain them.",
+    "publication.action.back_changes": "Back: changes",
+    "publication.action.back_checks": "Back: checks",
+    "publication.action.back_target": "Back: target",
+    "publication.action.back_to_draft": "Back to the draft",
+    "publication.action.confirm_dialog": "Confirm write…",
+    "publication.action.confirm_write": "Write to Zabbix",
+    "publication.action.new_preview": "New preview",
+    "publication.action.next_changes": "Next: changes",
+    "publication.action.next_checks": "Next: checks",
+    "publication.action.next_confirm": "Next: confirmation",
+    "publication.action.open_in_zabbix": "Open in Zabbix",
+    "publication.action.open_journal": "Operation journal",
+    "publication.action.open_server": "Open «Dashboards in Zabbix»",
+    "publication.action.reconcile": "Check result",
+    "publication.check.action.confirm_kept": "Confirm list ({count})",
+    "publication.check.action.open_bindings": "Open bindings",
+    "publication.check.confirm_kept": "Confirm the list of widgets that stay on the old host",
+    "publication.check.count.blocking": "Blocking: {count}",
+    "publication.check.count.warnings": "Warnings: {count}",
+    "publication.check.fixed_in": "Fixed in: {section}",
+    "publication.check.group.bindings": "Bindings",
+    "publication.check.group.connection": "Connection and permissions",
+    "publication.check.group.plan": "Plan",
+    "publication.check.group.source": "Source",
+    "publication.check.group.widgets": "Widgets and fields",
+    "publication.check.none": "No findings.",
+    "publication.check.recheck": "Check again",
+    "publication.check.status.blocks": "Blocks",
+    "publication.check.status.warning": "Warning",
+    "publication.check.summary.plan_not_built": "No write plan is built while blockers remain.",
+    "publication.check.summary.ready": "Ready to confirm",
+    "publication.checks.checking": "Reading the server…",
+    "publication.checks.source_current": "The dashboard on the server matches the snapshot · checked {time}",
+    "publication.checks.source_not_checked": "Not checked yet against the server",
+    "publication.checks.source_title": "Source",
+    "publication.confirm.api_create": "One request that creates the dashboard",
+    "publication.confirm.api_update": "One request that updates the dashboard",
+    "publication.confirm.building": "The plan is being built and checked…",
+    "publication.confirm.changes_create": "{pages, plural, one {# page with all its widgets} other {# pages with all their widgets}}",
+    "publication.confirm.changes_update": "{count, plural, one {# field: host {source} → {target}} other {# fields: host {source} → {target}}}",
+    "publication.confirm.connection_value": "{profile} · Zabbix {version} · read-write",
+    "publication.confirm.create_name_check": "The name is checked by the server on write: a dashboard you cannot see may already have it.",
+    "publication.confirm.dashboard_existing": "«{dashboard_name}» — existing, updated",
+    "publication.confirm.dashboard_new": "«{name}» — new, private",
+    "publication.confirm.field.action": "Action",
+    "publication.confirm.field.changes": "Changes",
+    "publication.confirm.field.connection": "Connection",
+    "publication.confirm.field.dashboard": "Dashboard",
+    "publication.confirm.field.kept": "Stays on {host}",
+    "publication.confirm.field.plan": "Plan",
+    "publication.confirm.field.unchanged": "Not changed",
+    "publication.confirm.field.warnings": "Warnings",
+    "publication.confirm.invalid_when": "The plan becomes invalid if the draft, target, connection, mode or permissions change — then a new preview is needed.",
+    "publication.confirm.kept_confirmed": "{count, plural, one {# reference — list confirmed} other {# references — list confirmed}}",
+    "publication.confirm.no_cancel_after_send": "After sending, the write cannot be cancelled; the result is checked by reading back.",
+    "publication.confirm.offline": "Writing needs the draft's own connection in read-write mode.",
+    "publication.confirm.plan_once": "Valid once; built at {time}",
+    "publication.confirm.question_create": "Create the new dashboard «{name}»?",
+    "publication.confirm.question_update": "{count, plural, one {Write # verified change to the dashboard «{dashboard_name}»?} other {Write # verified changes to the dashboard «{dashboard_name}»?}}",
+    "publication.confirm.requirements": "Confirmation needs the read-write mode of the draft's connection, a chosen action and checks without blockers.",
+    "publication.confirm.reread": "The dashboard is read again before sending. If it changed after the check at {time}, nothing is written.",
+    "publication.confirm.summary_title": "Ready to write",
+    "publication.confirm.target_line": "Target: {target}.",
+    "publication.confirm.title": "Confirm writing the dashboard",
+    "publication.confirm.unchanged_update": "{count, plural, one {# widget, the pages, properties, owner and sharing} other {# widgets, the pages, properties, owner and sharing}}",
+    "publication.confirm.warnings_reviewed": "{count, plural, one {# warning — reviewed} other {# warnings — reviewed}}",
+    "publication.conflict.body": "The old plan cannot be published; updating this dashboard is stopped. Your draft is not changed and stays saved.",
+    "publication.conflict.caption": "On server: base → Zabbix now",
+    "publication.conflict.change.access": "Owner or sharing changed",
+    "publication.conflict.change.dashboard_properties": "Dashboard properties changed",
+    "publication.conflict.change.page_added": "Page added",
+    "publication.conflict.change.page_changed": "Page period or order changed",
+    "publication.conflict.change.page_removed": "Page removed",
+    "publication.conflict.change.page_renamed": "Page renamed",
+    "publication.conflict.change.widget_added": "Widget added",
+    "publication.conflict.change.widget_changed": "Widget changed",
+    "publication.conflict.change.widget_moved": "Widget moved or resized",
+    "publication.conflict.change.widget_removed": "Widget removed",
+    "publication.conflict.column.mine": "My changes",
+    "publication.conflict.column.object": "Object",
+    "publication.conflict.column.server": "Change on the server",
+    "publication.conflict.detected_at": "Detected at the check at {time}: the server does not match the snapshot of {snapshot}.",
+    "publication.conflict.mine.host_replaced": "Host replaced",
+    "publication.conflict.mine.none": "—",
+    "publication.conflict.missing_body": "It cannot be updated. Your draft is not changed: you can save it as a new dashboard.",
+    "publication.conflict.missing_title": "The dashboard «{dashboard_name}» is not found on the server or is not visible",
+    "publication.conflict.next_title": "What next",
+    "publication.conflict.no_author": "The Zabbix API does not report who changed the dashboard or when: only that it differs from the snapshot. There is no automatic merge.",
+    "publication.conflict.object.dashboard": "Dashboard",
+    "publication.conflict.object.page": "Page {number}. {name}",
+    "publication.conflict.object.widget": "{name} · {widget_type}",
+    "publication.conflict.open_new_copy": "Open the new copy",
+    "publication.conflict.overlap": "{count, plural, one {Overlaps your changes: # widget} other {Overlaps your changes: # widgets}}",
+    "publication.conflict.overwrite": "Overwrite — not available",
+    "publication.conflict.overwrite_unavailable": "Overwrite is not available: it would discard other changes. There is no automatic merge.",
+    "publication.conflict.recheck_hint": "Check again: if the dashboard on the server was returned to the snapshot, the conflict disappears.",
+    "publication.conflict.refetch_hint": "A new copy from the server, with the host replacement calculated again; decisions are made again by hand. This draft stays as it is.",
+    "publication.conflict.refetch_not_replayed": "The host replacement could not be calculated again on the new copy ({code}): set it in «Bindings».",
+    "publication.conflict.refetched": "The new copy «{name}» was created.",
+    "publication.conflict.save_copy_hint": "Your version becomes a new dashboard. The dashboard changed on the server is not touched.",
+    "publication.conflict.stale_body": "The source cannot be compared with the base. Copy the dashboard again or save the draft as a new dashboard.",
+    "publication.conflict.stale_title": "The server version differs from the snapshot",
+    "publication.conflict.title": "The dashboard «{dashboard_name}» changed on the server after copying",
+    "publication.conflict.truncated": "{count, plural, one {# more change is not listed} other {# more changes are not listed}}",
+    "publication.context.connection": "Connection",
+    "publication.context.operation": "Operation",
+    "publication.context.pages_value": "{count, plural, one {# page} other {# pages}}",
+    "publication.context.scope": "Scope",
+    "publication.context.scope_value": "{changed} of {total, plural, one {# widget} other {# widgets}}",
+    "publication.context.source": "Source (base)",
+    "publication.context.target": "Target dashboard",
+    "publication.context.target_hint": "chosen at the «Target» step",
+    "publication.context.target_new": "New dashboard «{name}»",
+    "publication.context.target_not_chosen": "Not chosen",
+    "publication.context.target_same": "The same dashboard on the server",
+    "publication.contract.item_widget_itemid": "the item of the «Item value» widget",
+    "publication.contract.preserve_untouched_pages": "keeping untouched pages",
+    "publication.contract.preserve_widget_references": "keeping widget links",
+    "publication.contract.reconcile_unknown_outcome": "checking an unknown result",
+    "publication.contract.resend_widget_type": "resending an unchanged {widget_type} widget on a changed page",
+    "publication.contract.svggraph_dataset_hosts": "host patterns of «Graph» data sets",
+    "publication.contract.svggraph_dataset_itemids": "items of «Graph» data sets",
+    "publication.contract.update_one_page_with_full_fields": "updating a page with all its fields",
+    "publication.contract.update_several_pages": "several pages in one update",
+    "publication.diff.caption": "Changes on page {page}",
+    "publication.diff.change.field": "{count, plural, one {# field changed} other {# fields changed}}",
+    "publication.diff.change.kept": "Stays on the old host",
+    "publication.diff.change.unresolved": "Not resolved",
+    "publication.diff.column.after": "After",
+    "publication.diff.column.before": "Before (base)",
+    "publication.diff.column.change": "Change",
+    "publication.diff.column.object": "Object",
+    "publication.diff.empty_filter": "No widgets match the filter and search.",
+    "publication.diff.filter.changed": "Changed",
+    "publication.diff.filter.kept": "Stay",
+    "publication.diff.filter.label": "Show",
+    "publication.diff.filter.unresolved": "Not resolved",
+    "publication.diff.filter.untouched": "Not changed",
+    "publication.diff.inspector.changed_fields": "Changed fields",
+    "publication.diff.inspector.none": "Choose a widget to see its changes.",
+    "publication.diff.inspector.series": "Data set {index}",
+    "publication.diff.inspector.sources": "Data sources",
+    "publication.diff.inspector.title": "Selected",
+    "publication.diff.inspector.unchanged": "Not changed",
+    "publication.diff.inspector.unchanged_body": "Position, size, refresh period and all other fields.",
+    "publication.diff.matching_by_id": "Widgets are matched by Zabbix IDs from the base; they are sent and preserved on write.",
+    "publication.diff.no_changes": "No changes",
+    "publication.diff.out_of_scope": "Outside the scope",
+    "publication.diff.page_summary": "{changed} of {total} widgets changed",
+    "publication.diff.remote_current": "No changes on the server since the snapshot.",
+    "publication.diff.remote_later": "Run «Check again» with the draft's connection to compare with the current state of the server.",
+    "publication.diff.search": "Search by widget name, field or value",
+    "publication.diff.tab.local": "My changes: base → draft",
+    "publication.diff.tab.remote": "On server: base → Zabbix now",
+    "publication.evidence.dashboard_name_taken": "the name is taken",
+    "publication.evidence.expected_found": "the dashboard as planned",
+    "publication.evidence.not_visible": "the dashboard is missing or not visible",
+    "publication.evidence.other_found": "another state of the dashboard",
+    "publication.evidence.read_back_matches": "the read-back matched the plan",
+    "publication.evidence.reconcile_ambiguous": "several dashboards with this name",
+    "publication.evidence.reconcile_confirmed": "exactly the planned dashboard was found",
+    "publication.evidence.reconcile_not_found": "no dashboard with this name",
+    "publication.evidence.reconcile_structure_mismatch": "a dashboard with another structure",
+    "publication.evidence.source_found": "the dashboard as in the base",
+    "publication.evidence.unknown": "Code: {code}",
+    "publication.expected.choose_action": "choose the action at the «Target» step",
+    "publication.expected.replace_host": "{count, plural, one {in # widget the host {source} is replaced by {target}; the rest of the dashboard does not change} other {in # widgets the host {source} is replaced by {target}; the rest of the dashboard does not change}}",
+    "publication.expected.save_as_copy": "{pages, plural, one {a new private dashboard «{name}» with # page; the source dashboard does not change} other {a new private dashboard «{name}» with # pages; the source dashboard does not change}}",
+    "publication.expected.title": "Expected result: {summary}",
+    "publication.finding.binding_invalid": "The binding is invalid",
+    "publication.finding.binding_stale": "The binding is out of date: check it again",
+    "publication.finding.binding_unresolved": "The reference is not resolved",
+    "publication.finding.capability_not_verified": "Not verified for this server: {capability}",
+    "publication.finding.connection_required": "Connect to Zabbix to check the server.",
+    "publication.finding.dashboard_not_editable": "No permission to change the target dashboard",
+    "publication.finding.decision_invalid": "The decision no longer fits the reference",
+    "publication.finding.kept_on_source": "Stays on {host}",
+    "publication.finding.kept_on_source_confirmation_stale": "The list changed after confirmation: confirm it again",
+    "publication.finding.match_differences": "Matched with differences: {differences}",
+    "publication.finding.no_changes": "The draft changes nothing on the server.",
+    "publication.finding.scope_link_crossing.consumer_outside": "A widget link crosses the scope: the receiving widget is outside",
+    "publication.finding.scope_link_crossing.provider_outside": "A widget link crosses the scope: the source widget is outside",
+    "publication.finding.server_version_mismatch": "The server version differs from the snapshot ({base_version}).",
+    "publication.finding.source_unverified": "The reference cannot be checked: it may point at the replaced host",
+    "publication.finding.target_host_not_visible": "The new host is not found or not visible.",
+    "publication.finding.unknown": "Finding code: {code}",
+    "publication.finding.write_contract_unverified": "Not verified by a laboratory contract: {contract}",
+    "publication.finding.write_mode_required": "The connection is read-only: publication needs read-write mode.",
+    "publication.journal.close": "Close",
+    "publication.journal.description": "Local record of the operation. It holds no request content, secrets or server answers.",
+    "publication.journal.disk_note": "The journal record was written to disk before sending. After a restart the operation is shown before any new write.",
+    "publication.journal.field.closed_by": "Closed by",
+    "publication.journal.field.connection": "Connection",
+    "publication.journal.field.evidence": "What the check found",
+    "publication.journal.field.finished": "Finished",
+    "publication.journal.field.operation": "Operation",
+    "publication.journal.field.operation_id": "Operation ID",
+    "publication.journal.field.repeats": "Repeated writes",
+    "publication.journal.field.sends": "Write requests",
+    "publication.journal.field.sent": "Sent",
+    "publication.journal.field.server_version": "Zabbix version",
+    "publication.journal.field.source": "Source",
+    "publication.journal.field.started": "Started",
+    "publication.journal.field.state": "State",
+    "publication.journal.field.target": "Target",
+    "publication.journal.field.transitions": "States",
+    "publication.journal.profile_removed": "A removed connection profile",
+    "publication.journal.source_draft": "Draft «{name}», revision {revision}",
+    "publication.journal.source_removed": "A removed draft",
+    "publication.journal.target_existing": "Dashboard «{name}»",
+    "publication.journal.target_existing_unnamed": "Existing dashboard",
+    "publication.journal.target_new": "New dashboard «{name}»",
+    "publication.journal.title": "Journal",
+    "publication.journal.transition": "{state} — {time}",
+    "publication.journal_block": "An unfinished operation blocks this dashboard: check its result first.",
+    "publication.journal_block_damaged": "A damaged journal file blocks this dashboard: move it to quarantine first.",
+    "publication.kept.confirmed_done": "List confirmed",
+    "publication.later.hint": "Publishing comes in a later version: no plan is built and nothing is written.",
+    "publication.none.body": "Choose the change in «Bindings»: the preview appears after the mapping is calculated.",
+    "publication.none.title": "Nothing to publish yet",
+    "publication.plan.invalidated": "The plan is no longer valid: {reason}. Build a new preview.",
+    "publication.plan.reason.app_restarted": "the application was restarted",
+    "publication.plan.reason.bindings_changed": "bindings changed",
+    "publication.plan.reason.connection_changed": "the connection, mode or credentials changed",
+    "publication.plan.reason.draft_changed": "the draft changed after preview",
+    "publication.plan.reason.session_ended": "the local session ended",
+    "publication.plan.reason.source_changed": "the dashboard on the server changed or must be checked again",
+    "publication.plan.reason.target_changed": "the target or action changed",
+    "publication.plan.reason.unknown": "unknown reason ({code})",
+    "publication.preflight.blocked": "Publication is blocked",
+    "publication.preflight.title": "Preflight checks",
+    "publication.preview.read_only_note": "Checks only read; nothing changes on the server until you confirm the write.",
+    "publication.reconcile.column.found": "Found",
+    "publication.reconcile.column.next": "Next",
+    "publication.reconcile.column.result": "Result",
+    "publication.reconcile.create_note": "Read only: the dashboard is looked up by exact name and structure fingerprint. Nothing is sent again.",
+    "publication.reconcile.found_base": "The dashboard as in the base",
+    "publication.reconcile.found_expected": "The dashboard as planned",
+    "publication.reconcile.found_none_or_other": "None, several, or a different structure",
+    "publication.reconcile.found_one": "One dashboard, structure as planned",
+    "publication.reconcile.found_other": "Something else, or not visible",
+    "publication.reconcile.next_continue": "you can continue",
+    "publication.reconcile.next_new_preview": "new preview",
+    "publication.reconcile.next_open": "open in Zabbix",
+    "publication.reconcile.read_only_enough": "Read-only mode is enough for the check.",
+    "publication.reconcile.title": "What the result check shows",
+    "publication.reconcile.update_note": "Read only: the dashboard is compared with the planned result and with the base. Nothing is sent again.",
+    "publication.reconcile.write_blocked": "New writes to this target are blocked until the result is checked.",
     "publication.requirement.no_connection": "Publication needs a connection to Zabbix.",
+    "publication.result.base_advanced": "The snapshot after writing became the new base of this draft.",
+    "publication.result.base_not_advanced": "The draft keeps its previous base; check the source before the next publication.",
+    "publication.result.closed_manually_body": "Closed without checking: the result stays unknown. A new publication starts with a fresh read.",
+    "publication.result.copy_created": "The new dashboard «{name}» was added to the dashboards created from this draft.",
+    "publication.result.failed_after_response_body": "The server answered, but the result is not as planned. Only a check by reading is possible, then a new plan.",
+    "publication.result.failed_before_send_body": "Nothing was sent: {reason}",
+    "publication.result.journal_error": "The journal could not record the result ({code}): the operation is treated as unfinished.",
+    "publication.result.manual_body": "Reading did not find exactly one dashboard as planned: none, several or a different structure. Check in Zabbix; new writes to this target stay blocked until the result is checked or the operation is closed without checking.",
+    "publication.result.manual_update_body": "The dashboard matches neither the plan nor the base, or it is not visible. Check it in Zabbix; new writes to it stay blocked until the result is checked or the operation is closed without checking.",
+    "publication.result.reconciled_failed_body": "Checked by reading: nothing was written. Build a new preview.",
+    "publication.result.reconciled_verified_body": "Checked by reading: the dashboard is as planned.",
+    "publication.result.unknown_body": "Do not publish again. Read the dashboard to find out the result.",
+    "publication.result.verified_body": "Structure and data sources were checked. Check how the dashboard looks in Zabbix.",
+    "publication.stage.at": "{time}",
+    "publication.stage.display": "Display",
+    "publication.stage.display_not_checked": "Not checked automatically: open the dashboard in Zabbix",
+    "publication.stage.name_check": "Name check",
+    "publication.stage.name_check_done": "Free among visible dashboards",
+    "publication.stage.not_done": "Not done",
+    "publication.stage.not_sent": "Not sent",
+    "publication.stage.pre_read": "Read before write",
+    "publication.stage.pre_read_done": "The dashboard matches the base",
+    "publication.stage.read_back": "Read back",
+    "publication.stage.read_back_done": "The dashboard was read back",
+    "publication.stage.sending": "Sending one verified request…",
+    "publication.stage.sources": "Data sources",
+    "publication.stage.sources_done": "References point to the items of the plan",
+    "publication.stage.structure": "Structure",
+    "publication.stage.structure_done": "Changed as in the plan; untouched widgets, pages and IDs are in place; unknown fields kept",
+    "publication.stage.waiting": "Waiting for the server response…",
+    "publication.stage.write": "Write",
+    "publication.stage.write_done": "One request, response received",
+    "publication.stage.write_unknown": "The request was sent, no usable response was received: the dashboard may have been written.",
+    "publication.stages.title": "Stages",
+    "publication.state.closed_manually": "Closed manually, result not checked",
+    "publication.state.confirmed": "Confirmed, not sent",
+    "publication.state.conflict": "Changed on the server",
+    "publication.state.failed_after_response": "Error after the server response",
+    "publication.state.failed_before_send": "Not sent",
+    "publication.state.manual_check_required": "Manual check required",
+    "publication.state.reconciled_failed": "Checked: not written",
+    "publication.state.reconciled_verified": "Checked: written",
+    "publication.state.submitting": "Writing, no result",
+    "publication.state.unknown_outcome": "Publication result unknown",
+    "publication.state.verified": "Verified by reading back",
+    "publication.step.changes": "Changes",
+    "publication.step.checks": "Checks",
+    "publication.step.confirm": "Confirmation",
+    "publication.step.target": "Target",
+    "publication.step.unavailable_reason": "Available after the checks pass",
+    "publication.step.write": "Write and verify",
+    "publication.target.choose_explicitly": "Choose explicitly: there is no default.",
+    "publication.target.name": "New dashboard name",
+    "publication.target.name_required": "Enter the name of the new dashboard.",
+    "publication.target.name_server_check": "Dashboard names are unique on the whole server, including dashboards you cannot see. The server makes the final check on write.",
+    "publication.target.no_retarget": "The target cannot be another dashboard: the host replacement is written to the source dashboard or to its copy.",
+    "publication.target.save_copy": "Save as copy",
+    "publication.target.save_copy_hint": "A new dashboard with the host replaced. The source dashboard does not change.",
+    "publication.target.title": "Action",
+    "publication.target.update_source": "Update the source dashboard «{dashboard_name}»",
+    "publication.target.update_source_hint": "Changes the existing dashboard on the server with one request after confirmation.",
+    "publication.target.update_visible_to_all": "Everyone with access to this dashboard will see it changed.",
+    "publication.tech.base": "Base fingerprint",
+    "publication.tech.fields": "Field codes",
+    "publication.tech.local": "Draft fingerprint",
+    "publication.tech.pageid": "Page ID",
+    "publication.tech.revision": "Draft revision",
+    "publication.tech.title": "Technical details",
+    "publication.tech.widget_type": "Widget type code",
+    "publication.tech.widgetid": "Widget ID",
+    "publication.title": "Preview and publish",
+    "publication.untouched.access": "Owner and sharing are not sent in the request, so they stay as they are",
+    "publication.untouched.pages": "Pages, their order and periods; the dashboard name and properties",
+    "publication.untouched.source": "The source dashboard «{dashboard_name}» does not change",
+    "publication.untouched.title": "Not changed",
+    "publication.untouched.widgets": "{count, plural, one {# widget without references to {host} is sent as is, with its IDs} other {# widgets without references to {host} are sent as is, with their IDs}}",
+    "publication.untouched.zabbix_objects": "Hosts, templates, items and triggers never change",
+    "replace_host.source": "Host to replace",
+    "server.action.clone": "Clone",
+    "server.action.copy": "Copy from server",
+    "server.action.open_copy": "Open copy",
+    "server.action.preview": "Preview",
+    "server.action.refresh": "Refresh list",
+    "server.actions_start_with_copy": "Every action starts with a copy: the server changes only from Publication by a verified plan.",
+    "server.column.access": "Access",
+    "server.column.editable": "Editing",
+    "server.column.mine": "On this computer",
+    "server.column.name": "Name",
+    "server.column.owner": "Owner",
+    "server.column.pages": "Pages",
+    "server.column.widgets": "Widgets",
     "server.dashboards.title": "Dashboards in Zabbix",
+    "server.details.copied_as_is": "copied as is",
+    "server.details.editable": "Editing supported: {count}",
+    "server.details.existing_copy": "There is a copy from {time}.",
+    "server.details.not_editable": "Editing not supported: {count}",
+    "server.details.owner": "Owner — {owner}",
+    "server.details.pages": "Pages",
+    "server.details.select_hint": "Select a dashboard to see its pages and actions.",
+    "server.details.type_count": "{type} {count}",
+    "server.details.widgets": "Widgets",
+    "server.editable_count": "{editable} of {total}",
+    "server.empty.offline": "Connect to Zabbix to see dashboards",
+    "server.empty.other_connection": "This connection is not active. Connect to it to see its dashboards.",
+    "server.filter.legend": "Owner and access",
+    "server.filter.mine": "Mine",
+    "server.filter.shared": "Shared",
+    "server.list.copies_unknown": "Local copies could not be checked: the local storage cannot be read.",
+    "server.list.load_failed": "Could not load the dashboard list",
+    "server.list.truncated": "{count, plural, one {Only the first # dashboard was read.} other {Only the first # dashboards were read.}} Narrow the search to see the others.",
+    "server.mine.copy": "copy · {date}",
+    "server.mine.unknown": "unknown",
+    "server.owner.other": "another user",
+    "server.owner.you": "you",
+    "server.pagination.label": "Dashboard list pages",
+    "server.pagination.next": "Next",
+    "server.pagination.previous": "Previous",
+    "server.preview.badge": "View only",
+    "server.preview.breadcrumb": "Preview",
+    "server.preview.load_failed": "Could not read the dashboard",
+    "server.preview.note": "Read from the server for viewing only: nothing is saved on this computer. To change the dashboard, copy it first.",
+    "server.preview.page_to_take": "Page to take",
+    "server.search.action": "Search",
+    "server.search.placeholder": "Search by dashboard name",
+    "server.subtitle": "{profile} · Zabbix {version} · {mode}. The server is not changed on this screen.",
+    "server.tab.dashboards": "Dashboards",
+    "server.tab.templates": "Templates",
+    "server.take_page.legend": "Page to take",
+    "server.templates.later": "Importing templates into the library will be available later.",
+    "server.visibility_note": "Only dashboards visible to the connection account are shown. If a dashboard is missing, it does not exist or you lack permissions — Zabbix does not distinguish these cases.",
+    "session.action.end": "End session",
+    "session.end.confirm.body": "All tabs will close the session and Zabbix secrets in memory will be erased. Saved drafts stay on disk; unsaved input in open tabs is lost.",
+    "session.end.confirm.title": "End the local session?",
+    "session.end.not_confirmed": "Confirm ending the local session first.",
+    "session.end.unavailable_writing": "Wait for the write to finish or for its result to become known.",
+    "session.ended.title": "Session ended",
+    "settings.appearance.invalid_body": "The last valid settings are in use. Until the file is fixed, changes made here apply until restart and are not saved.",
+    "settings.appearance.not_saved.body": "The local server did not save the settings file. The changes apply until restart.",
+    "settings.appearance.not_saved.title": "Changes are not saved",
+    "settings.appearance.saved": "Saved to the settings file",
+    "settings.appearance.subtitle": "Changes apply immediately and are saved to the settings file.",
     "settings.appearance.title": "Appearance",
+    "settings.changed": "changed",
     "settings.connections.title": "Connections and certificates",
+    "settings.contrast.note": "Choose the «High contrast» theme. The system contrast mode is also respected and takes priority over any theme.",
+    "settings.contrast.title": "High contrast",
+    "settings.data_not_translated": "Dashboard names, hosts and other Zabbix data are not translated. Terms follow the Zabbix localization.",
     "settings.editor.title": "Editor",
+    "settings.file.hint": "Settings are stored in a YAML file that you can edit by hand. An invalid file is not applied.",
+    "settings.file.invalid.title": "The settings file has errors and was not applied",
+    "settings.file.title": "Settings file",
+    "settings.formats.count": "Count",
+    "settings.formats.count_sample": "{widgets, plural, one {# widget} other {# widgets}} · {pages, plural, one {# page} other {# pages}} · {more, plural, one {# widget} other {# widgets}}",
+    "settings.formats.datetime": "Date and time",
+    "settings.formats.number": "Number",
+    "settings.formats.title": "Format preview",
     "settings.general.title": "General",
+    "settings.language.after_restart": "A change of the system language applies after restarting the browser or the application.",
+    "settings.language.current": "now: {language}",
+    "settings.language.name.en": "English",
+    "settings.language.name.ru": "Russian",
+    "settings.language.option.en": "English",
+    "settings.language.option.ru": "Русский",
+    "settings.language.system": "As in the system",
+    "settings.language.title": "Interface language",
+    "settings.motion.explicit_state": "Set here; in the system: {state}.",
+    "settings.motion.no_meaning": "Statuses and texts do not depend on animation.",
+    "settings.motion.reduce": "Reduce animation",
+    "settings.motion.state.off": "off",
+    "settings.motion.state.on": "on",
+    "settings.motion.system_state": "As in the system: {state}.",
+    "settings.motion.title": "Motion and contrast",
     "settings.nav.no_secrets": "Passwords and tokens are not stored or shown here.",
+    "settings.reset.section": "Reset section",
     "settings.search.placeholder": "Search settings",
     "settings.security.title": "Security and export",
     "settings.storage.network_warning": "Network storage: if the connection drops, changes may not be saved, and publishing to Zabbix stays unavailable until the journal is written.",
+    "settings.theme.dark": "Dark",
+    "settings.theme.high_contrast": "High contrast",
+    "settings.theme.high_contrast.hint": "Black text on white, strong borders and a thick focus frame.",
+    "settings.theme.light": "Light",
+    "settings.theme.not_widgets": "The interface theme does not change how widgets look on the dashboard.",
+    "settings.theme.system": "As in the system",
+    "settings.theme.title": "Theme",
     "settings.title": "Settings",
     "settings.workspace.title": "Working folders",
     "shell.a11y.breadcrumbs": "Breadcrumbs",
     "shell.a11y.main_nav": "Main navigation",
+    "shell.demo.marker": "Demo data",
     "startup.action.all_drafts": "All local drafts",
     "startup.action.assemble_dashboard": "Build from pages",
     "startup.action.choose_dashboard": "Choose dashboard",
@@ -202,6 +1259,7 @@ export const catalogs = {
     "startup.action.import_files": "Import files",
     "startup.action.new_dashboard": "Create dashboard",
     "startup.action.new_page": "Create page",
+    "startup.action.open_server": "Show dashboards",
     "startup.action.take_page": "Take a page",
     "startup.draft.missing": "This draft is no longer available in local storage.",
     "startup.error.unavailable": "The local backend is unavailable.",
@@ -220,6 +1278,26 @@ export const catalogs = {
     "startup.question": "What do you want to do with Zabbix dashboards?",
     "startup.recent.empty": "No local drafts yet",
     "startup.recent.title": "Recent",
+    "startup.recovery.a11y.region": "Unfinished publication operations",
+    "startup.recovery.action.connect": "Connect",
+    "startup.recovery.action.open_draft": "Open draft",
+    "startup.recovery.body": "{intent}: {object_kind}, source {source}, target {target} on {profile}. Sent at {time}. Do not publish to this target again until the result is checked.",
+    "startup.recovery.close_unverified": "Close without checking",
+    "startup.recovery.close_unverified.confirm": "Close the operation {operation_id} to {target} sent at {time} without checking the result? The result stays unknown; the journal keeps the entry.",
+    "startup.recovery.close_unverified.title": "Close without checking?",
+    "startup.recovery.closed": "The operation was closed without checking.",
+    "startup.recovery.closed_manually": "Closed manually, result not checked",
+    "startup.recovery.connect_first": "Connect to {profile} to check the result. Read-only mode is enough.",
+    "startup.recovery.damaged.body_all": "The journal file {operation_id} cannot be read ({code}) and its target is unknown: every publication is blocked until the file is moved to quarantine.",
+    "startup.recovery.damaged.body_target": "The journal file {operation_id} cannot be read ({code}). Publishing to «{target}» is blocked until the file is moved to quarantine.",
+    "startup.recovery.damaged.title": "{count, plural, one {A damaged journal file blocks publication} other {# damaged journal files block publication}}",
+    "startup.recovery.found": "{count, plural, one {An unfinished operation was found} other {# unfinished operations were found}}",
+    "startup.recovery.load_failed": "The publication journal could not be read ({code}).",
+    "startup.recovery.quarantine": "Move to quarantine",
+    "startup.recovery.quarantine.confirm": "The file {operation_id} moves unchanged to journal/quarantine and stops blocking publication. Nothing is deleted or sent. If that operation reached the server, check the dashboard in Zabbix before publishing again.",
+    "startup.recovery.quarantine.title": "Move the journal file to quarantine?",
+    "startup.recovery.quarantined": "The journal file was moved to quarantine.",
+    "startup.recovery.state": "State: {state}",
     "startup.server.help": "Replace a host, clone a dashboard or take a page.",
     "startup.server.title": "Dashboards in Zabbix",
     "startup.status.backend": "Backend",
@@ -264,10 +1342,267 @@ export const catalogs = {
     "widget.type.toptriggers": "Top triggers",
     "widget.type.trigover": "Trigger overview",
     "widget.type.url": "URL",
-    "widget.type.web": "Web monitoring"
+    "widget.type.web": "Web monitoring",
+    "workcopy.refetch.action": "Copy again"
   },
   "ru": {
+    "about.copied": "Сведения скопированы",
+    "about.copyright": "© 2026 Fyodor Malkov",
+    "about.data.copy_path": "Копировать путь: {name}",
+    "about.data.journal": "Журнал операций",
+    "about.data.paths_local_only": "Полные пути видны только здесь и не попадают в отчёты.",
+    "about.data.settings_file": "Файл настроек",
+    "about.data.storage": "Хранилище",
+    "about.data.title": "Данные на этом компьютере",
+    "about.error.unavailable": "Не удалось получить сведения о сборке.",
+    "about.field.build": "Сборка",
+    "about.field.build_unknown": "Неизвестна",
+    "about.field.platform": "Платформа",
+    "about.field.version": "Версия",
+    "about.field.zabbix": "Zabbix",
+    "about.field.zabbix_value": "{versions} (адаптер {adapter}, проверено на {verified})",
+    "about.license.brand": "Графика ZDashstitch (логотип и Стежик)",
+    "about.license.code": "Программа и исходный код",
+    "about.license.code_choice": "MIT OR Apache-2.0 — на выбор получателя",
+    "about.license.docs": "Документация и оригинальная графика",
+    "about.license.docs_value": "CC BY 4.0",
+    "about.license.tabler": "Уведомление Tabler Icons (MIT)",
+    "about.license.text": "Текст лицензии",
+    "about.license.text_apache": "Текст Apache-2.0",
+    "about.license.text_mit": "Текст MIT",
+    "about.license.text_original": "Тексты лицензий показаны на языке оригинала.",
+    "about.license.title": "Лицензии ZDashstitch",
+    "about.license.zabbix_note": "Zabbix — отдельный продукт; его лицензии и товарные знаки на ZDashstitch не переходят.",
+    "about.report.copy": "Копировать сведения для отчёта",
+    "about.report.copy_failed": "Копирование здесь недоступно. Выделите текст ниже и скопируйте его вручную.",
+    "about.report.preview": "Сведения для отчёта",
+    "about.report.scope": "без адресов серверов, имён и секретов",
+    "about.subtitle": "Сведения о сборке и лицензиях. Всё показывается без обращения к сети.",
+    "about.tagline": "Локальный редактор глобальных панелей Zabbix",
+    "about.third_party.column.component": "Компонент",
+    "about.third_party.column.license": "Лицензия",
+    "about.third_party.column.version": "Версия",
+    "about.third_party.empty": "Нет компонентов, подходящих под поиск.",
+    "about.third_party.filter.all": "Все {count}",
+    "about.third_party.filter.icons": "Значки {count}",
+    "about.third_party.filter.rust": "Rust {count}",
+    "about.third_party.filter.ui": "Интерфейс {count}",
+    "about.third_party.filters": "Тип компонента",
+    "about.third_party.icons_summary": "{count, plural, one {значки интерфейса: # значок} few {значки интерфейса: # значка} many {значки интерфейса: # значков} other {значки интерфейса: # значка}}",
+    "about.third_party.missing": "Перечень лицензий не встроен в эту сборку.",
+    "about.third_party.more": "{count, plural, one {и ещё # компонент} few {и ещё # компонента} many {и ещё # компонентов} other {и ещё # компонента}}",
+    "about.third_party.search": "Поиск по имени или лицензии",
+    "about.third_party.show_all": "Показать все: {count}",
+    "about.third_party.subtitle": "Перечень собран при сборке программы; тексты лицензий встроены в неё.",
+    "about.third_party.title": "Сторонние компоненты",
     "about.title": "О программе и лицензии",
+    "bindings.a11y.steps": "Шаги мастера",
+    "bindings.action.back": "Назад",
+    "bindings.action.check_all": "Проверить все",
+    "bindings.action.connect": "Открыть подключения",
+    "bindings.action.next_dependencies": "Далее: зависимости",
+    "bindings.action.next_mapping": "Далее: соответствия",
+    "bindings.action.next_new_host": "Далее: новый узел",
+    "bindings.action.next_summary": "Далее: итог",
+    "bindings.action.reset_all": "Сбросить все привязки",
+    "bindings.action.retry": "Повторить",
+    "bindings.action.to_publication": "К публикации",
+    "bindings.calculated.done": "Соответствия рассчитаны",
+    "bindings.calculated_at": "Рассчитано {time} · Zabbix {version}",
+    "bindings.candidates.legend": "Кандидаты на {host}",
+    "bindings.candidates.none": "На новом узле нет кандидатов.",
+    "bindings.change.changed": "Изменится",
+    "bindings.change.kept_on_source": "Останется на старом",
+    "bindings.change.unresolved": "Не решено",
+    "bindings.change.untouched": "Без изменений",
+    "bindings.check_reason.candidate_not_visible": "Выбранный элемент данных не найден или нет доступа",
+    "bindings.check_reason.reference_added": "Найдена новая ссылка на узел сети",
+    "bindings.check_reason.reference_gone": "Ссылка больше не найдена",
+    "bindings.check_reason.resolution_changed": "Данные на сервере изменились",
+    "bindings.check_reason.server_version_changed": "Изменилась версия Zabbix",
+    "bindings.check_reason.target_not_visible": "Новый узел не найден или нет доступа",
+    "bindings.checked.done": "Привязки проверены",
+    "bindings.checked_at": "Проверено заново {time}",
+    "bindings.command_failed": "Действие не выполнено",
+    "bindings.decision.applied_candidate": "Выбрано: {key}",
+    "bindings.decision.applied_keep": "Оставлено на исходном по вашему решению",
+    "bindings.decision.choose": "Выбрать",
+    "bindings.decision.done": "Решение сохранено в черновике",
+    "bindings.decision.invalid": "Решение больше не подходит этой строке; примите его заново.",
+    "bindings.decision.keep_hint": "Поле сохранит {host}; виджет попадёт в список, который нужно подтвердить перед публикацией.",
+    "bindings.decision.keep_on_source": "Оставить на исходном",
+    "bindings.decision.undo": "Отменить решение",
+    "bindings.decision.undone": "Решение отменено",
+    "bindings.decision.unresolved": "Без решения ссылка блокирует публикацию.",
+    "bindings.deps.choose_host": "Выберите заменяемый узел сети, чтобы увидеть его ссылки.",
+    "bindings.deps.column.outcome": "Что будет",
+    "bindings.deps.column.reference": "Как ссылается",
+    "bindings.deps.column.type": "Тип",
+    "bindings.deps.column.widget": "Виджет",
+    "bindings.deps.count.changes": "Изменятся: {count}",
+    "bindings.deps.count.kept": "Останется на старом: {count}",
+    "bindings.deps.count.unverified": "Не найдено или нет доступа: {count}",
+    "bindings.deps.page_summary": "{widgets, plural, one {# виджет} few {# виджета} many {# виджетов} other {# виджета}} · {references, plural, one {# ссылка} few {# ссылки} many {# ссылок} other {# ссылки}}",
+    "bindings.deps.pattern_rule": "Шаблон узла сети по имени меняется, только если совпадает с видимым именем {host} без «*»; маски не меняются.",
+    "bindings.deps.title": "Ссылки на {host}",
+    "bindings.difference.origin": "происхождение из шаблона",
+    "bindings.difference.pattern_coverage": "покрытие шаблонов",
+    "bindings.difference.units": "единицы измерения",
+    "bindings.difference.value_type": "тип информации",
+    "bindings.draft_only": "Меняется только черновик. Исходная панель на сервере не изменится, пока вы не опубликуете проверенный план.",
+    "bindings.evidence.coverage": "Шаблон элементов {pattern}: на старом узле — {source}, на новом — {target}",
+    "bindings.evidence.differences": "Отличается: {differences}",
+    "bindings.evidence.key": "Ключ элемента данных: {key}",
+    "bindings.evidence.no_units": "Единицы измерения: нет",
+    "bindings.evidence.origin.lld": "Обнаружен LLD по прототипу {key}",
+    "bindings.evidence.origin.own": "Собственный элемент данных узла",
+    "bindings.evidence.origin.template": "Унаследован из шаблона",
+    "bindings.evidence.source_item": "Элемент данных на старом узле",
+    "bindings.evidence.target_item": "Элемент данных на новом узле",
+    "bindings.evidence.units": "Единицы измерения: {units}",
+    "bindings.evidence.value_type": "Тип информации: {type}",
+    "bindings.fitness.editable": "Можно изменить",
+    "bindings.fitness.read_only": "Распознано, изменение не поддерживается",
+    "bindings.fitness.unsupported": "Неподдерживаемая зависимость",
+    "bindings.history.empty": "Записей пока нет.",
+    "bindings.history.op.replace_host": "Рассчитана замена",
+    "bindings.history.op.replace_host_confirm_kept": "Подтверждён список",
+    "bindings.history.op.replace_host_decision": "Записано решение",
+    "bindings.history.op.unknown": "Операция {op}",
+    "bindings.history.title": "История привязок",
+    "bindings.inspector.field": "Поле: {field}",
+    "bindings.inspector.none": "Выберите строку, чтобы увидеть кандидатов и основания.",
+    "bindings.inspector.title": "Выбранная ссылка",
+    "bindings.intent.clone": "Клонировать панель",
+    "bindings.intent.title": "Намерение",
+    "bindings.kept.by_decision": "по вашему решению",
+    "bindings.kept.confirmed": "Список подтверждён",
+    "bindings.kept.not_blocking": "Это не блокирует замену, но перед публикацией список нужно подтвердить.",
+    "bindings.kept.title": "{count, plural, one {Останется на {host}: # виджет} few {Останется на {host}: # виджета} many {Останется на {host}: # виджетов} other {Останется на {host}: # виджета}}",
+    "bindings.kept.unconfirmed": "Список не подтверждён",
+    "bindings.load_failed": "Не удалось загрузить привязки",
+    "bindings.local_only": "Привязки хранятся только на этом компьютере, вместе с черновиком. В файлы экспорта не попадают ни идентификаторы Zabbix, ни подключение.",
+    "bindings.mapping.candidates": "Кандидаты",
+    "bindings.mapping.candidates_count": "{count, plural, one {# кандидат} few {# кандидата} many {# кандидатов} other {# кандидата}}",
+    "bindings.mapping.caption": "Соответствия ссылок",
+    "bindings.mapping.choose_lld_instance": "Выбрать экземпляр вручную",
+    "bindings.mapping.column.match": "Совпадение",
+    "bindings.mapping.column.source": "Источник ({host})",
+    "bindings.mapping.column.target": "Цель ({host})",
+    "bindings.mapping.column.widget": "Виджет",
+    "bindings.mapping.empty_filter": "Нет строк с таким статусом.",
+    "bindings.mapping.filter": "Фильтр по совпадению",
+    "bindings.mapping.keyboard_hint": "Стрелки — переход по строкам; Enter — открыть кандидатов.",
+    "bindings.mapping.no_rows": "В области нет ссылок на заменяемый узел сети.",
+    "bindings.mapping.no_target": "нет цели",
+    "bindings.mapping.similar_name_not_proof": "Похожее имя не считается доказательством: точным считается только тот же ключ, тип значения и единицы.",
+    "bindings.mapping.target_missing": "Новый узел сети не найден или нет доступа",
+    "bindings.mapping.title": "Заменить узел сети: {source} → {target}",
+    "bindings.match.ambiguous": "Несколько кандидатов",
+    "bindings.match.compatible": "Совместимо с отличиями",
+    "bindings.match.denied": "Не найдено или не видно с текущими правами",
+    "bindings.match.exact": "Точное соответствие",
+    "bindings.match.missing": "Соответствующий элемент данных не найден",
+    "bindings.match.unresolved_lld": "Экземпляр LLD недоступен на целевом узле сети",
+    "bindings.match_short.ambiguous": "Неоднозначно",
+    "bindings.match_short.compatible": "С отличиями",
+    "bindings.match_short.denied": "Не найдено или нет доступа",
+    "bindings.match_short.exact": "Точно",
+    "bindings.match_short.missing": "Не найдено",
+    "bindings.match_short.unresolved_lld": "Не найдено (LLD)",
+    "bindings.match_short.unverified": "Не проверено",
+    "bindings.new_host.chosen": "Новый узел: {host}",
+    "bindings.new_host.empty": "Узлы не найдены или учётная запись их не видит",
+    "bindings.new_host.groups": "Группы: {groups}",
+    "bindings.new_host.legend": "Новый узел сети вместо {host}",
+    "bindings.new_host.no_templates": "К {host} не присоединены шаблоны.",
+    "bindings.new_host.partial": "Шаблонов источника: {found} из {total} — часть метрик не найдётся",
+    "bindings.new_host.same_connection": "Узлы берутся из того же подключения, что и исходная панель.",
+    "bindings.new_host.search": "Поиск по имени узла сети",
+    "bindings.new_host.search_action": "Найти",
+    "bindings.new_host.truncated": "Показаны только первые узлы: {count}. Уточните поиск.",
+    "bindings.new_host.visible_only": "Показаны узлы, видимые учётной записи. Нужного узла нет — его нет или не хватает прав.",
+    "bindings.offline.body": "Подключитесь через профиль, которым сделана копия. Сохранённые соответствия и предпросмотр работают без подключения.",
+    "bindings.offline.check_all": "Для «Проверить все» нужно подключение.",
+    "bindings.offline.title": "Для подбора узлов нужно подключение",
+    "bindings.outcome.changes": "изменится",
+    "bindings.outcome.kept": "останется на {host}",
+    "bindings.plan_invalid_note": "Любое изменение привязок делает план публикации недействительным.",
+    "bindings.progress.calculating": "Расчёт соответствий: только чтение, на сервере ничего не меняется…",
+    "bindings.progress.checking": "Проверка всех привязок…",
+    "bindings.progress.inventory": "Чтение ссылок черновика…",
+    "bindings.progress.saving": "Сохранение в черновике…",
+    "bindings.progress.search": "Поиск узлов сети…",
+    "bindings.reason.classic_graph_contract_pending": "Изменение классических графиков не поддерживается до лабораторной проверки",
+    "bindings.reason.field_not_replaceable": "Это поле не меняется при замене узла сети",
+    "bindings.reason.graph_name_not_found": "На новом узле нет графика с тем же именем",
+    "bindings.reason.host_field_not_supported": "Изменение поля узла сети в виджете этого типа не поддерживается",
+    "bindings.reason.host_mask": "Маски узлов с «*» не меняются",
+    "bindings.reason.host_wildcard_all": "Маска «*» совпадает со всеми узлами и не меняется",
+    "bindings.reason.item_patterns_without_target_items": "Шаблоны элементов не находят элементов данных на новом узле",
+    "bindings.reason.key_not_found": "На новом узле нет элемента данных с тем же ключом",
+    "bindings.reason.lld_instance_missing": "Элемент данных найден LLD, на новом узле такого экземпляра нет",
+    "bindings.reason.not_found_or_no_access": "Не найдено или нет доступа",
+    "bindings.reason.origin_differs": "Происхождение из шаблона отличается",
+    "bindings.reason.pattern_coverage_differs": "Шаблоны элементов находят другое число элементов данных",
+    "bindings.reason.pattern_field_not_supported": "Изменение этого поля шаблона не поддерживается",
+    "bindings.reason.prototype_owner_unknown": "Прототип: его узел сети проверить нельзя",
+    "bindings.reason.several_target_candidates": "На новом узле несколько элементов данных с тем же ключом",
+    "bindings.reason.target_name_is_mask": "Видимое имя нового узла содержит «*»",
+    "bindings.reason.units_differ": "Единицы измерения отличаются",
+    "bindings.reason.unknown": "Код причины: {code}",
+    "bindings.reason.unknown_field": "Неизвестное поле: сохраняется как есть",
+    "bindings.reason.unknown_widget": "Неизвестный тип виджета: сохраняется как есть",
+    "bindings.reason.value_type_differs": "Тип информации отличается",
+    "bindings.reason.value_type_incompatible": "Тип информации не подходит этому виджету",
+    "bindings.reason.widget_not_editable": "Изменение виджета этого типа не поддерживается",
+    "bindings.ref.by_id": "элемент данных (ID)",
+    "bindings.ref.graph_id": "график (ID)",
+    "bindings.ref.host_id": "узел сети (ID)",
+    "bindings.ref.host_mask": "маска узла (*)",
+    "bindings.ref.host_name_pattern": "шаблон узла: имя",
+    "bindings.ref.prototype": "прототип",
+    "bindings.reset.body": "Замена и все решения будут удалены из черновика. Сервер не изменится.",
+    "bindings.reset.done": "Все привязки сброшены",
+    "bindings.reset.title": "Сбросить все привязки?",
+    "bindings.scope.choose_pages": "Страницы в области",
+    "bindings.scope.choose_widgets": "Виджеты в области",
+    "bindings.scope.empty_selection": "Выберите хотя бы одну страницу или виджет.",
+    "bindings.scope.pages": "Выбранные страницы",
+    "bindings.scope.partial_warning": "Ссылки на {host} вне области останутся без изменений: {count}",
+    "bindings.scope.whole": "Вся панель: страниц — {pages}, виджетов — {widgets}",
+    "bindings.scope.whole_page": "Вся страница: виджетов — {widgets}",
+    "bindings.scope.widgets": "Выбранные виджеты",
+    "bindings.source.none": "Черновик не ссылается ни на один узел сети, видимый учётной записи.",
+    "bindings.source.option_detail": "{references, plural, one {# ссылка} few {# ссылки} many {# ссылок} other {# ссылки}} в {widgets, plural, one {# виджете} few {# виджетах} many {# виджетах} other {# виджетах}}",
+    "bindings.source.unattributed": "{count, plural, one {# ссылку проверить нельзя: объект скрыт, удалён или это прототип.} few {# ссылки проверить нельзя: объекты скрыты, удалены или это прототипы.} many {# ссылок проверить нельзя: объекты скрыты, удалены или это прототипы.} other {# ссылки проверить нельзя: объекты скрыты, удалены или это прототипы.}}",
+    "bindings.source_evidence": "Основания сопоставления",
+    "bindings.state.checked": "Проверена",
+    "bindings.state.invalid": "Недействительна",
+    "bindings.state.stale": "Устарела",
+    "bindings.step.dependencies": "Зависимости",
+    "bindings.step.done": "пройден",
+    "bindings.step.mapping": "Соответствия",
+    "bindings.step.new_host": "Новый узел",
+    "bindings.step.scope": "Область",
+    "bindings.step.summary": "Итог",
+    "bindings.step.unavailable": "пока недоступен",
+    "bindings.stored.change_hint": "Чтобы выбрать другой узел или область, сначала сбросьте все привязки.",
+    "bindings.stored.title": "Сохранённая замена: {source} → {target}",
+    "bindings.summary.blocked": "{count, plural, one {Публикация заблокирована: # блокировка} few {Публикация заблокирована: # блокировки} many {Публикация заблокирована: # блокировок} other {Публикация заблокирована: # блокировки}}",
+    "bindings.summary.changes": "Изменятся: ссылок — {fields}, виджетов — {widgets}",
+    "bindings.summary.kept": "Останутся на старом: {count}",
+    "bindings.summary.only_changes": "Остальные ряды, настройки, геометрия и доступ не меняются.",
+    "bindings.summary.title": "Итог замены",
+    "bindings.summary.unresolved": "Не решено (блокирует публикацию): {count}",
+    "bindings.summary.untouched": "Не меняются: виджетов — {widgets}",
+    "bindings.targets.templates_coverage": "Шаблонов источника на узле: {found} из {total}",
+    "bindings.value_type.binary": "Двоичный",
+    "bindings.value_type.character": "Символ",
+    "bindings.value_type.float": "Числовой (с плавающей точкой)",
+    "bindings.value_type.log": "Журнал (лог)",
+    "bindings.value_type.text": "Текст",
+    "bindings.value_type.unsigned": "Числовой (целое положительное)",
     "checks.empty": "Нарушений нет, проверено объектов: {count}",
     "checks.group.compatibility": "Совместимость",
     "checks.group.passed": "Пройдено: {count}",
@@ -288,11 +1623,13 @@ export const catalogs = {
     "checks.summary.publication_blocked": "{count, plural, one {Публикация — заблокирована: # нарушение} few {Публикация — заблокирована: # нарушения} many {Публикация — заблокирована: # нарушений} other {Публикация — заблокирована: # нарушения}}",
     "checks.summary.publication_ready": "Публикация — возможна после проверок на сервере",
     "checks.summary.save_always": "Сохранить локально — можно всегда",
+    "common.action.cancel": "Отмена",
     "common.action.copy": "Копировать",
     "common.action.delete": "Удалить",
     "common.action.duplicate": "Дублировать",
     "common.action.open": "Открыть",
     "common.action.rename": "Переименовать",
+    "common.action.save_draft": "Сохранить черновик",
     "common.count.items": "{count, plural, one {# элемент} few {# элемента} many {# элементов} other {# элемента}}",
     "common.duration.hours": "{count, plural, one {# час} few {# часа} many {# часов} other {# часа}}",
     "common.duration.minutes": "{count, plural, one {# минута} few {# минуты} many {# минут} other {# минуты}}",
@@ -307,15 +1644,254 @@ export const catalogs = {
     "common.state.offline": "Автономно",
     "common.state.read_only": "Только чтение",
     "common.state.read_write": "Чтение-запись",
+    "common.state.verified": "Проверено повторным чтением",
     "compatibility.calculated_range": "Рассчитанная совместимость с Zabbix начинается с {minimum}; верхняя исключающая граница — {maximum_exclusive}.",
     "compatibility.declared_mismatch": "Рассчитанная совместимость ({minimum}–{maximum_exclusive}) отличается от заявленного диапазона ({declared_minimum}–{declared_maximum_exclusive}).",
     "compatibility.empty_draft": "В черновике нет виджетов, поэтому совместимость с Zabbix определить нельзя.",
     "compatibility.no_common_range": "У виджетов нет общего поддерживаемого диапазона версий Zabbix.",
     "compatibility.unknown_widget_field": "Совместимость поля {field} типа {field_type} в виджете {widget_type} неизвестна.",
     "compatibility.unknown_widget_type": "Совместимость для типа виджета {widget_type} неизвестна.",
+    "connection.a11y.profiles": "Профили подключений",
+    "connection.a11y.steps": "Шаги проверки",
+    "connection.action.back_to_list": "К списку подключений",
+    "connection.action.cancel": "Отмена",
+    "connection.action.check": "Проверить",
+    "connection.action.confirm_new_server": "Подтвердить новый сервер и подключиться",
+    "connection.action.connect": "Подключиться",
+    "connection.action.continue_offline": "Продолжить без подключения",
+    "connection.action.disconnect": "Отключиться",
+    "connection.action.edit": "Изменить",
+    "connection.action.enable_writes": "Разрешить запись панелей",
+    "connection.action.fix_address": "Изменить адрес",
+    "connection.action.fix_sign_in": "Изменить данные входа",
+    "connection.action.forget_password": "Забыть сохранённый пароль",
+    "connection.action.forget_token": "Забыть сохранённый токен",
+    "connection.action.new": "Новое подключение",
+    "connection.action.retry": "Повторить",
+    "connection.action.save": "Сохранить",
+    "connection.action.set_read_only": "Вернуть «Только чтение»",
+    "connection.action.sign_in": "Войти",
+    "connection.action.test": "Проверить подключение",
+    "connection.action.use_default_account": "Подставить учётную запись по умолчанию",
+    "connection.auth.mfa_token_required": "Для этой учётной записи с MFA нельзя войти по паролю. Используйте API-токен, разрешённый администратором.",
+    "connection.card.auth.password": "имя пользователя и пароль, пароль только в памяти",
+    "connection.card.auth.password_os_store": "имя пользователя и пароль в системном хранилище",
+    "connection.card.auth.token_memory": "API-токен, только в памяти",
+    "connection.card.auth.token_os_store": "API-токен в системном хранилище",
+    "connection.card.checked_at": "проверено {time}",
+    "connection.card.never_checked": "ещё не проверялось",
+    "connection.connect_failed": "Не удалось подключиться к «{profile}».",
+    "connection.connected": "Подключено к «{profile}» в режиме «Только чтение».",
+    "connection.credential_save_failed": "Пароль или токен не удалось сохранить в системном хранилище; он хранится в памяти до отключения.",
+    "connection.default_password.acknowledge": "Понятно",
+    "connection.default_password.body": "Подключение «{profile}» выполнило вход с паролем Zabbix по умолчанию. Смените его на рабочем сервере.",
+    "connection.default_password.dont_show": "Больше не показывать для этого подключения",
+    "connection.default_password.title": "Используется пароль по умолчанию",
+    "connection.delete.body": "Черновики, рабочие копии и снимки сохраняются. Сохранённые пароль или токен удаляются с этого компьютера; токен действует в Zabbix, пока его там не отзовут.",
+    "connection.delete.credential_left": "Сохранённые пароль или токен не удалось удалить из системного хранилища.",
+    "connection.delete.disconnect_first": "Подключение активно и сначала будет закрыто.",
+    "connection.delete.title": "Удалить подключение «{profile}»?",
+    "connection.deleted": "Подключение «{profile}» удалено.",
+    "connection.disconnected": "Подключение «{profile}» закрыто. Локальная работа доступна.",
+    "connection.duplicate.name": "{profile} (копия)",
+    "connection.editor.section.mode": "Режим после подключения",
+    "connection.editor.section.profile": "Профиль",
+    "connection.editor.section.sign_in": "Вход",
+    "connection.editor.section.trust": "Доверие к сертификату",
+    "connection.editor.title_edit": "Изменить подключение «{profile}»",
+    "connection.editor.title_new": "Новое подключение",
+    "connection.enable_writes.available": "Создание панели, сохранение копии, клонирование, добавление страниц и виджетов, замена узла сети в панели.",
+    "connection.enable_writes.available_title": "Станет доступно",
+    "connection.enable_writes.context": "Подключение «{profile}» · Zabbix {version}",
+    "connection.enable_writes.duration": "До отключения или перезапуска приложения, затем снова «Только чтение».",
+    "connection.enable_writes.duration_title": "Срок действия",
+    "connection.enable_writes.enabled": "Запись панелей разрешена для «{profile}» до отключения.",
+    "connection.enable_writes.never": "Узлы сети, шаблоны, элементы данных, триггеры и пользователи не изменяются никогда.",
+    "connection.enable_writes.never_title": "Не изменяется никогда",
+    "connection.enable_writes.no_extra_rights": "Права учётной записи в Zabbix не расширяются.",
+    "connection.enable_writes.plan_only": "Каждая запись — только после предпросмотра, проверки и подтверждения плана.",
+    "connection.enable_writes.return_hint": "Вернуть «Только чтение» можно в любой момент кнопкой в шапке.",
+    "connection.enable_writes.title": "Разрешить запись панелей?",
+    "connection.forget_password.done": "Пароль удалён с этого компьютера.",
+    "connection.forget_token.not_revoked": "Токен удалён с этого компьютера, но действует в Zabbix, пока его там не отзовут.",
+    "connection.form.api_token": "API-токен",
+    "connection.form.api_url": "Адрес API: {url}",
+    "connection.form.api_url_pending": "Адрес API появится, когда адрес Zabbix будет корректным.",
+    "connection.form.auth_method": "Способ аутентификации",
+    "connection.form.auth_password": "Имя пользователя и пароль",
+    "connection.form.custom_ca": "Доверенный сертификат УЦ",
+    "connection.form.custom_ca_choose": "Файл PEM с сертификатом УЦ",
+    "connection.form.custom_ca_fingerprint": "Отпечаток SHA-256: {fingerprint}",
+    "connection.form.custom_ca_hint": "Файл PEM, только для этого подключения",
+    "connection.form.custom_ca_loaded": "{count, plural, one {Загружен # сертификат} few {Загружено # сертификата} many {Загружено # сертификатов} other {Загружено # сертификата}}",
+    "connection.form.custom_ca_loading": "Загрузка сертификата…",
+    "connection.form.custom_ca_required": "Выберите файл PEM с сертификатом УЦ.",
+    "connection.form.default_account_hint": "Подставляет Admin и zabbix — учётную запись новой установки Zabbix. Сама кнопка ничего не сохраняет.",
+    "connection.form.endpoint": "Адрес Zabbix",
+    "connection.form.endpoint_hint": "Как в адресной строке браузера, с портом и путём",
+    "connection.form.has_errors": "Проверьте отмеченные поля.",
+    "connection.form.http_confirm": "Сохранить токен, хотя по HTTP он передаётся открытым текстом",
+    "connection.form.http_confirm_password": "Сохранить пароль, хотя по HTTP он передаётся открытым текстом",
+    "connection.form.mfa_hint": "Для учётной записи с MFA вход по паролю через API недоступен — используйте API-токен, выданный администратором.",
+    "connection.form.mode_read_only": "Только чтение. Запись панелей включается отдельно и до отключения.",
+    "connection.form.password": "Пароль",
+    "connection.form.password_not_stored": "Без сохранения пароль хранится только в памяти программы до отключения или завершения сеанса, затем его спросят снова.",
+    "connection.form.password_stored": "Пароль хранится в системном хранилище. Оставьте поле пустым, чтобы не менять его.",
+    "connection.form.profile_name": "Имя профиля",
+    "connection.form.rename_keeps_server": "Переименование профиля не меняет сервер. Смена адреса, порта или пути — меняет.",
+    "connection.form.rules.http": "Для http данные входа идут открытым текстом; сохранить пароль или токен для такого профиля можно только после явного подтверждения.",
+    "connection.form.rules.port_path": "Можно указать порт и базовый путь.",
+    "connection.form.rules.rejected": "В адресе нельзя указывать имя пользователя или пароль, строку запроса (?…) и фрагмент (#…).",
+    "connection.form.rules.scheme": "Адрес начинается с http или https.",
+    "connection.form.rules.title": "Правила адреса",
+    "connection.form.secret_in_memory": "Хранится в памяти программы до отключения или завершения сеанса. Оставьте поле пустым, чтобы не менять его.",
+    "connection.form.server_changed.body": "После сохранения привязки и планы публикации этого подключения нужно будет проверить заново.",
+    "connection.form.server_changed.title": "Это другой сервер",
+    "connection.form.store_password": "Сохранить пароль в системном хранилище",
+    "connection.form.store_password_hint": "API-токен безопаснее: у него может быть срок действия, и его можно отозвать в Zabbix, не меняя пароль.",
+    "connection.form.store_token": "Сохранить токен в системном хранилище",
+    "connection.form.tls_no_bypass": "Отключить проверку сертификата нельзя.",
+    "connection.form.token_at_connect": "Без сохранения токен хранится только в памяти программы до отключения или завершения сеанса, затем его спросят снова.",
+    "connection.form.token_stored": "Токен хранится в системном хранилище. Оставьте поле пустым, чтобы не менять его.",
+    "connection.form.trust_custom_ca": "Добавить доверенный сертификат УЦ",
+    "connection.form.trust_system": "Системное хранилище сертификатов",
+    "connection.form.username": "Имя пользователя",
+    "connection.identity.accepted": "Новый сервер подтверждён.",
+    "connection.identity.changed": "По этому адресу отвечает другой сервер. Подтвердите, что это нужный сервер; привязки и планы этого подключения придётся проверить заново.",
+    "connection.identity.first_seen": "Первое подключение: идентичность сервера запомнена.",
+    "connection.identity.version_changed": "Сервер обновлён с {previous_version} до {version}; планы публикации нужно построить заново.",
+    "connection.list.empty": "Подключений пока нет",
+    "connection.list.empty_help": "Для локальных черновиков сервер не нужен. Добавьте подключение, чтобы копировать панели из Zabbix или публиковать их.",
+    "connection.list.load_failed": "Не удалось загрузить список подключений.",
+    "connection.list.no_secrets": "Пароли и токены не показываются на этом экране и не попадают в файлы, журналы и отчёты.",
+    "connection.list.subtitle": "Профили серверов Zabbix. Локальные черновики работают без подключения.",
     "connection.list.title": "Подключения",
+    "connection.logout_failed": "Выход на сервере не подтверждён; сессия в приложении всё равно закрыта.",
+    "connection.mode.read_only": "только чтение",
+    "connection.mode.read_only_help": "Данные сервера можно читать; объекты Zabbix изменяться не будут.",
+    "connection.mode.read_write": "чтение-запись",
+    "connection.mode.read_write_help": "После предпросмотра и подтверждения можно записывать только проверенные операции с глобальными панелями.",
+    "connection.read_only_restored": "Режим «Только чтение» восстановлен; планы публикации этого подключения больше недействительны.",
+    "connection.result.version": "Zabbix {version}",
+    "connection.saved": "Подключение «{profile}» сохранено.",
+    "connection.sign_in.description": "Адрес сервера: {address}",
+    "connection.sign_in.in_progress": "Вход…",
+    "connection.sign_in.locked": "Zabbix временно заблокировал вход на 30 секунд. Повторите через {seconds, plural, one {# секунду} few {# секунды} many {# секунд} other {# секунды}}.",
+    "connection.sign_in.password_memory_only": "Пароль хранится только в памяти до отключения или завершения сеанса.",
+    "connection.sign_in.password_required": "Введите пароль.",
+    "connection.sign_in.password_will_be_stored": "После успешного подключения пароль сохраняется в системном хранилище.",
+    "connection.sign_in.title": "Вход в «{profile}»",
+    "connection.sign_in.token_memory_only": "Токен хранится только в памяти до отключения или завершения сеанса.",
+    "connection.sign_in.token_required": "Введите API-токен.",
+    "connection.sign_in.token_will_be_stored": "После успешного подключения токен сохраняется в системном хранилище.",
+    "connection.sign_in.username": "Имя пользователя: {username}",
+    "connection.sign_in.username_hint": "Имя пользователя меняется только в профиле подключения.",
+    "connection.sign_in.waiting": "Ожидание ответа сервера. Для учётных записей LDAP это может занять больше времени.",
+    "connection.state.connected_mode": "Подключено · {mode}",
+    "connection.state.connecting": "Подключение…",
+    "connection.state.context_changed": "Сервер изменился · {profile}",
+    "connection.state.last_check_failed": "Последняя проверка: ошибка",
+    "connection.state.needs_sign_in": "Нужен вход",
     "connection.state.not_connected": "Не подключено",
+    "connection.state.read_only_profile": "Только чтение · {profile}",
+    "connection.state.read_write_profile": "Чтение-запись · {profile}",
+    "connection.test.capabilities_denied": "Недоступно этой учётной записи: {methods}. Связанные функции будут недоступны; можно продолжить в режиме «Только чтение».",
+    "connection.test.crumb": "Проверка",
+    "connection.test.details.code": "Код",
+    "connection.test.details.method": "Способ",
+    "connection.test.details.step": "Шаг",
+    "connection.test.details.time": "Время",
+    "connection.test.details.title": "Технические сведения",
+    "connection.test.details.version": "Версия Zabbix",
+    "connection.test.during_sign_in": "Соединение прервалось во время входа.",
+    "connection.test.failed_at": "Проверка остановлена на шаге «{step}».",
+    "connection.test.idle": "Проверка ещё не запускалась.",
+    "connection.test.lockout_hint": "Zabbix блокирует вход на 30 секунд после 5 ошибок.",
+    "connection.test.not_checked": "Не проверялось: {reason}",
+    "connection.test.passed": "Все шаги пройдены.",
+    "connection.test.reason.api": "нужно найти API Zabbix",
+    "connection.test.reason.auth": "нужен успешный вход",
+    "connection.test.reason.endpoint": "нужно, чтобы сервер был доступен",
+    "connection.test.reason.identity": "нужно подтвердить идентичность сервера",
+    "connection.test.report.copied": "Отчёт скопирован.",
+    "connection.test.report.copy": "Копировать отчёт",
+    "connection.test.report.copy_failed": "Не удалось скопировать отчёт в буфер обмена.",
+    "connection.test.report.include_address": "Включить адрес сервера в отчёт",
+    "connection.test.report.scope": "В отчёте нет пароля, токена, ответов сервера и путей к файлам; адрес — только по галке.",
+    "connection.test.result.api": "Найден API Zabbix {version}.",
+    "connection.test.result.auth_password": "Вход выполнен по имени пользователя и паролю.",
+    "connection.test.result.auth_token": "Вход выполнен по API-токену.",
+    "connection.test.result.capabilities": "Все нужные методы чтения доступны.",
+    "connection.test.result.endpoint": "Соединение установлено, сертификат проверен.",
+    "connection.test.result.identity_matches": "Тот же сервер, что и при прошлом подключении.",
+    "connection.test.running": "Проверка подключения…",
+    "connection.test.status.failed": "Ошибка",
+    "connection.test.status.not_checked": "Не проверялось",
+    "connection.test.status.notice": "Пройден с замечанием",
+    "connection.test.status.passed": "Пройден",
+    "connection.test.step.api": "API Zabbix",
+    "connection.test.step.auth": "Вход",
+    "connection.test.step.capabilities": "Права и возможности",
+    "connection.test.step.endpoint": "Адрес и TLS",
+    "connection.test.step.identity": "Идентичность сервера",
+    "connection.test.step_heading": "{number}. {name}",
+    "connection.test.subtitle": "Шаги выполняются по порядку; следующий шаг не начинается, пока не пройден предыдущий.",
+    "connection.test.title": "Проверка подключения «{profile}»",
+    "connection.warning.http": "HTTP без шифрования: данные входа передаются открытым текстом",
+    "copy.action.new_copy": "Новая копия",
+    "copy.action.open_mine": "Открыть мою копию",
+    "copy.breadcrumb": "Копирование",
+    "copy.dep.by_id_or_pattern": "{total, plural, one {# ссылка} few {# ссылки} many {# ссылок} other {# ссылки}}: {by_id} по ID, {by_pattern} по шаблону имени",
+    "copy.dep.graphs": "Графики",
+    "copy.dep.hosts": "Узлы сети",
+    "copy.dep.items": "Элементы данных",
+    "copy.dep.not_copied": "Узлы сети и элементы данных не копируются: копия хранит ссылки на них.",
+    "copy.dep.other": "Прочие ссылки",
+    "copy.dep.references": "Связи между виджетами",
+    "copy.dep.references_value": "{count} — сохраняются вместе с виджетами",
+    "copy.dep.unknown_fields": "Неизвестные поля",
+    "copy.dep.unknown_fields_value": "{count} — сохраняются как есть, не меняются",
+    "copy.existing": "У вас уже есть копия этой панели от {time}. Новая копия создаётся отдельно, существующая не меняется.",
+    "copy.existing.refetch_hint": "Обновить базу существующей копии — «Скопировать заново» в её обзоре.",
+    "copy.not_saved": "Значения метрик, данные узлов сети, пароли и токены.",
+    "copy.page_summary": "{widgets}: изменение поддерживается — {editable}, нет — {other}",
+    "copy.progress": "Панель читается дважды, копия сохраняется…",
+    "copy.read_twice": "Панель читается дважды. Если она изменится во время чтения, копия не создаётся.",
+    "copy.result.created": "Копия создана: «{name}»",
+    "copy.result.failed": "Копия не создана",
+    "copy.result.metadata_partial": "Единицы и сопоставления значений прочитаны не для всех элементов данных.",
+    "copy.result.metadata_unavailable": "Единицы и сопоставления значений элементов данных прочитать не удалось; копия создана без них.",
+    "copy.saved.access": "Владелец и доступ: для восстановления при публикации. В файлы и экспорт не попадают никогда.",
+    "copy.saved.draft": "Черновик: копия с сервера для правки. Правки хранятся отдельно от снимка, поэтому повторное копирование их не теряет.",
+    "copy.saved.snapshot": "Снимок: панель как прочитана, без изменений. С ним сравнивается всё последующее (база).",
+    "copy.scope.whole": "Вся панель: {summary}. Одну страницу берёт действие «Взять страницу».",
+    "copy.section.composition": "Состав",
+    "copy.section.dependencies": "Зависимости",
+    "copy.section.not_saved": "Не сохраняется",
+    "copy.section.saved": "Что сохранится на этом компьютере",
+    "copy.title": "Скопировать «{dashboard_name}» с сервера",
+    "copy.widget.as_is": "копируется как есть",
+    "copy.widget.editable": "изменение поддерживается",
+    "dashboards.permission.not_visible_or_denied": "Панели не найдены либо учётная запись не может их просматривать",
     "dashboards.summary.pages_widgets": "{pages, plural, one {# страница} few {# страницы} many {# страниц} other {# страницы}}, {widgets, plural, one {# виджет} few {# виджета} many {# виджетов} other {# виджета}}",
+    "dashboards.visibility.private": "Личная",
+    "dashboards.visibility.shared": "Общая",
+    "desktop.browser.open_failed": "Браузер не открылся. Откройте в браузере этот одноразовый адрес в течение двух минут: {url}",
+    "desktop.close.writing.body": "Окно нельзя закрыть, пока идёт запись в Zabbix. Дождитесь окончания записи или того, что её результат станет известен.",
+    "desktop.close.writing.title": "Идёт запись в Zabbix",
+    "desktop.fallback.choice.browser": "Продолжить в браузере",
+    "desktop.fallback.choice.install": "Установлю и перезапущу",
+    "desktop.fallback.choice.yes_no": "«Да» — продолжить в браузере. «Нет» — установлю и перезапущу; страница загрузки откроется в браузере.",
+    "desktop.fallback.install.astra_1_7": "В Astra Linux 1.7 нет WebKitGTK 4.1: продолжайте в браузере.",
+    "desktop.fallback.install.debian": "Debian, Astra Linux 1.8: {command}",
+    "desktop.fallback.install.red_os": "RED OS 8: {command}",
+    "desktop.fallback.install.webkitgtk": "Установите WebKitGTK 4.1:",
+    "desktop.fallback.install.webview2": "Установите Microsoft Edge WebView2 Runtime: {url}",
+    "desktop.fallback.opening_browser": "Программа открывается в браузере.",
+    "desktop.fallback.reason.engine_missing": "Не установлен системный веб-движок, который показывает окно программы.",
+    "desktop.fallback.reason.start_failed": "Окно программы не запустилось.",
+    "desktop.fallback.restart": "После установки запустите ZDashstitch снова.",
+    "desktop.fallback.title": "Окно программы недоступно",
     "diagnostics.title": "Диагностика",
     "draft.a11y.sections": "Разделы черновика",
     "draft.action.check_source": "Проверить источник",
@@ -334,6 +1910,7 @@ export const catalogs = {
     "draft.nav.overview": "Обзор",
     "draft.nav.publication": "Публикация",
     "draft.nav.structure": "Структура",
+    "draft.nav.title": "Разделы черновика",
     "draft.overview.composition.dashboard": "Состав панели",
     "draft.overview.composition.help": "Размеры — в клетках сетки Zabbix. Порядок и перенос — в разделе «Структура».",
     "draft.overview.composition.page": "Состав страницы",
@@ -343,6 +1920,7 @@ export const catalogs = {
     "draft.overview.needs_connection": "нужно подключение",
     "draft.overview.next_steps": "Следующие шаги",
     "draft.overview.origin": "Происхождение",
+    "draft.overview.publish_unavailable": "Недоступно: не выбрана цель, нет проверки.",
     "draft.overview.selection_note": "Выбранные виджеты задают область действия, например «Добавить виджеты на страницу».",
     "draft.overview.snapshot": "Снимок",
     "draft.overview.snapshot_from": "снимок от {date}",
@@ -352,6 +1930,7 @@ export const catalogs = {
     "draft.overview.step.choose_target": "Выберите целевую панель",
     "draft.overview.step.choose_target.help": "Нужна для «Добавить страницу в панель».",
     "draft.overview.step.numbered": "{number}. {step}",
+    "draft.overview.step.open_section": "Перейти в раздел «{section}»",
     "draft.overview.step.review_plan": "Посмотрите план",
     "draft.overview.step.review_plan.help": "Запись только по проверенному плану.",
     "draft.overview.target": "Назначение",
@@ -363,7 +1942,8 @@ export const catalogs = {
     "draft.preview.screen_width": "Ширина экрана: {width} px",
     "draft.preview.synthetic.toggle": "Показать синтетические данные",
     "draft.preview.title": "Предпросмотр страницы",
-    "draft.provenance.assembled": "{count, plural, one {собрана из # страницы} few {собрана из # страниц} many {собрана из # страниц} other {собрана из # страниц}}{sources, select, other {: {sources}}}",
+    "draft.provenance.assembled": "{count, plural, one {собрана из # страницы} few {собрана из # страниц} many {собрана из # страниц} other {собрана из # страниц}}",
+    "draft.provenance.assembled_with_sources": "{count, plural, one {собрана из # страницы: {sources}} few {собрана из # страниц: {sources}} many {собрана из # страниц: {sources}} other {собрана из # страниц: {sources}}}",
     "draft.provenance.created_here": "создана здесь",
     "draft.provenance.imported_file": "импортирована из файла",
     "draft.provenance.legacy_file": "файл старого формата",
@@ -386,19 +1966,24 @@ export const catalogs = {
     "draft.structure.slideshow.on": "вкл.",
     "draft.structure.widget_geometry": "{type} · {x}, {y} · {width} × {height}",
     "drafts.action.create": "Создать",
+    "drafts.action.export_file": "Экспорт в файл…",
     "drafts.action.make_portable": "Сделать переносимой для экспорта…",
     "drafts.column.kind": "Тип",
     "drafts.column.name": "Имя",
     "drafts.column.origin": "Происхождение",
     "drafts.column.source": "Источник",
     "drafts.column.state": "Состояние",
+    "drafts.copy_name": "{name} (копия {number})",
     "drafts.created_from_copy": "Создано из этой копии",
+    "drafts.created_from_draft": "Создано из этого черновика",
+    "drafts.damaged": "{count, plural, one {# черновик не удалось прочитать} few {# черновика не удалось прочитать} many {# черновиков не удалось прочитать} other {# черновика не удалось прочитать}}; файлы не изменялись.",
     "drafts.delete.safe": "Удаление не трогает панели на сервере. Снимок удаляется, только если на него больше ничего не ссылается; запись журнала остаётся.",
     "drafts.details.base": "База",
     "drafts.details.base_snapshot": "снимок {time}",
     "drafts.details.changed_on_server_at": "изменена на сервере ({time})",
     "drafts.details.connection": "Подключение",
     "drafts.details.created_item": "«{name}» — создана {time}",
+    "drafts.details.created_not_found": "Не найдена при последней проверке",
     "drafts.details.freshness": "Свежесть",
     "drafts.details.local": "Локально",
     "drafts.details.source": "Источник",
@@ -407,15 +1992,134 @@ export const catalogs = {
     "drafts.filter.local": "Локальные",
     "drafts.filter.pages": "Страницы",
     "drafts.filter.server_copies": "Копии с сервера",
+    "drafts.list.open_hint": "Щелчок по имени открывает черновик. Щелчок по остальной части строки или клавиша «Пробел» на имени показывает сведения.",
+    "drafts.load_failed": "Не удалось загрузить локальные черновики",
+    "drafts.name.source_connection": "({connection})",
+    "drafts.rename.description": "Меняется только локальное имя. Панель на сервере не изменяется.",
+    "drafts.rename.done": "Переименовано: «{name}»",
+    "drafts.rename.title": "Переименовать черновик",
+    "drafts.search.no_results": "Нет черновиков, подходящих под фильтры и поиск.",
     "drafts.search.placeholder": "Поиск по имени",
     "drafts.server_copy_export_hint": "Копия с сервера экспортируется только после преобразования в переносимую.",
     "drafts.sort_hint": "Сортировка — по времени изменения",
     "drafts.state.changed_on_server": "Изменена на сервере",
+    "drafts.state.current": "Проверена",
     "drafts.state.modified": "Изменена",
     "drafts.state.saved": "Сохранена",
+    "drafts.state.source_missing": "Источник не найден",
+    "drafts.state.stale": "Устарела",
     "drafts.subtitle": "Локальные панели и страницы. Хранятся только на этом компьютере; сохранение — не публикация.",
     "drafts.title": "Черновики",
     "editor.unavailable_yet": "Редактор страницы появится в следующей версии.",
+    "errors.address.fragment": "Уберите из адреса фрагмент (#…).",
+    "errors.address.host": "В адресе нет имени сервера.",
+    "errors.address.query": "Уберите из адреса строку запроса (?…).",
+    "errors.address.scheme": "Адрес должен начинаться с http или https.",
+    "errors.address.syntax": "Это некорректный адрес.",
+    "errors.address.userinfo": "Уберите имя пользователя или пароль из адреса; данные входа вводятся в разделе «Вход».",
+    "errors.auth.credentials_or_directory": "Не удалось войти. Проверьте учётные данные. Для учётной записи LDAP также может быть недоступен каталог.",
+    "errors.auth.mfa_token_required": "Для этой учётной записи с MFA недоступен вход в API по паролю. Используйте API-токен, разрешённый администратором.",
+    "errors.auth.session_expired": "Сессия Zabbix истекла. Войдите снова.",
+    "errors.auth.token_expired": "Срок действия API-токена истёк.",
+    "errors.auth.token_invalid_or_disabled": "API-токен неверен или отключён.",
+    "errors.connection.api_error": "Zabbix вернул ошибку для метода {method}.",
+    "errors.connection.api_not_found": "По этому адресу API Zabbix не найден. Проверьте базовый путь.",
+    "errors.connection.dns_unresolvable": "Не удалось определить адрес сервера. Проверьте адрес Zabbix.",
+    "errors.connection.failed": "Не удалось подключиться к серверу. Проверьте адрес и сеть.",
+    "errors.connection.not_connected": "Это подключение не активно.",
+    "errors.connection.random_unavailable": "Системный источник случайных чисел недоступен.",
+    "errors.connection.refused": "Сервер отклонил подключение. Проверьте адрес, порт и работу службы.",
+    "errors.connection.request_invalid": "Приложение отправило некорректный запрос. Перезагрузите страницу и повторите.",
+    "errors.connection.secret_invalid": "Пароль или токен слишком длинный.",
+    "errors.connection.secret_required": "Введите пароль или API-токен.",
+    "errors.connection.service_unavailable": "Подключения недоступны: не найдена папка настроек на этом компьютере.",
+    "errors.connection.unexpected_response": "Сервер вернул неожиданный ответ. Проверьте базовый путь.",
+    "errors.connection.unknown": "Операция не выполнена ({code}).",
+    "errors.connection.unreachable_or_timeout": "Сервер недоступен или не ответил вовремя.",
+    "errors.connection.version_unsupported": "Zabbix {version} не поддерживается. Можно продолжить работу автономно.",
+    "errors.connection.writes_not_confirmed": "Запись панелей не подтверждена.",
+    "errors.credential.locked": "Системное хранилище учётных данных заблокировано или доступ запрещён.",
+    "errors.credential.missing": "Для этого подключения не сохранены ни пароль, ни токен.",
+    "errors.credential.unavailable": "Системное хранилище учётных данных недоступно на этом компьютере.",
+    "errors.drafts.name_invalid": "Введите имя длиной до {max, plural, one {# символа} few {# символов} many {# символов} other {# символа}} без управляющих символов.",
+    "errors.import.inconsistent": "Панель изменилась во время чтения. Копия не создана; повторите.",
+    "errors.import.parse": "Не удалось разобрать файл {format}.",
+    "errors.import.policy": "Файл отклонён правилами безопасности импорта ({code}).",
+    "errors.import.unsafe_structure": "Файл содержит структуру, запрещённую для безопасного импорта ({code}).",
+    "errors.import.validation": "Импортируемые данные противоречивы ({code}).",
+    "errors.permission.api_method": "Эта учётная запись не может вызвать метод {method}.",
+    "errors.permission.system_access": "У этой учётной записи нет доступа к Zabbix.",
+    "errors.profile.limit_reached": "Можно сохранить не больше {max, plural, one {# профиля} few {# профилей} many {# профилей} other {# профиля}} подключений.",
+    "errors.profile.name_invalid": "Введите имя профиля длиной до {max_chars, plural, one {# символа} few {# символов} many {# символов} other {# символа}} без управляющих символов.",
+    "errors.profile.not_found": "Этот профиль подключения больше не существует.",
+    "errors.profile.plain_http_unconfirmed": "Подтвердите сохранение пароля или токена для адреса HTTP.",
+    "errors.profile.store_invalid": "Файл профилей подключений повреждён. Он не изменялся.",
+    "errors.profile.store_linked_path": "Файл профилей подключений является ссылкой; из соображений безопасности он не читается и не записывается.",
+    "errors.profile.store_too_large": "Файл профилей подключений слишком большой.",
+    "errors.profile.store_unavailable": "Профили подключений нельзя прочитать или сохранить на этом компьютере.",
+    "errors.profile.username_invalid": "Введите имя пользователя длиной до {max_chars, plural, one {# символа} few {# символов} many {# символов} other {# символа}} без управляющих символов.",
+    "errors.publication.blocked": "Публикация заблокирована: исправьте находки на шаге «Проверки».",
+    "errors.publication.code": "Публикация отклонена: {code}",
+    "errors.publication.journal_damaged": "Повреждённый файл журнала {operation_id} блокирует публикацию, пока он не убран в карантин.",
+    "errors.publication.journal_not_damaged": "Файл журнала читается: сверьте результат или закройте операцию.",
+    "errors.publication.journal_write_failed": "Журнал публикации записать не удалось; ничего не отправлено.",
+    "errors.publication.local_mismatch": "Проверенное обновление не совпадает с черновиком; ничего не отправлено.",
+    "errors.publication.name_taken_maybe_hidden": "Имя занято, возможно, недоступной вам панелью. Панель не создана; выберите другое имя.",
+    "errors.publication.operation_not_found": "Запись журнала не найдена.",
+    "errors.publication.operation_running": "Операция ещё выполняется.",
+    "errors.publication.plan_mismatch": "Подтверждение не совпадает с показанным планом; ничего не отправлено. Создайте новый предпросмотр.",
+    "errors.publication.plan_not_found": "Плана больше нет: он использован, отменён или завершён вместе с сеансом. Создайте новый предпросмотр.",
+    "errors.publication.quarantine_exists": "Файл с таким именем уже в карантине.",
+    "errors.publication.reconcile_not_needed": "У операции уже есть итог.",
+    "errors.publication.reconcile_partial_visibility": "Прочитать все панели с этим именем не удалось, итог не определён. Проверьте ещё раз.",
+    "errors.publication.reconcile_server_changed": "Проверить результат можно только на том же сервере той же учётной записью, что и операция.",
+    "errors.publication.target_blocked": "Незавершённая операция {operation_id} блокирует эту цель, пока её результат не сверен.",
+    "errors.replace_host.binding_not_found": "Ссылки больше нет в соответствиях. Обновите привязки.",
+    "errors.replace_host.candidate_not_visible": "Выбранного элемента данных нет среди предложенных кандидатов.",
+    "errors.replace_host.candidate_value_type_incompatible": "Тип информации этого элемента данных не подходит графику.",
+    "errors.replace_host.changed_concurrently": "Черновик изменился в другом окне. Обновите его и повторите.",
+    "errors.replace_host.decision_not_applicable": "Это решение недоступно для этой строки.",
+    "errors.replace_host.host_objects_limit": "У узла сети слишком много элементов данных или графиков для сравнения.",
+    "errors.replace_host.internal": "Черновик не удалось сопоставить со снимком.",
+    "errors.replace_host.kept_changed": "Список изменился после показа. Проверьте его ещё раз и подтвердите.",
+    "errors.replace_host.kept_empty": "Подтверждать нечего.",
+    "errors.replace_host.not_calculated": "В черновике ещё нет замены узла сети.",
+    "errors.replace_host.operation_not_found": "Запись уже удалена.",
+    "errors.replace_host.other_connection": "Активно другое подключение. Привязки используют подключение, которым сделана копия.",
+    "errors.replace_host.pending": "В черновике уже есть другая замена. Сначала сбросьте все привязки.",
+    "errors.replace_host.same_host": "Выберите другой узел: новый узел совпадает с заменяемым.",
+    "errors.replace_host.scope_invalid": "Область не совпадает с черновиком. Выберите страницы или виджеты заново.",
+    "errors.replace_host.scope_outside_draft": "Область выходит за страницу этого черновика.",
+    "errors.replace_host.source_not_visible": "Заменяемый узел сети не найден или нет доступа.",
+    "errors.snapshot.corrupt": "Снимок этой копии повреждён. Он не изменялся.",
+    "errors.snapshot.missing": "Снимок этой копии не найден.",
+    "errors.snapshot.shape_invalid": "Zabbix вернул панель в неожиданном виде. Копия не создана.",
+    "errors.snapshot.too_large": "Панель слишком велика для сохранения снимка. Копия не создана.",
+    "errors.snapshot.unsupported_adapter": "Снимок сделан для версии Zabbix, которую эта сборка не поддерживает.",
+    "errors.storage.linked": "Путь содержит символьную ссылку или точку повторной обработки.",
+    "errors.tls.name_mismatch": "Сертификат выдан для другого имени. Проверьте адрес или сертификат; отключить проверку TLS нельзя.",
+    "errors.tls.time_invalid": "Сертификат сервера недействителен по сроку.",
+    "errors.tls.untrusted": "Сертификат сервера не является доверенным. Добавьте разрешённый сертификат УЦ; проверку TLS отключить нельзя.",
+    "errors.trust.changed": "Сохранённый сертификат УЦ изменён вне приложения. Выберите файл заново.",
+    "errors.trust.empty": "В файле нет сертификата.",
+    "errors.trust.invalid_pem": "Файл не является корректным сертификатом PEM.",
+    "errors.trust.missing": "Сохранённый сертификат УЦ не найден. Выберите файл заново.",
+    "errors.trust.private_key": "Файл содержит закрытый ключ; выберите файл только с сертификатом УЦ.",
+    "errors.trust.rejected": "Этот сертификат нельзя использовать как доверенный сертификат УЦ.",
+    "errors.trust.too_large": "Файл сертификата слишком большой.",
+    "errors.trust.too_many_certificates": "В файле слишком много сертификатов.",
+    "errors.trust.upload_invalid": "Выберите ровно один файл PEM.",
+    "errors.workcopy.corrupt": "Файл черновика повреждён. Он не изменялся.",
+    "errors.workcopy.not_visible_or_denied": "Панель не найдена либо учётная запись не может её просматривать.",
+    "errors.workcopy.page_not_found": "Страницы больше нет на панели. Копия не создана.",
+    "errors.workcopy.search_invalid": "Введите строку поиска длиной до {max, plural, one {# символа} few {# символов} many {# символов} other {# символа}} без управляющих символов.",
+    "errors.workcopy.settings_unavailable": "Файл настроек не читается, поэтому расположение хранилища неизвестно. Ничего не прочитано и не сохранено.",
+    "errors.workcopy.storage_file_too_large": "Файл в локальном хранилище слишком большой; он не прочитан.",
+    "errors.workcopy.storage_limit_reached": "Достигнут предел локального хранилища. Ничего не сохранено.",
+    "errors.workcopy.storage_unavailable": "Локальное хранилище недоступно: черновики нельзя прочитать или сохранить.",
+    "errors.workcopy.storage_write_failed": "Не удалось записать в локальное хранилище. Ничего не сохранено.",
+    "errors.workcopy.too_large": "Файл черновика слишком большой; он не прочитан.",
+    "errors.workcopy.unsupported_operation": "Черновик содержит изменения из более новой версии ZDashstitch. Он не изменялся.",
     "http.security.api_not_found": "Запрошенный локальный адрес API не существует.",
     "http.security.body_too_large": "Размер запроса превышает допустимый предел.",
     "http.security.bootstrap_invalid": "Одноразовая ссылка запуска недействительна или устарела.",
@@ -432,6 +2136,10 @@ export const catalogs = {
     "http.transfer.total_too_large": "Общий размер файлов для передачи через браузер превышает предел.",
     "http.transfer.unavailable": "Не удалось подготовить передачу файла через браузер.",
     "intent.append_page": "Добавить страницу в панель",
+    "intent.replace_host": "Заменить узел сети",
+    "intent.replace_item_fields": "Замена элементов данных",
+    "intent.save_as_copy": "Сохранить копию",
+    "intent.unknown": "Операция {code}",
     "library.title": "Библиотека",
     "nav.connections": "Подключения",
     "nav.drafts": "Черновики",
@@ -444,22 +2152,450 @@ export const catalogs = {
     "object.origin.local": "Локальная",
     "object.origin.server_copy": "Копия с сервера",
     "object.page.numbered": "{number}. {name}",
-    "object.page.untitled": "Без названия",
+    "object.page.unnamed": "Страница {number}",
     "object.page.widget_count": "{count, plural, one {# виджет} few {# виджета} many {# виджетов} other {# виджета}}",
+    "publication.a11y.steps": "Шаги публикации",
+    "publication.access.copy_private": "Новая панель — личная, владелец — вы. Запись доступа включится после её лабораторной проверки.",
+    "publication.access.title": "Владелец и доступ",
+    "publication.access.update_not_sent": "Эта публикация не меняет владельца и доступ: в запросе их нет.",
+    "publication.action.back_changes": "Назад: изменения",
+    "publication.action.back_checks": "Назад: проверки",
+    "publication.action.back_target": "Назад: назначение",
+    "publication.action.back_to_draft": "Вернуться к черновику",
+    "publication.action.confirm_dialog": "Подтвердить запись…",
+    "publication.action.confirm_write": "Записать в Zabbix",
+    "publication.action.new_preview": "Новый предпросмотр",
+    "publication.action.next_changes": "Далее: изменения",
+    "publication.action.next_checks": "Далее: проверки",
+    "publication.action.next_confirm": "Далее: подтверждение",
+    "publication.action.open_in_zabbix": "Открыть в Zabbix",
+    "publication.action.open_journal": "Журнал операции",
+    "publication.action.open_server": "Открыть «Панели в Zabbix»",
+    "publication.action.reconcile": "Проверить результат",
+    "publication.check.action.confirm_kept": "Подтвердить список ({count})",
+    "publication.check.action.open_bindings": "Открыть привязки",
+    "publication.check.confirm_kept": "Подтвердите список виджетов, которые останутся на старом узле",
+    "publication.check.count.blocking": "Блокируют: {count}",
+    "publication.check.count.warnings": "Предупреждения: {count}",
+    "publication.check.fixed_in": "Исправляется: {section}",
+    "publication.check.group.bindings": "Привязки",
+    "publication.check.group.connection": "Подключение и права",
+    "publication.check.group.plan": "План",
+    "publication.check.group.source": "Источник",
+    "publication.check.group.widgets": "Виджеты и поля",
+    "publication.check.none": "Замечаний нет.",
+    "publication.check.recheck": "Проверить снова",
+    "publication.check.status.blocks": "Блокирует",
+    "publication.check.status.warning": "Предупреждение",
+    "publication.check.summary.plan_not_built": "План записи не создаётся, пока есть блокировки.",
+    "publication.check.summary.ready": "Готово к подтверждению",
+    "publication.checks.checking": "Чтение сервера…",
+    "publication.checks.source_current": "Панель на сервере совпадает со снимком · проверено {time}",
+    "publication.checks.source_not_checked": "Ещё не сверено с сервером",
+    "publication.checks.source_title": "Источник",
+    "publication.confirm.api_create": "Один запрос создания панели",
+    "publication.confirm.api_update": "Один запрос изменения панели",
+    "publication.confirm.building": "План создаётся и проверяется…",
+    "publication.confirm.changes_create": "{pages, plural, one {# страница со всеми виджетами} few {# страницы со всеми виджетами} many {# страниц со всеми виджетами} other {# страницы со всеми виджетами}}",
+    "publication.confirm.changes_update": "{count, plural, one {# поле: узел сети {source} → {target}} few {# поля: узел сети {source} → {target}} many {# полей: узел сети {source} → {target}} other {# поля: узел сети {source} → {target}}}",
+    "publication.confirm.connection_value": "{profile} · Zabbix {version} · чтение-запись",
+    "publication.confirm.create_name_check": "Имя окончательно проверяет сервер при записи: его может занимать панель, которая вам не видна.",
+    "publication.confirm.dashboard_existing": "«{dashboard_name}» — существующая, обновляется",
+    "publication.confirm.dashboard_new": "«{name}» — новая, личная",
+    "publication.confirm.field.action": "Действие",
+    "publication.confirm.field.changes": "Изменяется",
+    "publication.confirm.field.connection": "Подключение",
+    "publication.confirm.field.dashboard": "Панель",
+    "publication.confirm.field.kept": "Остаётся на {host}",
+    "publication.confirm.field.plan": "План",
+    "publication.confirm.field.unchanged": "Не изменяется",
+    "publication.confirm.field.warnings": "Предупреждения",
+    "publication.confirm.invalid_when": "План станет недействительным при изменении черновика, цели, подключения, режима или прав — тогда нужен новый предпросмотр.",
+    "publication.confirm.kept_confirmed": "{count, plural, one {# ссылка — список подтверждён} few {# ссылки — список подтверждён} many {# ссылок — список подтверждён} other {# ссылки — список подтверждён}}",
+    "publication.confirm.no_cancel_after_send": "После отправки отменить запись нельзя; результат проверяется повторным чтением.",
+    "publication.confirm.offline": "Для записи нужно подключение черновика в режиме «Чтение-запись».",
+    "publication.confirm.plan_once": "Действует один раз; создан в {time}",
+    "publication.confirm.question_create": "Создать новую панель «{name}»?",
+    "publication.confirm.question_update": "{count, plural, one {Записать # проверенное изменение в панель «{dashboard_name}»?} few {Записать # проверенных изменения в панель «{dashboard_name}»?} many {Записать # проверенных изменений в панель «{dashboard_name}»?} other {Записать # проверенного изменения в панель «{dashboard_name}»?}}",
+    "publication.confirm.requirements": "Для подтверждения нужны режим «Чтение-запись» подключения черновика, выбранное действие и проверки без блокировок.",
+    "publication.confirm.reread": "Перед отправкой панель будет прочитана ещё раз. Если она изменилась после проверки в {time}, запись не выполнится.",
+    "publication.confirm.summary_title": "Готово к записи",
+    "publication.confirm.target_line": "Цель: {target}.",
+    "publication.confirm.title": "Подтвердите запись панели",
+    "publication.confirm.unchanged_update": "{count, plural, one {# виджет, страницы, свойства, владелец и доступ} few {# виджета, страницы, свойства, владелец и доступ} many {# виджетов, страницы, свойства, владелец и доступ} other {# виджета, страницы, свойства, владелец и доступ}}",
+    "publication.confirm.warnings_reviewed": "{count, plural, one {# предупреждение — просмотрено} few {# предупреждения — просмотрены} many {# предупреждений — просмотрены} other {# предупреждения — просмотрены}}",
+    "publication.conflict.body": "Старый план нельзя опубликовать, обновление этой панели остановлено. Ваш черновик не изменён и сохранён.",
+    "publication.conflict.caption": "На сервере: база → Zabbix сейчас",
+    "publication.conflict.change.access": "Изменены владелец или доступ",
+    "publication.conflict.change.dashboard_properties": "Изменены свойства панели",
+    "publication.conflict.change.page_added": "Страница добавлена",
+    "publication.conflict.change.page_changed": "Изменены период или порядок страницы",
+    "publication.conflict.change.page_removed": "Страница удалена",
+    "publication.conflict.change.page_renamed": "Страница переименована",
+    "publication.conflict.change.widget_added": "Виджет добавлен",
+    "publication.conflict.change.widget_changed": "Виджет изменён",
+    "publication.conflict.change.widget_moved": "Виджет перемещён или изменён размер",
+    "publication.conflict.change.widget_removed": "Виджет удалён",
+    "publication.conflict.column.mine": "Мои изменения",
+    "publication.conflict.column.object": "Объект",
+    "publication.conflict.column.server": "Изменение на сервере",
+    "publication.conflict.detected_at": "Изменения обнаружены при проверке в {time}: сервер не совпадает со снимком {snapshot}.",
+    "publication.conflict.mine.host_replaced": "Заменён узел сети",
+    "publication.conflict.mine.none": "—",
+    "publication.conflict.missing_body": "Обновить её нельзя. Черновик не изменён: его можно сохранить новой панелью.",
+    "publication.conflict.missing_title": "Панель «{dashboard_name}» не найдена на сервере или недоступна",
+    "publication.conflict.next_title": "Что дальше",
+    "publication.conflict.no_author": "Кто и когда изменил панель, Zabbix API не сообщает: известно только, что панель отличается от снимка. Автоматического слияния нет.",
+    "publication.conflict.object.dashboard": "Панель",
+    "publication.conflict.object.page": "Страница {number}. {name}",
+    "publication.conflict.object.widget": "{name} · {widget_type}",
+    "publication.conflict.open_new_copy": "Открыть новую копию",
+    "publication.conflict.overlap": "{count, plural, one {Пересекается с вашими изменениями: # виджет} few {Пересекается с вашими изменениями: # виджета} many {Пересекается с вашими изменениями: # виджетов} other {Пересекается с вашими изменениями: # виджета}}",
+    "publication.conflict.overwrite": "Обновить поверх — недоступно",
+    "publication.conflict.overwrite_unavailable": "Обновить поверх нельзя: запись затёрла бы чужие изменения. Автоматического слияния нет.",
+    "publication.conflict.recheck_hint": "Проверить снова: если панель на сервере вернули к снимку, конфликт исчезнет.",
+    "publication.conflict.refetch_hint": "Новая копия с сервера, замена узла сети рассчитывается на ней заново; решения принимаются вручную. Этот черновик остаётся как есть.",
+    "publication.conflict.refetch_not_replayed": "Замену узла сети на новой копии рассчитать заново не удалось ({code}): задайте её в «Привязках».",
+    "publication.conflict.refetched": "Создана новая копия «{name}».",
+    "publication.conflict.save_copy_hint": "Ваша версия станет новой панелью. Изменённая на сервере панель не трогается.",
+    "publication.conflict.stale_body": "Источник нельзя сравнить с базой. Скопируйте панель заново или сохраните черновик новой панелью.",
+    "publication.conflict.stale_title": "Версия сервера отличается от снимка",
+    "publication.conflict.title": "Панель «{dashboard_name}» изменилась на сервере после копирования",
+    "publication.conflict.truncated": "{count, plural, one {Ещё # изменение не показано} few {Ещё # изменения не показаны} many {Ещё # изменений не показаны} other {Ещё # изменения не показаны}}",
+    "publication.context.connection": "Подключение",
+    "publication.context.operation": "Операция",
+    "publication.context.pages_value": "{count, plural, one {# страница} few {# страницы} many {# страниц} other {# страницы}}",
+    "publication.context.scope": "Область",
+    "publication.context.scope_value": "{changed} из {total, plural, one {# виджета} few {# виджетов} many {# виджетов} other {# виджета}}",
+    "publication.context.source": "Источник (база)",
+    "publication.context.target": "Целевая панель",
+    "publication.context.target_hint": "выбрана на шаге «Назначение»",
+    "publication.context.target_new": "Новая панель «{name}»",
+    "publication.context.target_not_chosen": "Не выбрана",
+    "publication.context.target_same": "Та же панель на сервере",
+    "publication.contract.item_widget_itemid": "элемент данных виджета «Значение элемента данных»",
+    "publication.contract.preserve_untouched_pages": "сохранение незатронутых страниц",
+    "publication.contract.preserve_widget_references": "сохранение связей виджетов",
+    "publication.contract.reconcile_unknown_outcome": "сверка неизвестного результата",
+    "publication.contract.resend_widget_type": "повторная отправка неизменённого виджета {widget_type} на изменённой странице",
+    "publication.contract.svggraph_dataset_hosts": "шаблоны узлов наборов данных «Графика»",
+    "publication.contract.svggraph_dataset_itemids": "элементы данных наборов данных «Графика»",
+    "publication.contract.update_one_page_with_full_fields": "обновление страницы со всеми полями",
+    "publication.contract.update_several_pages": "несколько страниц в одном обновлении",
+    "publication.diff.caption": "Изменения на странице {page}",
+    "publication.diff.change.field": "{count, plural, one {Изменено # поле} few {Изменены # поля} many {Изменено # полей} other {Изменено # поля}}",
+    "publication.diff.change.kept": "Останется на старом",
+    "publication.diff.change.unresolved": "Не решено",
+    "publication.diff.column.after": "Станет",
+    "publication.diff.column.before": "Было (база)",
+    "publication.diff.column.change": "Изменение",
+    "publication.diff.column.object": "Объект",
+    "publication.diff.empty_filter": "Нет виджетов, подходящих под фильтр и поиск.",
+    "publication.diff.filter.changed": "Изменены",
+    "publication.diff.filter.kept": "Остаются",
+    "publication.diff.filter.label": "Показать",
+    "publication.diff.filter.unresolved": "Не решено",
+    "publication.diff.filter.untouched": "Без изменений",
+    "publication.diff.inspector.changed_fields": "Изменённые поля",
+    "publication.diff.inspector.none": "Выберите виджет, чтобы увидеть изменения.",
+    "publication.diff.inspector.series": "Набор данных {index}",
+    "publication.diff.inspector.sources": "Источники данных",
+    "publication.diff.inspector.title": "Выбрано",
+    "publication.diff.inspector.unchanged": "Не изменяется",
+    "publication.diff.inspector.unchanged_body": "Положение, размер, период обновления и все остальные поля.",
+    "publication.diff.matching_by_id": "Виджеты сопоставляются по идентификаторам Zabbix из базы: при записи они передаются и сохраняются.",
+    "publication.diff.no_changes": "Без изменений",
+    "publication.diff.out_of_scope": "Вне области",
+    "publication.diff.page_summary": "{changed} из {total} виджетов изменены",
+    "publication.diff.remote_current": "На сервере после снимка ничего не менялось.",
+    "publication.diff.remote_later": "Чтобы сравнить с текущим состоянием сервера, выполните «Проверить снова» через подключение черновика.",
+    "publication.diff.search": "Поиск по имени виджета, полю или значению",
+    "publication.diff.tab.local": "Мои изменения: база → черновик",
+    "publication.diff.tab.remote": "На сервере: база → Zabbix сейчас",
+    "publication.evidence.dashboard_name_taken": "имя занято",
+    "publication.evidence.expected_found": "панель как в плане",
+    "publication.evidence.not_visible": "панели нет или она не видна",
+    "publication.evidence.other_found": "другое состояние панели",
+    "publication.evidence.read_back_matches": "повторное чтение совпало с планом",
+    "publication.evidence.reconcile_ambiguous": "несколько панелей с этим именем",
+    "publication.evidence.reconcile_confirmed": "найдена ровно панель из плана",
+    "publication.evidence.reconcile_not_found": "панелей с этим именем нет",
+    "publication.evidence.reconcile_structure_mismatch": "панель с другой структурой",
+    "publication.evidence.source_found": "панель как в базе",
+    "publication.evidence.unknown": "Код: {code}",
+    "publication.expected.choose_action": "выберите действие на шаге «Назначение»",
+    "publication.expected.replace_host": "{count, plural, one {в # виджете узел сети {source} заменяется на {target}; остальное содержимое панели не меняется} few {в # виджетах узел сети {source} заменяется на {target}; остальное содержимое панели не меняется} many {в # виджетах узел сети {source} заменяется на {target}; остальное содержимое панели не меняется} other {в # виджета узел сети {source} заменяется на {target}; остальное содержимое панели не меняется}}",
+    "publication.expected.save_as_copy": "{pages, plural, one {новая личная панель «{name}» из # страницы; исходная панель не меняется} few {новая личная панель «{name}» из # страниц; исходная панель не меняется} many {новая личная панель «{name}» из # страниц; исходная панель не меняется} other {новая личная панель «{name}» из # страницы; исходная панель не меняется}}",
+    "publication.expected.title": "Ожидаемый результат: {summary}",
+    "publication.finding.binding_invalid": "Привязка недействительна",
+    "publication.finding.binding_stale": "Привязка устарела: проверьте её заново",
+    "publication.finding.binding_unresolved": "Ссылка не сопоставлена",
+    "publication.finding.capability_not_verified": "Не подтверждено для этого сервера: {capability}",
+    "publication.finding.connection_required": "Для проверки сервера нужно подключение к Zabbix.",
+    "publication.finding.dashboard_not_editable": "Нет прав на изменение целевой панели",
+    "publication.finding.decision_invalid": "Решение больше не подходит ссылке",
+    "publication.finding.kept_on_source": "Останется на {host}",
+    "publication.finding.kept_on_source_confirmation_stale": "Список изменился после подтверждения: подтвердите его снова",
+    "publication.finding.match_differences": "Сопоставлено с отличиями: {differences}",
+    "publication.finding.no_changes": "Черновик ничего не меняет на сервере.",
+    "publication.finding.scope_link_crossing.consumer_outside": "Связь виджетов пересекает границу области: виджет-получатель вне области",
+    "publication.finding.scope_link_crossing.provider_outside": "Связь виджетов пересекает границу области: виджет-источник вне области",
+    "publication.finding.server_version_mismatch": "Версия сервера отличается от снимка ({base_version}).",
+    "publication.finding.source_unverified": "Ссылку проверить нельзя: она может указывать на заменяемый узел",
+    "publication.finding.target_host_not_visible": "Новый узел сети не найден или нет доступа.",
+    "publication.finding.unknown": "Код замечания: {code}",
+    "publication.finding.write_contract_unverified": "Не подтверждено лабораторным контрактом: {contract}",
+    "publication.finding.write_mode_required": "Подключение в режиме «Только чтение»: для публикации нужен режим «Чтение-запись».",
+    "publication.journal.close": "Закрыть",
+    "publication.journal.description": "Локальная запись операции. В ней нет содержимого запроса, секретов и ответов сервера.",
+    "publication.journal.disk_note": "Запись журнала сделана на диск до отправки. После перезапуска операция покажется до любых новых записей.",
+    "publication.journal.field.closed_by": "Закрыл",
+    "publication.journal.field.connection": "Подключение",
+    "publication.journal.field.evidence": "Что нашла проверка",
+    "publication.journal.field.finished": "Завершена",
+    "publication.journal.field.operation": "Операция",
+    "publication.journal.field.operation_id": "Идентификатор операции",
+    "publication.journal.field.repeats": "Повторных записей",
+    "publication.journal.field.sends": "Запросов записи",
+    "publication.journal.field.sent": "Отправлено",
+    "publication.journal.field.server_version": "Версия Zabbix",
+    "publication.journal.field.source": "Источник",
+    "publication.journal.field.started": "Начата",
+    "publication.journal.field.state": "Состояние",
+    "publication.journal.field.target": "Цель",
+    "publication.journal.field.transitions": "Состояния",
+    "publication.journal.profile_removed": "Удалённый профиль подключения",
+    "publication.journal.source_draft": "Черновик «{name}», ревизия {revision}",
+    "publication.journal.source_removed": "Удалённый черновик",
+    "publication.journal.target_existing": "Панель «{name}»",
+    "publication.journal.target_existing_unnamed": "Существующая панель",
+    "publication.journal.target_new": "Новая панель «{name}»",
+    "publication.journal.title": "Журнал",
+    "publication.journal.transition": "{state} — {time}",
+    "publication.journal_block": "Незавершённая операция блокирует эту панель: сначала проверьте её результат.",
+    "publication.journal_block_damaged": "Повреждённый файл журнала блокирует эту панель: сначала уберите его в карантин.",
+    "publication.kept.confirmed_done": "Список подтверждён",
+    "publication.later.hint": "Публикация появится позже: план не создаётся, ничего не записывается.",
+    "publication.none.body": "Выберите изменение в разделе «Привязки»: предпросмотр появится после расчёта соответствий.",
+    "publication.none.title": "Публиковать пока нечего",
+    "publication.plan.invalidated": "План больше не действует: {reason}. Создайте новый предпросмотр.",
+    "publication.plan.reason.app_restarted": "приложение перезапущено",
+    "publication.plan.reason.bindings_changed": "изменились привязки",
+    "publication.plan.reason.connection_changed": "изменились подключение, режим или учётные данные",
+    "publication.plan.reason.draft_changed": "черновик изменён после предпросмотра",
+    "publication.plan.reason.session_ended": "локальный сеанс завершён",
+    "publication.plan.reason.source_changed": "панель на сервере изменилась или требует повторной проверки",
+    "publication.plan.reason.target_changed": "изменились цель или действие",
+    "publication.plan.reason.unknown": "неизвестная причина ({code})",
+    "publication.preflight.blocked": "Публикация заблокирована",
+    "publication.preflight.title": "Предварительные проверки",
+    "publication.preview.read_only_note": "Проверки выполняются чтением, на сервере ничего не меняется до подтверждения записи.",
+    "publication.reconcile.column.found": "Найдено",
+    "publication.reconcile.column.next": "Дальше",
+    "publication.reconcile.column.result": "Итог",
+    "publication.reconcile.create_note": "Только чтение: панель ищется по точному имени и отпечатку структуры. Повторной отправки нет.",
+    "publication.reconcile.found_base": "Панель как в базе",
+    "publication.reconcile.found_expected": "Панель как в плане",
+    "publication.reconcile.found_none_or_other": "Ни одной, несколько или структура другая",
+    "publication.reconcile.found_one": "Одна панель, структура как в плане",
+    "publication.reconcile.found_other": "Другое содержимое или не видна",
+    "publication.reconcile.next_continue": "можно продолжать",
+    "publication.reconcile.next_new_preview": "новый предпросмотр",
+    "publication.reconcile.next_open": "открыть в Zabbix",
+    "publication.reconcile.read_only_enough": "Для проверки достаточно режима «Только чтение».",
+    "publication.reconcile.title": "Что покажет проверка результата",
+    "publication.reconcile.update_note": "Только чтение: панель сравнивается с ожидаемым результатом и с базой. Повторной отправки нет.",
+    "publication.reconcile.write_blocked": "Новая запись в эту цель заблокирована, пока результат не сверен.",
     "publication.requirement.no_connection": "Для публикации нужно подключение к Zabbix.",
+    "publication.result.base_advanced": "Снимок после записи стал новой базой черновика.",
+    "publication.result.base_not_advanced": "Черновик сохранил прежнюю базу; перед следующей публикацией проверьте источник.",
+    "publication.result.closed_manually_body": "Закрыто без сверки: результат остаётся неизвестным. Новая публикация начнётся с повторного чтения.",
+    "publication.result.copy_created": "Новая панель «{name}» добавлена в список панелей, созданных из этого черновика.",
+    "publication.result.failed_after_response_body": "Сервер ответил, но результат не совпадает с планом. Доступна только сверка чтением, затем — новый план.",
+    "publication.result.failed_before_send_body": "Ничего не отправлено: {reason}",
+    "publication.result.journal_error": "Журнал не смог записать итог ({code}): операция считается незавершённой.",
+    "publication.result.manual_body": "Чтение не нашло ровно одну панель как в плане: ни одной, несколько или структура другая. Проверьте в Zabbix; новая запись в эту цель заблокирована, пока результат не сверен или операция не закрыта без сверки.",
+    "publication.result.manual_update_body": "Панель не совпадает ни с планом, ни с базой или не видна. Проверьте её в Zabbix; новая запись в неё заблокирована, пока результат не сверен или операция не закрыта без сверки.",
+    "publication.result.reconciled_failed_body": "Сверено чтением: ничего не записано. Создайте новый предпросмотр.",
+    "publication.result.reconciled_verified_body": "Сверено чтением: панель как в плане.",
+    "publication.result.unknown_body": "Не повторяйте публикацию. Прочитайте панель, чтобы определить результат.",
+    "publication.result.verified_body": "Структура и источники данных проверены. Проверьте отображение панели в Zabbix.",
+    "publication.stage.at": "{time}",
+    "publication.stage.display": "Отображение",
+    "publication.stage.display_not_checked": "Не проверяется автоматически: откройте панель в Zabbix",
+    "publication.stage.name_check": "Проверка имени",
+    "publication.stage.name_check_done": "Среди видимых панелей имя свободно",
+    "publication.stage.not_done": "Не выполнено",
+    "publication.stage.not_sent": "Не отправлено",
+    "publication.stage.pre_read": "Чтение перед записью",
+    "publication.stage.pre_read_done": "Панель совпадает с базой",
+    "publication.stage.read_back": "Повторное чтение",
+    "publication.stage.read_back_done": "Панель прочитана",
+    "publication.stage.sending": "Отправка одного проверенного запроса…",
+    "publication.stage.sources": "Источники данных",
+    "publication.stage.sources_done": "Ссылки указывают на элементы данных из плана",
+    "publication.stage.structure": "Структура",
+    "publication.stage.structure_done": "Изменено как в плане; нетронутые виджеты, страницы и идентификаторы на месте; неизвестные поля на месте",
+    "publication.stage.waiting": "Ожидание ответа сервера…",
+    "publication.stage.write": "Запись",
+    "publication.stage.write_done": "Один запрос, ответ получен",
+    "publication.stage.write_unknown": "Запрос отправлен, ответ не получен: панель могла быть записана.",
+    "publication.stages.title": "Этапы",
+    "publication.state.closed_manually": "Закрыто вручную, результат не проверен",
+    "publication.state.confirmed": "Подтверждено, не отправлено",
+    "publication.state.conflict": "Изменена на сервере",
+    "publication.state.failed_after_response": "Ошибка после ответа сервера",
+    "publication.state.failed_before_send": "Не отправлено",
+    "publication.state.manual_check_required": "Нужна проверка вручную",
+    "publication.state.reconciled_failed": "Сверено: не записано",
+    "publication.state.reconciled_verified": "Сверено: записано",
+    "publication.state.submitting": "Запись без итога",
+    "publication.state.unknown_outcome": "Результат публикации неизвестен",
+    "publication.state.verified": "Проверено повторным чтением",
+    "publication.step.changes": "Изменения",
+    "publication.step.checks": "Проверки",
+    "publication.step.confirm": "Подтверждение",
+    "publication.step.target": "Назначение",
+    "publication.step.unavailable_reason": "Доступно после успешных проверок",
+    "publication.step.write": "Запись и проверка",
+    "publication.target.choose_explicitly": "Выберите явно: варианта по умолчанию нет.",
+    "publication.target.name": "Имя новой панели",
+    "publication.target.name_required": "Введите имя новой панели.",
+    "publication.target.name_server_check": "Имя панели уникально на всём сервере, включая панели, которые вам не видны. Окончательно это проверяет сервер при записи.",
+    "publication.target.no_retarget": "Сменить цель на другую панель нельзя: замена узла сети записывается в исходную панель или в её копию.",
+    "publication.target.save_copy": "Сохранить копию",
+    "publication.target.save_copy_hint": "Новая панель с заменой узла сети. Исходная панель не изменяется.",
+    "publication.target.title": "Действие",
+    "publication.target.update_source": "Обновить исходную панель «{dashboard_name}»",
+    "publication.target.update_source_hint": "Изменяет существующую панель на сервере одним запросом после подтверждения.",
+    "publication.target.update_visible_to_all": "Панель увидят изменённой все, у кого есть к ней доступ.",
+    "publication.tech.base": "Отпечаток базы",
+    "publication.tech.fields": "Коды полей",
+    "publication.tech.local": "Отпечаток черновика",
+    "publication.tech.pageid": "ID страницы",
+    "publication.tech.revision": "Ревизия черновика",
+    "publication.tech.title": "Технические сведения",
+    "publication.tech.widget_type": "Код типа виджета",
+    "publication.tech.widgetid": "ID виджета",
+    "publication.title": "Предпросмотр и публикация",
+    "publication.untouched.access": "Владелец и доступ не передаются в запросе, поэтому сохраняются",
+    "publication.untouched.pages": "Страницы, их порядок и периоды; имя и свойства панели",
+    "publication.untouched.source": "Исходная панель «{dashboard_name}» не изменяется",
+    "publication.untouched.title": "Не изменяется",
+    "publication.untouched.widgets": "{count, plural, one {# виджет без ссылок на {host} передаётся как есть, с прежним идентификатором} few {# виджета без ссылок на {host} передаются как есть, с прежними идентификаторами} many {# виджетов без ссылок на {host} передаются как есть, с прежними идентификаторами} other {# виджета без ссылок на {host} передаются как есть, с прежними идентификаторами}}",
+    "publication.untouched.zabbix_objects": "Узлы сети, шаблоны, элементы данных и триггеры не изменяются никогда",
+    "replace_host.source": "Заменяемый узел сети",
+    "server.action.clone": "Клонировать",
+    "server.action.copy": "Скопировать с сервера",
+    "server.action.open_copy": "Открыть копию",
+    "server.action.preview": "Предпросмотр",
+    "server.action.refresh": "Обновить список",
+    "server.actions_start_with_copy": "Каждое действие начинается с копии: сервер меняется только из раздела «Публикация» по проверенному плану.",
+    "server.column.access": "Доступ",
+    "server.column.editable": "Изменение",
+    "server.column.mine": "У меня",
+    "server.column.name": "Имя",
+    "server.column.owner": "Владелец",
+    "server.column.pages": "Страниц",
+    "server.column.widgets": "Виджетов",
     "server.dashboards.title": "Панели в Zabbix",
+    "server.details.copied_as_is": "копируются как есть",
+    "server.details.editable": "Изменение поддерживается: {count}",
+    "server.details.existing_copy": "Есть копия от {time}.",
+    "server.details.not_editable": "Изменение не поддерживается: {count}",
+    "server.details.owner": "Владелец — {owner}",
+    "server.details.pages": "Страницы",
+    "server.details.select_hint": "Выберите панель, чтобы увидеть её страницы и действия.",
+    "server.details.type_count": "{type} {count}",
+    "server.details.widgets": "Виджеты",
+    "server.editable_count": "{editable} из {total}",
+    "server.empty.offline": "Подключитесь к Zabbix, чтобы увидеть панели",
+    "server.empty.other_connection": "Это подключение не активно. Подключитесь к нему, чтобы увидеть его панели.",
+    "server.filter.legend": "Владелец и доступ",
+    "server.filter.mine": "Мои",
+    "server.filter.shared": "Общие",
+    "server.list.copies_unknown": "Локальные копии не проверены: локальное хранилище не читается.",
+    "server.list.load_failed": "Не удалось загрузить список панелей",
+    "server.list.truncated": "{count, plural, one {Прочитана только первая # панель.} few {Прочитаны только первые # панели.} many {Прочитаны только первые # панелей.} other {Прочитаны только первые # панели.}} Уточните поиск, чтобы увидеть остальные.",
+    "server.mine.copy": "копия · {date}",
+    "server.mine.unknown": "неизвестно",
+    "server.owner.other": "другой пользователь",
+    "server.owner.you": "вы",
+    "server.pagination.label": "Страницы списка панелей",
+    "server.pagination.next": "Далее",
+    "server.pagination.previous": "Назад",
+    "server.preview.badge": "Только просмотр",
+    "server.preview.breadcrumb": "Предпросмотр",
+    "server.preview.load_failed": "Не удалось прочитать панель",
+    "server.preview.note": "Панель прочитана с сервера только для просмотра: на этом компьютере ничего не сохраняется. Чтобы изменить панель, сначала скопируйте её.",
+    "server.preview.page_to_take": "Страница, которую взять",
+    "server.search.action": "Найти",
+    "server.search.placeholder": "Поиск по имени панели",
+    "server.subtitle": "{profile} · Zabbix {version} · {mode}. Сервер не изменяется на этом экране.",
+    "server.tab.dashboards": "Панели",
+    "server.tab.templates": "Шаблоны",
+    "server.take_page.legend": "Какую страницу взять",
+    "server.templates.later": "Импорт шаблонов в библиотеку появится позже.",
+    "server.visibility_note": "Показаны панели, видимые учётной записи подключения. Если нужной панели нет, её нет на сервере или не хватает прав — Zabbix эти случаи не различает.",
+    "session.action.end": "Завершить сеанс",
+    "session.end.confirm.body": "Сеанс закроется во всех вкладках, секреты Zabbix будут стёрты из памяти. Сохранённые черновики останутся на диске; несохранённый ввод в открытых вкладках пропадёт.",
+    "session.end.confirm.title": "Завершить локальный сеанс?",
+    "session.end.not_confirmed": "Сначала подтвердите завершение локального сеанса.",
+    "session.end.unavailable_writing": "Дождитесь окончания записи или того, что её результат станет известен.",
+    "session.ended.title": "Сеанс завершён",
+    "settings.appearance.invalid_body": "Работают последние верные настройки. Пока файл не исправлен, изменения здесь действуют до перезапуска и не сохраняются.",
+    "settings.appearance.not_saved.body": "Локальный сервер не сохранил файл настроек. Изменения действуют до перезапуска.",
+    "settings.appearance.not_saved.title": "Изменения не сохранены",
+    "settings.appearance.saved": "Сохранено в файл настроек",
+    "settings.appearance.subtitle": "Изменения применяются сразу и сохраняются в файл настроек.",
     "settings.appearance.title": "Внешний вид",
+    "settings.changed": "изменено",
     "settings.connections.title": "Подключения и сертификаты",
+    "settings.contrast.note": "Выберите тему «Высокая контрастность». Режим контрастности системы тоже учитывается и важнее любой темы.",
+    "settings.contrast.title": "Высокая контрастность",
+    "settings.data_not_translated": "Имена панелей, узлов сети и другие данные из Zabbix не переводятся. Термины — как в русском Zabbix.",
     "settings.editor.title": "Редактор",
+    "settings.file.hint": "Настройки хранятся в YAML-файле, его можно править вручную. Ошибочный файл не применяется.",
+    "settings.file.invalid.title": "Файл настроек содержит ошибки и не применён",
+    "settings.file.title": "Файл настроек",
+    "settings.formats.count": "Количество",
+    "settings.formats.count_sample": "{widgets, plural, one {# виджет} few {# виджета} many {# виджетов} other {# виджета}} · {pages, plural, one {# страница} few {# страницы} many {# страниц} other {# страницы}} · {more, plural, one {# виджет} few {# виджета} many {# виджетов} other {# виджета}}",
+    "settings.formats.datetime": "Дата и время",
+    "settings.formats.number": "Число",
+    "settings.formats.title": "Предпросмотр форматов",
     "settings.general.title": "Общие",
+    "settings.language.after_restart": "Смена языка системы применится после перезапуска браузера или приложения.",
+    "settings.language.current": "сейчас: {language}",
+    "settings.language.name.en": "английский",
+    "settings.language.name.ru": "русский",
+    "settings.language.option.en": "English",
+    "settings.language.option.ru": "Русский",
+    "settings.language.system": "Как в системе",
+    "settings.language.title": "Язык интерфейса",
+    "settings.motion.explicit_state": "Задано здесь; в системе: {state}.",
+    "settings.motion.no_meaning": "Статусы и тексты не зависят от анимации.",
+    "settings.motion.reduce": "Уменьшить анимацию",
+    "settings.motion.state.off": "выключено",
+    "settings.motion.state.on": "включено",
+    "settings.motion.system_state": "Как в системе: {state}.",
+    "settings.motion.title": "Движение и контраст",
     "settings.nav.no_secrets": "Пароли и токены здесь не хранятся и не показываются.",
+    "settings.reset.section": "Сбросить раздел",
     "settings.search.placeholder": "Поиск настроек",
     "settings.security.title": "Безопасность и экспорт",
     "settings.storage.network_warning": "Сетевое хранилище: при обрыве связи изменения могут не сохраниться, а публикация в Zabbix будет недоступна, пока журнал не запишется.",
+    "settings.theme.dark": "Тёмная",
+    "settings.theme.high_contrast": "Высокая контрастность",
+    "settings.theme.high_contrast.hint": "Чёрный текст на белом, чёткие границы и толстая рамка фокуса.",
+    "settings.theme.light": "Светлая",
+    "settings.theme.not_widgets": "Тема интерфейса не меняет оформление виджетов на панели.",
+    "settings.theme.system": "Как в системе",
+    "settings.theme.title": "Тема",
     "settings.title": "Настройки",
     "settings.workspace.title": "Рабочие каталоги",
     "shell.a11y.breadcrumbs": "Навигационная цепочка",
     "shell.a11y.main_nav": "Основная навигация",
+    "shell.demo.marker": "Демонстрационные данные",
     "startup.action.all_drafts": "Все локальные черновики",
     "startup.action.assemble_dashboard": "Собрать из страниц",
     "startup.action.choose_dashboard": "Выбрать панель",
@@ -467,6 +2603,7 @@ export const catalogs = {
     "startup.action.import_files": "Импортировать файлы",
     "startup.action.new_dashboard": "Создать панель",
     "startup.action.new_page": "Создать страницу",
+    "startup.action.open_server": "Показать панели",
     "startup.action.take_page": "Взять страницу",
     "startup.draft.missing": "Черновик больше недоступен в локальном хранилище.",
     "startup.error.unavailable": "Локальная служба недоступна.",
@@ -485,6 +2622,26 @@ export const catalogs = {
     "startup.question": "Что вы хотите сделать с панелями Zabbix?",
     "startup.recent.empty": "Локальных черновиков пока нет",
     "startup.recent.title": "Недавнее",
+    "startup.recovery.a11y.region": "Незавершённые операции публикации",
+    "startup.recovery.action.connect": "Подключиться",
+    "startup.recovery.action.open_draft": "Открыть черновик",
+    "startup.recovery.body": "{intent}: {object_kind}, источник — {source}, цель — {target} в подключении «{profile}». Отправлено в {time}. Не публикуйте в эту цель снова, пока результат не проверен.",
+    "startup.recovery.close_unverified": "Закрыть без сверки",
+    "startup.recovery.close_unverified.confirm": "Закрыть операцию {operation_id} в «{target}», отправленную в {time}, без сверки? Результат останется неизвестным; запись в журнале сохранится.",
+    "startup.recovery.close_unverified.title": "Закрыть без сверки?",
+    "startup.recovery.closed": "Операция закрыта без сверки.",
+    "startup.recovery.closed_manually": "Закрыто вручную, результат не проверен",
+    "startup.recovery.connect_first": "Подключитесь к «{profile}», чтобы проверить результат. Достаточно режима «Только чтение».",
+    "startup.recovery.damaged.body_all": "Файл журнала {operation_id} не читается ({code}), его цель неизвестна: любая публикация заблокирована, пока файл не убран в карантин.",
+    "startup.recovery.damaged.body_target": "Файл журнала {operation_id} не читается ({code}). Публикация в «{target}» заблокирована, пока файл не убран в карантин.",
+    "startup.recovery.damaged.title": "{count, plural, one {Повреждённый файл журнала блокирует публикацию} few {# повреждённых файла журнала блокируют публикацию} many {# повреждённых файлов журнала блокируют публикацию} other {# повреждённого файла журнала блокируют публикацию}}",
+    "startup.recovery.found": "{count, plural, one {Найдена незавершённая операция} few {Найдены # незавершённые операции} many {Найдено # незавершённых операций} other {Найдено # незавершённой операции}}",
+    "startup.recovery.load_failed": "Журнал публикации прочитать не удалось ({code}).",
+    "startup.recovery.quarantine": "Убрать в карантин",
+    "startup.recovery.quarantine.confirm": "Файл {operation_id} без изменений переносится в journal/quarantine и перестаёт блокировать публикацию. Ничего не удаляется и не отправляется. Если эта операция дошла до сервера, проверьте панель в Zabbix перед новой публикацией.",
+    "startup.recovery.quarantine.title": "Убрать файл журнала в карантин?",
+    "startup.recovery.quarantined": "Файл журнала убран в карантин.",
+    "startup.recovery.state": "Состояние: {state}",
     "startup.server.help": "Заменить узел сети, клонировать панель или взять страницу.",
     "startup.server.title": "Панели в Zabbix",
     "startup.status.backend": "Локальная служба",
@@ -529,12 +2686,390 @@ export const catalogs = {
     "widget.type.toptriggers": "Топ триггеров",
     "widget.type.trigover": "Обзор триггеров",
     "widget.type.url": "URL",
-    "widget.type.web": "Веб-мониторинг"
+    "widget.type.web": "Веб-мониторинг",
+    "workcopy.refetch.action": "Скопировать заново"
   }
 } as const;
 
 export const placeholderTypes = {
+  "about.copied": {},
+  "about.copyright": {},
+  "about.data.copy_path": {
+    "name": "text"
+  },
+  "about.data.journal": {},
+  "about.data.paths_local_only": {},
+  "about.data.settings_file": {},
+  "about.data.storage": {},
+  "about.data.title": {},
+  "about.error.unavailable": {},
+  "about.field.build": {},
+  "about.field.build_unknown": {},
+  "about.field.platform": {},
+  "about.field.version": {},
+  "about.field.zabbix": {},
+  "about.field.zabbix_value": {
+    "versions": "technical",
+    "adapter": "technical",
+    "verified": "technical"
+  },
+  "about.license.brand": {},
+  "about.license.code": {},
+  "about.license.code_choice": {},
+  "about.license.docs": {},
+  "about.license.docs_value": {},
+  "about.license.tabler": {},
+  "about.license.text": {},
+  "about.license.text_apache": {},
+  "about.license.text_mit": {},
+  "about.license.text_original": {},
+  "about.license.title": {},
+  "about.license.zabbix_note": {},
+  "about.report.copy": {},
+  "about.report.copy_failed": {},
+  "about.report.preview": {},
+  "about.report.scope": {},
+  "about.subtitle": {},
+  "about.tagline": {},
+  "about.third_party.column.component": {},
+  "about.third_party.column.license": {},
+  "about.third_party.column.version": {},
+  "about.third_party.empty": {},
+  "about.third_party.filter.all": {
+    "count": "number"
+  },
+  "about.third_party.filter.icons": {
+    "count": "number"
+  },
+  "about.third_party.filter.rust": {
+    "count": "number"
+  },
+  "about.third_party.filter.ui": {
+    "count": "number"
+  },
+  "about.third_party.filters": {},
+  "about.third_party.icons_summary": {
+    "count": "number"
+  },
+  "about.third_party.missing": {},
+  "about.third_party.more": {
+    "count": "number"
+  },
+  "about.third_party.search": {},
+  "about.third_party.show_all": {
+    "count": "number"
+  },
+  "about.third_party.subtitle": {},
+  "about.third_party.title": {},
   "about.title": {},
+  "bindings.a11y.steps": {},
+  "bindings.action.back": {},
+  "bindings.action.check_all": {},
+  "bindings.action.connect": {},
+  "bindings.action.next_dependencies": {},
+  "bindings.action.next_mapping": {},
+  "bindings.action.next_new_host": {},
+  "bindings.action.next_summary": {},
+  "bindings.action.reset_all": {},
+  "bindings.action.retry": {},
+  "bindings.action.to_publication": {},
+  "bindings.calculated.done": {},
+  "bindings.calculated_at": {
+    "time": "datetime",
+    "version": "technical"
+  },
+  "bindings.candidates.legend": {
+    "host": "text"
+  },
+  "bindings.candidates.none": {},
+  "bindings.change.changed": {},
+  "bindings.change.kept_on_source": {},
+  "bindings.change.unresolved": {},
+  "bindings.change.untouched": {},
+  "bindings.check_reason.candidate_not_visible": {},
+  "bindings.check_reason.reference_added": {},
+  "bindings.check_reason.reference_gone": {},
+  "bindings.check_reason.resolution_changed": {},
+  "bindings.check_reason.server_version_changed": {},
+  "bindings.check_reason.target_not_visible": {},
+  "bindings.checked.done": {},
+  "bindings.checked_at": {
+    "time": "datetime"
+  },
+  "bindings.command_failed": {},
+  "bindings.decision.applied_candidate": {
+    "key": "technical"
+  },
+  "bindings.decision.applied_keep": {},
+  "bindings.decision.choose": {},
+  "bindings.decision.done": {},
+  "bindings.decision.invalid": {},
+  "bindings.decision.keep_hint": {
+    "host": "text"
+  },
+  "bindings.decision.keep_on_source": {},
+  "bindings.decision.undo": {},
+  "bindings.decision.undone": {},
+  "bindings.decision.unresolved": {},
+  "bindings.deps.choose_host": {},
+  "bindings.deps.column.outcome": {},
+  "bindings.deps.column.reference": {},
+  "bindings.deps.column.type": {},
+  "bindings.deps.column.widget": {},
+  "bindings.deps.count.changes": {
+    "count": "number"
+  },
+  "bindings.deps.count.kept": {
+    "count": "number"
+  },
+  "bindings.deps.count.unverified": {
+    "count": "number"
+  },
+  "bindings.deps.page_summary": {
+    "widgets": "number",
+    "references": "number"
+  },
+  "bindings.deps.pattern_rule": {
+    "host": "text"
+  },
+  "bindings.deps.title": {
+    "host": "text"
+  },
+  "bindings.difference.origin": {},
+  "bindings.difference.pattern_coverage": {},
+  "bindings.difference.units": {},
+  "bindings.difference.value_type": {},
+  "bindings.draft_only": {},
+  "bindings.evidence.coverage": {
+    "pattern": "technical",
+    "source": "number",
+    "target": "number"
+  },
+  "bindings.evidence.differences": {
+    "differences": "text"
+  },
+  "bindings.evidence.key": {
+    "key": "technical"
+  },
+  "bindings.evidence.no_units": {},
+  "bindings.evidence.origin.lld": {
+    "key": "technical"
+  },
+  "bindings.evidence.origin.own": {},
+  "bindings.evidence.origin.template": {},
+  "bindings.evidence.source_item": {},
+  "bindings.evidence.target_item": {},
+  "bindings.evidence.units": {
+    "units": "text"
+  },
+  "bindings.evidence.value_type": {
+    "type": "text"
+  },
+  "bindings.fitness.editable": {},
+  "bindings.fitness.read_only": {},
+  "bindings.fitness.unsupported": {},
+  "bindings.history.empty": {},
+  "bindings.history.op.replace_host": {},
+  "bindings.history.op.replace_host_confirm_kept": {},
+  "bindings.history.op.replace_host_decision": {},
+  "bindings.history.op.unknown": {
+    "op": "technical"
+  },
+  "bindings.history.title": {},
+  "bindings.inspector.field": {
+    "field": "technical"
+  },
+  "bindings.inspector.none": {},
+  "bindings.inspector.title": {},
+  "bindings.intent.clone": {},
+  "bindings.intent.title": {},
+  "bindings.kept.by_decision": {},
+  "bindings.kept.confirmed": {},
+  "bindings.kept.not_blocking": {},
+  "bindings.kept.title": {
+    "count": "number",
+    "host": "text"
+  },
+  "bindings.kept.unconfirmed": {},
+  "bindings.load_failed": {},
+  "bindings.local_only": {},
+  "bindings.mapping.candidates": {},
+  "bindings.mapping.candidates_count": {
+    "count": "number"
+  },
+  "bindings.mapping.caption": {},
+  "bindings.mapping.choose_lld_instance": {},
+  "bindings.mapping.column.match": {},
+  "bindings.mapping.column.source": {
+    "host": "text"
+  },
+  "bindings.mapping.column.target": {
+    "host": "text"
+  },
+  "bindings.mapping.column.widget": {},
+  "bindings.mapping.empty_filter": {},
+  "bindings.mapping.filter": {},
+  "bindings.mapping.keyboard_hint": {},
+  "bindings.mapping.no_rows": {},
+  "bindings.mapping.no_target": {},
+  "bindings.mapping.similar_name_not_proof": {},
+  "bindings.mapping.target_missing": {},
+  "bindings.mapping.title": {
+    "source": "text",
+    "target": "text"
+  },
+  "bindings.match.ambiguous": {},
+  "bindings.match.compatible": {},
+  "bindings.match.denied": {},
+  "bindings.match.exact": {},
+  "bindings.match.missing": {},
+  "bindings.match.unresolved_lld": {},
+  "bindings.match_short.ambiguous": {},
+  "bindings.match_short.compatible": {},
+  "bindings.match_short.denied": {},
+  "bindings.match_short.exact": {},
+  "bindings.match_short.missing": {},
+  "bindings.match_short.unresolved_lld": {},
+  "bindings.match_short.unverified": {},
+  "bindings.new_host.chosen": {
+    "host": "text"
+  },
+  "bindings.new_host.empty": {},
+  "bindings.new_host.groups": {
+    "groups": "text"
+  },
+  "bindings.new_host.legend": {
+    "host": "text"
+  },
+  "bindings.new_host.no_templates": {
+    "host": "text"
+  },
+  "bindings.new_host.partial": {
+    "found": "number",
+    "total": "number"
+  },
+  "bindings.new_host.same_connection": {},
+  "bindings.new_host.search": {},
+  "bindings.new_host.search_action": {},
+  "bindings.new_host.truncated": {
+    "count": "number"
+  },
+  "bindings.new_host.visible_only": {},
+  "bindings.offline.body": {},
+  "bindings.offline.check_all": {},
+  "bindings.offline.title": {},
+  "bindings.outcome.changes": {},
+  "bindings.outcome.kept": {
+    "host": "text"
+  },
+  "bindings.plan_invalid_note": {},
+  "bindings.progress.calculating": {},
+  "bindings.progress.checking": {},
+  "bindings.progress.inventory": {},
+  "bindings.progress.saving": {},
+  "bindings.progress.search": {},
+  "bindings.reason.classic_graph_contract_pending": {},
+  "bindings.reason.field_not_replaceable": {},
+  "bindings.reason.graph_name_not_found": {},
+  "bindings.reason.host_field_not_supported": {},
+  "bindings.reason.host_mask": {},
+  "bindings.reason.host_wildcard_all": {},
+  "bindings.reason.item_patterns_without_target_items": {},
+  "bindings.reason.key_not_found": {},
+  "bindings.reason.lld_instance_missing": {},
+  "bindings.reason.not_found_or_no_access": {},
+  "bindings.reason.origin_differs": {},
+  "bindings.reason.pattern_coverage_differs": {},
+  "bindings.reason.pattern_field_not_supported": {},
+  "bindings.reason.prototype_owner_unknown": {},
+  "bindings.reason.several_target_candidates": {},
+  "bindings.reason.target_name_is_mask": {},
+  "bindings.reason.units_differ": {},
+  "bindings.reason.unknown": {
+    "code": "technical"
+  },
+  "bindings.reason.unknown_field": {},
+  "bindings.reason.unknown_widget": {},
+  "bindings.reason.value_type_differs": {},
+  "bindings.reason.value_type_incompatible": {},
+  "bindings.reason.widget_not_editable": {},
+  "bindings.ref.by_id": {},
+  "bindings.ref.graph_id": {},
+  "bindings.ref.host_id": {},
+  "bindings.ref.host_mask": {},
+  "bindings.ref.host_name_pattern": {},
+  "bindings.ref.prototype": {},
+  "bindings.reset.body": {},
+  "bindings.reset.done": {},
+  "bindings.reset.title": {},
+  "bindings.scope.choose_pages": {},
+  "bindings.scope.choose_widgets": {},
+  "bindings.scope.empty_selection": {},
+  "bindings.scope.pages": {},
+  "bindings.scope.partial_warning": {
+    "host": "text",
+    "count": "number"
+  },
+  "bindings.scope.whole": {
+    "pages": "number",
+    "widgets": "number"
+  },
+  "bindings.scope.whole_page": {
+    "widgets": "number"
+  },
+  "bindings.scope.widgets": {},
+  "bindings.source.none": {},
+  "bindings.source.option_detail": {
+    "references": "number",
+    "widgets": "number"
+  },
+  "bindings.source.unattributed": {
+    "count": "number"
+  },
+  "bindings.source_evidence": {},
+  "bindings.state.checked": {},
+  "bindings.state.invalid": {},
+  "bindings.state.stale": {},
+  "bindings.step.dependencies": {},
+  "bindings.step.done": {},
+  "bindings.step.mapping": {},
+  "bindings.step.new_host": {},
+  "bindings.step.scope": {},
+  "bindings.step.summary": {},
+  "bindings.step.unavailable": {},
+  "bindings.stored.change_hint": {},
+  "bindings.stored.title": {
+    "source": "text",
+    "target": "text"
+  },
+  "bindings.summary.blocked": {
+    "count": "number"
+  },
+  "bindings.summary.changes": {
+    "fields": "number",
+    "widgets": "number"
+  },
+  "bindings.summary.kept": {
+    "count": "number"
+  },
+  "bindings.summary.only_changes": {},
+  "bindings.summary.title": {},
+  "bindings.summary.unresolved": {
+    "count": "number"
+  },
+  "bindings.summary.untouched": {
+    "widgets": "number"
+  },
+  "bindings.targets.templates_coverage": {
+    "found": "number",
+    "total": "number"
+  },
+  "bindings.value_type.binary": {},
+  "bindings.value_type.character": {},
+  "bindings.value_type.float": {},
+  "bindings.value_type.log": {},
+  "bindings.value_type.text": {},
+  "bindings.value_type.unsigned": {},
   "checks.empty": {
     "count": "number"
   },
@@ -566,11 +3101,13 @@ export const placeholderTypes = {
   },
   "checks.summary.publication_ready": {},
   "checks.summary.save_always": {},
+  "common.action.cancel": {},
   "common.action.copy": {},
   "common.action.delete": {},
   "common.action.duplicate": {},
   "common.action.open": {},
   "common.action.rename": {},
+  "common.action.save_draft": {},
   "common.count.items": {
     "count": "number"
   },
@@ -596,6 +3133,7 @@ export const placeholderTypes = {
   "common.state.offline": {},
   "common.state.read_only": {},
   "common.state.read_write": {},
+  "common.state.verified": {},
   "compatibility.calculated_range": {
     "minimum": "technical",
     "maximum_exclusive": "technical_optional"
@@ -616,12 +3154,343 @@ export const placeholderTypes = {
   "compatibility.unknown_widget_type": {
     "widget_type": "technical"
   },
+  "connection.a11y.profiles": {},
+  "connection.a11y.steps": {},
+  "connection.action.back_to_list": {},
+  "connection.action.cancel": {},
+  "connection.action.check": {},
+  "connection.action.confirm_new_server": {},
+  "connection.action.connect": {},
+  "connection.action.continue_offline": {},
+  "connection.action.disconnect": {},
+  "connection.action.edit": {},
+  "connection.action.enable_writes": {},
+  "connection.action.fix_address": {},
+  "connection.action.fix_sign_in": {},
+  "connection.action.forget_password": {},
+  "connection.action.forget_token": {},
+  "connection.action.new": {},
+  "connection.action.retry": {},
+  "connection.action.save": {},
+  "connection.action.set_read_only": {},
+  "connection.action.sign_in": {},
+  "connection.action.test": {},
+  "connection.action.use_default_account": {},
+  "connection.auth.mfa_token_required": {},
+  "connection.card.auth.password": {},
+  "connection.card.auth.password_os_store": {},
+  "connection.card.auth.token_memory": {},
+  "connection.card.auth.token_os_store": {},
+  "connection.card.checked_at": {
+    "time": "datetime"
+  },
+  "connection.card.never_checked": {},
+  "connection.connect_failed": {
+    "profile": "text"
+  },
+  "connection.connected": {
+    "profile": "text"
+  },
+  "connection.credential_save_failed": {},
+  "connection.default_password.acknowledge": {},
+  "connection.default_password.body": {
+    "profile": "text"
+  },
+  "connection.default_password.dont_show": {},
+  "connection.default_password.title": {},
+  "connection.delete.body": {},
+  "connection.delete.credential_left": {},
+  "connection.delete.disconnect_first": {},
+  "connection.delete.title": {
+    "profile": "text"
+  },
+  "connection.deleted": {
+    "profile": "text"
+  },
+  "connection.disconnected": {
+    "profile": "text"
+  },
+  "connection.duplicate.name": {
+    "profile": "text"
+  },
+  "connection.editor.section.mode": {},
+  "connection.editor.section.profile": {},
+  "connection.editor.section.sign_in": {},
+  "connection.editor.section.trust": {},
+  "connection.editor.title_edit": {
+    "profile": "text"
+  },
+  "connection.editor.title_new": {},
+  "connection.enable_writes.available": {},
+  "connection.enable_writes.available_title": {},
+  "connection.enable_writes.context": {
+    "profile": "text",
+    "version": "technical"
+  },
+  "connection.enable_writes.duration": {},
+  "connection.enable_writes.duration_title": {},
+  "connection.enable_writes.enabled": {
+    "profile": "text"
+  },
+  "connection.enable_writes.never": {},
+  "connection.enable_writes.never_title": {},
+  "connection.enable_writes.no_extra_rights": {},
+  "connection.enable_writes.plan_only": {},
+  "connection.enable_writes.return_hint": {},
+  "connection.enable_writes.title": {},
+  "connection.forget_password.done": {},
+  "connection.forget_token.not_revoked": {},
+  "connection.form.api_token": {},
+  "connection.form.api_url": {
+    "url": "technical"
+  },
+  "connection.form.api_url_pending": {},
+  "connection.form.auth_method": {},
+  "connection.form.auth_password": {},
+  "connection.form.custom_ca": {},
+  "connection.form.custom_ca_choose": {},
+  "connection.form.custom_ca_fingerprint": {
+    "fingerprint": "technical"
+  },
+  "connection.form.custom_ca_hint": {},
+  "connection.form.custom_ca_loaded": {
+    "count": "number"
+  },
+  "connection.form.custom_ca_loading": {},
+  "connection.form.custom_ca_required": {},
+  "connection.form.default_account_hint": {},
+  "connection.form.endpoint": {},
+  "connection.form.endpoint_hint": {},
+  "connection.form.has_errors": {},
+  "connection.form.http_confirm": {},
+  "connection.form.http_confirm_password": {},
+  "connection.form.mfa_hint": {},
+  "connection.form.mode_read_only": {},
+  "connection.form.password": {},
+  "connection.form.password_not_stored": {},
+  "connection.form.password_stored": {},
+  "connection.form.profile_name": {},
+  "connection.form.rename_keeps_server": {},
+  "connection.form.rules.http": {},
+  "connection.form.rules.port_path": {},
+  "connection.form.rules.rejected": {},
+  "connection.form.rules.scheme": {},
+  "connection.form.rules.title": {},
+  "connection.form.secret_in_memory": {},
+  "connection.form.server_changed.body": {},
+  "connection.form.server_changed.title": {},
+  "connection.form.store_password": {},
+  "connection.form.store_password_hint": {},
+  "connection.form.store_token": {},
+  "connection.form.tls_no_bypass": {},
+  "connection.form.token_at_connect": {},
+  "connection.form.token_stored": {},
+  "connection.form.trust_custom_ca": {},
+  "connection.form.trust_system": {},
+  "connection.form.username": {},
+  "connection.identity.accepted": {},
+  "connection.identity.changed": {},
+  "connection.identity.first_seen": {},
+  "connection.identity.version_changed": {
+    "previous_version": "technical",
+    "version": "technical"
+  },
+  "connection.list.empty": {},
+  "connection.list.empty_help": {},
+  "connection.list.load_failed": {},
+  "connection.list.no_secrets": {},
+  "connection.list.subtitle": {},
   "connection.list.title": {},
+  "connection.logout_failed": {},
+  "connection.mode.read_only": {},
+  "connection.mode.read_only_help": {},
+  "connection.mode.read_write": {},
+  "connection.mode.read_write_help": {},
+  "connection.read_only_restored": {},
+  "connection.result.version": {
+    "version": "technical"
+  },
+  "connection.saved": {
+    "profile": "text"
+  },
+  "connection.sign_in.description": {
+    "address": "technical"
+  },
+  "connection.sign_in.in_progress": {},
+  "connection.sign_in.locked": {
+    "seconds": "number"
+  },
+  "connection.sign_in.password_memory_only": {},
+  "connection.sign_in.password_required": {},
+  "connection.sign_in.password_will_be_stored": {},
+  "connection.sign_in.title": {
+    "profile": "text"
+  },
+  "connection.sign_in.token_memory_only": {},
+  "connection.sign_in.token_required": {},
+  "connection.sign_in.token_will_be_stored": {},
+  "connection.sign_in.username": {
+    "username": "text"
+  },
+  "connection.sign_in.username_hint": {},
+  "connection.sign_in.waiting": {},
+  "connection.state.connected_mode": {
+    "mode": "text"
+  },
+  "connection.state.connecting": {},
+  "connection.state.context_changed": {
+    "profile": "text"
+  },
+  "connection.state.last_check_failed": {},
+  "connection.state.needs_sign_in": {},
   "connection.state.not_connected": {},
+  "connection.state.read_only_profile": {
+    "profile": "text"
+  },
+  "connection.state.read_write_profile": {
+    "profile": "text"
+  },
+  "connection.test.capabilities_denied": {
+    "methods": "technical"
+  },
+  "connection.test.crumb": {},
+  "connection.test.details.code": {},
+  "connection.test.details.method": {},
+  "connection.test.details.step": {},
+  "connection.test.details.time": {},
+  "connection.test.details.title": {},
+  "connection.test.details.version": {},
+  "connection.test.during_sign_in": {},
+  "connection.test.failed_at": {
+    "step": "text"
+  },
+  "connection.test.idle": {},
+  "connection.test.lockout_hint": {},
+  "connection.test.not_checked": {
+    "reason": "text"
+  },
+  "connection.test.passed": {},
+  "connection.test.reason.api": {},
+  "connection.test.reason.auth": {},
+  "connection.test.reason.endpoint": {},
+  "connection.test.reason.identity": {},
+  "connection.test.report.copied": {},
+  "connection.test.report.copy": {},
+  "connection.test.report.copy_failed": {},
+  "connection.test.report.include_address": {},
+  "connection.test.report.scope": {},
+  "connection.test.result.api": {
+    "version": "technical"
+  },
+  "connection.test.result.auth_password": {},
+  "connection.test.result.auth_token": {},
+  "connection.test.result.capabilities": {},
+  "connection.test.result.endpoint": {},
+  "connection.test.result.identity_matches": {},
+  "connection.test.running": {},
+  "connection.test.status.failed": {},
+  "connection.test.status.not_checked": {},
+  "connection.test.status.notice": {},
+  "connection.test.status.passed": {},
+  "connection.test.step.api": {},
+  "connection.test.step.auth": {},
+  "connection.test.step.capabilities": {},
+  "connection.test.step.endpoint": {},
+  "connection.test.step.identity": {},
+  "connection.test.step_heading": {
+    "number": "number",
+    "name": "text"
+  },
+  "connection.test.subtitle": {},
+  "connection.test.title": {
+    "profile": "text"
+  },
+  "connection.warning.http": {},
+  "copy.action.new_copy": {},
+  "copy.action.open_mine": {},
+  "copy.breadcrumb": {},
+  "copy.dep.by_id_or_pattern": {
+    "total": "number",
+    "by_id": "number",
+    "by_pattern": "number"
+  },
+  "copy.dep.graphs": {},
+  "copy.dep.hosts": {},
+  "copy.dep.items": {},
+  "copy.dep.not_copied": {},
+  "copy.dep.other": {},
+  "copy.dep.references": {},
+  "copy.dep.references_value": {
+    "count": "number"
+  },
+  "copy.dep.unknown_fields": {},
+  "copy.dep.unknown_fields_value": {
+    "count": "number"
+  },
+  "copy.existing": {
+    "time": "datetime"
+  },
+  "copy.existing.refetch_hint": {},
+  "copy.not_saved": {},
+  "copy.page_summary": {
+    "widgets": "text",
+    "editable": "number",
+    "other": "number"
+  },
+  "copy.progress": {},
+  "copy.read_twice": {},
+  "copy.result.created": {
+    "name": "text"
+  },
+  "copy.result.failed": {},
+  "copy.result.metadata_partial": {},
+  "copy.result.metadata_unavailable": {},
+  "copy.saved.access": {},
+  "copy.saved.draft": {},
+  "copy.saved.snapshot": {},
+  "copy.scope.whole": {
+    "summary": "text"
+  },
+  "copy.section.composition": {},
+  "copy.section.dependencies": {},
+  "copy.section.not_saved": {},
+  "copy.section.saved": {},
+  "copy.title": {
+    "dashboard_name": "text"
+  },
+  "copy.widget.as_is": {},
+  "copy.widget.editable": {},
+  "dashboards.permission.not_visible_or_denied": {},
   "dashboards.summary.pages_widgets": {
     "pages": "number",
     "widgets": "number"
   },
+  "dashboards.visibility.private": {},
+  "dashboards.visibility.shared": {},
+  "desktop.browser.open_failed": {
+    "url": "technical"
+  },
+  "desktop.close.writing.body": {},
+  "desktop.close.writing.title": {},
+  "desktop.fallback.choice.browser": {},
+  "desktop.fallback.choice.install": {},
+  "desktop.fallback.choice.yes_no": {},
+  "desktop.fallback.install.astra_1_7": {},
+  "desktop.fallback.install.debian": {
+    "command": "technical"
+  },
+  "desktop.fallback.install.red_os": {
+    "command": "technical"
+  },
+  "desktop.fallback.install.webkitgtk": {},
+  "desktop.fallback.install.webview2": {
+    "url": "technical"
+  },
+  "desktop.fallback.opening_browser": {},
+  "desktop.fallback.reason.engine_missing": {},
+  "desktop.fallback.reason.start_failed": {},
+  "desktop.fallback.restart": {},
+  "desktop.fallback.title": {},
   "diagnostics.title": {},
   "draft.a11y.sections": {},
   "draft.action.check_source": {},
@@ -648,6 +3517,7 @@ export const placeholderTypes = {
   "draft.nav.overview": {},
   "draft.nav.publication": {},
   "draft.nav.structure": {},
+  "draft.nav.title": {},
   "draft.overview.composition.dashboard": {},
   "draft.overview.composition.help": {},
   "draft.overview.composition.page": {},
@@ -659,6 +3529,7 @@ export const placeholderTypes = {
   "draft.overview.needs_connection": {},
   "draft.overview.next_steps": {},
   "draft.overview.origin": {},
+  "draft.overview.publish_unavailable": {},
   "draft.overview.selection_note": {},
   "draft.overview.snapshot": {},
   "draft.overview.snapshot_from": {
@@ -672,6 +3543,9 @@ export const placeholderTypes = {
   "draft.overview.step.numbered": {
     "number": "number",
     "step": "text"
+  },
+  "draft.overview.step.open_section": {
+    "section": "text"
   },
   "draft.overview.step.review_plan": {},
   "draft.overview.step.review_plan.help": {},
@@ -695,8 +3569,11 @@ export const placeholderTypes = {
   "draft.preview.synthetic.toggle": {},
   "draft.preview.title": {},
   "draft.provenance.assembled": {
+    "count": "number"
+  },
+  "draft.provenance.assembled_with_sources": {
     "count": "number",
-    "sources": "text_optional"
+    "sources": "text"
   },
   "draft.provenance.created_here": {},
   "draft.provenance.imported_file": {},
@@ -740,13 +3617,22 @@ export const placeholderTypes = {
     "height": "number"
   },
   "drafts.action.create": {},
+  "drafts.action.export_file": {},
   "drafts.action.make_portable": {},
   "drafts.column.kind": {},
   "drafts.column.name": {},
   "drafts.column.origin": {},
   "drafts.column.source": {},
   "drafts.column.state": {},
+  "drafts.copy_name": {
+    "name": "text",
+    "number": "number"
+  },
   "drafts.created_from_copy": {},
+  "drafts.created_from_draft": {},
+  "drafts.damaged": {
+    "count": "number"
+  },
   "drafts.delete.safe": {},
   "drafts.details.base": {},
   "drafts.details.base_snapshot": {
@@ -760,6 +3646,7 @@ export const placeholderTypes = {
     "name": "text",
     "time": "datetime"
   },
+  "drafts.details.created_not_found": {},
   "drafts.details.freshness": {},
   "drafts.details.local": {},
   "drafts.details.source": {},
@@ -768,15 +3655,170 @@ export const placeholderTypes = {
   "drafts.filter.local": {},
   "drafts.filter.pages": {},
   "drafts.filter.server_copies": {},
+  "drafts.list.open_hint": {},
+  "drafts.load_failed": {},
+  "drafts.name.source_connection": {
+    "connection": "text"
+  },
+  "drafts.rename.description": {},
+  "drafts.rename.done": {
+    "name": "text"
+  },
+  "drafts.rename.title": {},
+  "drafts.search.no_results": {},
   "drafts.search.placeholder": {},
   "drafts.server_copy_export_hint": {},
   "drafts.sort_hint": {},
   "drafts.state.changed_on_server": {},
+  "drafts.state.current": {},
   "drafts.state.modified": {},
   "drafts.state.saved": {},
+  "drafts.state.source_missing": {},
+  "drafts.state.stale": {},
   "drafts.subtitle": {},
   "drafts.title": {},
   "editor.unavailable_yet": {},
+  "errors.address.fragment": {},
+  "errors.address.host": {},
+  "errors.address.query": {},
+  "errors.address.scheme": {},
+  "errors.address.syntax": {},
+  "errors.address.userinfo": {},
+  "errors.auth.credentials_or_directory": {},
+  "errors.auth.mfa_token_required": {},
+  "errors.auth.session_expired": {},
+  "errors.auth.token_expired": {},
+  "errors.auth.token_invalid_or_disabled": {},
+  "errors.connection.api_error": {
+    "method": "technical"
+  },
+  "errors.connection.api_not_found": {},
+  "errors.connection.dns_unresolvable": {},
+  "errors.connection.failed": {},
+  "errors.connection.not_connected": {},
+  "errors.connection.random_unavailable": {},
+  "errors.connection.refused": {},
+  "errors.connection.request_invalid": {},
+  "errors.connection.secret_invalid": {},
+  "errors.connection.secret_required": {},
+  "errors.connection.service_unavailable": {},
+  "errors.connection.unexpected_response": {},
+  "errors.connection.unknown": {
+    "code": "technical"
+  },
+  "errors.connection.unreachable_or_timeout": {},
+  "errors.connection.version_unsupported": {
+    "version": "technical"
+  },
+  "errors.connection.writes_not_confirmed": {},
+  "errors.credential.locked": {},
+  "errors.credential.missing": {},
+  "errors.credential.unavailable": {},
+  "errors.drafts.name_invalid": {
+    "max": "number"
+  },
+  "errors.import.inconsistent": {},
+  "errors.import.parse": {
+    "format": "technical"
+  },
+  "errors.import.policy": {
+    "code": "technical"
+  },
+  "errors.import.unsafe_structure": {
+    "code": "technical"
+  },
+  "errors.import.validation": {
+    "code": "technical"
+  },
+  "errors.permission.api_method": {
+    "method": "technical"
+  },
+  "errors.permission.system_access": {},
+  "errors.profile.limit_reached": {
+    "max": "number"
+  },
+  "errors.profile.name_invalid": {
+    "max_chars": "number"
+  },
+  "errors.profile.not_found": {},
+  "errors.profile.plain_http_unconfirmed": {},
+  "errors.profile.store_invalid": {},
+  "errors.profile.store_linked_path": {},
+  "errors.profile.store_too_large": {},
+  "errors.profile.store_unavailable": {},
+  "errors.profile.username_invalid": {
+    "max_chars": "number"
+  },
+  "errors.publication.blocked": {},
+  "errors.publication.code": {
+    "code": "technical"
+  },
+  "errors.publication.journal_damaged": {
+    "operation_id": "technical"
+  },
+  "errors.publication.journal_not_damaged": {},
+  "errors.publication.journal_write_failed": {},
+  "errors.publication.local_mismatch": {},
+  "errors.publication.name_taken_maybe_hidden": {},
+  "errors.publication.operation_not_found": {},
+  "errors.publication.operation_running": {},
+  "errors.publication.plan_mismatch": {},
+  "errors.publication.plan_not_found": {},
+  "errors.publication.quarantine_exists": {},
+  "errors.publication.reconcile_not_needed": {},
+  "errors.publication.reconcile_partial_visibility": {},
+  "errors.publication.reconcile_server_changed": {},
+  "errors.publication.target_blocked": {
+    "operation_id": "technical"
+  },
+  "errors.replace_host.binding_not_found": {},
+  "errors.replace_host.candidate_not_visible": {},
+  "errors.replace_host.candidate_value_type_incompatible": {},
+  "errors.replace_host.changed_concurrently": {},
+  "errors.replace_host.decision_not_applicable": {},
+  "errors.replace_host.host_objects_limit": {},
+  "errors.replace_host.internal": {},
+  "errors.replace_host.kept_changed": {},
+  "errors.replace_host.kept_empty": {},
+  "errors.replace_host.not_calculated": {},
+  "errors.replace_host.operation_not_found": {},
+  "errors.replace_host.other_connection": {},
+  "errors.replace_host.pending": {},
+  "errors.replace_host.same_host": {},
+  "errors.replace_host.scope_invalid": {},
+  "errors.replace_host.scope_outside_draft": {},
+  "errors.replace_host.source_not_visible": {},
+  "errors.snapshot.corrupt": {},
+  "errors.snapshot.missing": {},
+  "errors.snapshot.shape_invalid": {},
+  "errors.snapshot.too_large": {},
+  "errors.snapshot.unsupported_adapter": {},
+  "errors.storage.linked": {},
+  "errors.tls.name_mismatch": {},
+  "errors.tls.time_invalid": {},
+  "errors.tls.untrusted": {},
+  "errors.trust.changed": {},
+  "errors.trust.empty": {},
+  "errors.trust.invalid_pem": {},
+  "errors.trust.missing": {},
+  "errors.trust.private_key": {},
+  "errors.trust.rejected": {},
+  "errors.trust.too_large": {},
+  "errors.trust.too_many_certificates": {},
+  "errors.trust.upload_invalid": {},
+  "errors.workcopy.corrupt": {},
+  "errors.workcopy.not_visible_or_denied": {},
+  "errors.workcopy.page_not_found": {},
+  "errors.workcopy.search_invalid": {
+    "max": "number"
+  },
+  "errors.workcopy.settings_unavailable": {},
+  "errors.workcopy.storage_file_too_large": {},
+  "errors.workcopy.storage_limit_reached": {},
+  "errors.workcopy.storage_unavailable": {},
+  "errors.workcopy.storage_write_failed": {},
+  "errors.workcopy.too_large": {},
+  "errors.workcopy.unsupported_operation": {},
   "http.security.api_not_found": {},
   "http.security.body_too_large": {},
   "http.security.bootstrap_invalid": {},
@@ -793,6 +3835,12 @@ export const placeholderTypes = {
   "http.transfer.total_too_large": {},
   "http.transfer.unavailable": {},
   "intent.append_page": {},
+  "intent.replace_host": {},
+  "intent.replace_item_fields": {},
+  "intent.save_as_copy": {},
+  "intent.unknown": {
+    "code": "technical"
+  },
   "library.title": {},
   "nav.connections": {},
   "nav.drafts": {},
@@ -808,24 +3856,619 @@ export const placeholderTypes = {
     "number": "number",
     "name": "text"
   },
-  "object.page.untitled": {},
+  "object.page.unnamed": {
+    "number": "number"
+  },
   "object.page.widget_count": {
     "count": "number"
   },
+  "publication.a11y.steps": {},
+  "publication.access.copy_private": {},
+  "publication.access.title": {},
+  "publication.access.update_not_sent": {},
+  "publication.action.back_changes": {},
+  "publication.action.back_checks": {},
+  "publication.action.back_target": {},
+  "publication.action.back_to_draft": {},
+  "publication.action.confirm_dialog": {},
+  "publication.action.confirm_write": {},
+  "publication.action.new_preview": {},
+  "publication.action.next_changes": {},
+  "publication.action.next_checks": {},
+  "publication.action.next_confirm": {},
+  "publication.action.open_in_zabbix": {},
+  "publication.action.open_journal": {},
+  "publication.action.open_server": {},
+  "publication.action.reconcile": {},
+  "publication.check.action.confirm_kept": {
+    "count": "number"
+  },
+  "publication.check.action.open_bindings": {},
+  "publication.check.confirm_kept": {},
+  "publication.check.count.blocking": {
+    "count": "number"
+  },
+  "publication.check.count.warnings": {
+    "count": "number"
+  },
+  "publication.check.fixed_in": {
+    "section": "text"
+  },
+  "publication.check.group.bindings": {},
+  "publication.check.group.connection": {},
+  "publication.check.group.plan": {},
+  "publication.check.group.source": {},
+  "publication.check.group.widgets": {},
+  "publication.check.none": {},
+  "publication.check.recheck": {},
+  "publication.check.status.blocks": {},
+  "publication.check.status.warning": {},
+  "publication.check.summary.plan_not_built": {},
+  "publication.check.summary.ready": {},
+  "publication.checks.checking": {},
+  "publication.checks.source_current": {
+    "time": "datetime"
+  },
+  "publication.checks.source_not_checked": {},
+  "publication.checks.source_title": {},
+  "publication.confirm.api_create": {},
+  "publication.confirm.api_update": {},
+  "publication.confirm.building": {},
+  "publication.confirm.changes_create": {
+    "pages": "number"
+  },
+  "publication.confirm.changes_update": {
+    "count": "number",
+    "source": "text",
+    "target": "text"
+  },
+  "publication.confirm.connection_value": {
+    "profile": "text",
+    "version": "technical"
+  },
+  "publication.confirm.create_name_check": {},
+  "publication.confirm.dashboard_existing": {
+    "dashboard_name": "text"
+  },
+  "publication.confirm.dashboard_new": {
+    "name": "text"
+  },
+  "publication.confirm.field.action": {},
+  "publication.confirm.field.changes": {},
+  "publication.confirm.field.connection": {},
+  "publication.confirm.field.dashboard": {},
+  "publication.confirm.field.kept": {
+    "host": "text"
+  },
+  "publication.confirm.field.plan": {},
+  "publication.confirm.field.unchanged": {},
+  "publication.confirm.field.warnings": {},
+  "publication.confirm.invalid_when": {},
+  "publication.confirm.kept_confirmed": {
+    "count": "number"
+  },
+  "publication.confirm.no_cancel_after_send": {},
+  "publication.confirm.offline": {},
+  "publication.confirm.plan_once": {
+    "time": "datetime"
+  },
+  "publication.confirm.question_create": {
+    "name": "text"
+  },
+  "publication.confirm.question_update": {
+    "count": "number",
+    "dashboard_name": "text"
+  },
+  "publication.confirm.requirements": {},
+  "publication.confirm.reread": {
+    "time": "datetime"
+  },
+  "publication.confirm.summary_title": {},
+  "publication.confirm.target_line": {
+    "target": "text"
+  },
+  "publication.confirm.title": {},
+  "publication.confirm.unchanged_update": {
+    "count": "number"
+  },
+  "publication.confirm.warnings_reviewed": {
+    "count": "number"
+  },
+  "publication.conflict.body": {},
+  "publication.conflict.caption": {},
+  "publication.conflict.change.access": {},
+  "publication.conflict.change.dashboard_properties": {},
+  "publication.conflict.change.page_added": {},
+  "publication.conflict.change.page_changed": {},
+  "publication.conflict.change.page_removed": {},
+  "publication.conflict.change.page_renamed": {},
+  "publication.conflict.change.widget_added": {},
+  "publication.conflict.change.widget_changed": {},
+  "publication.conflict.change.widget_moved": {},
+  "publication.conflict.change.widget_removed": {},
+  "publication.conflict.column.mine": {},
+  "publication.conflict.column.object": {},
+  "publication.conflict.column.server": {},
+  "publication.conflict.detected_at": {
+    "time": "datetime",
+    "snapshot": "datetime"
+  },
+  "publication.conflict.mine.host_replaced": {},
+  "publication.conflict.mine.none": {},
+  "publication.conflict.missing_body": {},
+  "publication.conflict.missing_title": {
+    "dashboard_name": "text"
+  },
+  "publication.conflict.next_title": {},
+  "publication.conflict.no_author": {},
+  "publication.conflict.object.dashboard": {},
+  "publication.conflict.object.page": {
+    "number": "number",
+    "name": "text"
+  },
+  "publication.conflict.object.widget": {
+    "name": "text",
+    "widget_type": "technical"
+  },
+  "publication.conflict.open_new_copy": {},
+  "publication.conflict.overlap": {
+    "count": "number"
+  },
+  "publication.conflict.overwrite": {},
+  "publication.conflict.overwrite_unavailable": {},
+  "publication.conflict.recheck_hint": {},
+  "publication.conflict.refetch_hint": {},
+  "publication.conflict.refetch_not_replayed": {
+    "code": "technical"
+  },
+  "publication.conflict.refetched": {
+    "name": "text"
+  },
+  "publication.conflict.save_copy_hint": {},
+  "publication.conflict.stale_body": {},
+  "publication.conflict.stale_title": {},
+  "publication.conflict.title": {
+    "dashboard_name": "text"
+  },
+  "publication.conflict.truncated": {
+    "count": "number"
+  },
+  "publication.context.connection": {},
+  "publication.context.operation": {},
+  "publication.context.pages_value": {
+    "count": "number"
+  },
+  "publication.context.scope": {},
+  "publication.context.scope_value": {
+    "changed": "number",
+    "total": "number"
+  },
+  "publication.context.source": {},
+  "publication.context.target": {},
+  "publication.context.target_hint": {},
+  "publication.context.target_new": {
+    "name": "text"
+  },
+  "publication.context.target_not_chosen": {},
+  "publication.context.target_same": {},
+  "publication.contract.item_widget_itemid": {},
+  "publication.contract.preserve_untouched_pages": {},
+  "publication.contract.preserve_widget_references": {},
+  "publication.contract.reconcile_unknown_outcome": {},
+  "publication.contract.resend_widget_type": {
+    "widget_type": "technical"
+  },
+  "publication.contract.svggraph_dataset_hosts": {},
+  "publication.contract.svggraph_dataset_itemids": {},
+  "publication.contract.update_one_page_with_full_fields": {},
+  "publication.contract.update_several_pages": {},
+  "publication.diff.caption": {
+    "page": "text"
+  },
+  "publication.diff.change.field": {
+    "count": "number"
+  },
+  "publication.diff.change.kept": {},
+  "publication.diff.change.unresolved": {},
+  "publication.diff.column.after": {},
+  "publication.diff.column.before": {},
+  "publication.diff.column.change": {},
+  "publication.diff.column.object": {},
+  "publication.diff.empty_filter": {},
+  "publication.diff.filter.changed": {},
+  "publication.diff.filter.kept": {},
+  "publication.diff.filter.label": {},
+  "publication.diff.filter.unresolved": {},
+  "publication.diff.filter.untouched": {},
+  "publication.diff.inspector.changed_fields": {},
+  "publication.diff.inspector.none": {},
+  "publication.diff.inspector.series": {
+    "index": "number"
+  },
+  "publication.diff.inspector.sources": {},
+  "publication.diff.inspector.title": {},
+  "publication.diff.inspector.unchanged": {},
+  "publication.diff.inspector.unchanged_body": {},
+  "publication.diff.matching_by_id": {},
+  "publication.diff.no_changes": {},
+  "publication.diff.out_of_scope": {},
+  "publication.diff.page_summary": {
+    "changed": "number",
+    "total": "number"
+  },
+  "publication.diff.remote_current": {},
+  "publication.diff.remote_later": {},
+  "publication.diff.search": {},
+  "publication.diff.tab.local": {},
+  "publication.diff.tab.remote": {},
+  "publication.evidence.dashboard_name_taken": {},
+  "publication.evidence.expected_found": {},
+  "publication.evidence.not_visible": {},
+  "publication.evidence.other_found": {},
+  "publication.evidence.read_back_matches": {},
+  "publication.evidence.reconcile_ambiguous": {},
+  "publication.evidence.reconcile_confirmed": {},
+  "publication.evidence.reconcile_not_found": {},
+  "publication.evidence.reconcile_structure_mismatch": {},
+  "publication.evidence.source_found": {},
+  "publication.evidence.unknown": {
+    "code": "technical"
+  },
+  "publication.expected.choose_action": {},
+  "publication.expected.replace_host": {
+    "count": "number",
+    "source": "text",
+    "target": "text"
+  },
+  "publication.expected.save_as_copy": {
+    "pages": "number",
+    "name": "text"
+  },
+  "publication.expected.title": {
+    "summary": "text"
+  },
+  "publication.finding.binding_invalid": {},
+  "publication.finding.binding_stale": {},
+  "publication.finding.binding_unresolved": {},
+  "publication.finding.capability_not_verified": {
+    "capability": "technical"
+  },
+  "publication.finding.connection_required": {},
+  "publication.finding.dashboard_not_editable": {},
+  "publication.finding.decision_invalid": {},
+  "publication.finding.kept_on_source": {
+    "host": "text"
+  },
+  "publication.finding.kept_on_source_confirmation_stale": {},
+  "publication.finding.match_differences": {
+    "differences": "text"
+  },
+  "publication.finding.no_changes": {},
+  "publication.finding.scope_link_crossing.consumer_outside": {},
+  "publication.finding.scope_link_crossing.provider_outside": {},
+  "publication.finding.server_version_mismatch": {
+    "base_version": "technical"
+  },
+  "publication.finding.source_unverified": {},
+  "publication.finding.target_host_not_visible": {},
+  "publication.finding.unknown": {
+    "code": "technical"
+  },
+  "publication.finding.write_contract_unverified": {
+    "contract": "text"
+  },
+  "publication.finding.write_mode_required": {},
+  "publication.journal.close": {},
+  "publication.journal.description": {},
+  "publication.journal.disk_note": {},
+  "publication.journal.field.closed_by": {},
+  "publication.journal.field.connection": {},
+  "publication.journal.field.evidence": {},
+  "publication.journal.field.finished": {},
+  "publication.journal.field.operation": {},
+  "publication.journal.field.operation_id": {},
+  "publication.journal.field.repeats": {},
+  "publication.journal.field.sends": {},
+  "publication.journal.field.sent": {},
+  "publication.journal.field.server_version": {},
+  "publication.journal.field.source": {},
+  "publication.journal.field.started": {},
+  "publication.journal.field.state": {},
+  "publication.journal.field.target": {},
+  "publication.journal.field.transitions": {},
+  "publication.journal.profile_removed": {},
+  "publication.journal.source_draft": {
+    "name": "text",
+    "revision": "number"
+  },
+  "publication.journal.source_removed": {},
+  "publication.journal.target_existing": {
+    "name": "text"
+  },
+  "publication.journal.target_existing_unnamed": {},
+  "publication.journal.target_new": {
+    "name": "text"
+  },
+  "publication.journal.title": {},
+  "publication.journal.transition": {
+    "state": "text",
+    "time": "datetime"
+  },
+  "publication.journal_block": {},
+  "publication.journal_block_damaged": {},
+  "publication.kept.confirmed_done": {},
+  "publication.later.hint": {},
+  "publication.none.body": {},
+  "publication.none.title": {},
+  "publication.plan.invalidated": {
+    "reason": "text"
+  },
+  "publication.plan.reason.app_restarted": {},
+  "publication.plan.reason.bindings_changed": {},
+  "publication.plan.reason.connection_changed": {},
+  "publication.plan.reason.draft_changed": {},
+  "publication.plan.reason.session_ended": {},
+  "publication.plan.reason.source_changed": {},
+  "publication.plan.reason.target_changed": {},
+  "publication.plan.reason.unknown": {
+    "code": "technical"
+  },
+  "publication.preflight.blocked": {},
+  "publication.preflight.title": {},
+  "publication.preview.read_only_note": {},
+  "publication.reconcile.column.found": {},
+  "publication.reconcile.column.next": {},
+  "publication.reconcile.column.result": {},
+  "publication.reconcile.create_note": {},
+  "publication.reconcile.found_base": {},
+  "publication.reconcile.found_expected": {},
+  "publication.reconcile.found_none_or_other": {},
+  "publication.reconcile.found_one": {},
+  "publication.reconcile.found_other": {},
+  "publication.reconcile.next_continue": {},
+  "publication.reconcile.next_new_preview": {},
+  "publication.reconcile.next_open": {},
+  "publication.reconcile.read_only_enough": {},
+  "publication.reconcile.title": {},
+  "publication.reconcile.update_note": {},
+  "publication.reconcile.write_blocked": {},
   "publication.requirement.no_connection": {},
+  "publication.result.base_advanced": {},
+  "publication.result.base_not_advanced": {},
+  "publication.result.closed_manually_body": {},
+  "publication.result.copy_created": {
+    "name": "text"
+  },
+  "publication.result.failed_after_response_body": {},
+  "publication.result.failed_before_send_body": {
+    "reason": "text"
+  },
+  "publication.result.journal_error": {
+    "code": "technical"
+  },
+  "publication.result.manual_body": {},
+  "publication.result.manual_update_body": {},
+  "publication.result.reconciled_failed_body": {},
+  "publication.result.reconciled_verified_body": {},
+  "publication.result.unknown_body": {},
+  "publication.result.verified_body": {},
+  "publication.stage.at": {
+    "time": "datetime"
+  },
+  "publication.stage.display": {},
+  "publication.stage.display_not_checked": {},
+  "publication.stage.name_check": {},
+  "publication.stage.name_check_done": {},
+  "publication.stage.not_done": {},
+  "publication.stage.not_sent": {},
+  "publication.stage.pre_read": {},
+  "publication.stage.pre_read_done": {},
+  "publication.stage.read_back": {},
+  "publication.stage.read_back_done": {},
+  "publication.stage.sending": {},
+  "publication.stage.sources": {},
+  "publication.stage.sources_done": {},
+  "publication.stage.structure": {},
+  "publication.stage.structure_done": {},
+  "publication.stage.waiting": {},
+  "publication.stage.write": {},
+  "publication.stage.write_done": {},
+  "publication.stage.write_unknown": {},
+  "publication.stages.title": {},
+  "publication.state.closed_manually": {},
+  "publication.state.confirmed": {},
+  "publication.state.conflict": {},
+  "publication.state.failed_after_response": {},
+  "publication.state.failed_before_send": {},
+  "publication.state.manual_check_required": {},
+  "publication.state.reconciled_failed": {},
+  "publication.state.reconciled_verified": {},
+  "publication.state.submitting": {},
+  "publication.state.unknown_outcome": {},
+  "publication.state.verified": {},
+  "publication.step.changes": {},
+  "publication.step.checks": {},
+  "publication.step.confirm": {},
+  "publication.step.target": {},
+  "publication.step.unavailable_reason": {},
+  "publication.step.write": {},
+  "publication.target.choose_explicitly": {},
+  "publication.target.name": {},
+  "publication.target.name_required": {},
+  "publication.target.name_server_check": {},
+  "publication.target.no_retarget": {},
+  "publication.target.save_copy": {},
+  "publication.target.save_copy_hint": {},
+  "publication.target.title": {},
+  "publication.target.update_source": {
+    "dashboard_name": "text"
+  },
+  "publication.target.update_source_hint": {},
+  "publication.target.update_visible_to_all": {},
+  "publication.tech.base": {},
+  "publication.tech.fields": {},
+  "publication.tech.local": {},
+  "publication.tech.pageid": {},
+  "publication.tech.revision": {},
+  "publication.tech.title": {},
+  "publication.tech.widget_type": {},
+  "publication.tech.widgetid": {},
+  "publication.title": {},
+  "publication.untouched.access": {},
+  "publication.untouched.pages": {},
+  "publication.untouched.source": {
+    "dashboard_name": "text"
+  },
+  "publication.untouched.title": {},
+  "publication.untouched.widgets": {
+    "count": "number",
+    "host": "text"
+  },
+  "publication.untouched.zabbix_objects": {},
+  "replace_host.source": {},
+  "server.action.clone": {},
+  "server.action.copy": {},
+  "server.action.open_copy": {},
+  "server.action.preview": {},
+  "server.action.refresh": {},
+  "server.actions_start_with_copy": {},
+  "server.column.access": {},
+  "server.column.editable": {},
+  "server.column.mine": {},
+  "server.column.name": {},
+  "server.column.owner": {},
+  "server.column.pages": {},
+  "server.column.widgets": {},
   "server.dashboards.title": {},
+  "server.details.copied_as_is": {},
+  "server.details.editable": {
+    "count": "number"
+  },
+  "server.details.existing_copy": {
+    "time": "datetime"
+  },
+  "server.details.not_editable": {
+    "count": "number"
+  },
+  "server.details.owner": {
+    "owner": "text"
+  },
+  "server.details.pages": {},
+  "server.details.select_hint": {},
+  "server.details.type_count": {
+    "type": "text",
+    "count": "number"
+  },
+  "server.details.widgets": {},
+  "server.editable_count": {
+    "editable": "number",
+    "total": "number"
+  },
+  "server.empty.offline": {},
+  "server.empty.other_connection": {},
+  "server.filter.legend": {},
+  "server.filter.mine": {},
+  "server.filter.shared": {},
+  "server.list.copies_unknown": {},
+  "server.list.load_failed": {},
+  "server.list.truncated": {
+    "count": "number"
+  },
+  "server.mine.copy": {
+    "date": "date"
+  },
+  "server.mine.unknown": {},
+  "server.owner.other": {},
+  "server.owner.you": {},
+  "server.pagination.label": {},
+  "server.pagination.next": {},
+  "server.pagination.previous": {},
+  "server.preview.badge": {},
+  "server.preview.breadcrumb": {},
+  "server.preview.load_failed": {},
+  "server.preview.note": {},
+  "server.preview.page_to_take": {},
+  "server.search.action": {},
+  "server.search.placeholder": {},
+  "server.subtitle": {
+    "profile": "text",
+    "version": "technical",
+    "mode": "text"
+  },
+  "server.tab.dashboards": {},
+  "server.tab.templates": {},
+  "server.take_page.legend": {},
+  "server.templates.later": {},
+  "server.visibility_note": {},
+  "session.action.end": {},
+  "session.end.confirm.body": {},
+  "session.end.confirm.title": {},
+  "session.end.not_confirmed": {},
+  "session.end.unavailable_writing": {},
+  "session.ended.title": {},
+  "settings.appearance.invalid_body": {},
+  "settings.appearance.not_saved.body": {},
+  "settings.appearance.not_saved.title": {},
+  "settings.appearance.saved": {},
+  "settings.appearance.subtitle": {},
   "settings.appearance.title": {},
+  "settings.changed": {},
   "settings.connections.title": {},
+  "settings.contrast.note": {},
+  "settings.contrast.title": {},
+  "settings.data_not_translated": {},
   "settings.editor.title": {},
+  "settings.file.hint": {},
+  "settings.file.invalid.title": {},
+  "settings.file.title": {},
+  "settings.formats.count": {},
+  "settings.formats.count_sample": {
+    "widgets": "number",
+    "pages": "number",
+    "more": "number"
+  },
+  "settings.formats.datetime": {},
+  "settings.formats.number": {},
+  "settings.formats.title": {},
   "settings.general.title": {},
+  "settings.language.after_restart": {},
+  "settings.language.current": {
+    "language": "text"
+  },
+  "settings.language.name.en": {},
+  "settings.language.name.ru": {},
+  "settings.language.option.en": {},
+  "settings.language.option.ru": {},
+  "settings.language.system": {},
+  "settings.language.title": {},
+  "settings.motion.explicit_state": {
+    "state": "text"
+  },
+  "settings.motion.no_meaning": {},
+  "settings.motion.reduce": {},
+  "settings.motion.state.off": {},
+  "settings.motion.state.on": {},
+  "settings.motion.system_state": {
+    "state": "text"
+  },
+  "settings.motion.title": {},
   "settings.nav.no_secrets": {},
+  "settings.reset.section": {},
   "settings.search.placeholder": {},
   "settings.security.title": {},
   "settings.storage.network_warning": {},
+  "settings.theme.dark": {},
+  "settings.theme.high_contrast": {},
+  "settings.theme.high_contrast.hint": {},
+  "settings.theme.light": {},
+  "settings.theme.not_widgets": {},
+  "settings.theme.system": {},
+  "settings.theme.title": {},
   "settings.title": {},
   "settings.workspace.title": {},
   "shell.a11y.breadcrumbs": {},
   "shell.a11y.main_nav": {},
+  "shell.demo.marker": {},
   "startup.action.all_drafts": {},
   "startup.action.assemble_dashboard": {},
   "startup.action.choose_dashboard": {},
@@ -833,6 +4476,7 @@ export const placeholderTypes = {
   "startup.action.import_files": {},
   "startup.action.new_dashboard": {},
   "startup.action.new_page": {},
+  "startup.action.open_server": {},
   "startup.action.take_page": {},
   "startup.draft.missing": {},
   "startup.error.unavailable": {},
@@ -851,6 +4495,56 @@ export const placeholderTypes = {
   "startup.question": {},
   "startup.recent.empty": {},
   "startup.recent.title": {},
+  "startup.recovery.a11y.region": {},
+  "startup.recovery.action.connect": {},
+  "startup.recovery.action.open_draft": {},
+  "startup.recovery.body": {
+    "intent": "text",
+    "object_kind": "text",
+    "source": "text",
+    "target": "text",
+    "profile": "text",
+    "time": "datetime"
+  },
+  "startup.recovery.close_unverified": {},
+  "startup.recovery.close_unverified.confirm": {
+    "operation_id": "technical",
+    "target": "text",
+    "time": "datetime"
+  },
+  "startup.recovery.close_unverified.title": {},
+  "startup.recovery.closed": {},
+  "startup.recovery.closed_manually": {},
+  "startup.recovery.connect_first": {
+    "profile": "text"
+  },
+  "startup.recovery.damaged.body_all": {
+    "operation_id": "technical",
+    "code": "technical"
+  },
+  "startup.recovery.damaged.body_target": {
+    "operation_id": "technical",
+    "code": "technical",
+    "target": "text"
+  },
+  "startup.recovery.damaged.title": {
+    "count": "number"
+  },
+  "startup.recovery.found": {
+    "count": "number"
+  },
+  "startup.recovery.load_failed": {
+    "code": "technical"
+  },
+  "startup.recovery.quarantine": {},
+  "startup.recovery.quarantine.confirm": {
+    "operation_id": "technical"
+  },
+  "startup.recovery.quarantine.title": {},
+  "startup.recovery.quarantined": {},
+  "startup.recovery.state": {
+    "state": "text"
+  },
   "startup.server.help": {},
   "startup.server.title": {},
   "startup.status.backend": {},
@@ -897,14 +4591,798 @@ export const placeholderTypes = {
   "widget.type.toptriggers": {},
   "widget.type.trigover": {},
   "widget.type.url": {},
-  "widget.type.web": {}
+  "widget.type.web": {},
+  "workcopy.refetch.action": {}
 } as const;
 
 export type Locale = keyof typeof catalogs;
 export type MessageId = keyof (typeof catalogs)['en'];
 
 export interface MessageParamsById {
+  "about.copied": {
+
+  };
+  "about.copyright": {
+
+  };
+  "about.data.copy_path": {
+    "name": string;
+  };
+  "about.data.journal": {
+
+  };
+  "about.data.paths_local_only": {
+
+  };
+  "about.data.settings_file": {
+
+  };
+  "about.data.storage": {
+
+  };
+  "about.data.title": {
+
+  };
+  "about.error.unavailable": {
+
+  };
+  "about.field.build": {
+
+  };
+  "about.field.build_unknown": {
+
+  };
+  "about.field.platform": {
+
+  };
+  "about.field.version": {
+
+  };
+  "about.field.zabbix": {
+
+  };
+  "about.field.zabbix_value": {
+    "versions": string;
+    "adapter": string;
+    "verified": string;
+  };
+  "about.license.brand": {
+
+  };
+  "about.license.code": {
+
+  };
+  "about.license.code_choice": {
+
+  };
+  "about.license.docs": {
+
+  };
+  "about.license.docs_value": {
+
+  };
+  "about.license.tabler": {
+
+  };
+  "about.license.text": {
+
+  };
+  "about.license.text_apache": {
+
+  };
+  "about.license.text_mit": {
+
+  };
+  "about.license.text_original": {
+
+  };
+  "about.license.title": {
+
+  };
+  "about.license.zabbix_note": {
+
+  };
+  "about.report.copy": {
+
+  };
+  "about.report.copy_failed": {
+
+  };
+  "about.report.preview": {
+
+  };
+  "about.report.scope": {
+
+  };
+  "about.subtitle": {
+
+  };
+  "about.tagline": {
+
+  };
+  "about.third_party.column.component": {
+
+  };
+  "about.third_party.column.license": {
+
+  };
+  "about.third_party.column.version": {
+
+  };
+  "about.third_party.empty": {
+
+  };
+  "about.third_party.filter.all": {
+    "count": number;
+  };
+  "about.third_party.filter.icons": {
+    "count": number;
+  };
+  "about.third_party.filter.rust": {
+    "count": number;
+  };
+  "about.third_party.filter.ui": {
+    "count": number;
+  };
+  "about.third_party.filters": {
+
+  };
+  "about.third_party.icons_summary": {
+    "count": number;
+  };
+  "about.third_party.missing": {
+
+  };
+  "about.third_party.more": {
+    "count": number;
+  };
+  "about.third_party.search": {
+
+  };
+  "about.third_party.show_all": {
+    "count": number;
+  };
+  "about.third_party.subtitle": {
+
+  };
+  "about.third_party.title": {
+
+  };
   "about.title": {
+
+  };
+  "bindings.a11y.steps": {
+
+  };
+  "bindings.action.back": {
+
+  };
+  "bindings.action.check_all": {
+
+  };
+  "bindings.action.connect": {
+
+  };
+  "bindings.action.next_dependencies": {
+
+  };
+  "bindings.action.next_mapping": {
+
+  };
+  "bindings.action.next_new_host": {
+
+  };
+  "bindings.action.next_summary": {
+
+  };
+  "bindings.action.reset_all": {
+
+  };
+  "bindings.action.retry": {
+
+  };
+  "bindings.action.to_publication": {
+
+  };
+  "bindings.calculated.done": {
+
+  };
+  "bindings.calculated_at": {
+    "time": Date | number;
+    "version": string;
+  };
+  "bindings.candidates.legend": {
+    "host": string;
+  };
+  "bindings.candidates.none": {
+
+  };
+  "bindings.change.changed": {
+
+  };
+  "bindings.change.kept_on_source": {
+
+  };
+  "bindings.change.unresolved": {
+
+  };
+  "bindings.change.untouched": {
+
+  };
+  "bindings.check_reason.candidate_not_visible": {
+
+  };
+  "bindings.check_reason.reference_added": {
+
+  };
+  "bindings.check_reason.reference_gone": {
+
+  };
+  "bindings.check_reason.resolution_changed": {
+
+  };
+  "bindings.check_reason.server_version_changed": {
+
+  };
+  "bindings.check_reason.target_not_visible": {
+
+  };
+  "bindings.checked.done": {
+
+  };
+  "bindings.checked_at": {
+    "time": Date | number;
+  };
+  "bindings.command_failed": {
+
+  };
+  "bindings.decision.applied_candidate": {
+    "key": string;
+  };
+  "bindings.decision.applied_keep": {
+
+  };
+  "bindings.decision.choose": {
+
+  };
+  "bindings.decision.done": {
+
+  };
+  "bindings.decision.invalid": {
+
+  };
+  "bindings.decision.keep_hint": {
+    "host": string;
+  };
+  "bindings.decision.keep_on_source": {
+
+  };
+  "bindings.decision.undo": {
+
+  };
+  "bindings.decision.undone": {
+
+  };
+  "bindings.decision.unresolved": {
+
+  };
+  "bindings.deps.choose_host": {
+
+  };
+  "bindings.deps.column.outcome": {
+
+  };
+  "bindings.deps.column.reference": {
+
+  };
+  "bindings.deps.column.type": {
+
+  };
+  "bindings.deps.column.widget": {
+
+  };
+  "bindings.deps.count.changes": {
+    "count": number;
+  };
+  "bindings.deps.count.kept": {
+    "count": number;
+  };
+  "bindings.deps.count.unverified": {
+    "count": number;
+  };
+  "bindings.deps.page_summary": {
+    "widgets": number;
+    "references": number;
+  };
+  "bindings.deps.pattern_rule": {
+    "host": string;
+  };
+  "bindings.deps.title": {
+    "host": string;
+  };
+  "bindings.difference.origin": {
+
+  };
+  "bindings.difference.pattern_coverage": {
+
+  };
+  "bindings.difference.units": {
+
+  };
+  "bindings.difference.value_type": {
+
+  };
+  "bindings.draft_only": {
+
+  };
+  "bindings.evidence.coverage": {
+    "pattern": string;
+    "source": number;
+    "target": number;
+  };
+  "bindings.evidence.differences": {
+    "differences": string;
+  };
+  "bindings.evidence.key": {
+    "key": string;
+  };
+  "bindings.evidence.no_units": {
+
+  };
+  "bindings.evidence.origin.lld": {
+    "key": string;
+  };
+  "bindings.evidence.origin.own": {
+
+  };
+  "bindings.evidence.origin.template": {
+
+  };
+  "bindings.evidence.source_item": {
+
+  };
+  "bindings.evidence.target_item": {
+
+  };
+  "bindings.evidence.units": {
+    "units": string;
+  };
+  "bindings.evidence.value_type": {
+    "type": string;
+  };
+  "bindings.fitness.editable": {
+
+  };
+  "bindings.fitness.read_only": {
+
+  };
+  "bindings.fitness.unsupported": {
+
+  };
+  "bindings.history.empty": {
+
+  };
+  "bindings.history.op.replace_host": {
+
+  };
+  "bindings.history.op.replace_host_confirm_kept": {
+
+  };
+  "bindings.history.op.replace_host_decision": {
+
+  };
+  "bindings.history.op.unknown": {
+    "op": string;
+  };
+  "bindings.history.title": {
+
+  };
+  "bindings.inspector.field": {
+    "field": string;
+  };
+  "bindings.inspector.none": {
+
+  };
+  "bindings.inspector.title": {
+
+  };
+  "bindings.intent.clone": {
+
+  };
+  "bindings.intent.title": {
+
+  };
+  "bindings.kept.by_decision": {
+
+  };
+  "bindings.kept.confirmed": {
+
+  };
+  "bindings.kept.not_blocking": {
+
+  };
+  "bindings.kept.title": {
+    "count": number;
+    "host": string;
+  };
+  "bindings.kept.unconfirmed": {
+
+  };
+  "bindings.load_failed": {
+
+  };
+  "bindings.local_only": {
+
+  };
+  "bindings.mapping.candidates": {
+
+  };
+  "bindings.mapping.candidates_count": {
+    "count": number;
+  };
+  "bindings.mapping.caption": {
+
+  };
+  "bindings.mapping.choose_lld_instance": {
+
+  };
+  "bindings.mapping.column.match": {
+
+  };
+  "bindings.mapping.column.source": {
+    "host": string;
+  };
+  "bindings.mapping.column.target": {
+    "host": string;
+  };
+  "bindings.mapping.column.widget": {
+
+  };
+  "bindings.mapping.empty_filter": {
+
+  };
+  "bindings.mapping.filter": {
+
+  };
+  "bindings.mapping.keyboard_hint": {
+
+  };
+  "bindings.mapping.no_rows": {
+
+  };
+  "bindings.mapping.no_target": {
+
+  };
+  "bindings.mapping.similar_name_not_proof": {
+
+  };
+  "bindings.mapping.target_missing": {
+
+  };
+  "bindings.mapping.title": {
+    "source": string;
+    "target": string;
+  };
+  "bindings.match.ambiguous": {
+
+  };
+  "bindings.match.compatible": {
+
+  };
+  "bindings.match.denied": {
+
+  };
+  "bindings.match.exact": {
+
+  };
+  "bindings.match.missing": {
+
+  };
+  "bindings.match.unresolved_lld": {
+
+  };
+  "bindings.match_short.ambiguous": {
+
+  };
+  "bindings.match_short.compatible": {
+
+  };
+  "bindings.match_short.denied": {
+
+  };
+  "bindings.match_short.exact": {
+
+  };
+  "bindings.match_short.missing": {
+
+  };
+  "bindings.match_short.unresolved_lld": {
+
+  };
+  "bindings.match_short.unverified": {
+
+  };
+  "bindings.new_host.chosen": {
+    "host": string;
+  };
+  "bindings.new_host.empty": {
+
+  };
+  "bindings.new_host.groups": {
+    "groups": string;
+  };
+  "bindings.new_host.legend": {
+    "host": string;
+  };
+  "bindings.new_host.no_templates": {
+    "host": string;
+  };
+  "bindings.new_host.partial": {
+    "found": number;
+    "total": number;
+  };
+  "bindings.new_host.same_connection": {
+
+  };
+  "bindings.new_host.search": {
+
+  };
+  "bindings.new_host.search_action": {
+
+  };
+  "bindings.new_host.truncated": {
+    "count": number;
+  };
+  "bindings.new_host.visible_only": {
+
+  };
+  "bindings.offline.body": {
+
+  };
+  "bindings.offline.check_all": {
+
+  };
+  "bindings.offline.title": {
+
+  };
+  "bindings.outcome.changes": {
+
+  };
+  "bindings.outcome.kept": {
+    "host": string;
+  };
+  "bindings.plan_invalid_note": {
+
+  };
+  "bindings.progress.calculating": {
+
+  };
+  "bindings.progress.checking": {
+
+  };
+  "bindings.progress.inventory": {
+
+  };
+  "bindings.progress.saving": {
+
+  };
+  "bindings.progress.search": {
+
+  };
+  "bindings.reason.classic_graph_contract_pending": {
+
+  };
+  "bindings.reason.field_not_replaceable": {
+
+  };
+  "bindings.reason.graph_name_not_found": {
+
+  };
+  "bindings.reason.host_field_not_supported": {
+
+  };
+  "bindings.reason.host_mask": {
+
+  };
+  "bindings.reason.host_wildcard_all": {
+
+  };
+  "bindings.reason.item_patterns_without_target_items": {
+
+  };
+  "bindings.reason.key_not_found": {
+
+  };
+  "bindings.reason.lld_instance_missing": {
+
+  };
+  "bindings.reason.not_found_or_no_access": {
+
+  };
+  "bindings.reason.origin_differs": {
+
+  };
+  "bindings.reason.pattern_coverage_differs": {
+
+  };
+  "bindings.reason.pattern_field_not_supported": {
+
+  };
+  "bindings.reason.prototype_owner_unknown": {
+
+  };
+  "bindings.reason.several_target_candidates": {
+
+  };
+  "bindings.reason.target_name_is_mask": {
+
+  };
+  "bindings.reason.units_differ": {
+
+  };
+  "bindings.reason.unknown": {
+    "code": string;
+  };
+  "bindings.reason.unknown_field": {
+
+  };
+  "bindings.reason.unknown_widget": {
+
+  };
+  "bindings.reason.value_type_differs": {
+
+  };
+  "bindings.reason.value_type_incompatible": {
+
+  };
+  "bindings.reason.widget_not_editable": {
+
+  };
+  "bindings.ref.by_id": {
+
+  };
+  "bindings.ref.graph_id": {
+
+  };
+  "bindings.ref.host_id": {
+
+  };
+  "bindings.ref.host_mask": {
+
+  };
+  "bindings.ref.host_name_pattern": {
+
+  };
+  "bindings.ref.prototype": {
+
+  };
+  "bindings.reset.body": {
+
+  };
+  "bindings.reset.done": {
+
+  };
+  "bindings.reset.title": {
+
+  };
+  "bindings.scope.choose_pages": {
+
+  };
+  "bindings.scope.choose_widgets": {
+
+  };
+  "bindings.scope.empty_selection": {
+
+  };
+  "bindings.scope.pages": {
+
+  };
+  "bindings.scope.partial_warning": {
+    "host": string;
+    "count": number;
+  };
+  "bindings.scope.whole": {
+    "pages": number;
+    "widgets": number;
+  };
+  "bindings.scope.whole_page": {
+    "widgets": number;
+  };
+  "bindings.scope.widgets": {
+
+  };
+  "bindings.source.none": {
+
+  };
+  "bindings.source.option_detail": {
+    "references": number;
+    "widgets": number;
+  };
+  "bindings.source.unattributed": {
+    "count": number;
+  };
+  "bindings.source_evidence": {
+
+  };
+  "bindings.state.checked": {
+
+  };
+  "bindings.state.invalid": {
+
+  };
+  "bindings.state.stale": {
+
+  };
+  "bindings.step.dependencies": {
+
+  };
+  "bindings.step.done": {
+
+  };
+  "bindings.step.mapping": {
+
+  };
+  "bindings.step.new_host": {
+
+  };
+  "bindings.step.scope": {
+
+  };
+  "bindings.step.summary": {
+
+  };
+  "bindings.step.unavailable": {
+
+  };
+  "bindings.stored.change_hint": {
+
+  };
+  "bindings.stored.title": {
+    "source": string;
+    "target": string;
+  };
+  "bindings.summary.blocked": {
+    "count": number;
+  };
+  "bindings.summary.changes": {
+    "fields": number;
+    "widgets": number;
+  };
+  "bindings.summary.kept": {
+    "count": number;
+  };
+  "bindings.summary.only_changes": {
+
+  };
+  "bindings.summary.title": {
+
+  };
+  "bindings.summary.unresolved": {
+    "count": number;
+  };
+  "bindings.summary.untouched": {
+    "widgets": number;
+  };
+  "bindings.targets.templates_coverage": {
+    "found": number;
+    "total": number;
+  };
+  "bindings.value_type.binary": {
+
+  };
+  "bindings.value_type.character": {
+
+  };
+  "bindings.value_type.float": {
+
+  };
+  "bindings.value_type.log": {
+
+  };
+  "bindings.value_type.text": {
+
+  };
+  "bindings.value_type.unsigned": {
 
   };
   "checks.empty": {
@@ -968,6 +5446,9 @@ export interface MessageParamsById {
   "checks.summary.save_always": {
 
   };
+  "common.action.cancel": {
+
+  };
   "common.action.copy": {
 
   };
@@ -981,6 +5462,9 @@ export interface MessageParamsById {
 
   };
   "common.action.rename": {
+
+  };
+  "common.action.save_draft": {
 
   };
   "common.count.items": {
@@ -1026,6 +5510,9 @@ export interface MessageParamsById {
   "common.state.read_write": {
 
   };
+  "common.state.verified": {
+
+  };
   "compatibility.calculated_range": {
     "minimum": string;
     "maximum_exclusive"?: string | undefined;
@@ -1050,15 +5537,736 @@ export interface MessageParamsById {
   "compatibility.unknown_widget_type": {
     "widget_type": string;
   };
+  "connection.a11y.profiles": {
+
+  };
+  "connection.a11y.steps": {
+
+  };
+  "connection.action.back_to_list": {
+
+  };
+  "connection.action.cancel": {
+
+  };
+  "connection.action.check": {
+
+  };
+  "connection.action.confirm_new_server": {
+
+  };
+  "connection.action.connect": {
+
+  };
+  "connection.action.continue_offline": {
+
+  };
+  "connection.action.disconnect": {
+
+  };
+  "connection.action.edit": {
+
+  };
+  "connection.action.enable_writes": {
+
+  };
+  "connection.action.fix_address": {
+
+  };
+  "connection.action.fix_sign_in": {
+
+  };
+  "connection.action.forget_password": {
+
+  };
+  "connection.action.forget_token": {
+
+  };
+  "connection.action.new": {
+
+  };
+  "connection.action.retry": {
+
+  };
+  "connection.action.save": {
+
+  };
+  "connection.action.set_read_only": {
+
+  };
+  "connection.action.sign_in": {
+
+  };
+  "connection.action.test": {
+
+  };
+  "connection.action.use_default_account": {
+
+  };
+  "connection.auth.mfa_token_required": {
+
+  };
+  "connection.card.auth.password": {
+
+  };
+  "connection.card.auth.password_os_store": {
+
+  };
+  "connection.card.auth.token_memory": {
+
+  };
+  "connection.card.auth.token_os_store": {
+
+  };
+  "connection.card.checked_at": {
+    "time": Date | number;
+  };
+  "connection.card.never_checked": {
+
+  };
+  "connection.connect_failed": {
+    "profile": string;
+  };
+  "connection.connected": {
+    "profile": string;
+  };
+  "connection.credential_save_failed": {
+
+  };
+  "connection.default_password.acknowledge": {
+
+  };
+  "connection.default_password.body": {
+    "profile": string;
+  };
+  "connection.default_password.dont_show": {
+
+  };
+  "connection.default_password.title": {
+
+  };
+  "connection.delete.body": {
+
+  };
+  "connection.delete.credential_left": {
+
+  };
+  "connection.delete.disconnect_first": {
+
+  };
+  "connection.delete.title": {
+    "profile": string;
+  };
+  "connection.deleted": {
+    "profile": string;
+  };
+  "connection.disconnected": {
+    "profile": string;
+  };
+  "connection.duplicate.name": {
+    "profile": string;
+  };
+  "connection.editor.section.mode": {
+
+  };
+  "connection.editor.section.profile": {
+
+  };
+  "connection.editor.section.sign_in": {
+
+  };
+  "connection.editor.section.trust": {
+
+  };
+  "connection.editor.title_edit": {
+    "profile": string;
+  };
+  "connection.editor.title_new": {
+
+  };
+  "connection.enable_writes.available": {
+
+  };
+  "connection.enable_writes.available_title": {
+
+  };
+  "connection.enable_writes.context": {
+    "profile": string;
+    "version": string;
+  };
+  "connection.enable_writes.duration": {
+
+  };
+  "connection.enable_writes.duration_title": {
+
+  };
+  "connection.enable_writes.enabled": {
+    "profile": string;
+  };
+  "connection.enable_writes.never": {
+
+  };
+  "connection.enable_writes.never_title": {
+
+  };
+  "connection.enable_writes.no_extra_rights": {
+
+  };
+  "connection.enable_writes.plan_only": {
+
+  };
+  "connection.enable_writes.return_hint": {
+
+  };
+  "connection.enable_writes.title": {
+
+  };
+  "connection.forget_password.done": {
+
+  };
+  "connection.forget_token.not_revoked": {
+
+  };
+  "connection.form.api_token": {
+
+  };
+  "connection.form.api_url": {
+    "url": string;
+  };
+  "connection.form.api_url_pending": {
+
+  };
+  "connection.form.auth_method": {
+
+  };
+  "connection.form.auth_password": {
+
+  };
+  "connection.form.custom_ca": {
+
+  };
+  "connection.form.custom_ca_choose": {
+
+  };
+  "connection.form.custom_ca_fingerprint": {
+    "fingerprint": string;
+  };
+  "connection.form.custom_ca_hint": {
+
+  };
+  "connection.form.custom_ca_loaded": {
+    "count": number;
+  };
+  "connection.form.custom_ca_loading": {
+
+  };
+  "connection.form.custom_ca_required": {
+
+  };
+  "connection.form.default_account_hint": {
+
+  };
+  "connection.form.endpoint": {
+
+  };
+  "connection.form.endpoint_hint": {
+
+  };
+  "connection.form.has_errors": {
+
+  };
+  "connection.form.http_confirm": {
+
+  };
+  "connection.form.http_confirm_password": {
+
+  };
+  "connection.form.mfa_hint": {
+
+  };
+  "connection.form.mode_read_only": {
+
+  };
+  "connection.form.password": {
+
+  };
+  "connection.form.password_not_stored": {
+
+  };
+  "connection.form.password_stored": {
+
+  };
+  "connection.form.profile_name": {
+
+  };
+  "connection.form.rename_keeps_server": {
+
+  };
+  "connection.form.rules.http": {
+
+  };
+  "connection.form.rules.port_path": {
+
+  };
+  "connection.form.rules.rejected": {
+
+  };
+  "connection.form.rules.scheme": {
+
+  };
+  "connection.form.rules.title": {
+
+  };
+  "connection.form.secret_in_memory": {
+
+  };
+  "connection.form.server_changed.body": {
+
+  };
+  "connection.form.server_changed.title": {
+
+  };
+  "connection.form.store_password": {
+
+  };
+  "connection.form.store_password_hint": {
+
+  };
+  "connection.form.store_token": {
+
+  };
+  "connection.form.tls_no_bypass": {
+
+  };
+  "connection.form.token_at_connect": {
+
+  };
+  "connection.form.token_stored": {
+
+  };
+  "connection.form.trust_custom_ca": {
+
+  };
+  "connection.form.trust_system": {
+
+  };
+  "connection.form.username": {
+
+  };
+  "connection.identity.accepted": {
+
+  };
+  "connection.identity.changed": {
+
+  };
+  "connection.identity.first_seen": {
+
+  };
+  "connection.identity.version_changed": {
+    "previous_version": string;
+    "version": string;
+  };
+  "connection.list.empty": {
+
+  };
+  "connection.list.empty_help": {
+
+  };
+  "connection.list.load_failed": {
+
+  };
+  "connection.list.no_secrets": {
+
+  };
+  "connection.list.subtitle": {
+
+  };
   "connection.list.title": {
+
+  };
+  "connection.logout_failed": {
+
+  };
+  "connection.mode.read_only": {
+
+  };
+  "connection.mode.read_only_help": {
+
+  };
+  "connection.mode.read_write": {
+
+  };
+  "connection.mode.read_write_help": {
+
+  };
+  "connection.read_only_restored": {
+
+  };
+  "connection.result.version": {
+    "version": string;
+  };
+  "connection.saved": {
+    "profile": string;
+  };
+  "connection.sign_in.description": {
+    "address": string;
+  };
+  "connection.sign_in.in_progress": {
+
+  };
+  "connection.sign_in.locked": {
+    "seconds": number;
+  };
+  "connection.sign_in.password_memory_only": {
+
+  };
+  "connection.sign_in.password_required": {
+
+  };
+  "connection.sign_in.password_will_be_stored": {
+
+  };
+  "connection.sign_in.title": {
+    "profile": string;
+  };
+  "connection.sign_in.token_memory_only": {
+
+  };
+  "connection.sign_in.token_required": {
+
+  };
+  "connection.sign_in.token_will_be_stored": {
+
+  };
+  "connection.sign_in.username": {
+    "username": string;
+  };
+  "connection.sign_in.username_hint": {
+
+  };
+  "connection.sign_in.waiting": {
+
+  };
+  "connection.state.connected_mode": {
+    "mode": string;
+  };
+  "connection.state.connecting": {
+
+  };
+  "connection.state.context_changed": {
+    "profile": string;
+  };
+  "connection.state.last_check_failed": {
+
+  };
+  "connection.state.needs_sign_in": {
 
   };
   "connection.state.not_connected": {
 
   };
+  "connection.state.read_only_profile": {
+    "profile": string;
+  };
+  "connection.state.read_write_profile": {
+    "profile": string;
+  };
+  "connection.test.capabilities_denied": {
+    "methods": string;
+  };
+  "connection.test.crumb": {
+
+  };
+  "connection.test.details.code": {
+
+  };
+  "connection.test.details.method": {
+
+  };
+  "connection.test.details.step": {
+
+  };
+  "connection.test.details.time": {
+
+  };
+  "connection.test.details.title": {
+
+  };
+  "connection.test.details.version": {
+
+  };
+  "connection.test.during_sign_in": {
+
+  };
+  "connection.test.failed_at": {
+    "step": string;
+  };
+  "connection.test.idle": {
+
+  };
+  "connection.test.lockout_hint": {
+
+  };
+  "connection.test.not_checked": {
+    "reason": string;
+  };
+  "connection.test.passed": {
+
+  };
+  "connection.test.reason.api": {
+
+  };
+  "connection.test.reason.auth": {
+
+  };
+  "connection.test.reason.endpoint": {
+
+  };
+  "connection.test.reason.identity": {
+
+  };
+  "connection.test.report.copied": {
+
+  };
+  "connection.test.report.copy": {
+
+  };
+  "connection.test.report.copy_failed": {
+
+  };
+  "connection.test.report.include_address": {
+
+  };
+  "connection.test.report.scope": {
+
+  };
+  "connection.test.result.api": {
+    "version": string;
+  };
+  "connection.test.result.auth_password": {
+
+  };
+  "connection.test.result.auth_token": {
+
+  };
+  "connection.test.result.capabilities": {
+
+  };
+  "connection.test.result.endpoint": {
+
+  };
+  "connection.test.result.identity_matches": {
+
+  };
+  "connection.test.running": {
+
+  };
+  "connection.test.status.failed": {
+
+  };
+  "connection.test.status.not_checked": {
+
+  };
+  "connection.test.status.notice": {
+
+  };
+  "connection.test.status.passed": {
+
+  };
+  "connection.test.step.api": {
+
+  };
+  "connection.test.step.auth": {
+
+  };
+  "connection.test.step.capabilities": {
+
+  };
+  "connection.test.step.endpoint": {
+
+  };
+  "connection.test.step.identity": {
+
+  };
+  "connection.test.step_heading": {
+    "number": number;
+    "name": string;
+  };
+  "connection.test.subtitle": {
+
+  };
+  "connection.test.title": {
+    "profile": string;
+  };
+  "connection.warning.http": {
+
+  };
+  "copy.action.new_copy": {
+
+  };
+  "copy.action.open_mine": {
+
+  };
+  "copy.breadcrumb": {
+
+  };
+  "copy.dep.by_id_or_pattern": {
+    "total": number;
+    "by_id": number;
+    "by_pattern": number;
+  };
+  "copy.dep.graphs": {
+
+  };
+  "copy.dep.hosts": {
+
+  };
+  "copy.dep.items": {
+
+  };
+  "copy.dep.not_copied": {
+
+  };
+  "copy.dep.other": {
+
+  };
+  "copy.dep.references": {
+
+  };
+  "copy.dep.references_value": {
+    "count": number;
+  };
+  "copy.dep.unknown_fields": {
+
+  };
+  "copy.dep.unknown_fields_value": {
+    "count": number;
+  };
+  "copy.existing": {
+    "time": Date | number;
+  };
+  "copy.existing.refetch_hint": {
+
+  };
+  "copy.not_saved": {
+
+  };
+  "copy.page_summary": {
+    "widgets": string;
+    "editable": number;
+    "other": number;
+  };
+  "copy.progress": {
+
+  };
+  "copy.read_twice": {
+
+  };
+  "copy.result.created": {
+    "name": string;
+  };
+  "copy.result.failed": {
+
+  };
+  "copy.result.metadata_partial": {
+
+  };
+  "copy.result.metadata_unavailable": {
+
+  };
+  "copy.saved.access": {
+
+  };
+  "copy.saved.draft": {
+
+  };
+  "copy.saved.snapshot": {
+
+  };
+  "copy.scope.whole": {
+    "summary": string;
+  };
+  "copy.section.composition": {
+
+  };
+  "copy.section.dependencies": {
+
+  };
+  "copy.section.not_saved": {
+
+  };
+  "copy.section.saved": {
+
+  };
+  "copy.title": {
+    "dashboard_name": string;
+  };
+  "copy.widget.as_is": {
+
+  };
+  "copy.widget.editable": {
+
+  };
+  "dashboards.permission.not_visible_or_denied": {
+
+  };
   "dashboards.summary.pages_widgets": {
     "pages": number;
     "widgets": number;
+  };
+  "dashboards.visibility.private": {
+
+  };
+  "dashboards.visibility.shared": {
+
+  };
+  "desktop.browser.open_failed": {
+    "url": string;
+  };
+  "desktop.close.writing.body": {
+
+  };
+  "desktop.close.writing.title": {
+
+  };
+  "desktop.fallback.choice.browser": {
+
+  };
+  "desktop.fallback.choice.install": {
+
+  };
+  "desktop.fallback.choice.yes_no": {
+
+  };
+  "desktop.fallback.install.astra_1_7": {
+
+  };
+  "desktop.fallback.install.debian": {
+    "command": string;
+  };
+  "desktop.fallback.install.red_os": {
+    "command": string;
+  };
+  "desktop.fallback.install.webkitgtk": {
+
+  };
+  "desktop.fallback.install.webview2": {
+    "url": string;
+  };
+  "desktop.fallback.opening_browser": {
+
+  };
+  "desktop.fallback.reason.engine_missing": {
+
+  };
+  "desktop.fallback.reason.start_failed": {
+
+  };
+  "desktop.fallback.restart": {
+
+  };
+  "desktop.fallback.title": {
+
   };
   "diagnostics.title": {
 
@@ -1114,6 +6322,9 @@ export interface MessageParamsById {
   "draft.nav.structure": {
 
   };
+  "draft.nav.title": {
+
+  };
   "draft.overview.composition.dashboard": {
 
   };
@@ -1139,6 +6350,9 @@ export interface MessageParamsById {
 
   };
   "draft.overview.origin": {
+
+  };
+  "draft.overview.publish_unavailable": {
 
   };
   "draft.overview.selection_note": {
@@ -1168,6 +6382,9 @@ export interface MessageParamsById {
   "draft.overview.step.numbered": {
     "number": number;
     "step": string;
+  };
+  "draft.overview.step.open_section": {
+    "section": string;
   };
   "draft.overview.step.review_plan": {
 
@@ -1206,7 +6423,10 @@ export interface MessageParamsById {
   };
   "draft.provenance.assembled": {
     "count": number;
-    "sources"?: string | undefined;
+  };
+  "draft.provenance.assembled_with_sources": {
+    "count": number;
+    "sources": string;
   };
   "draft.provenance.created_here": {
 
@@ -1282,6 +6502,9 @@ export interface MessageParamsById {
   "drafts.action.create": {
 
   };
+  "drafts.action.export_file": {
+
+  };
   "drafts.action.make_portable": {
 
   };
@@ -1300,8 +6523,18 @@ export interface MessageParamsById {
   "drafts.column.state": {
 
   };
+  "drafts.copy_name": {
+    "name": string;
+    "number": number;
+  };
   "drafts.created_from_copy": {
 
+  };
+  "drafts.created_from_draft": {
+
+  };
+  "drafts.damaged": {
+    "count": number;
   };
   "drafts.delete.safe": {
 
@@ -1321,6 +6554,9 @@ export interface MessageParamsById {
   "drafts.details.created_item": {
     "name": string;
     "time": Date | number;
+  };
+  "drafts.details.created_not_found": {
+
   };
   "drafts.details.freshness": {
 
@@ -1346,6 +6582,27 @@ export interface MessageParamsById {
   "drafts.filter.server_copies": {
 
   };
+  "drafts.list.open_hint": {
+
+  };
+  "drafts.load_failed": {
+
+  };
+  "drafts.name.source_connection": {
+    "connection": string;
+  };
+  "drafts.rename.description": {
+
+  };
+  "drafts.rename.done": {
+    "name": string;
+  };
+  "drafts.rename.title": {
+
+  };
+  "drafts.search.no_results": {
+
+  };
   "drafts.search.placeholder": {
 
   };
@@ -1358,10 +6615,19 @@ export interface MessageParamsById {
   "drafts.state.changed_on_server": {
 
   };
+  "drafts.state.current": {
+
+  };
   "drafts.state.modified": {
 
   };
   "drafts.state.saved": {
+
+  };
+  "drafts.state.source_missing": {
+
+  };
+  "drafts.state.stale": {
 
   };
   "drafts.subtitle": {
@@ -1371,6 +6637,333 @@ export interface MessageParamsById {
 
   };
   "editor.unavailable_yet": {
+
+  };
+  "errors.address.fragment": {
+
+  };
+  "errors.address.host": {
+
+  };
+  "errors.address.query": {
+
+  };
+  "errors.address.scheme": {
+
+  };
+  "errors.address.syntax": {
+
+  };
+  "errors.address.userinfo": {
+
+  };
+  "errors.auth.credentials_or_directory": {
+
+  };
+  "errors.auth.mfa_token_required": {
+
+  };
+  "errors.auth.session_expired": {
+
+  };
+  "errors.auth.token_expired": {
+
+  };
+  "errors.auth.token_invalid_or_disabled": {
+
+  };
+  "errors.connection.api_error": {
+    "method": string;
+  };
+  "errors.connection.api_not_found": {
+
+  };
+  "errors.connection.dns_unresolvable": {
+
+  };
+  "errors.connection.failed": {
+
+  };
+  "errors.connection.not_connected": {
+
+  };
+  "errors.connection.random_unavailable": {
+
+  };
+  "errors.connection.refused": {
+
+  };
+  "errors.connection.request_invalid": {
+
+  };
+  "errors.connection.secret_invalid": {
+
+  };
+  "errors.connection.secret_required": {
+
+  };
+  "errors.connection.service_unavailable": {
+
+  };
+  "errors.connection.unexpected_response": {
+
+  };
+  "errors.connection.unknown": {
+    "code": string;
+  };
+  "errors.connection.unreachable_or_timeout": {
+
+  };
+  "errors.connection.version_unsupported": {
+    "version": string;
+  };
+  "errors.connection.writes_not_confirmed": {
+
+  };
+  "errors.credential.locked": {
+
+  };
+  "errors.credential.missing": {
+
+  };
+  "errors.credential.unavailable": {
+
+  };
+  "errors.drafts.name_invalid": {
+    "max": number;
+  };
+  "errors.import.inconsistent": {
+
+  };
+  "errors.import.parse": {
+    "format": string;
+  };
+  "errors.import.policy": {
+    "code": string;
+  };
+  "errors.import.unsafe_structure": {
+    "code": string;
+  };
+  "errors.import.validation": {
+    "code": string;
+  };
+  "errors.permission.api_method": {
+    "method": string;
+  };
+  "errors.permission.system_access": {
+
+  };
+  "errors.profile.limit_reached": {
+    "max": number;
+  };
+  "errors.profile.name_invalid": {
+    "max_chars": number;
+  };
+  "errors.profile.not_found": {
+
+  };
+  "errors.profile.plain_http_unconfirmed": {
+
+  };
+  "errors.profile.store_invalid": {
+
+  };
+  "errors.profile.store_linked_path": {
+
+  };
+  "errors.profile.store_too_large": {
+
+  };
+  "errors.profile.store_unavailable": {
+
+  };
+  "errors.profile.username_invalid": {
+    "max_chars": number;
+  };
+  "errors.publication.blocked": {
+
+  };
+  "errors.publication.code": {
+    "code": string;
+  };
+  "errors.publication.journal_damaged": {
+    "operation_id": string;
+  };
+  "errors.publication.journal_not_damaged": {
+
+  };
+  "errors.publication.journal_write_failed": {
+
+  };
+  "errors.publication.local_mismatch": {
+
+  };
+  "errors.publication.name_taken_maybe_hidden": {
+
+  };
+  "errors.publication.operation_not_found": {
+
+  };
+  "errors.publication.operation_running": {
+
+  };
+  "errors.publication.plan_mismatch": {
+
+  };
+  "errors.publication.plan_not_found": {
+
+  };
+  "errors.publication.quarantine_exists": {
+
+  };
+  "errors.publication.reconcile_not_needed": {
+
+  };
+  "errors.publication.reconcile_partial_visibility": {
+
+  };
+  "errors.publication.reconcile_server_changed": {
+
+  };
+  "errors.publication.target_blocked": {
+    "operation_id": string;
+  };
+  "errors.replace_host.binding_not_found": {
+
+  };
+  "errors.replace_host.candidate_not_visible": {
+
+  };
+  "errors.replace_host.candidate_value_type_incompatible": {
+
+  };
+  "errors.replace_host.changed_concurrently": {
+
+  };
+  "errors.replace_host.decision_not_applicable": {
+
+  };
+  "errors.replace_host.host_objects_limit": {
+
+  };
+  "errors.replace_host.internal": {
+
+  };
+  "errors.replace_host.kept_changed": {
+
+  };
+  "errors.replace_host.kept_empty": {
+
+  };
+  "errors.replace_host.not_calculated": {
+
+  };
+  "errors.replace_host.operation_not_found": {
+
+  };
+  "errors.replace_host.other_connection": {
+
+  };
+  "errors.replace_host.pending": {
+
+  };
+  "errors.replace_host.same_host": {
+
+  };
+  "errors.replace_host.scope_invalid": {
+
+  };
+  "errors.replace_host.scope_outside_draft": {
+
+  };
+  "errors.replace_host.source_not_visible": {
+
+  };
+  "errors.snapshot.corrupt": {
+
+  };
+  "errors.snapshot.missing": {
+
+  };
+  "errors.snapshot.shape_invalid": {
+
+  };
+  "errors.snapshot.too_large": {
+
+  };
+  "errors.snapshot.unsupported_adapter": {
+
+  };
+  "errors.storage.linked": {
+
+  };
+  "errors.tls.name_mismatch": {
+
+  };
+  "errors.tls.time_invalid": {
+
+  };
+  "errors.tls.untrusted": {
+
+  };
+  "errors.trust.changed": {
+
+  };
+  "errors.trust.empty": {
+
+  };
+  "errors.trust.invalid_pem": {
+
+  };
+  "errors.trust.missing": {
+
+  };
+  "errors.trust.private_key": {
+
+  };
+  "errors.trust.rejected": {
+
+  };
+  "errors.trust.too_large": {
+
+  };
+  "errors.trust.too_many_certificates": {
+
+  };
+  "errors.trust.upload_invalid": {
+
+  };
+  "errors.workcopy.corrupt": {
+
+  };
+  "errors.workcopy.not_visible_or_denied": {
+
+  };
+  "errors.workcopy.page_not_found": {
+
+  };
+  "errors.workcopy.search_invalid": {
+    "max": number;
+  };
+  "errors.workcopy.settings_unavailable": {
+
+  };
+  "errors.workcopy.storage_file_too_large": {
+
+  };
+  "errors.workcopy.storage_limit_reached": {
+
+  };
+  "errors.workcopy.storage_unavailable": {
+
+  };
+  "errors.workcopy.storage_write_failed": {
+
+  };
+  "errors.workcopy.too_large": {
+
+  };
+  "errors.workcopy.unsupported_operation": {
 
   };
   "http.security.api_not_found": {
@@ -1421,6 +7014,18 @@ export interface MessageParamsById {
   "intent.append_page": {
 
   };
+  "intent.replace_host": {
+
+  };
+  "intent.replace_item_fields": {
+
+  };
+  "intent.save_as_copy": {
+
+  };
+  "intent.unknown": {
+    "code": string;
+  };
   "library.title": {
 
   };
@@ -1458,31 +7063,1312 @@ export interface MessageParamsById {
     "number": number;
     "name": string;
   };
-  "object.page.untitled": {
-
+  "object.page.unnamed": {
+    "number": number;
   };
   "object.page.widget_count": {
     "count": number;
   };
+  "publication.a11y.steps": {
+
+  };
+  "publication.access.copy_private": {
+
+  };
+  "publication.access.title": {
+
+  };
+  "publication.access.update_not_sent": {
+
+  };
+  "publication.action.back_changes": {
+
+  };
+  "publication.action.back_checks": {
+
+  };
+  "publication.action.back_target": {
+
+  };
+  "publication.action.back_to_draft": {
+
+  };
+  "publication.action.confirm_dialog": {
+
+  };
+  "publication.action.confirm_write": {
+
+  };
+  "publication.action.new_preview": {
+
+  };
+  "publication.action.next_changes": {
+
+  };
+  "publication.action.next_checks": {
+
+  };
+  "publication.action.next_confirm": {
+
+  };
+  "publication.action.open_in_zabbix": {
+
+  };
+  "publication.action.open_journal": {
+
+  };
+  "publication.action.open_server": {
+
+  };
+  "publication.action.reconcile": {
+
+  };
+  "publication.check.action.confirm_kept": {
+    "count": number;
+  };
+  "publication.check.action.open_bindings": {
+
+  };
+  "publication.check.confirm_kept": {
+
+  };
+  "publication.check.count.blocking": {
+    "count": number;
+  };
+  "publication.check.count.warnings": {
+    "count": number;
+  };
+  "publication.check.fixed_in": {
+    "section": string;
+  };
+  "publication.check.group.bindings": {
+
+  };
+  "publication.check.group.connection": {
+
+  };
+  "publication.check.group.plan": {
+
+  };
+  "publication.check.group.source": {
+
+  };
+  "publication.check.group.widgets": {
+
+  };
+  "publication.check.none": {
+
+  };
+  "publication.check.recheck": {
+
+  };
+  "publication.check.status.blocks": {
+
+  };
+  "publication.check.status.warning": {
+
+  };
+  "publication.check.summary.plan_not_built": {
+
+  };
+  "publication.check.summary.ready": {
+
+  };
+  "publication.checks.checking": {
+
+  };
+  "publication.checks.source_current": {
+    "time": Date | number;
+  };
+  "publication.checks.source_not_checked": {
+
+  };
+  "publication.checks.source_title": {
+
+  };
+  "publication.confirm.api_create": {
+
+  };
+  "publication.confirm.api_update": {
+
+  };
+  "publication.confirm.building": {
+
+  };
+  "publication.confirm.changes_create": {
+    "pages": number;
+  };
+  "publication.confirm.changes_update": {
+    "count": number;
+    "source": string;
+    "target": string;
+  };
+  "publication.confirm.connection_value": {
+    "profile": string;
+    "version": string;
+  };
+  "publication.confirm.create_name_check": {
+
+  };
+  "publication.confirm.dashboard_existing": {
+    "dashboard_name": string;
+  };
+  "publication.confirm.dashboard_new": {
+    "name": string;
+  };
+  "publication.confirm.field.action": {
+
+  };
+  "publication.confirm.field.changes": {
+
+  };
+  "publication.confirm.field.connection": {
+
+  };
+  "publication.confirm.field.dashboard": {
+
+  };
+  "publication.confirm.field.kept": {
+    "host": string;
+  };
+  "publication.confirm.field.plan": {
+
+  };
+  "publication.confirm.field.unchanged": {
+
+  };
+  "publication.confirm.field.warnings": {
+
+  };
+  "publication.confirm.invalid_when": {
+
+  };
+  "publication.confirm.kept_confirmed": {
+    "count": number;
+  };
+  "publication.confirm.no_cancel_after_send": {
+
+  };
+  "publication.confirm.offline": {
+
+  };
+  "publication.confirm.plan_once": {
+    "time": Date | number;
+  };
+  "publication.confirm.question_create": {
+    "name": string;
+  };
+  "publication.confirm.question_update": {
+    "count": number;
+    "dashboard_name": string;
+  };
+  "publication.confirm.requirements": {
+
+  };
+  "publication.confirm.reread": {
+    "time": Date | number;
+  };
+  "publication.confirm.summary_title": {
+
+  };
+  "publication.confirm.target_line": {
+    "target": string;
+  };
+  "publication.confirm.title": {
+
+  };
+  "publication.confirm.unchanged_update": {
+    "count": number;
+  };
+  "publication.confirm.warnings_reviewed": {
+    "count": number;
+  };
+  "publication.conflict.body": {
+
+  };
+  "publication.conflict.caption": {
+
+  };
+  "publication.conflict.change.access": {
+
+  };
+  "publication.conflict.change.dashboard_properties": {
+
+  };
+  "publication.conflict.change.page_added": {
+
+  };
+  "publication.conflict.change.page_changed": {
+
+  };
+  "publication.conflict.change.page_removed": {
+
+  };
+  "publication.conflict.change.page_renamed": {
+
+  };
+  "publication.conflict.change.widget_added": {
+
+  };
+  "publication.conflict.change.widget_changed": {
+
+  };
+  "publication.conflict.change.widget_moved": {
+
+  };
+  "publication.conflict.change.widget_removed": {
+
+  };
+  "publication.conflict.column.mine": {
+
+  };
+  "publication.conflict.column.object": {
+
+  };
+  "publication.conflict.column.server": {
+
+  };
+  "publication.conflict.detected_at": {
+    "time": Date | number;
+    "snapshot": Date | number;
+  };
+  "publication.conflict.mine.host_replaced": {
+
+  };
+  "publication.conflict.mine.none": {
+
+  };
+  "publication.conflict.missing_body": {
+
+  };
+  "publication.conflict.missing_title": {
+    "dashboard_name": string;
+  };
+  "publication.conflict.next_title": {
+
+  };
+  "publication.conflict.no_author": {
+
+  };
+  "publication.conflict.object.dashboard": {
+
+  };
+  "publication.conflict.object.page": {
+    "number": number;
+    "name": string;
+  };
+  "publication.conflict.object.widget": {
+    "name": string;
+    "widget_type": string;
+  };
+  "publication.conflict.open_new_copy": {
+
+  };
+  "publication.conflict.overlap": {
+    "count": number;
+  };
+  "publication.conflict.overwrite": {
+
+  };
+  "publication.conflict.overwrite_unavailable": {
+
+  };
+  "publication.conflict.recheck_hint": {
+
+  };
+  "publication.conflict.refetch_hint": {
+
+  };
+  "publication.conflict.refetch_not_replayed": {
+    "code": string;
+  };
+  "publication.conflict.refetched": {
+    "name": string;
+  };
+  "publication.conflict.save_copy_hint": {
+
+  };
+  "publication.conflict.stale_body": {
+
+  };
+  "publication.conflict.stale_title": {
+
+  };
+  "publication.conflict.title": {
+    "dashboard_name": string;
+  };
+  "publication.conflict.truncated": {
+    "count": number;
+  };
+  "publication.context.connection": {
+
+  };
+  "publication.context.operation": {
+
+  };
+  "publication.context.pages_value": {
+    "count": number;
+  };
+  "publication.context.scope": {
+
+  };
+  "publication.context.scope_value": {
+    "changed": number;
+    "total": number;
+  };
+  "publication.context.source": {
+
+  };
+  "publication.context.target": {
+
+  };
+  "publication.context.target_hint": {
+
+  };
+  "publication.context.target_new": {
+    "name": string;
+  };
+  "publication.context.target_not_chosen": {
+
+  };
+  "publication.context.target_same": {
+
+  };
+  "publication.contract.item_widget_itemid": {
+
+  };
+  "publication.contract.preserve_untouched_pages": {
+
+  };
+  "publication.contract.preserve_widget_references": {
+
+  };
+  "publication.contract.reconcile_unknown_outcome": {
+
+  };
+  "publication.contract.resend_widget_type": {
+    "widget_type": string;
+  };
+  "publication.contract.svggraph_dataset_hosts": {
+
+  };
+  "publication.contract.svggraph_dataset_itemids": {
+
+  };
+  "publication.contract.update_one_page_with_full_fields": {
+
+  };
+  "publication.contract.update_several_pages": {
+
+  };
+  "publication.diff.caption": {
+    "page": string;
+  };
+  "publication.diff.change.field": {
+    "count": number;
+  };
+  "publication.diff.change.kept": {
+
+  };
+  "publication.diff.change.unresolved": {
+
+  };
+  "publication.diff.column.after": {
+
+  };
+  "publication.diff.column.before": {
+
+  };
+  "publication.diff.column.change": {
+
+  };
+  "publication.diff.column.object": {
+
+  };
+  "publication.diff.empty_filter": {
+
+  };
+  "publication.diff.filter.changed": {
+
+  };
+  "publication.diff.filter.kept": {
+
+  };
+  "publication.diff.filter.label": {
+
+  };
+  "publication.diff.filter.unresolved": {
+
+  };
+  "publication.diff.filter.untouched": {
+
+  };
+  "publication.diff.inspector.changed_fields": {
+
+  };
+  "publication.diff.inspector.none": {
+
+  };
+  "publication.diff.inspector.series": {
+    "index": number;
+  };
+  "publication.diff.inspector.sources": {
+
+  };
+  "publication.diff.inspector.title": {
+
+  };
+  "publication.diff.inspector.unchanged": {
+
+  };
+  "publication.diff.inspector.unchanged_body": {
+
+  };
+  "publication.diff.matching_by_id": {
+
+  };
+  "publication.diff.no_changes": {
+
+  };
+  "publication.diff.out_of_scope": {
+
+  };
+  "publication.diff.page_summary": {
+    "changed": number;
+    "total": number;
+  };
+  "publication.diff.remote_current": {
+
+  };
+  "publication.diff.remote_later": {
+
+  };
+  "publication.diff.search": {
+
+  };
+  "publication.diff.tab.local": {
+
+  };
+  "publication.diff.tab.remote": {
+
+  };
+  "publication.evidence.dashboard_name_taken": {
+
+  };
+  "publication.evidence.expected_found": {
+
+  };
+  "publication.evidence.not_visible": {
+
+  };
+  "publication.evidence.other_found": {
+
+  };
+  "publication.evidence.read_back_matches": {
+
+  };
+  "publication.evidence.reconcile_ambiguous": {
+
+  };
+  "publication.evidence.reconcile_confirmed": {
+
+  };
+  "publication.evidence.reconcile_not_found": {
+
+  };
+  "publication.evidence.reconcile_structure_mismatch": {
+
+  };
+  "publication.evidence.source_found": {
+
+  };
+  "publication.evidence.unknown": {
+    "code": string;
+  };
+  "publication.expected.choose_action": {
+
+  };
+  "publication.expected.replace_host": {
+    "count": number;
+    "source": string;
+    "target": string;
+  };
+  "publication.expected.save_as_copy": {
+    "pages": number;
+    "name": string;
+  };
+  "publication.expected.title": {
+    "summary": string;
+  };
+  "publication.finding.binding_invalid": {
+
+  };
+  "publication.finding.binding_stale": {
+
+  };
+  "publication.finding.binding_unresolved": {
+
+  };
+  "publication.finding.capability_not_verified": {
+    "capability": string;
+  };
+  "publication.finding.connection_required": {
+
+  };
+  "publication.finding.dashboard_not_editable": {
+
+  };
+  "publication.finding.decision_invalid": {
+
+  };
+  "publication.finding.kept_on_source": {
+    "host": string;
+  };
+  "publication.finding.kept_on_source_confirmation_stale": {
+
+  };
+  "publication.finding.match_differences": {
+    "differences": string;
+  };
+  "publication.finding.no_changes": {
+
+  };
+  "publication.finding.scope_link_crossing.consumer_outside": {
+
+  };
+  "publication.finding.scope_link_crossing.provider_outside": {
+
+  };
+  "publication.finding.server_version_mismatch": {
+    "base_version": string;
+  };
+  "publication.finding.source_unverified": {
+
+  };
+  "publication.finding.target_host_not_visible": {
+
+  };
+  "publication.finding.unknown": {
+    "code": string;
+  };
+  "publication.finding.write_contract_unverified": {
+    "contract": string;
+  };
+  "publication.finding.write_mode_required": {
+
+  };
+  "publication.journal.close": {
+
+  };
+  "publication.journal.description": {
+
+  };
+  "publication.journal.disk_note": {
+
+  };
+  "publication.journal.field.closed_by": {
+
+  };
+  "publication.journal.field.connection": {
+
+  };
+  "publication.journal.field.evidence": {
+
+  };
+  "publication.journal.field.finished": {
+
+  };
+  "publication.journal.field.operation": {
+
+  };
+  "publication.journal.field.operation_id": {
+
+  };
+  "publication.journal.field.repeats": {
+
+  };
+  "publication.journal.field.sends": {
+
+  };
+  "publication.journal.field.sent": {
+
+  };
+  "publication.journal.field.server_version": {
+
+  };
+  "publication.journal.field.source": {
+
+  };
+  "publication.journal.field.started": {
+
+  };
+  "publication.journal.field.state": {
+
+  };
+  "publication.journal.field.target": {
+
+  };
+  "publication.journal.field.transitions": {
+
+  };
+  "publication.journal.profile_removed": {
+
+  };
+  "publication.journal.source_draft": {
+    "name": string;
+    "revision": number;
+  };
+  "publication.journal.source_removed": {
+
+  };
+  "publication.journal.target_existing": {
+    "name": string;
+  };
+  "publication.journal.target_existing_unnamed": {
+
+  };
+  "publication.journal.target_new": {
+    "name": string;
+  };
+  "publication.journal.title": {
+
+  };
+  "publication.journal.transition": {
+    "state": string;
+    "time": Date | number;
+  };
+  "publication.journal_block": {
+
+  };
+  "publication.journal_block_damaged": {
+
+  };
+  "publication.kept.confirmed_done": {
+
+  };
+  "publication.later.hint": {
+
+  };
+  "publication.none.body": {
+
+  };
+  "publication.none.title": {
+
+  };
+  "publication.plan.invalidated": {
+    "reason": string;
+  };
+  "publication.plan.reason.app_restarted": {
+
+  };
+  "publication.plan.reason.bindings_changed": {
+
+  };
+  "publication.plan.reason.connection_changed": {
+
+  };
+  "publication.plan.reason.draft_changed": {
+
+  };
+  "publication.plan.reason.session_ended": {
+
+  };
+  "publication.plan.reason.source_changed": {
+
+  };
+  "publication.plan.reason.target_changed": {
+
+  };
+  "publication.plan.reason.unknown": {
+    "code": string;
+  };
+  "publication.preflight.blocked": {
+
+  };
+  "publication.preflight.title": {
+
+  };
+  "publication.preview.read_only_note": {
+
+  };
+  "publication.reconcile.column.found": {
+
+  };
+  "publication.reconcile.column.next": {
+
+  };
+  "publication.reconcile.column.result": {
+
+  };
+  "publication.reconcile.create_note": {
+
+  };
+  "publication.reconcile.found_base": {
+
+  };
+  "publication.reconcile.found_expected": {
+
+  };
+  "publication.reconcile.found_none_or_other": {
+
+  };
+  "publication.reconcile.found_one": {
+
+  };
+  "publication.reconcile.found_other": {
+
+  };
+  "publication.reconcile.next_continue": {
+
+  };
+  "publication.reconcile.next_new_preview": {
+
+  };
+  "publication.reconcile.next_open": {
+
+  };
+  "publication.reconcile.read_only_enough": {
+
+  };
+  "publication.reconcile.title": {
+
+  };
+  "publication.reconcile.update_note": {
+
+  };
+  "publication.reconcile.write_blocked": {
+
+  };
   "publication.requirement.no_connection": {
+
+  };
+  "publication.result.base_advanced": {
+
+  };
+  "publication.result.base_not_advanced": {
+
+  };
+  "publication.result.closed_manually_body": {
+
+  };
+  "publication.result.copy_created": {
+    "name": string;
+  };
+  "publication.result.failed_after_response_body": {
+
+  };
+  "publication.result.failed_before_send_body": {
+    "reason": string;
+  };
+  "publication.result.journal_error": {
+    "code": string;
+  };
+  "publication.result.manual_body": {
+
+  };
+  "publication.result.manual_update_body": {
+
+  };
+  "publication.result.reconciled_failed_body": {
+
+  };
+  "publication.result.reconciled_verified_body": {
+
+  };
+  "publication.result.unknown_body": {
+
+  };
+  "publication.result.verified_body": {
+
+  };
+  "publication.stage.at": {
+    "time": Date | number;
+  };
+  "publication.stage.display": {
+
+  };
+  "publication.stage.display_not_checked": {
+
+  };
+  "publication.stage.name_check": {
+
+  };
+  "publication.stage.name_check_done": {
+
+  };
+  "publication.stage.not_done": {
+
+  };
+  "publication.stage.not_sent": {
+
+  };
+  "publication.stage.pre_read": {
+
+  };
+  "publication.stage.pre_read_done": {
+
+  };
+  "publication.stage.read_back": {
+
+  };
+  "publication.stage.read_back_done": {
+
+  };
+  "publication.stage.sending": {
+
+  };
+  "publication.stage.sources": {
+
+  };
+  "publication.stage.sources_done": {
+
+  };
+  "publication.stage.structure": {
+
+  };
+  "publication.stage.structure_done": {
+
+  };
+  "publication.stage.waiting": {
+
+  };
+  "publication.stage.write": {
+
+  };
+  "publication.stage.write_done": {
+
+  };
+  "publication.stage.write_unknown": {
+
+  };
+  "publication.stages.title": {
+
+  };
+  "publication.state.closed_manually": {
+
+  };
+  "publication.state.confirmed": {
+
+  };
+  "publication.state.conflict": {
+
+  };
+  "publication.state.failed_after_response": {
+
+  };
+  "publication.state.failed_before_send": {
+
+  };
+  "publication.state.manual_check_required": {
+
+  };
+  "publication.state.reconciled_failed": {
+
+  };
+  "publication.state.reconciled_verified": {
+
+  };
+  "publication.state.submitting": {
+
+  };
+  "publication.state.unknown_outcome": {
+
+  };
+  "publication.state.verified": {
+
+  };
+  "publication.step.changes": {
+
+  };
+  "publication.step.checks": {
+
+  };
+  "publication.step.confirm": {
+
+  };
+  "publication.step.target": {
+
+  };
+  "publication.step.unavailable_reason": {
+
+  };
+  "publication.step.write": {
+
+  };
+  "publication.target.choose_explicitly": {
+
+  };
+  "publication.target.name": {
+
+  };
+  "publication.target.name_required": {
+
+  };
+  "publication.target.name_server_check": {
+
+  };
+  "publication.target.no_retarget": {
+
+  };
+  "publication.target.save_copy": {
+
+  };
+  "publication.target.save_copy_hint": {
+
+  };
+  "publication.target.title": {
+
+  };
+  "publication.target.update_source": {
+    "dashboard_name": string;
+  };
+  "publication.target.update_source_hint": {
+
+  };
+  "publication.target.update_visible_to_all": {
+
+  };
+  "publication.tech.base": {
+
+  };
+  "publication.tech.fields": {
+
+  };
+  "publication.tech.local": {
+
+  };
+  "publication.tech.pageid": {
+
+  };
+  "publication.tech.revision": {
+
+  };
+  "publication.tech.title": {
+
+  };
+  "publication.tech.widget_type": {
+
+  };
+  "publication.tech.widgetid": {
+
+  };
+  "publication.title": {
+
+  };
+  "publication.untouched.access": {
+
+  };
+  "publication.untouched.pages": {
+
+  };
+  "publication.untouched.source": {
+    "dashboard_name": string;
+  };
+  "publication.untouched.title": {
+
+  };
+  "publication.untouched.widgets": {
+    "count": number;
+    "host": string;
+  };
+  "publication.untouched.zabbix_objects": {
+
+  };
+  "replace_host.source": {
+
+  };
+  "server.action.clone": {
+
+  };
+  "server.action.copy": {
+
+  };
+  "server.action.open_copy": {
+
+  };
+  "server.action.preview": {
+
+  };
+  "server.action.refresh": {
+
+  };
+  "server.actions_start_with_copy": {
+
+  };
+  "server.column.access": {
+
+  };
+  "server.column.editable": {
+
+  };
+  "server.column.mine": {
+
+  };
+  "server.column.name": {
+
+  };
+  "server.column.owner": {
+
+  };
+  "server.column.pages": {
+
+  };
+  "server.column.widgets": {
 
   };
   "server.dashboards.title": {
 
   };
+  "server.details.copied_as_is": {
+
+  };
+  "server.details.editable": {
+    "count": number;
+  };
+  "server.details.existing_copy": {
+    "time": Date | number;
+  };
+  "server.details.not_editable": {
+    "count": number;
+  };
+  "server.details.owner": {
+    "owner": string;
+  };
+  "server.details.pages": {
+
+  };
+  "server.details.select_hint": {
+
+  };
+  "server.details.type_count": {
+    "type": string;
+    "count": number;
+  };
+  "server.details.widgets": {
+
+  };
+  "server.editable_count": {
+    "editable": number;
+    "total": number;
+  };
+  "server.empty.offline": {
+
+  };
+  "server.empty.other_connection": {
+
+  };
+  "server.filter.legend": {
+
+  };
+  "server.filter.mine": {
+
+  };
+  "server.filter.shared": {
+
+  };
+  "server.list.copies_unknown": {
+
+  };
+  "server.list.load_failed": {
+
+  };
+  "server.list.truncated": {
+    "count": number;
+  };
+  "server.mine.copy": {
+    "date": Date | number;
+  };
+  "server.mine.unknown": {
+
+  };
+  "server.owner.other": {
+
+  };
+  "server.owner.you": {
+
+  };
+  "server.pagination.label": {
+
+  };
+  "server.pagination.next": {
+
+  };
+  "server.pagination.previous": {
+
+  };
+  "server.preview.badge": {
+
+  };
+  "server.preview.breadcrumb": {
+
+  };
+  "server.preview.load_failed": {
+
+  };
+  "server.preview.note": {
+
+  };
+  "server.preview.page_to_take": {
+
+  };
+  "server.search.action": {
+
+  };
+  "server.search.placeholder": {
+
+  };
+  "server.subtitle": {
+    "profile": string;
+    "version": string;
+    "mode": string;
+  };
+  "server.tab.dashboards": {
+
+  };
+  "server.tab.templates": {
+
+  };
+  "server.take_page.legend": {
+
+  };
+  "server.templates.later": {
+
+  };
+  "server.visibility_note": {
+
+  };
+  "session.action.end": {
+
+  };
+  "session.end.confirm.body": {
+
+  };
+  "session.end.confirm.title": {
+
+  };
+  "session.end.not_confirmed": {
+
+  };
+  "session.end.unavailable_writing": {
+
+  };
+  "session.ended.title": {
+
+  };
+  "settings.appearance.invalid_body": {
+
+  };
+  "settings.appearance.not_saved.body": {
+
+  };
+  "settings.appearance.not_saved.title": {
+
+  };
+  "settings.appearance.saved": {
+
+  };
+  "settings.appearance.subtitle": {
+
+  };
   "settings.appearance.title": {
+
+  };
+  "settings.changed": {
 
   };
   "settings.connections.title": {
 
   };
+  "settings.contrast.note": {
+
+  };
+  "settings.contrast.title": {
+
+  };
+  "settings.data_not_translated": {
+
+  };
   "settings.editor.title": {
+
+  };
+  "settings.file.hint": {
+
+  };
+  "settings.file.invalid.title": {
+
+  };
+  "settings.file.title": {
+
+  };
+  "settings.formats.count": {
+
+  };
+  "settings.formats.count_sample": {
+    "widgets": number;
+    "pages": number;
+    "more": number;
+  };
+  "settings.formats.datetime": {
+
+  };
+  "settings.formats.number": {
+
+  };
+  "settings.formats.title": {
 
   };
   "settings.general.title": {
 
   };
+  "settings.language.after_restart": {
+
+  };
+  "settings.language.current": {
+    "language": string;
+  };
+  "settings.language.name.en": {
+
+  };
+  "settings.language.name.ru": {
+
+  };
+  "settings.language.option.en": {
+
+  };
+  "settings.language.option.ru": {
+
+  };
+  "settings.language.system": {
+
+  };
+  "settings.language.title": {
+
+  };
+  "settings.motion.explicit_state": {
+    "state": string;
+  };
+  "settings.motion.no_meaning": {
+
+  };
+  "settings.motion.reduce": {
+
+  };
+  "settings.motion.state.off": {
+
+  };
+  "settings.motion.state.on": {
+
+  };
+  "settings.motion.system_state": {
+    "state": string;
+  };
+  "settings.motion.title": {
+
+  };
   "settings.nav.no_secrets": {
+
+  };
+  "settings.reset.section": {
 
   };
   "settings.search.placeholder": {
@@ -1492,6 +8378,27 @@ export interface MessageParamsById {
 
   };
   "settings.storage.network_warning": {
+
+  };
+  "settings.theme.dark": {
+
+  };
+  "settings.theme.high_contrast": {
+
+  };
+  "settings.theme.high_contrast.hint": {
+
+  };
+  "settings.theme.light": {
+
+  };
+  "settings.theme.not_widgets": {
+
+  };
+  "settings.theme.system": {
+
+  };
+  "settings.theme.title": {
 
   };
   "settings.title": {
@@ -1504,6 +8411,9 @@ export interface MessageParamsById {
 
   };
   "shell.a11y.main_nav": {
+
+  };
+  "shell.demo.marker": {
 
   };
   "startup.action.all_drafts": {
@@ -1525,6 +8435,9 @@ export interface MessageParamsById {
 
   };
   "startup.action.new_page": {
+
+  };
+  "startup.action.open_server": {
 
   };
   "startup.action.take_page": {
@@ -1580,6 +8493,76 @@ export interface MessageParamsById {
   };
   "startup.recent.title": {
 
+  };
+  "startup.recovery.a11y.region": {
+
+  };
+  "startup.recovery.action.connect": {
+
+  };
+  "startup.recovery.action.open_draft": {
+
+  };
+  "startup.recovery.body": {
+    "intent": string;
+    "object_kind": string;
+    "source": string;
+    "target": string;
+    "profile": string;
+    "time": Date | number;
+  };
+  "startup.recovery.close_unverified": {
+
+  };
+  "startup.recovery.close_unverified.confirm": {
+    "operation_id": string;
+    "target": string;
+    "time": Date | number;
+  };
+  "startup.recovery.close_unverified.title": {
+
+  };
+  "startup.recovery.closed": {
+
+  };
+  "startup.recovery.closed_manually": {
+
+  };
+  "startup.recovery.connect_first": {
+    "profile": string;
+  };
+  "startup.recovery.damaged.body_all": {
+    "operation_id": string;
+    "code": string;
+  };
+  "startup.recovery.damaged.body_target": {
+    "operation_id": string;
+    "code": string;
+    "target": string;
+  };
+  "startup.recovery.damaged.title": {
+    "count": number;
+  };
+  "startup.recovery.found": {
+    "count": number;
+  };
+  "startup.recovery.load_failed": {
+    "code": string;
+  };
+  "startup.recovery.quarantine": {
+
+  };
+  "startup.recovery.quarantine.confirm": {
+    "operation_id": string;
+  };
+  "startup.recovery.quarantine.title": {
+
+  };
+  "startup.recovery.quarantined": {
+
+  };
+  "startup.recovery.state": {
+    "state": string;
   };
   "startup.server.help": {
 
@@ -1714,6 +8697,9 @@ export interface MessageParamsById {
 
   };
   "widget.type.web": {
+
+  };
+  "workcopy.refetch.action": {
 
   };
 }

@@ -56,7 +56,7 @@ zabbix_widget={'type':'object','required':['id','type','widget_type','name','reg
  'fields':{'type':'array','maxItems':1024,'items':zabbix_field},'layout':rect
 },'additionalProperties':False}
 page_v2={'type':'object','required':['id','name','widgets'],'properties':{'id':slug,'name':nonempty,'widgets':{'type':'array','maxItems':256,'items':{'oneOf':[graph,item,zabbix_widget]}}},'additionalProperties':False}
-dash_v2={'type':'object','required':['id','name','kind','pages'],'properties':{'id':slug,'name':nonempty,'kind':{'const':'global'},'pages':{'type':'array','minItems':1,'maxItems':32,'items':page_v2}},'additionalProperties':False}
+dash_v2={'type':'object','required':['id','name','kind','pages'],'properties':{'id':slug,'name':nonempty,'kind':{'const':'global'},'pages':{'type':'array','minItems':1,'maxItems':50,'items':page_v2}},'additionalProperties':False}
 project_v2={'$schema':'https://json-schema.org/draft/2020-12/schema','$id':'https://zdashstitch.example/schemas/project-v2.schema.json','title':'ZDashstitch typed portable project v2', 'type':'object',
  'required':['format','project_id','kind','declared_compatibility','provenance','catalogs','roles','root'],
  'properties':{

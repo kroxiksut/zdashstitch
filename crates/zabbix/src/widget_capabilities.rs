@@ -55,6 +55,11 @@ impl TryFrom<u16> for WidgetFieldType {
 pub struct KnownWidgetField {
     pub pattern: &'static str,
     type_mask: u16,
+    /// Known and preserved, but never changed by an edit of this adapter
+    /// (for example `itemid.#` of a simple classic graph, `source_type=1`,
+    /// which is only resent unchanged: P2-04H, OPEN_DECISIONS 28.10.2026
+    /// evening, item 10).
+    fixed: bool,
 }
 
 impl KnownWidgetField {
@@ -62,6 +67,16 @@ impl KnownWidgetField {
         Self {
             pattern,
             type_mask: field_type.bit(),
+            fixed: false,
+        }
+    }
+
+    /// A known field that an edit never changes.
+    const fn fixed(pattern: &'static str, field_type: WidgetFieldType) -> Self {
+        Self {
+            pattern,
+            type_mask: field_type.bit(),
+            fixed: true,
         }
     }
 
@@ -73,12 +88,19 @@ impl KnownWidgetField {
         Self {
             pattern,
             type_mask: first.bit() | second.bit(),
+            fixed: false,
         }
     }
 
     #[must_use]
     pub fn accepts(&self, name: &str, field_type: WidgetFieldType) -> bool {
         self.type_mask & field_type.bit() != 0 && field_pattern_matches(self.pattern, name)
+    }
+
+    /// Whether an edit of this adapter never changes the field.
+    #[must_use]
+    pub const fn is_fixed(&self) -> bool {
+        self.fixed
     }
 }
 
@@ -105,6 +127,18 @@ impl WidgetCapability {
         self.fields
             .iter()
             .any(|field| field.accepts(name, field_type))
+    }
+
+    /// The «изменение поддерживается» mark per field: the widget type is
+    /// editable and the field is known and not [`KnownWidgetField::is_fixed`].
+    /// A widget is marked editable only when every field passes.
+    #[must_use]
+    pub fn field_editable(&self, name: &str, field_type: WidgetFieldType) -> bool {
+        self.flags.edit
+            && self
+                .fields
+                .iter()
+                .any(|field| field.accepts(name, field_type) && !field.fixed)
     }
 }
 
@@ -178,6 +212,13 @@ const READ_PREVIEW: WidgetCapabilityFlags = WidgetCapabilityFlags {
 };
 const READ_PREVIEW_CREATE: WidgetCapabilityFlags = WidgetCapabilityFlags {
     create: true,
+    ..READ_PREVIEW
+};
+/// Classic `graph`: `graphid.<n>` is replaceable behind the
+/// `classic_graph_graphid` contract (P2-04H, LAB-02); creating it is not
+/// proven.
+const READ_PREVIEW_EDIT: WidgetCapabilityFlags = WidgetCapabilityFlags {
+    edit: true,
     ..READ_PREVIEW
 };
 const READ_PREVIEW_EDIT_CREATE: WidgetCapabilityFlags = WidgetCapabilityFlags {
@@ -397,7 +438,8 @@ const GRAPH_FIELDS: &[KnownWidgetField] = &[
     COMMON_REFERENCE,
     KnownWidgetField::one("source_type", I),
     KnownWidgetField::one("graphid.#", GRAPH),
-    KnownWidgetField::one("itemid.#", ITEM),
+    // Simple graph (`source_type=1`): resent unchanged, never replaced.
+    KnownWidgetField::fixed("itemid.#", ITEM),
     KnownWidgetField::one("time_period.from", S),
     KnownWidgetField::one("time_period.to", S),
     KnownWidgetField::one("show_legend", I),
@@ -414,7 +456,7 @@ const DETAILED_WIDGETS: &[(&str, &[KnownWidgetField], WidgetCapabilityFlags)] = 
     ("svggraph", SVGGRAPH_FIELDS, READ_PREVIEW_EDIT_CREATE),
     ("systeminfo", SYSTEMINFO_FIELDS, READ_PREVIEW),
     ("tophosts", TOPHOSTS_FIELDS, READ_PREVIEW),
-    ("graph", GRAPH_FIELDS, READ_PREVIEW),
+    ("graph", GRAPH_FIELDS, READ_PREVIEW_EDIT),
 ];
 
 const RECOGNIZED_WIDGETS: &[&str] = &[
@@ -517,7 +559,25 @@ mod tests {
                 .iter()
                 .all(|capability| capability.flags.geometry)
         );
+        assert!(capability(&registry, "graph").flags.edit);
         assert!(!capability(&registry, "graph").flags.create);
         assert!(!capability(&registry, "map").flags.edit);
+    }
+
+    #[test]
+    fn editable_mark_is_per_field() {
+        let registry = WidgetCapabilityRegistry::v7_4();
+        let graph = capability(&registry, "graph");
+        // Classic graph by `graphid`: replaceable; simple graph by item: kept.
+        assert!(graph.field_editable("graphid.0", WidgetFieldType::Graph));
+        assert!(graph.knows_field("itemid.0", WidgetFieldType::Item));
+        assert!(!graph.field_editable("itemid.0", WidgetFieldType::Item));
+        assert!(graph.field_editable("source_type", WidgetFieldType::Integer));
+        let item = capability(&registry, "item");
+        assert!(item.field_editable("itemid.0", WidgetFieldType::Item));
+        // A type without the edit flag has no editable field.
+        assert!(
+            !capability(&registry, "clock").field_editable("reference", WidgetFieldType::String)
+        );
     }
 }

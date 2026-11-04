@@ -13,18 +13,21 @@ use axum::{
     response::{IntoResponse, Response},
     routing::post,
 };
-use secrecy::SecretString;
+use secrecy::{ExposeSecret, SecretString};
 use serde_json::{Value, json};
 use tokio::task::JoinHandle;
 use zdashstitch_application::connections::{
     AuthInput, ConnectRequest, ConnectionService, ConnectionState, CredentialState,
     CredentialStore, MemoryCredentialStore, ProfileInput, SecretStorage, StepStatus, TrustInput,
+    TrustSetting,
 };
 use zdashstitch_zabbix::{AccessMode, AuthMethod, CheckStep};
 
 const TOKEN: &str = "profile-token-secret";
 const PASSWORD: &str = "profile-password-secret";
 const SESSION: &str = "profile-session-secret";
+const DEFAULT_USERNAME: &str = "Admin";
+const DEFAULT_PASSWORD: &str = "zabbix";
 
 const SYNTHETIC_CA_PEM: &str = "-----BEGIN CERTIFICATE-----
 MIIBpjCCAU2gAwIBAgIUHYjz75z1xUJ+aJ8xgQ/1eYTpzA4wCgYIKoZIzj0EAwIw
@@ -77,6 +80,13 @@ async fn rpc(State(state): State<Shared>, headers: HeaderMap, Json(body): Json<V
     match method.as_str() {
         "apiinfo.version" => ok(json!(version)),
         "user.login" if body["params"]["password"] == PASSWORD => ok(json!(SESSION)),
+        // The public default account of a fresh Zabbix installation (O-037).
+        "user.login"
+            if body["params"]["username"] == DEFAULT_USERNAME
+                && body["params"]["password"] == DEFAULT_PASSWORD =>
+        {
+            ok(json!(SESSION))
+        }
         "user.login" => err(
             -32500,
             "Incorrect user name or password or account is temporarily blocked.",
@@ -160,9 +170,23 @@ fn password_input(name: &str, address: &str) -> ProfileInput {
         address: address.to_owned(),
         auth: AuthInput::Password {
             username: "editor".to_owned(),
+            store_password: false,
         },
         trust: TrustInput::System,
         confirm_plain_http_token_storage: false,
+    }
+}
+
+fn stored_password_input(name: &str, address: &str, username: &str) -> ProfileInput {
+    ProfileInput {
+        name: name.to_owned(),
+        address: address.to_owned(),
+        auth: AuthInput::Password {
+            username: username.to_owned(),
+            store_password: true,
+        },
+        trust: TrustInput::System,
+        confirm_plain_http_token_storage: true,
     }
 }
 
@@ -273,6 +297,79 @@ fn tampered_profile_file_is_rejected() {
     assert_eq!(error.code(), "profile_store_invalid");
 }
 
+/// P0-11: the profile file uses the strict YAML loader (no duplicate keys,
+/// no anchors/aliases), and `trust: {kind: system}` rejects extra fields
+/// despite serde-rs/serde#2294.
+#[test]
+fn profile_file_rejects_duplicate_keys_aliases_and_extra_trust_fields() {
+    let dir = tempfile::tempdir().unwrap_or_else(|error| panic!("{error}"));
+    let (mut connections, _) = service(&dir);
+    connections
+        .create_profile(&token_input(
+            "Prod",
+            "https://zabbix.example.invalid",
+            false,
+        ))
+        .unwrap_or_else(|error| panic!("create: {error}"));
+    let path = dir.path().join("config").join("connections.yaml");
+    let original = profiles_yaml(&dir);
+    let trust_line = original
+        .lines()
+        .find(|line| line.trim() == "kind: system")
+        .unwrap_or_else(|| panic!("trust kind must be stored: {original}"))
+        .to_owned();
+    let indent = &trust_line[..trust_line.len() - trust_line.trim_start().len()];
+    let cases = [
+        (
+            "duplicate key",
+            format!("{original}format: zdashstitch-connections/v0\n"),
+        ),
+        (
+            "alias",
+            original.replacen(
+                "format: zdashstitch-connections/v0",
+                "format: &format zdashstitch-connections/v0",
+                1,
+            ),
+        ),
+        (
+            "extra trust field",
+            original.replacen(
+                &format!("{trust_line}\n"),
+                &format!("{trust_line}\n{indent}ca_ref: ca-unexpected\n"),
+                1,
+            ),
+        ),
+    ];
+    for (name, yaml) in cases {
+        assert_ne!(yaml, original, "{name} must change the file");
+        std::fs::write(&path, &yaml).unwrap_or_else(|error| panic!("{error}"));
+        let error = connections
+            .list_profiles()
+            .err()
+            .unwrap_or_else(|| panic!("{name} must be rejected"));
+        assert_eq!(error.code(), "profile_store_invalid", "{name}");
+    }
+    std::fs::write(&path, &original).unwrap_or_else(|error| panic!("{error}"));
+    assert_eq!(
+        connections
+            .list_profiles()
+            .unwrap_or_else(|error| panic!("restored file: {error}"))
+            .len(),
+        1
+    );
+
+    assert_eq!(
+        serde_json::from_str::<TrustSetting>(r#"{"kind":"system"}"#).ok(),
+        Some(TrustSetting::System)
+    );
+    assert!(serde_json::from_str::<TrustSetting>(r#"{"kind":"system","ca_ref":"x"}"#).is_err());
+    assert_eq!(
+        serde_json::to_string(&TrustSetting::System).ok().as_deref(),
+        Some(r#"{"kind":"system"}"#)
+    );
+}
+
 #[tokio::test]
 async fn token_check_reports_five_steps_and_stores_token_only_by_choice() {
     let (address, state, task) = server().await;
@@ -306,11 +403,22 @@ async fn token_check_reports_five_steps_and_stores_token_only_by_choice() {
     assert!(!format!("{report:?}").contains(TOKEN));
     // Not stored without the user's choice.
     assert!(!store.0.contains(&credential_ref(&dir)));
+    // O-037: kept in process memory only, until it is forgotten or the
+    // session ends.
+    assert!(
+        connections
+            .profile(&memory_only.local_id)
+            .unwrap_or_else(|error| panic!("{error}"))
+            .secret_in_memory
+    );
+    connections
+        .forget_secret(&memory_only.local_id)
+        .unwrap_or_else(|error| panic!("forget: {error}"));
     let error = connections
         .connect(&memory_only.local_id, ConnectRequest::default())
         .await
         .err()
-        .unwrap_or_else(|| panic!("a memory-only token must be entered again"));
+        .unwrap_or_else(|| panic!("a forgotten memory-only token must be entered again"));
     assert_eq!(error.code(), "secret_required");
 
     let stored = connections
@@ -368,7 +476,7 @@ async fn token_check_reports_five_steps_and_stores_token_only_by_choice() {
     assert_eq!(error.code(), "credential_unavailable");
     store.0.fail_with(None);
     connections
-        .forget_token(&stored.local_id)
+        .forget_secret(&stored.local_id)
         .unwrap_or_else(|error| panic!("forget: {error}"));
     let error = connections
         .connect(&stored.local_id, ConnectRequest::default())
@@ -727,4 +835,421 @@ fn requests_and_services_do_not_print_secrets() {
         .unwrap_or_else(|state| panic!("{}", state.code()));
     assert!(!format!("{connections:?}").contains("stored-secret-value"));
     assert!(!format!("{:?}", store.0).contains("stored-secret-value"));
+}
+
+/// P2-SEC-01E: «End session» erases the in-memory secrets of the active
+/// connection and keeps everything saved: profiles and the stored token.
+#[tokio::test]
+async fn ending_the_session_erases_memory_secrets_and_keeps_saved_data() {
+    let (address, state, task) = server().await;
+    let dir = tempfile::tempdir().unwrap_or_else(|error| panic!("{error}"));
+    let (mut connections, store) = service(&dir);
+    let token_profile = connections
+        .create_profile(&token_input("Prod", &address, true))
+        .unwrap_or_else(|error| panic!("create: {error}"));
+    let password_profile = connections
+        .create_profile(&password_input("Pilot", &address))
+        .unwrap_or_else(|error| panic!("create: {error}"));
+    assert!(!connections.holds_session_secrets());
+
+    for (profile, value) in [(&token_profile, TOKEN), (&password_profile, PASSWORD)] {
+        let outcome = connections
+            .connect(
+                &profile.local_id,
+                ConnectRequest {
+                    secret: secret(value),
+                    accept_new_identity: false,
+                },
+            )
+            .await
+            .unwrap_or_else(|error| panic!("connect: {error}"));
+        assert!(outcome.connected);
+        connections
+            .enable_writes(&profile.local_id, true)
+            .unwrap_or_else(|error| panic!("{error}"));
+        assert!(connections.holds_session_secrets());
+        let saved = profiles_yaml(&dir);
+
+        // The secret leaves the service at once, before any network call.
+        let closed = connections
+            .erase_session_secrets()
+            .unwrap_or_else(|| panic!("the active session must be taken"));
+        assert_eq!(closed.connection_id(), profile.local_id);
+        assert!(!format!("{closed:?}").contains(value));
+        assert!(!connections.holds_session_secrets());
+        assert!(connections.reader().is_none());
+        assert!(connections.writer().is_none());
+        assert!(connections.active().is_none());
+        let view = connections
+            .profile(&profile.local_id)
+            .unwrap_or_else(|error| panic!("{error}"));
+        assert_eq!(view.mode, None);
+        assert_ne!(view.state, ConnectionState::Connected);
+        assert_eq!(profiles_yaml(&dir), saved);
+        // Erasing again is harmless.
+        assert!(connections.erase_session_secrets().is_none());
+        // `user.logout` is the caller's best-effort step afterwards.
+        assert_eq!(closed.logout().await, None);
+    }
+    // The token stored by the user's choice stays in the credential store.
+    assert!(store.load(&credential_ref(&dir)).is_ok());
+    // The password session was closed on the server.
+    assert!(
+        lock(&state)
+            .methods
+            .iter()
+            .any(|method| method == "user.logout")
+    );
+    task.abort();
+}
+
+/// O-037: a password typed in the profile form is stored only by choice,
+/// only in the credential store, and then connects without a dialog;
+/// «Forget password» removes it; a profile file written before O-037 reads
+/// as «not stored».
+#[tokio::test]
+async fn password_from_the_profile_form_is_stored_only_by_choice() {
+    let (address, _state, task) = server().await;
+    let dir = tempfile::tempdir().unwrap_or_else(|error| panic!("{error}"));
+    let (mut connections, store) = service(&dir);
+
+    // Plain http: storing a password needs the same confirmation as a token.
+    let mut unconfirmed = stored_password_input("Pilot", &address, "editor");
+    unconfirmed.confirm_plain_http_token_storage = false;
+    let error = connections
+        .create_profile_with_secret(&unconfirmed, secret(PASSWORD))
+        .err()
+        .unwrap_or_else(|| panic!("http password storage must be confirmed"));
+    assert_eq!(error.code(), "plain_http_token_storage_unconfirmed");
+
+    let view = connections
+        .create_profile_with_secret(
+            &stored_password_input("Pilot", &address, "editor"),
+            secret(PASSWORD),
+        )
+        .unwrap_or_else(|error| panic!("create: {error}"));
+    assert_eq!(view.auth_method, AuthMethod::Password);
+    assert_eq!(view.secret_storage, SecretStorage::OsStore);
+    assert_eq!(view.username.as_deref(), Some("editor"));
+    let reference = credential_ref(&dir);
+    assert!(store.0.contains(&reference));
+    let yaml = profiles_yaml(&dir);
+    assert!(!yaml.contains(PASSWORD), "{yaml}");
+    assert!(yaml.contains("secret_storage: os_store"), "{yaml}");
+    assert!(!yaml.contains("default_password_warning_hidden"), "{yaml}");
+
+    // The stored password connects without a secret in the request.
+    let outcome = connections
+        .connect(&view.local_id, ConnectRequest::default())
+        .await
+        .unwrap_or_else(|error| panic!("connect with stored password: {error}"));
+    assert!(outcome.connected);
+    assert!(!outcome.report.default_password_warning);
+    connections
+        .disconnect()
+        .await
+        .unwrap_or_else(|error| panic!("disconnect: {error}"));
+
+    // Renaming keeps the context; a new password from the form replaces the
+    // stored one.
+    let update = connections
+        .update_profile_with_secret(
+            &view.local_id,
+            &stored_password_input("Pilot renamed", &address, "editor"),
+            secret("replaced-password-value"),
+        )
+        .await
+        .unwrap_or_else(|error| panic!("update: {error}"));
+    assert!(!update.context_changed);
+    assert_eq!(
+        store
+            .load(&reference)
+            .map(|value| value.expose_secret().to_owned())
+            .ok()
+            .as_deref(),
+        Some("replaced-password-value")
+    );
+
+    // «Forget password»: the next connect needs the dialog again, and a
+    // password typed there is stored after a successful sign-in.
+    connections
+        .forget_secret(&view.local_id)
+        .unwrap_or_else(|error| panic!("forget: {error}"));
+    assert!(!store.0.contains(&reference));
+    let error = connections
+        .connect(&view.local_id, ConnectRequest::default())
+        .await
+        .err()
+        .unwrap_or_else(|| panic!("a forgotten password must be missing"));
+    assert_eq!(error.code(), "credential_missing");
+    let outcome = connections
+        .connect(
+            &view.local_id,
+            ConnectRequest {
+                secret: secret(PASSWORD),
+                accept_new_identity: false,
+            },
+        )
+        .await
+        .unwrap_or_else(|error| panic!("connect: {error}"));
+    assert!(outcome.connected);
+    assert_eq!(outcome.credential_save, None);
+    assert!(store.0.contains(&reference));
+    connections
+        .disconnect()
+        .await
+        .unwrap_or_else(|error| panic!("disconnect: {error}"));
+
+    // Turning storage off removes the stored password.
+    connections
+        .update_profile(&view.local_id, &password_input("Pilot", &address))
+        .await
+        .unwrap_or_else(|error| panic!("update: {error}"));
+    assert!(!store.0.contains(&reference));
+    let error = connections
+        .connect(&view.local_id, ConnectRequest::default())
+        .await
+        .err()
+        .unwrap_or_else(|| panic!("an unsaved password must be entered"));
+    assert_eq!(error.code(), "secret_required");
+
+    // A profile written before O-037 has no `secret_storage` for passwords.
+    let legacy = profiles_yaml(&dir).replace("    secret_storage: none\n", "");
+    assert!(!legacy.contains("secret_storage"), "{legacy}");
+    std::fs::write(dir.path().join("config").join("connections.yaml"), legacy)
+        .unwrap_or_else(|error| panic!("{error}"));
+    let (reloaded, _) = service(&dir);
+    let views = reloaded
+        .list_profiles()
+        .unwrap_or_else(|error| panic!("legacy profile: {error}"));
+    assert_eq!(views[0].secret_storage, SecretStorage::None);
+    assert!(!views[0].default_password_warning_hidden);
+    task.abort();
+}
+
+/// O-037: a sign-in with the public default account raises a warning in
+/// the report until the profile hides it; another account or a failed
+/// sign-in never does, and a server change shows it again.
+#[tokio::test]
+async fn default_account_warning_until_hidden_for_the_connection() {
+    let (address, _state, task) = server().await;
+    let dir = tempfile::tempdir().unwrap_or_else(|error| panic!("{error}"));
+    let (mut connections, _) = service(&dir);
+    let mut input = password_input("Local test", &address);
+    input.auth = AuthInput::Password {
+        username: DEFAULT_USERNAME.to_owned(),
+        store_password: false,
+    };
+    let view = connections
+        .create_profile(&input)
+        .unwrap_or_else(|error| panic!("create: {error}"));
+
+    let report = connections
+        .test_connection(&view.local_id, secret(DEFAULT_PASSWORD))
+        .await
+        .unwrap_or_else(|error| panic!("test: {error}"));
+    assert!(report.passed());
+    assert!(report.default_password_warning);
+    assert!(!format!("{report:?}").contains(DEFAULT_PASSWORD));
+
+    let rejected = connections
+        .test_connection(&view.local_id, secret("not-the-default"))
+        .await
+        .unwrap_or_else(|error| panic!("test: {error}"));
+    assert!(!rejected.passed());
+    assert!(!rejected.default_password_warning);
+
+    let outcome = connections
+        .connect(
+            &view.local_id,
+            ConnectRequest {
+                secret: secret(DEFAULT_PASSWORD),
+                accept_new_identity: false,
+            },
+        )
+        .await
+        .unwrap_or_else(|error| panic!("connect: {error}"));
+    assert!(outcome.connected);
+    assert!(outcome.report.default_password_warning);
+
+    let hidden = connections
+        .hide_default_password_warning(&view.local_id)
+        .unwrap_or_else(|error| panic!("hide: {error}"));
+    assert!(hidden.default_password_warning_hidden);
+    assert!(profiles_yaml(&dir).contains("default_password_warning_hidden: true"));
+    let outcome = connections
+        .connect(
+            &view.local_id,
+            ConnectRequest {
+                secret: secret(DEFAULT_PASSWORD),
+                accept_new_identity: false,
+            },
+        )
+        .await
+        .unwrap_or_else(|error| panic!("connect: {error}"));
+    assert!(outcome.connected);
+    assert!(!outcome.report.default_password_warning);
+
+    // Another server at a new address is a new context: the flag is reset.
+    let mut moved = input.clone();
+    moved.address = address.replace("127.0.0.1", "localhost");
+    let update = connections
+        .update_profile(&view.local_id, &moved)
+        .await
+        .unwrap_or_else(|error| panic!("update: {error}"));
+    assert!(update.context_changed);
+    assert!(!update.view.default_password_warning_hidden);
+
+    // A regular account with a password is never flagged.
+    let editor = connections
+        .create_profile(&password_input("Editor", &address))
+        .unwrap_or_else(|error| panic!("create: {error}"));
+    let report = connections
+        .test_connection(&editor.local_id, secret(PASSWORD))
+        .await
+        .unwrap_or_else(|error| panic!("test: {error}"));
+    assert!(report.passed());
+    assert!(!report.default_password_warning);
+    let error = connections
+        .hide_default_password_warning("conn-00000000000000000000000000000000")
+        .err()
+        .unwrap_or_else(|| panic!("unknown profile"));
+    assert_eq!(error.code(), "profile_not_found");
+    task.abort();
+}
+
+/// O-037: a password or token typed with «store» off lives only in process
+/// memory, per profile: connect and check use it without the dialog; it is
+/// dropped on a rejected sign-in, on disconnect, on a server or account
+/// change, on delete and when the local session ends, and never reaches
+/// disk or the credential store.
+#[tokio::test]
+async fn unsaved_secret_is_kept_in_memory_until_session_end_or_context_change() {
+    let (address, _state, task) = server().await;
+    let dir = tempfile::tempdir().unwrap_or_else(|error| panic!("{error}"));
+    let (mut connections, store) = service(&dir);
+    let view = connections
+        .create_profile_with_secret(&password_input("Pilot", &address), secret(PASSWORD))
+        .unwrap_or_else(|error| panic!("create: {error}"));
+    assert_eq!(view.secret_storage, SecretStorage::None);
+    assert!(view.secret_in_memory);
+    assert!(connections.holds_session_secrets());
+    assert!(!store.0.contains(&credential_ref(&dir)));
+    assert!(!profiles_yaml(&dir).contains(PASSWORD));
+    assert!(!format!("{connections:?}").contains(PASSWORD));
+
+    // Check and connect without a secret in the request: no dialog.
+    let report = connections
+        .test_connection(&view.local_id, None)
+        .await
+        .unwrap_or_else(|error| panic!("test from memory: {error}"));
+    assert!(report.passed());
+    let outcome = connections
+        .connect(&view.local_id, ConnectRequest::default())
+        .await
+        .unwrap_or_else(|error| panic!("connect from memory: {error}"));
+    assert!(outcome.connected);
+
+    // «End session» erases the remembered secret with the session.
+    let closed = connections
+        .erase_session_secrets()
+        .unwrap_or_else(|| panic!("the active session must be taken"));
+    drop(closed);
+    assert!(!connections.holds_session_secrets());
+    let view = connections
+        .profile(&view.local_id)
+        .unwrap_or_else(|error| panic!("{error}"));
+    assert!(!view.secret_in_memory);
+    let error = connections
+        .connect(&view.local_id, ConnectRequest::default())
+        .await
+        .err()
+        .unwrap_or_else(|| panic!("an erased secret must be entered again"));
+    assert_eq!(error.code(), "secret_required");
+
+    // A secret typed in the sign-in dialog is remembered the same way;
+    // an explicit disconnect is a sign-out and drops it.
+    let outcome = connections
+        .connect(
+            &view.local_id,
+            ConnectRequest {
+                secret: secret(PASSWORD),
+                accept_new_identity: false,
+            },
+        )
+        .await
+        .unwrap_or_else(|error| panic!("connect: {error}"));
+    assert!(outcome.connected);
+    assert!(
+        connections
+            .profile(&view.local_id)
+            .unwrap_or_else(|error| panic!("{error}"))
+            .secret_in_memory
+    );
+    connections
+        .disconnect()
+        .await
+        .unwrap_or_else(|error| panic!("disconnect: {error}"));
+    assert!(!connections.holds_session_secrets());
+
+    // A rejected sign-in drops the remembered secret: back to the dialog.
+    connections
+        .update_profile_with_secret(
+            &view.local_id,
+            &password_input("Pilot", &address),
+            secret("wrong-password-value"),
+        )
+        .await
+        .unwrap_or_else(|error| panic!("update: {error}"));
+    let rejected = connections
+        .test_connection(&view.local_id, None)
+        .await
+        .unwrap_or_else(|error| panic!("test: {error}"));
+    assert!(!rejected.passed());
+    assert!(!connections.holds_session_secrets());
+
+    // A server change invalidates it like a stored secret.
+    connections
+        .update_profile_with_secret(
+            &view.local_id,
+            &password_input("Pilot", &address),
+            secret(PASSWORD),
+        )
+        .await
+        .unwrap_or_else(|error| panic!("update: {error}"));
+    let renamed = connections
+        .update_profile(&view.local_id, &password_input("Pilot renamed", &address))
+        .await
+        .unwrap_or_else(|error| panic!("rename: {error}"));
+    assert!(!renamed.context_changed);
+    assert!(renamed.view.secret_in_memory);
+    let moved = connections
+        .update_profile(
+            &view.local_id,
+            &password_input("Pilot", &address.replace("127.0.0.1", "localhost")),
+        )
+        .await
+        .unwrap_or_else(|error| panic!("move: {error}"));
+    assert!(moved.context_changed);
+    assert!(!moved.view.secret_in_memory);
+
+    // A token works the same way; deleting the profile drops its secret.
+    let token = connections
+        .create_profile_with_secret(&token_input("Token", &address, false), secret(TOKEN))
+        .unwrap_or_else(|error| panic!("create: {error}"));
+    let outcome = connections
+        .connect(&token.local_id, ConnectRequest::default())
+        .await
+        .unwrap_or_else(|error| panic!("connect: {error}"));
+    assert!(outcome.connected);
+    connections
+        .delete_profile(&token.local_id)
+        .await
+        .unwrap_or_else(|error| panic!("delete: {error}"));
+    assert!(!connections.holds_session_secrets());
+    let yaml = profiles_yaml(&dir);
+    for value in [PASSWORD, TOKEN, SESSION, "wrong-password-value"] {
+        assert!(!yaml.contains(value), "{value} in {yaml}");
+    }
+    task.abort();
 }

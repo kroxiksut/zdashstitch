@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
 //! Connection profile records (P2-01H). A profile never contains a secret:
-//! only an opaque reference to the system credential store, and a reference
-//! to locally stored CA material.
+//! only an opaque reference to the system credential store (API token or,
+//! by the user's choice since O-037, the password), and a reference to
+//! locally stored CA material.
 
 use serde::{Deserialize, Serialize};
 use zdashstitch_zabbix::{AuthMethod, ZabbixEndpoint};
@@ -12,11 +13,13 @@ use super::ConnectionError;
 pub(crate) const MAX_NAME_CHARS: usize = 128;
 pub(crate) const MAX_USERNAME_CHARS: usize = 255;
 
-/// How the secret of an API-token profile is kept.
-#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+/// How the secret of a profile (API token or password) is kept.
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum SecretStorage {
-    /// Only in process memory for the current session.
+    /// Not stored: kept only in process memory until the local session
+    /// ends, the user disconnects or the sign-in is rejected (O-037).
+    #[default]
     None,
     /// In the operating-system credential store, by the user's choice.
     OsStore,
@@ -38,9 +41,14 @@ pub enum ProfileAuth {
     ApiToken {
         secret_storage: SecretStorage,
     },
-    /// The password is never stored; only the user name is.
+    /// The user name is kept in the profile; the password only in the
+    /// operating-system store and only by the user's choice (O-037).
+    /// Profiles written before O-037 have no `secret_storage` and read as
+    /// `none`.
     Password {
         username: String,
+        #[serde(default)]
+        secret_storage: SecretStorage,
     },
 }
 
@@ -56,19 +64,61 @@ impl ProfileAuth {
     #[must_use]
     pub const fn secret_storage(&self) -> SecretStorage {
         match self {
-            Self::ApiToken { secret_storage } => *secret_storage,
-            Self::Password { .. } => SecretStorage::None,
+            Self::ApiToken { secret_storage } | Self::Password { secret_storage, .. } => {
+                *secret_storage
+            }
+        }
+    }
+
+    /// The Zabbix account this profile signs in as: the user name of a
+    /// password profile, `None` for an API token. Changing it is a context
+    /// change; changing only the storage choice is not.
+    #[must_use]
+    pub fn username(&self) -> Option<&str> {
+        match self {
+            Self::Password { username, .. } => Some(username),
+            Self::ApiToken { .. } => None,
         }
     }
 }
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
-#[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
+#[serde(
+    tag = "kind",
+    rename_all = "snake_case",
+    deny_unknown_fields,
+    from = "TrustSettingInput"
+)]
 pub enum TrustSetting {
     /// Operating-system certificate store (default).
     System,
     /// System store plus a CA bundle stored by the application.
     CustomCa { ca_ref: String },
+}
+
+/// Deserialization form of [`TrustSetting`]. A unit variant of an internally
+/// tagged enum ignores `deny_unknown_fields` (serde-rs/serde#2294), so `system`
+/// wraps an empty struct that rejects extra fields. Serialization keeps the
+/// derived `kind: system` form.
+#[derive(Deserialize)]
+#[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
+enum TrustSettingInput {
+    System(NoFields),
+    CustomCa { ca_ref: String },
+}
+
+/// Payload of a tagged unit variant: accepts no fields besides the tag.
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct NoFields {}
+
+impl From<TrustSettingInput> for TrustSetting {
+    fn from(input: TrustSettingInput) -> Self {
+        match input {
+            TrustSettingInput::System(NoFields {}) => Self::System,
+            TrustSettingInput::CustomCa { ca_ref } => Self::CustomCa { ca_ref },
+        }
+    }
 }
 
 impl TrustSetting {
@@ -128,6 +178,11 @@ pub struct ConnectionProfile {
     pub context_generation: u64,
     pub identity: Option<StoredIdentity>,
     pub last_check: Option<LastCheck>,
+    /// «Do not show again for this connection» of the default-password
+    /// warning (O-037). Not a secret; reset when the server or account
+    /// changes. Written only when set.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub default_password_warning_hidden: bool,
 }
 
 impl ConnectionProfile {
@@ -146,7 +201,7 @@ impl ConnectionProfile {
         if endpoint.base_url().as_str() != self.base_url {
             return Err(ConnectionError::new("profile_store_invalid"));
         }
-        if let ProfileAuth::Password { username } = &self.auth {
+        if let Some(username) = self.auth.username() {
             validate_username(username)?;
         }
         if let TrustSetting::CustomCa { ca_ref } = &self.trust
@@ -198,8 +253,14 @@ fn is_prefixed_hex(value: &str, prefix: &str) -> bool {
 /// Requested authentication of a profile in `profile.create`/`update`.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum AuthInput {
-    ApiToken { store_token: bool },
-    Password { username: String },
+    ApiToken {
+        store_token: bool,
+    },
+    Password {
+        username: String,
+        /// Keep the password in the operating-system store (O-037).
+        store_password: bool,
+    },
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -216,8 +277,8 @@ pub struct ProfileInput {
     pub address: String,
     pub auth: AuthInput,
     pub trust: TrustInput,
-    /// Explicit confirmation that a token may be stored for a plain `http`
-    /// endpoint, where it travels in clear text (P1-02B).
+    /// Explicit confirmation that a token or password may be stored for a
+    /// plain `http` endpoint, where it travels in clear text (P1-02B).
     pub confirm_plain_http_token_storage: bool,
 }
 
@@ -233,11 +294,18 @@ pub struct ProfileView {
     pub secret_storage: SecretStorage,
     pub username: Option<String>,
     pub trust: &'static str,
+    /// Reference of the stored CA bundle (`sha256-…`, not a secret), so an
+    /// edit can keep the trust setting unchanged.
+    pub ca_ref: Option<String>,
     pub ca_fingerprints: Vec<String>,
     pub last_check: Option<LastCheck>,
     pub state: ConnectionState,
     pub mode: Option<zdashstitch_zabbix::AccessMode>,
     pub context_generation: u64,
+    pub default_password_warning_hidden: bool,
+    /// A secret of a profile that does not store it is kept in process
+    /// memory for this session (O-037): connect without the sign-in dialog.
+    pub secret_in_memory: bool,
 }
 
 /// Connection state axis of P1-01C as shown on a profile card.

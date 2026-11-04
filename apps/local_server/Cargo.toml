@@ -2,7 +2,7 @@
 
 [package]
 name = "zdashstitch-local-server"
-version = "0.0.0"
+version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
@@ -14,9 +14,12 @@ cap-fs-ext.workspace = true
 cap-std.workspace = true
 getrandom.workspace = true
 serde.workspace = true
+serde_json.workspace = true
 sha2.workspace = true
 thiserror.workspace = true
-tokio.workspace = true
+time.workspace = true
+# `io-util`: line I/O of the single-instance channel (P2-SEC-01F); no new crate.
+tokio = { workspace = true, features = ["io-util"] }
 tower-http.workspace = true
 unicode-normalization.workspace = true
 zdashstitch-application = { path = "../../crates/application" }
@@ -29,7 +32,6 @@ rfd = { workspace = true, features = ["xdg-portal"] }
 
 [dev-dependencies]
 http-body-util.workspace = true
-serde_json.workspace = true
 tempfile.workspace = true
 tower.workspace = true
 

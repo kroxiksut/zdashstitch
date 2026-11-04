@@ -45,12 +45,13 @@ The first release targets **global dashboards on Zabbix 7.4 only**.
 | Offline import | YAML/JSON/XML exports from standard or custom Zabbix 7.4 templates become normalized metric catalogs with explicit diagnostics |
 | Typed offline drafts | A dashboard project or page project opens on another computer without Zabbix or internet access; `project/v2` stores one `dashboard|page` root, while multi-dashboard `project/v1` remains readable and requires explicit root selection for migration |
 | Authentication | API token or username/password where server policy permits `user.login`; no MFA bypasses or stored passwords |
-| Five operations | CreateDashboard, AppendPage, AppendWidgets, CloneDashboard and ReplaceHost for global dashboards |
+| Dashboard operations | CreateDashboard, SaveAsCopy, UpdateDashboard, AppendPage, AppendWidgets, CloneDashboard and ReplaceHost for global dashboards (full list in ADR-006) |
 | Initial widgets | Create modern Graph (`svggraph`) and Item value (`item`); other widget changes require separate proof |
+| Style profiles and widget blueprints | Base style profiles and single-widget blueprints for `svggraph` and `item` (O-012, option B): a profile copies field values into a widget; a blueprint is one widget without position whose sources are “host role” and “metric” parameters, bound explicitly; both are exported as separate library files, never inside a draft package |
 | Mixed sources | Multiple templates on one page, multiple hosts in a graph and per-host item cards |
 | Safe publishing | Read → resolve → preflight → preview → confirm → re-read → write → verify; unknown outcomes are reconciled, never blindly retried |
-| Local GUI | Rust + Axum on loopback with a Svelte/TypeScript UI; no end-user CLI/TUI or required company server |
-| Languages and themes | All user-visible Rust/TypeScript/Svelte messages come from data-only catalogs; English source plus complete Russian translation; system/light/dark themes use semantic tokens |
+| Local GUI | Rust + Axum on loopback with a Svelte/TypeScript UI in a native window on the system web engine (WebView2 / WebKitGTK 4.1), browser fallback; no end-user CLI/TUI or required company server |
+| Languages and themes | All user-visible Rust/TypeScript/Svelte messages come from data-only catalogs; English source plus complete Russian translation; system/light/dark/high-contrast themes use semantic tokens |
 
 ### Quality gates
 
@@ -70,7 +71,7 @@ Passing a schema test does not satisfy any live Zabbix gate.
 
 Adapters for Zabbix 7.0/6.0/8.0/5.x, template dashboards, automatic bidirectional synchronization, a community catalog, built-in AI/MCP, arbitrary CSS/JS/PHP, server-side Custom Widgets, a shared multi-user service and an end-user CLI/TUI are excluded. See the [post-MVP roadmap](ROADMAP.md).
 
-**Target platforms:** Windows 10+ and tested Linux desktops with a browser. macOS builds and support are deferred until the post-MVP multi-version Zabbix work. The planned implementation is Rust + Axum on local loopback with a Svelte/TypeScript UI.
+**Target platforms:** Windows 10+ and tested Linux desktops (WebKitGTK 4.1 for the program window, otherwise a browser). macOS builds and support are deferred until the post-MVP multi-version Zabbix work. The implementation is Rust + Axum on local loopback with a Svelte/TypeScript UI, shown in a native window via the system web engine with a browser fallback (O-036).
 
 ## Offline design and data boundaries
 
@@ -94,7 +95,7 @@ The first release targets **global dashboards on Zabbix 7.4 only**. Later adapte
 
 ## Implementation direction
 
-- Rust 1.94.1 / edition 2024 workspace: `core`, `template_import`, `zabbix`, `application`, `apps/local_server`.
+- Rust 1.94.1 / edition 2024 workspace: `core`, `template_import`, `zabbix`, `application`, `apps/local_server`, `apps/desktop` (launcher `zdashstitch`) and `apps/desktop_window` (program window).
 - Axum already serves a read-only health endpoint and the built UI on loopback; session, Origin/Host, CSRF and DNS-rebinding protections are required before any mutating route is introduced.
 - Svelte/TypeScript provides the GUI and never talks to Zabbix directly.
 
@@ -136,6 +137,10 @@ python -m pytest -q
 ```
 
 These checks establish **schema/reference validation only**. They do not demonstrate a functional GUI or safe updates against a live Zabbix server.
+
+## Accessibility
+
+The interface is designed for keyboard-only use, 200 % and 400 % zoom, light, dark and high-contrast themes and the operating system's forced-colors mode; keyboard use and zoom were checked manually on Windows. Screen reader support is built into the markup (landmarks, accessible names, live regions for errors and progress), but it **has not been tested with a screen reader**. NVDA on Windows and Orca on Linux are the suggested references. Reports and pull requests from screen reader users are very welcome.
 
 ## Contributing and license
 

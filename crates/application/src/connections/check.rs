@@ -97,6 +97,11 @@ pub struct ConnectionCheckReport {
     pub read_access: Vec<(ReadMethod, ReadAccess)>,
     /// Unix seconds.
     pub checked_at: u64,
+    /// The sign-in passed with the public Zabbix default account
+    /// (`Admin` / `zabbix`) and the profile has not hidden the warning
+    /// (O-037). Set by the service; the credentials are compared in memory
+    /// and never logged.
+    pub default_password_warning: bool,
 }
 
 impl ConnectionCheckReport {
@@ -160,6 +165,7 @@ fn finish(
         identity: None,
         read_access: Vec::new(),
         checked_at,
+        default_password_warning: false,
     }
 }
 

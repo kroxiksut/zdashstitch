@@ -74,5 +74,17 @@
   "common.duration.hours": {
     "message": "{count, plural, one {# hour} other {# hours}}",
     "placeholders": {"count": "number"}
+  },
+  "common.state.verified": {
+    "message": "Verified by reading back from Zabbix",
+    "placeholders": {}
+  },
+  "common.action.cancel": {
+    "message": "Cancel",
+    "placeholders": {}
+  },
+  "common.action.save_draft": {
+    "message": "Save draft",
+    "placeholders": {}
   }
 }

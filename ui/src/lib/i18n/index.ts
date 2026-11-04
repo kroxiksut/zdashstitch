@@ -15,7 +15,6 @@ type PlaceholderType =
   | 'technical'
   | 'technical_optional'
   | 'text'
-  | 'text_optional'
   | 'number'
   | 'date'
   | 'datetime';
@@ -133,13 +132,14 @@ export function formatTemplate(
         );
       }
     } else if (/^[a-z][a-z0-9_]*\s*,\s*select\s*,/.test(expression)) {
-      // An absent optional select argument renders nothing: it spells an optional suffix.
+      // Standard ICU select (O-035): a value without its own branch, including an absent one,
+      // takes `other`; placeholders missing inside the branch render the missing-value marker.
       const select = /^([a-z][a-z0-9_]*)\s*,\s*select\s*,([\s\S]*)$/.exec(expression);
-      const value = select ? params[select[1]] : undefined;
-      if (select && value !== undefined && value !== '') {
-        const branches = selectBranches(select[2]);
-        output += formatTemplate(branches[String(value)] ?? branches.other, params, types, locale, pluralValue);
-      }
+      if (!select) throw new Error('unsupported localized message expression');
+      const value = params[select[1]];
+      const branches = selectBranches(select[2]);
+      const branch = typeof value === 'string' && Object.hasOwn(branches, value) ? branches[value] : branches.other;
+      output += formatTemplate(branch, params, types, locale, pluralValue);
     } else if (/^[a-z][a-z0-9_]*$/.test(expression)) {
       output += formatValue(params[expression], types[expression], locale);
     } else {

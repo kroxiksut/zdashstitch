@@ -156,8 +156,12 @@
     "placeholders": {}
   },
   "draft.provenance.assembled": {
-    "message": "{count, plural, one {собрана из # страницы} few {собрана из # страниц} many {собрана из # страниц} other {собрана из # страниц}}{sources, select, other {: {sources}}}",
-    "placeholders": {"count": "number", "sources": "text_optional"}
+    "message": "{count, plural, one {собрана из # страницы} few {собрана из # страниц} many {собрана из # страниц} other {собрана из # страниц}}",
+    "placeholders": {"count": "number"}
+  },
+  "draft.provenance.assembled_with_sources": {
+    "message": "{count, plural, one {собрана из # страницы: {sources}} few {собрана из # страниц: {sources}} many {собрана из # страниц: {sources}} other {собрана из # страниц: {sources}}}",
+    "placeholders": {"count": "number", "sources": "text"}
   },
   "draft.provenance.taken_from": {
     "message": "взята из панели «{dashboard}»",
@@ -205,6 +209,18 @@
   },
   "drafts.state.changed_on_server": {
     "message": "Изменена на сервере",
+    "placeholders": {}
+  },
+  "drafts.state.current": {
+    "message": "Проверена",
+    "placeholders": {}
+  },
+  "drafts.state.stale": {
+    "message": "Устарела",
+    "placeholders": {}
+  },
+  "drafts.state.source_missing": {
+    "message": "Источник не найден",
     "placeholders": {}
   },
   "drafts.search.placeholder": {
@@ -387,6 +403,10 @@
     "message": "Запись только по проверенному плану.",
     "placeholders": {}
   },
+  "draft.overview.publish_unavailable": {
+    "message": "Недоступно: не выбрана цель, нет проверки.",
+    "placeholders": {}
+  },
   "intent.append_page": {
     "message": "Добавить страницу в панель",
     "placeholders": {}
@@ -394,5 +414,61 @@
   "draft.a11y.sections": {
     "message": "Разделы черновика",
     "placeholders": {}
+  },
+  "drafts.created_from_draft": {
+    "message": "Создано из этого черновика",
+    "placeholders": {}
+  },
+  "drafts.action.export_file": {
+    "message": "Экспорт в файл…",
+    "placeholders": {}
+  },
+  "drafts.details.created_not_found": {
+    "message": "Не найдена при последней проверке",
+    "placeholders": {}
+  },
+  "drafts.search.no_results": {
+    "message": "Нет черновиков, подходящих под фильтры и поиск.",
+    "placeholders": {}
+  },
+  "drafts.damaged": {
+    "message": "{count, plural, one {# черновик не удалось прочитать} few {# черновика не удалось прочитать} many {# черновиков не удалось прочитать} other {# черновика не удалось прочитать}}; файлы не изменялись.",
+    "placeholders": {"count": "number"}
+  },
+  "drafts.load_failed": {
+    "message": "Не удалось загрузить локальные черновики",
+    "placeholders": {}
+  },
+  "drafts.rename.title": {
+    "message": "Переименовать черновик",
+    "placeholders": {}
+  },
+  "drafts.rename.description": {
+    "message": "Меняется только локальное имя. Панель на сервере не изменяется.",
+    "placeholders": {}
+  },
+  "drafts.rename.done": {
+    "message": "Переименовано: «{name}»",
+    "placeholders": {"name": "text"}
+  },
+  "drafts.copy_name": {
+    "message": "{name} (копия {number})",
+    "placeholders": {"name": "text", "number": "number"}
+  },
+  "drafts.list.open_hint": {
+    "message": "Щелчок по имени открывает черновик. Щелчок по остальной части строки или клавиша «Пробел» на имени показывает сведения.",
+    "placeholders": {}
+  },
+  "drafts.name.source_connection": {
+    "message": "({connection})",
+    "placeholders": {"connection": "text"}
+  },
+  "draft.nav.title": {
+    "message": "Разделы черновика",
+    "placeholders": {}
+  },
+  "draft.overview.step.open_section": {
+    "message": "Перейти в раздел «{section}»",
+    "placeholders": {"section": "text"}
   }
 }

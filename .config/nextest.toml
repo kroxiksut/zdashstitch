@@ -19,5 +19,8 @@ fail-fast = false
 lab-zabbix = { max-threads = 1 }
 
 [[profile.default.overrides]]
-filter = "binary(/^lab_/)"
+# Lab tests: every `lab_*` binary and every ignored test whose name starts with
+# `lab_` in another binary (e.g. the local-server publication lab test) share
+# one VM and must never run in parallel.
+filter = "binary(/^lab_/) | test(/(^|::)lab_/)"
 test-group = "lab-zabbix"

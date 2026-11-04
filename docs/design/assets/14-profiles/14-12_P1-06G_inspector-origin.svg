@@ -1,0 +1,277 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 1600 1000" fill="#17213a" role="img" aria-labelledby="title desc">
+  <title id="title">ZDashstitch — редактор: инспектор, значения из профиля</title>
+  <desc id="desc">Светлый макет инспектора виджета «График», раздел «Отображение»: баннер «профиль обновлён до версии 4» с «Обновить из профиля…» над разделами, состояния полей «умолчание Zabbix», «изменено», «из профиля», «изменено после профиля» с действиями «Вернуть умолчание», «Вернуть значение профиля», «Отвязать от профиля»; сводка «из профиля» и действия виджета — в разделе «Основное» и в меню «Ещё».</desc>
+  <defs>
+    <!-- Tabler Icons outline v3.49.0 (MIT), see assets/icons/THIRD_PARTY.md -->
+    <symbol id="ti-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5l0 14"/><path d="M5 12l14 0"/></symbol>
+    <symbol id="ti-arrow-back-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14l-4 -4l4 -4"/><path d="M5 10h11a4 4 0 1 1 0 8h-1"/></symbol>
+    <symbol id="ti-arrow-forward-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14l4 -4l-4 -4"/><path d="M19 10h-11a4 4 0 1 0 0 8h1"/></symbol>
+    <symbol id="ti-zoom-in" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M7 10l6 0"/><path d="M10 7l0 6"/><path d="M21 21l-6 -6"/></symbol>
+    <symbol id="ti-zoom-out" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M7 10l6 0"/><path d="M21 21l-6 -6"/></symbol>
+    <symbol id="ti-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5l10 -10"/></symbol>
+    <symbol id="ti-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6l6 -6"/></symbol>
+    <symbol id="ti-chevron-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6l-6 6"/></symbol>
+    <symbol id="ti-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/></symbol>
+    <symbol id="ti-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6l-12 12"/><path d="M6 6l12 12"/></symbol>
+    <symbol id="ti-ban" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M5.7 5.7l12.6 12.6"/></symbol>
+    <symbol id="ti-info-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M12 9h.01"/><path d="M11 12h1v4h1"/></symbol>
+    <symbol id="ti-alert-triangle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0"/><path d="M12 16h.01"/></symbol>
+    <symbol id="ti-circle-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M9 12l2 2l4 -4"/></symbol>
+    <symbol id="ti-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 9.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667l0 -8.666"/><path d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1"/></symbol>
+    <symbol id="ti-grip-vertical" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M8 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M8 19a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M14 5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M14 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M14 19a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/></symbol>
+    <symbol id="ti-pencil" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4"/><path d="M13.5 6.5l4 4"/></symbol>
+    <symbol id="ti-palette" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21a9 9 0 0 1 0 -18c4.97 0 9 3.582 9 8c0 1.06 -.474 2.078 -1.318 2.828c-.844 .75 -1.989 1.172 -3.182 1.172h-2.5a2 2 0 0 0 -1 3.75a1.3 1.3 0 0 1 -1 2.25"/><path d="M7.5 10.5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M11.5 7.5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M15.5 10.5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/></symbol>
+    <symbol id="ti-circle-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M10 10l4 4m0 -4l-4 4"/></symbol>
+    <symbol id="ti-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"/><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"/></symbol>
+    <symbol id="ti-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065"/><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/></symbol>
+    <style>
+      text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+      .muted{fill:#667085}.white{fill:#ffffff}.small{font-size:14px}.xs{font-size:12px}.label{font-size:13px;font-weight:700;letter-spacing:.08em}
+      .title{font-size:24px;font-weight:750}.h3{font-size:17px;font-weight:700}.body{font-size:16px}.button{font-size:15px;font-weight:700}
+      .nav{font-size:17px}.badge{font-size:13px;font-weight:650}.row{font-size:15px;font-weight:650}
+      .mono{font-family:ui-monospace,"Cascadia Mono",Consolas,monospace;font-size:13px;fill:#344054}
+    </style>
+  </defs>
+  <rect width="1600" height="1000" fill="#f5f7fb"/>
+
+  <!-- App bar: global navigation (P1-01B §1) -->
+  <rect width="1600" height="72" fill="#ffffff" stroke="#e4e7ec"/>
+  <image href="../../../../assets/brand/icons/stezhik-head-1024.png" x="32" y="18" width="36" height="36" preserveAspectRatio="xMidYMid meet"/>
+  <text x="80" y="45" font-size="20" font-weight="750">ZDashstitch</text>
+  <text x="232" y="44" font-size="15" font-weight="500" fill="#475467">Начало</text>
+  <text x="318" y="44" font-size="15" font-weight="700" fill="#1d3f86">Черновики</text>
+  <rect x="318" y="67" width="80" height="4" rx="2" fill="#3156a3"/>
+  <text x="430" y="44" font-size="15" font-weight="500" fill="#475467">Панели в Zabbix</text>
+  <text x="582" y="44" font-size="15" font-weight="500" fill="#475467">Библиотека</text>
+  <text x="702" y="44" font-size="15" font-weight="500" fill="#475467">Подключения</text>
+  <rect x="1288" y="19" width="120" height="34" rx="17" fill="#eef4ff"/>
+  <text x="1348" y="41" font-size="14" text-anchor="middle" fill="#3156a3">Автономно</text>
+  <rect x="1424" y="18" width="144" height="36" rx="8" fill="#ffffff" stroke="#c9d3ea"/>
+  <use href="#ti-settings" x="1438" y="27" width="18" height="18" color="#475467"/>
+  <text x="1464" y="41" font-size="15" font-weight="600" fill="#17213a">Настройки</text>
+
+  <!-- Workspace -->
+  <rect x="0" y="72" width="260" height="928" fill="#ffffff" stroke="#e4e7ec"/>
+  <text x="24" y="112" class="label muted">ВИДЖЕТЫ СТРАНИЦЫ</text>
+  <text x="24" y="134" class="xs muted">сверху вниз, слева направо</text>
+  <text x="28" y="172" class="small" font-weight="600">Connections</text>
+  <text x="28" y="192" class="xs muted">График · 0, 0 · 36 × 5</text>
+  <rect x="12" y="210" width="236" height="54" rx="8" fill="#eef4ff" stroke="#3156a3" stroke-width="2"/>
+  <text x="28" y="232" class="small" fill="#1d3f86" font-weight="700">Queries per second</text>
+  <text x="28" y="252" class="xs muted">График · 36, 0 · 36 × 5</text>
+  <text x="28" y="292" class="small" font-weight="600">Replication lag</text>
+  <text x="28" y="312" class="xs muted">Значение элемента данных · 0, 5 · 24 × 3</text>
+  <text x="28" y="352" class="small" font-weight="600">Disk usage</text>
+  <text x="28" y="372" class="xs muted">Радиальный датчик · 24, 5 · 24 × 3</text>
+  <use href="#ti-ban" x="222" y="339" width="16" height="16" color="#8a4b00"><title>Изменение не поддерживается</title></use>
+  <text x="28" y="412" class="small" font-weight="600">Top queries</text>
+  <text x="28" y="432" class="xs muted">Топ узлов сети · 48, 5 · 24 × 3</text>
+  <use href="#ti-ban" x="222" y="399" width="16" height="16" color="#8a4b00"><title>Изменение не поддерживается</title></use>
+  <!-- Title -->
+  <text x="292" y="92" font-size="13" fill="#667085">Черновики  /  Базы данных: сводная  /  Структура  /  ClickHouse</text>
+  <rect x="1434" y="100" width="110" height="28" rx="14" fill="#ecfdf3"/>
+  <text x="1489" y="119" font-size="13" font-weight="650" text-anchor="middle" fill="#1f6b43">Локальная</text>
+  <rect x="1324" y="100" width="100" height="28" rx="14" fill="#fff4e5"/>
+  <text x="1374" y="119" font-size="13" font-weight="650" text-anchor="middle" fill="#8a4b00">Изменена</text>
+  <text x="292" y="124" class="title">Параметры «Queries per second»</text>
+  <rect x="292" y="140" width="132" height="36" rx="8" fill="#f5f7fb" stroke="#d0d5dd"/>
+  <text x="358.0" y="163" class="small" fill="#475467" text-anchor="middle" font-weight="600">PostgreSQL</text>
+  <rect x="432" y="140" width="128" height="36" rx="8" fill="#ffffff" stroke="#3156a3" stroke-width="2"/>
+  <text x="496.0" y="163" class="small" fill="#1d3f86" text-anchor="middle" font-weight="700">ClickHouse</text>
+  <rect x="568" y="140" width="176" height="36" rx="8" fill="#f5f7fb" stroke="#d0d5dd"/>
+  <text x="656.0" y="163" class="small" fill="#475467" text-anchor="middle" font-weight="600">Keeper и HAProxy</text>
+  <rect x="752" y="140" width="36" height="36" rx="8" fill="#ffffff" stroke="#7a8d9b"/>
+  <use href="#ti-plus" x="760" y="148" width="20" height="20" color="#475467"><title>Добавить страницу</title></use>
+  <rect x="292" y="186" width="520" height="704" rx="12" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="312" y="214" class="label muted">СТРАНИЦА «ClickHouse»</text>
+  <!-- Canvas: 72 columns, integer cells -->
+  <rect x="316" y="246" width="475.2" height="333.0" fill="#ffffff" stroke="#c9d3ea"/>
+  <line x1="322.6" y1="246" x2="322.6" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="329.2" y1="246" x2="329.2" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="335.8" y1="246" x2="335.8" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="342.4" y1="246" x2="342.4" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="349.0" y1="246" x2="349.0" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="355.6" y1="246" x2="355.6" y2="579.0" stroke="#d6dde8"/>
+  <line x1="362.2" y1="246" x2="362.2" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="368.8" y1="246" x2="368.8" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="375.4" y1="246" x2="375.4" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="382.0" y1="246" x2="382.0" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="388.6" y1="246" x2="388.6" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="395.2" y1="246" x2="395.2" y2="579.0" stroke="#d6dde8"/>
+  <line x1="401.8" y1="246" x2="401.8" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="408.4" y1="246" x2="408.4" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="415.0" y1="246" x2="415.0" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="421.6" y1="246" x2="421.6" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="428.2" y1="246" x2="428.2" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="434.8" y1="246" x2="434.8" y2="579.0" stroke="#d6dde8"/>
+  <line x1="441.4" y1="246" x2="441.4" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="448.0" y1="246" x2="448.0" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="454.6" y1="246" x2="454.6" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="461.2" y1="246" x2="461.2" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="467.8" y1="246" x2="467.8" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="474.4" y1="246" x2="474.4" y2="579.0" stroke="#d6dde8"/>
+  <line x1="481.0" y1="246" x2="481.0" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="487.6" y1="246" x2="487.6" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="494.2" y1="246" x2="494.2" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="500.8" y1="246" x2="500.8" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="507.4" y1="246" x2="507.4" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="514.0" y1="246" x2="514.0" y2="579.0" stroke="#d6dde8"/>
+  <line x1="520.6" y1="246" x2="520.6" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="527.2" y1="246" x2="527.2" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="533.8" y1="246" x2="533.8" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="540.4" y1="246" x2="540.4" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="547.0" y1="246" x2="547.0" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="553.6" y1="246" x2="553.6" y2="579.0" stroke="#d6dde8"/>
+  <line x1="560.2" y1="246" x2="560.2" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="566.8" y1="246" x2="566.8" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="573.4" y1="246" x2="573.4" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="580.0" y1="246" x2="580.0" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="586.6" y1="246" x2="586.6" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="593.2" y1="246" x2="593.2" y2="579.0" stroke="#d6dde8"/>
+  <line x1="599.8" y1="246" x2="599.8" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="606.4" y1="246" x2="606.4" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="613.0" y1="246" x2="613.0" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="619.6" y1="246" x2="619.6" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="626.2" y1="246" x2="626.2" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="632.8" y1="246" x2="632.8" y2="579.0" stroke="#d6dde8"/>
+  <line x1="639.4" y1="246" x2="639.4" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="646.0" y1="246" x2="646.0" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="652.6" y1="246" x2="652.6" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="659.2" y1="246" x2="659.2" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="665.8" y1="246" x2="665.8" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="672.4" y1="246" x2="672.4" y2="579.0" stroke="#d6dde8"/>
+  <line x1="679.0" y1="246" x2="679.0" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="685.6" y1="246" x2="685.6" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="692.2" y1="246" x2="692.2" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="698.8" y1="246" x2="698.8" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="705.4" y1="246" x2="705.4" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="712.0" y1="246" x2="712.0" y2="579.0" stroke="#d6dde8"/>
+  <line x1="718.6" y1="246" x2="718.6" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="725.2" y1="246" x2="725.2" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="731.8" y1="246" x2="731.8" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="738.4" y1="246" x2="738.4" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="745.0" y1="246" x2="745.0" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="751.6" y1="246" x2="751.6" y2="579.0" stroke="#d6dde8"/>
+  <line x1="758.2" y1="246" x2="758.2" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="764.8" y1="246" x2="764.8" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="771.4" y1="246" x2="771.4" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="778.0" y1="246" x2="778.0" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="784.6" y1="246" x2="784.6" y2="579.0" stroke="#f0f2f5"/>
+  <line x1="316" y1="264.5" x2="791.2" y2="264.5" stroke="#f0f2f5"/>
+  <line x1="316" y1="283.0" x2="791.2" y2="283.0" stroke="#f0f2f5"/>
+  <line x1="316" y1="301.5" x2="791.2" y2="301.5" stroke="#f0f2f5"/>
+  <line x1="316" y1="320.0" x2="791.2" y2="320.0" stroke="#f0f2f5"/>
+  <line x1="316" y1="338.5" x2="791.2" y2="338.5" stroke="#f0f2f5"/>
+  <line x1="316" y1="357.0" x2="791.2" y2="357.0" stroke="#f0f2f5"/>
+  <line x1="316" y1="375.5" x2="791.2" y2="375.5" stroke="#f0f2f5"/>
+  <line x1="316" y1="394.0" x2="791.2" y2="394.0" stroke="#f0f2f5"/>
+  <line x1="316" y1="412.5" x2="791.2" y2="412.5" stroke="#f0f2f5"/>
+  <line x1="316" y1="431.0" x2="791.2" y2="431.0" stroke="#f0f2f5"/>
+  <line x1="316" y1="449.5" x2="791.2" y2="449.5" stroke="#f0f2f5"/>
+  <line x1="316" y1="468.0" x2="791.2" y2="468.0" stroke="#f0f2f5"/>
+  <line x1="316" y1="486.5" x2="791.2" y2="486.5" stroke="#f0f2f5"/>
+  <line x1="316" y1="505.0" x2="791.2" y2="505.0" stroke="#f0f2f5"/>
+  <line x1="316" y1="523.5" x2="791.2" y2="523.5" stroke="#f0f2f5"/>
+  <line x1="316" y1="542.0" x2="791.2" y2="542.0" stroke="#f0f2f5"/>
+  <line x1="316" y1="560.5" x2="791.2" y2="560.5" stroke="#f0f2f5"/>
+  <rect x="318.0" y="248.0" width="233.6" height="88.5" rx="6" fill="#ffffff" stroke="#b8c2d0" stroke-width="1"/>
+  <text x="326.0" y="266.0" class="xs" font-weight="700">Connections</text>
+  <rect x="555.6" y="248.0" width="233.6" height="88.5" rx="6" fill="#ffffff" stroke="#3156a3" stroke-width="2"/>
+  <text x="563.6" y="266.0" class="xs" font-weight="700">Queries per second</text>
+  <rect x="550.6" y="243.0" width="10" height="10" rx="2" fill="#ffffff" stroke="#3156a3" stroke-width="2"/>
+  <rect x="667.4" y="243.0" width="10" height="10" rx="2" fill="#ffffff" stroke="#3156a3" stroke-width="2"/>
+  <rect x="784.2" y="243.0" width="10" height="10" rx="2" fill="#ffffff" stroke="#3156a3" stroke-width="2"/>
+  <rect x="784.2" y="287.2" width="10" height="10" rx="2" fill="#ffffff" stroke="#3156a3" stroke-width="2"/>
+  <rect x="784.2" y="331.5" width="10" height="10" rx="2" fill="#ffffff" stroke="#3156a3" stroke-width="2"/>
+  <rect x="667.4" y="331.5" width="10" height="10" rx="2" fill="#ffffff" stroke="#3156a3" stroke-width="2"/>
+  <rect x="550.6" y="331.5" width="10" height="10" rx="2" fill="#ffffff" stroke="#3156a3" stroke-width="2"/>
+  <rect x="550.6" y="287.2" width="10" height="10" rx="2" fill="#ffffff" stroke="#3156a3" stroke-width="2"/>
+  <rect x="318.0" y="340.5" width="154.4" height="51.5" rx="6" fill="#ffffff" stroke="#b8c2d0" stroke-width="1"/>
+  <text x="326.0" y="358.5" class="xs" font-weight="700">Replication lag</text>
+  <rect x="476.4" y="340.5" width="154.4" height="51.5" rx="6" fill="#f8fafc" stroke="#b8c2d0" stroke-width="1"/>
+  <text x="484.4" y="358.5" class="xs" font-weight="700">Disk usage</text>
+  <rect x="634.8" y="340.5" width="154.4" height="51.5" rx="6" fill="#f8fafc" stroke="#b8c2d0" stroke-width="1"/>
+  <text x="642.8" y="358.5" class="xs" font-weight="700">Top queries</text>
+  <text x="312" y="600" class="xs muted">Изменения инспектора видны на холсте сразу.</text>
+  <text x="312" y="640" class="label muted">ЕЩЁ (МЕНЮ ВИДЖЕТА)</text>
+  <text x="312" y="664" class="small" fill="#1d3f86" font-weight="650">Применить профиль…</text>
+  <text x="312" y="688" class="small" fill="#1d3f86" font-weight="650">Обновить из профиля…</text>
+  <text x="312" y="712" class="small" fill="#1d3f86" font-weight="650">Вернуть все значения профиля</text>
+  <text x="312" y="736" class="small" fill="#1d3f86" font-weight="650">Отвязать виджет от профиля</text>
+  <text x="312" y="760" class="small" fill="#1d3f86" font-weight="650">Сохранить оформление как профиль…</text>
+  <text x="312" y="784" class="small" fill="#1d3f86" font-weight="650">Создать заготовку…</text>
+  <text x="312" y="824" class="xs muted">Пункты профилей видны у типов с изменением полей; «Обновить»,</text>
+  <text x="312" y="842" class="xs muted">«Вернуть», «Отвязать» — только при записи применения, без подтверждения.</text>
+  <rect x="832" y="140" width="748" height="750" rx="12" fill="#ffffff" stroke="#d0d5dd"/>
+  <text x="856" y="172" class="h3">Queries per second</text>
+  <rect x="856" y="184" width="163" height="26" rx="13" fill="#eef4ff"/>
+  <text x="938" y="202" class="badge" text-anchor="middle" fill="#1d3f86">График · svggraph</text>
+  <rect x="1032" y="184" width="221" height="26" rx="13" fill="#ecfdf3"/>
+  <text x="1142" y="202" class="badge" text-anchor="middle" fill="#1f6b43">Изменение поддерживается</text>
+  <rect x="1424" y="150" width="132" height="34" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <text x="1490" y="172" class="button" text-anchor="middle">Готово</text>
+  <text x="870" y="259" class="small">Основное</text>
+  <text x="870" y="301" class="small">Данные</text>
+  <rect x="856" y="320" width="176" height="36" rx="8" fill="#eef4ff" stroke="#eef4ff"/>
+  <text x="870" y="343" class="small" fill="#1d3f86" font-weight="700">Отображение</text>
+  <text x="870" y="385" class="small">Оси и пороги</text>
+  <text x="870" y="427" class="small">Период</text>
+  <text x="870" y="469" class="small">Дополнительно</text>
+  <text x="870" y="511" class="small">Неизвестные поля · 2</text>
+  <text x="856" y="544" class="xs muted">Разделы — порядок табуляции.</text>
+  <rect x="1052" y="236" width="504" height="96" rx="10" fill="#fff8ed" stroke="#f3d3a6"/>
+  <use href="#ti-alert-triangle" x="1066" y="250" width="18" height="18" color="#8a4b00"/>
+  <text x="1092" y="262" class="small" fill="#5c3a00" font-weight="650">Профиль «Рост БД — столбцы» обновлён до версии 4.</text>
+  <text x="1092" y="280" class="xs" fill="#5c3a00">У виджета — версия 3. Значения не изменятся без обновления. Виден в любом разделе.</text>
+  <rect x="1092" y="290" width="240" height="32" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
+  <use href="#ti-refresh" x="1108" y="297.0" width="18" height="18" color="#17213a"/>
+  <text x="1224" y="311" class="button" text-anchor="middle">Обновить из профиля…</text>
+  <text x="1052" y="360" class="label muted">ВИД РЯДОВ · ВСЕ НАБОРЫ</text>
+  <text x="1052" y="386" class="small">Вид ряда: столбцы</text>
+  <rect x="1232" y="369" width="105" height="26" rx="13" fill="#eef4ff"/>
+  <text x="1284" y="387" class="badge" text-anchor="middle" fill="#1d3f86">из профиля</text>
+  <text x="1232" y="408" class="xs" fill="#3156a3" font-weight="650">Вернуть умолчание</text>
+  <text x="1358" y="408" class="xs" fill="#3156a3" font-weight="650">Отвязать от профиля</text>
+  <text x="1052" y="434" class="small">Накопление: да</text>
+  <rect x="1232" y="417" width="105" height="26" rx="13" fill="#eef4ff"/>
+  <text x="1284" y="435" class="badge" text-anchor="middle" fill="#1d3f86">из профиля</text>
+  <text x="1232" y="456" class="xs" fill="#3156a3" font-weight="650">Вернуть умолчание</text>
+  <text x="1358" y="456" class="xs" fill="#3156a3" font-weight="650">Отвязать от профиля</text>
+  <text x="1052" y="482" class="small">Прозрачность: 5</text>
+  <rect x="1232" y="465" width="205" height="26" rx="13" fill="#fff4e5"/>
+  <text x="1334" y="483" class="badge" text-anchor="middle" fill="#8a4b00">изменено после профиля</text>
+  <text x="1232" y="504" class="xs" fill="#3156a3" font-weight="650">Вернуть значение профиля (3)</text>
+  <text x="1431" y="504" class="xs" fill="#3156a3" font-weight="650">Вернуть умолчание</text>
+  <text x="1052" y="530" class="small">Толщина линии: —</text>
+  <rect x="1232" y="513" width="155" height="26" rx="13" fill="#f2f4f7"/>
+  <text x="1310" y="531" class="badge" text-anchor="middle" fill="#344054">умолчание Zabbix</text>
+  <text x="1052" y="554" class="label muted">ЛЕГЕНДА</text>
+  <text x="1052" y="580" class="small">Показывать легенду: да</text>
+  <rect x="1232" y="563" width="105" height="26" rx="13" fill="#eef4ff"/>
+  <text x="1284" y="581" class="badge" text-anchor="middle" fill="#1d3f86">из профиля</text>
+  <text x="1232" y="602" class="xs" fill="#3156a3" font-weight="650">Вернуть умолчание</text>
+  <text x="1358" y="602" class="xs" fill="#3156a3" font-weight="650">Отвязать от профиля</text>
+  <text x="1052" y="628" class="small">Строк легенды: 2</text>
+  <rect x="1232" y="611" width="105" height="26" rx="13" fill="#eef4ff"/>
+  <text x="1284" y="629" class="badge" text-anchor="middle" fill="#1d3f86">из профиля</text>
+  <text x="1232" y="650" class="xs" fill="#3156a3" font-weight="650">Вернуть умолчание</text>
+  <text x="1358" y="650" class="xs" fill="#3156a3" font-weight="650">Отвязать от профиля</text>
+  <text x="1052" y="676" class="small">Колонок легенды: 3</text>
+  <rect x="1232" y="659" width="88" height="26" rx="13" fill="#fff4e5"/>
+  <text x="1276" y="677" class="badge" text-anchor="middle" fill="#8a4b00">изменено</text>
+  <text x="1332" y="676" class="xs" fill="#3156a3" font-weight="650">Вернуть умолчание</text>
+  <text x="1052" y="700" class="label muted">ПАЛИТРА РЯДОВ</text>
+  <rect x="1052" y="710" width="16" height="16" rx="3" fill="#3156a3"/>
+  <rect x="1074" y="710" width="16" height="16" rx="3" fill="#8b5cf6"/>
+  <rect x="1096" y="710" width="16" height="16" rx="3" fill="#1f6b43"/>
+  <rect x="1232" y="709" width="105" height="26" rx="13" fill="#eef4ff"/>
+  <text x="1284" y="727" class="badge" text-anchor="middle" fill="#1d3f86">из профиля</text>
+  <text x="1232" y="748" class="xs" fill="#3156a3" font-weight="650">Вернуть умолчание</text>
+  <text x="1358" y="748" class="xs" fill="#3156a3" font-weight="650">Отвязать от профиля</text>
+  <line x1="1052" y1="764" x2="1556" y2="764" stroke="#e4e7ec"/>
+  <text x="1052" y="786" class="xs muted">Подсказка у плашки: «из профиля «Рост БД — столбцы», версия 3»; у «изменено</text>
+  <text x="1052" y="804" class="xs muted">после профиля» — «в профиле: 3». «Вернуть…» — обычные правки поля (шаг истории);</text>
+  <text x="1052" y="822" class="xs muted">«Отвязать» снимает метку без подтверждения, значение остаётся (шаг истории).</text>
+  <text x="1052" y="840" class="xs muted">Сводка «Из профиля…: полей 8, изменено после — 1», «Вернуть все значения профиля»</text>
+  <text x="1052" y="858" class="xs muted">и «Отвязать виджет от профиля» — в разделе «Основное» и в меню «Ещё».</text>
+</svg>

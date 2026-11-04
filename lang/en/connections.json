@@ -1,0 +1,1033 @@
+{
+  "connection.list.subtitle": {
+    "message": "Zabbix server profiles. Local drafts work without a connection.",
+    "placeholders": {}
+  },
+  "connection.list.empty": {
+    "message": "No connections yet",
+    "placeholders": {}
+  },
+  "connection.action.new": {
+    "message": "New connection",
+    "placeholders": {}
+  },
+  "connection.action.continue_offline": {
+    "message": "Continue without a connection",
+    "placeholders": {}
+  },
+  "connection.state.connected_mode": {
+    "message": "Connected · {mode}",
+    "placeholders": {
+      "mode": "text"
+    }
+  },
+  "connection.state.last_check_failed": {
+    "message": "Last check: error",
+    "placeholders": {}
+  },
+  "connection.warning.http": {
+    "message": "HTTP without encryption: sign-in data is sent in clear text",
+    "placeholders": {}
+  },
+  "connection.form.profile_name": {
+    "message": "Profile name",
+    "placeholders": {}
+  },
+  "connection.form.api_url": {
+    "message": "API address: {url}",
+    "placeholders": {
+      "url": "technical"
+    }
+  },
+  "connection.form.server_changed.title": {
+    "message": "This is a different server",
+    "placeholders": {}
+  },
+  "connection.form.server_changed.body": {
+    "message": "After saving, bindings and publication plans of this connection must be checked again.",
+    "placeholders": {}
+  },
+  "connection.form.password_not_stored": {
+    "message": "Without storing, the password is kept only in the application memory until you disconnect or end the session; then it is asked again.",
+    "placeholders": {}
+  },
+  "connection.form.store_token": {
+    "message": "Store the token in the system credential store",
+    "placeholders": {}
+  },
+  "connection.form.trust_system": {
+    "message": "System certificate store",
+    "placeholders": {}
+  },
+  "connection.form.trust_custom_ca": {
+    "message": "Add a trusted CA certificate",
+    "placeholders": {}
+  },
+  "connection.form.tls_no_bypass": {
+    "message": "Certificate verification cannot be disabled.",
+    "placeholders": {}
+  },
+  "connection.test.title": {
+    "message": "Check connection {profile}",
+    "placeholders": {
+      "profile": "text"
+    }
+  },
+  "connection.test.step.endpoint": {
+    "message": "Address and TLS",
+    "placeholders": {}
+  },
+  "connection.test.step.api": {
+    "message": "Zabbix API",
+    "placeholders": {}
+  },
+  "connection.test.step.auth": {
+    "message": "Sign-in",
+    "placeholders": {}
+  },
+  "connection.test.step.identity": {
+    "message": "Server identity",
+    "placeholders": {}
+  },
+  "connection.test.step.capabilities": {
+    "message": "Permissions and capabilities",
+    "placeholders": {}
+  },
+  "connection.test.not_checked": {
+    "message": "Not checked: {reason}",
+    "placeholders": {
+      "reason": "text"
+    }
+  },
+  "connection.test.report.include_address": {
+    "message": "Include the server address in the report",
+    "placeholders": {}
+  },
+  "connection.test.report.copy": {
+    "message": "Copy report",
+    "placeholders": {}
+  },
+  "connection.enable_writes.title": {
+    "message": "Allow dashboard writes?",
+    "placeholders": {}
+  },
+  "connection.enable_writes.never": {
+    "message": "Hosts, templates, items, triggers and users are never changed.",
+    "placeholders": {}
+  },
+  "connection.enable_writes.duration": {
+    "message": "Until you disconnect or restart the application, then read-only again.",
+    "placeholders": {}
+  },
+  "connection.enable_writes.no_extra_rights": {
+    "message": "Your Zabbix account permissions are not extended.",
+    "placeholders": {}
+  },
+  "connection.action.forget_token": {
+    "message": "Forget stored token",
+    "placeholders": {}
+  },
+  "connection.forget_token.not_revoked": {
+    "message": "The token is removed from this computer but stays valid in Zabbix until it is revoked there.",
+    "placeholders": {}
+  },
+  "connection.form.endpoint": {
+    "message": "Zabbix URL",
+    "placeholders": {}
+  },
+  "connection.form.auth_method": {
+    "message": "Authentication method",
+    "placeholders": {}
+  },
+  "connection.form.api_token": {
+    "message": "API token",
+    "placeholders": {}
+  },
+  "connection.form.username": {
+    "message": "User name",
+    "placeholders": {}
+  },
+  "connection.form.password": {
+    "message": "Password",
+    "placeholders": {}
+  },
+  "connection.form.custom_ca": {
+    "message": "Trusted CA certificate",
+    "placeholders": {}
+  },
+  "connection.action.test": {
+    "message": "Test connection",
+    "placeholders": {}
+  },
+  "connection.action.enable_writes": {
+    "message": "Enable dashboard writes",
+    "placeholders": {}
+  },
+  "connection.action.set_read_only": {
+    "message": "Return to read-only",
+    "placeholders": {}
+  },
+  "connection.result.version": {
+    "message": "Zabbix {version}",
+    "placeholders": {
+      "version": "technical"
+    }
+  },
+  "connection.mode.read_only_help": {
+    "message": "Server data can be read; Zabbix objects will not be changed.",
+    "placeholders": {}
+  },
+  "connection.mode.read_write_help": {
+    "message": "Only verified global-dashboard operations can be written after preview and confirmation.",
+    "placeholders": {}
+  },
+  "connection.auth.mfa_token_required": {
+    "message": "Password sign-in cannot be used for this MFA account. Use an API token allowed by your administrator.",
+    "placeholders": {}
+  },
+  "connection.state.connecting": {
+    "message": "Connecting…",
+    "placeholders": {}
+  },
+  "connection.state.read_only_profile": {
+    "message": "Read-only · {profile}",
+    "placeholders": {
+      "profile": "text"
+    }
+  },
+  "connection.state.read_write_profile": {
+    "message": "Read-write · {profile}",
+    "placeholders": {
+      "profile": "text"
+    }
+  },
+  "connection.state.context_changed": {
+    "message": "Server changed · {profile}",
+    "placeholders": {
+      "profile": "text"
+    }
+  },
+  "connection.list.empty_help": {
+    "message": "Local drafts do not need a server. Add a connection to copy dashboards from Zabbix or to publish them.",
+    "placeholders": {}
+  },
+  "connection.list.load_failed": {
+    "message": "The connection list could not be loaded.",
+    "placeholders": {}
+  },
+  "connection.list.no_secrets": {
+    "message": "Passwords and tokens are not shown on this screen and are not written to files, logs or reports.",
+    "placeholders": {}
+  },
+  "connection.a11y.profiles": {
+    "message": "Connection profiles",
+    "placeholders": {}
+  },
+  "connection.state.needs_sign_in": {
+    "message": "Sign-in required",
+    "placeholders": {}
+  },
+  "connection.mode.read_only": {
+    "message": "read-only",
+    "placeholders": {}
+  },
+  "connection.mode.read_write": {
+    "message": "read-write",
+    "placeholders": {}
+  },
+  "connection.card.checked_at": {
+    "message": "checked {time}",
+    "placeholders": {
+      "time": "datetime"
+    }
+  },
+  "connection.card.never_checked": {
+    "message": "not checked yet",
+    "placeholders": {}
+  },
+  "connection.card.auth.token_os_store": {
+    "message": "API token in the system credential store",
+    "placeholders": {}
+  },
+  "connection.card.auth.token_memory": {
+    "message": "API token, only in memory",
+    "placeholders": {}
+  },
+  "connection.card.auth.password": {
+    "message": "user name and password, the password only in memory",
+    "placeholders": {}
+  },
+  "connection.action.connect": {
+    "message": "Connect",
+    "placeholders": {}
+  },
+  "connection.action.disconnect": {
+    "message": "Disconnect",
+    "placeholders": {}
+  },
+  "connection.action.check": {
+    "message": "Check",
+    "placeholders": {}
+  },
+  "connection.action.edit": {
+    "message": "Edit",
+    "placeholders": {}
+  },
+  "connection.action.sign_in": {
+    "message": "Sign in",
+    "placeholders": {}
+  },
+  "connection.action.cancel": {
+    "message": "Cancel",
+    "placeholders": {}
+  },
+  "connection.action.save": {
+    "message": "Save",
+    "placeholders": {}
+  },
+  "connection.action.retry": {
+    "message": "Retry",
+    "placeholders": {}
+  },
+  "connection.action.fix_sign_in": {
+    "message": "Change sign-in details",
+    "placeholders": {}
+  },
+  "connection.action.fix_address": {
+    "message": "Change address",
+    "placeholders": {}
+  },
+  "connection.action.confirm_new_server": {
+    "message": "Confirm the new server and connect",
+    "placeholders": {}
+  },
+  "connection.action.back_to_list": {
+    "message": "Back to connections",
+    "placeholders": {}
+  },
+  "connection.connected": {
+    "message": "Connected to {profile} in read-only mode.",
+    "placeholders": {
+      "profile": "text"
+    }
+  },
+  "connection.connect_failed": {
+    "message": "Could not connect to {profile}.",
+    "placeholders": {
+      "profile": "text"
+    }
+  },
+  "connection.disconnected": {
+    "message": "Disconnected from {profile}. Local work is still available.",
+    "placeholders": {
+      "profile": "text"
+    }
+  },
+  "connection.logout_failed": {
+    "message": "Sign-out on the server could not be confirmed; the session was closed in the application anyway.",
+    "placeholders": {}
+  },
+  "connection.credential_save_failed": {
+    "message": "The password or token could not be stored in the system credential store; it is kept in memory until you disconnect.",
+    "placeholders": {}
+  },
+  "connection.editor.title_new": {
+    "message": "New connection",
+    "placeholders": {}
+  },
+  "connection.editor.title_edit": {
+    "message": "Edit connection {profile}",
+    "placeholders": {
+      "profile": "text"
+    }
+  },
+  "connection.editor.section.profile": {
+    "message": "Profile",
+    "placeholders": {}
+  },
+  "connection.editor.section.sign_in": {
+    "message": "Sign-in",
+    "placeholders": {}
+  },
+  "connection.editor.section.trust": {
+    "message": "Certificate trust",
+    "placeholders": {}
+  },
+  "connection.editor.section.mode": {
+    "message": "Mode after connecting",
+    "placeholders": {}
+  },
+  "connection.form.endpoint_hint": {
+    "message": "As in the browser address bar, with port and path",
+    "placeholders": {}
+  },
+  "connection.form.api_url_pending": {
+    "message": "The API address appears once the Zabbix address is valid.",
+    "placeholders": {}
+  },
+  "connection.form.auth_password": {
+    "message": "User name and password",
+    "placeholders": {}
+  },
+  "connection.form.mfa_hint": {
+    "message": "Password sign-in through the API is not available for accounts with MFA: use an API token issued by your administrator.",
+    "placeholders": {}
+  },
+  "connection.form.token_at_connect": {
+    "message": "Without storing, the token is kept only in the application memory until you disconnect or end the session; then it is asked again.",
+    "placeholders": {}
+  },
+  "connection.form.http_confirm": {
+    "message": "Store the token even though HTTP sends it in clear text",
+    "placeholders": {}
+  },
+  "connection.form.custom_ca_hint": {
+    "message": "PEM file, only for this connection",
+    "placeholders": {}
+  },
+  "connection.form.custom_ca_choose": {
+    "message": "PEM file with the CA certificate",
+    "placeholders": {}
+  },
+  "connection.form.custom_ca_loaded": {
+    "message": "{count, plural, one {# certificate loaded} other {# certificates loaded}}",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "connection.form.custom_ca_fingerprint": {
+    "message": "SHA-256 fingerprint: {fingerprint}",
+    "placeholders": {
+      "fingerprint": "technical"
+    }
+  },
+  "connection.form.custom_ca_required": {
+    "message": "Choose a PEM file with the CA certificate.",
+    "placeholders": {}
+  },
+  "connection.form.custom_ca_loading": {
+    "message": "Loading the certificate…",
+    "placeholders": {}
+  },
+  "connection.form.mode_read_only": {
+    "message": "Read-only. Dashboard writes are enabled separately and only until you disconnect.",
+    "placeholders": {}
+  },
+  "connection.form.rename_keeps_server": {
+    "message": "Renaming the profile does not change the server. Changing the address, port or path does.",
+    "placeholders": {}
+  },
+  "connection.form.rules.title": {
+    "message": "Address rules",
+    "placeholders": {}
+  },
+  "connection.form.rules.scheme": {
+    "message": "The address starts with http or https.",
+    "placeholders": {}
+  },
+  "connection.form.rules.port_path": {
+    "message": "A port and a base path are allowed.",
+    "placeholders": {}
+  },
+  "connection.form.rules.rejected": {
+    "message": "A user name or password, a query (?…) and a fragment (#…) are not allowed in the address.",
+    "placeholders": {}
+  },
+  "connection.form.rules.http": {
+    "message": "With http, sign-in data travels in clear text; a password or token can be stored for such a profile only after explicit confirmation.",
+    "placeholders": {}
+  },
+  "connection.form.has_errors": {
+    "message": "Check the highlighted fields.",
+    "placeholders": {}
+  },
+  "connection.saved": {
+    "message": "Connection {profile} saved.",
+    "placeholders": {
+      "profile": "text"
+    }
+  },
+  "connection.duplicate.name": {
+    "message": "{profile} (copy)",
+    "placeholders": {
+      "profile": "text"
+    }
+  },
+  "connection.delete.title": {
+    "message": "Delete connection {profile}?",
+    "placeholders": {
+      "profile": "text"
+    }
+  },
+  "connection.delete.body": {
+    "message": "Drafts, working copies and snapshots are kept. A stored password or token is removed from this computer; a token stays valid in Zabbix until it is revoked there.",
+    "placeholders": {}
+  },
+  "connection.delete.disconnect_first": {
+    "message": "The connection is active and will be closed first.",
+    "placeholders": {}
+  },
+  "connection.deleted": {
+    "message": "Connection {profile} deleted.",
+    "placeholders": {
+      "profile": "text"
+    }
+  },
+  "connection.delete.credential_left": {
+    "message": "The stored password or token could not be removed from the system credential store.",
+    "placeholders": {}
+  },
+  "connection.test.subtitle": {
+    "message": "Steps run in order; a step starts only after the previous one passed.",
+    "placeholders": {}
+  },
+  "connection.test.crumb": {
+    "message": "Check",
+    "placeholders": {}
+  },
+  "connection.test.running": {
+    "message": "Checking the connection…",
+    "placeholders": {}
+  },
+  "connection.test.idle": {
+    "message": "The check has not been run yet.",
+    "placeholders": {}
+  },
+  "connection.test.passed": {
+    "message": "All steps passed.",
+    "placeholders": {}
+  },
+  "connection.test.failed_at": {
+    "message": "The check stopped at step {step}.",
+    "placeholders": {
+      "step": "text"
+    }
+  },
+  "connection.a11y.steps": {
+    "message": "Check steps",
+    "placeholders": {}
+  },
+  "connection.test.step_heading": {
+    "message": "{number}. {name}",
+    "placeholders": {
+      "number": "number",
+      "name": "text"
+    }
+  },
+  "connection.test.status.passed": {
+    "message": "Passed",
+    "placeholders": {}
+  },
+  "connection.test.status.notice": {
+    "message": "Passed with a note",
+    "placeholders": {}
+  },
+  "connection.test.status.failed": {
+    "message": "Error",
+    "placeholders": {}
+  },
+  "connection.test.status.not_checked": {
+    "message": "Not checked",
+    "placeholders": {}
+  },
+  "connection.test.result.endpoint": {
+    "message": "Connection established, certificate verified.",
+    "placeholders": {}
+  },
+  "connection.test.result.api": {
+    "message": "Zabbix API {version} found.",
+    "placeholders": {
+      "version": "technical"
+    }
+  },
+  "connection.test.result.auth_token": {
+    "message": "Signed in with the API token.",
+    "placeholders": {}
+  },
+  "connection.test.result.auth_password": {
+    "message": "Signed in with user name and password.",
+    "placeholders": {}
+  },
+  "connection.test.result.identity_matches": {
+    "message": "Same server as at the previous connection.",
+    "placeholders": {}
+  },
+  "connection.test.result.capabilities": {
+    "message": "All required read methods are available.",
+    "placeholders": {}
+  },
+  "connection.test.capabilities_denied": {
+    "message": "Not available to this account: {methods}. Related features will be unavailable; you can continue read-only.",
+    "placeholders": {
+      "methods": "technical"
+    }
+  },
+  "connection.identity.first_seen": {
+    "message": "First connection: the server identity is recorded.",
+    "placeholders": {}
+  },
+  "connection.identity.version_changed": {
+    "message": "The server was updated from {previous_version} to {version}; publication plans must be built again.",
+    "placeholders": {
+      "previous_version": "technical",
+      "version": "technical"
+    }
+  },
+  "connection.identity.changed": {
+    "message": "Another server answers at this address. Confirm that it is the intended server; bindings and plans of this connection will need to be checked again.",
+    "placeholders": {}
+  },
+  "connection.identity.accepted": {
+    "message": "The new server was confirmed.",
+    "placeholders": {}
+  },
+  "connection.test.reason.endpoint": {
+    "message": "the server must be reachable",
+    "placeholders": {}
+  },
+  "connection.test.reason.api": {
+    "message": "a Zabbix API must be found",
+    "placeholders": {}
+  },
+  "connection.test.reason.auth": {
+    "message": "a successful sign-in is required",
+    "placeholders": {}
+  },
+  "connection.test.reason.identity": {
+    "message": "the server identity must be confirmed",
+    "placeholders": {}
+  },
+  "connection.test.during_sign_in": {
+    "message": "The connection failed during sign-in.",
+    "placeholders": {}
+  },
+  "connection.test.details.title": {
+    "message": "Technical details",
+    "placeholders": {}
+  },
+  "connection.test.details.code": {
+    "message": "Code",
+    "placeholders": {}
+  },
+  "connection.test.details.step": {
+    "message": "Step",
+    "placeholders": {}
+  },
+  "connection.test.details.method": {
+    "message": "Method",
+    "placeholders": {}
+  },
+  "connection.test.details.time": {
+    "message": "Time",
+    "placeholders": {}
+  },
+  "connection.test.details.version": {
+    "message": "Zabbix version",
+    "placeholders": {}
+  },
+  "connection.test.report.scope": {
+    "message": "The report contains no password, token, server responses or file paths; the address only if selected.",
+    "placeholders": {}
+  },
+  "connection.test.report.copied": {
+    "message": "Report copied.",
+    "placeholders": {}
+  },
+  "connection.test.report.copy_failed": {
+    "message": "The report could not be copied to the clipboard.",
+    "placeholders": {}
+  },
+  "connection.test.lockout_hint": {
+    "message": "Zabbix blocks sign-in for 30 seconds after 5 failed attempts.",
+    "placeholders": {}
+  },
+  "connection.sign_in.title": {
+    "message": "Sign in to {profile}",
+    "placeholders": {
+      "profile": "text"
+    }
+  },
+  "connection.sign_in.description": {
+    "message": "Server address: {address}",
+    "placeholders": {
+      "address": "technical"
+    }
+  },
+  "connection.sign_in.username": {
+    "message": "User name: {username}",
+    "placeholders": {
+      "username": "text"
+    }
+  },
+  "connection.sign_in.username_hint": {
+    "message": "The user name can be changed only in the connection profile.",
+    "placeholders": {}
+  },
+  "connection.sign_in.token_will_be_stored": {
+    "message": "After a successful connection the token is stored in the system credential store.",
+    "placeholders": {}
+  },
+  "connection.sign_in.token_memory_only": {
+    "message": "The token is kept only in memory until you disconnect or end the session.",
+    "placeholders": {}
+  },
+  "connection.sign_in.in_progress": {
+    "message": "Signing in…",
+    "placeholders": {}
+  },
+  "connection.sign_in.waiting": {
+    "message": "Waiting for the server. For LDAP accounts this can take longer.",
+    "placeholders": {}
+  },
+  "connection.sign_in.locked": {
+    "message": "Zabbix temporarily blocked sign-in for 30 seconds. Try again in {seconds, plural, one {# second} other {# seconds}}.",
+    "placeholders": {
+      "seconds": "number"
+    }
+  },
+  "connection.sign_in.password_required": {
+    "message": "Enter the password.",
+    "placeholders": {}
+  },
+  "connection.sign_in.token_required": {
+    "message": "Enter the API token.",
+    "placeholders": {}
+  },
+  "connection.enable_writes.context": {
+    "message": "Connection {profile} · Zabbix {version}",
+    "placeholders": {
+      "profile": "text",
+      "version": "technical"
+    }
+  },
+  "connection.enable_writes.available_title": {
+    "message": "Becomes available",
+    "placeholders": {}
+  },
+  "connection.enable_writes.available": {
+    "message": "Creating a dashboard, saving a copy, cloning, adding pages and widgets, replacing a host in a dashboard.",
+    "placeholders": {}
+  },
+  "connection.enable_writes.plan_only": {
+    "message": "Every write happens only after preview, checks and confirmation of the plan.",
+    "placeholders": {}
+  },
+  "connection.enable_writes.never_title": {
+    "message": "Never changed",
+    "placeholders": {}
+  },
+  "connection.enable_writes.duration_title": {
+    "message": "Duration",
+    "placeholders": {}
+  },
+  "connection.enable_writes.return_hint": {
+    "message": "You can return to read-only at any time with the button in the header.",
+    "placeholders": {}
+  },
+  "connection.enable_writes.enabled": {
+    "message": "Dashboard writes are allowed for {profile} until you disconnect.",
+    "placeholders": {
+      "profile": "text"
+    }
+  },
+  "connection.read_only_restored": {
+    "message": "Read-only mode restored; publication plans of this connection are no longer valid.",
+    "placeholders": {}
+  },
+  "errors.connection.dns_unresolvable": {
+    "message": "The server name could not be resolved. Check the Zabbix address.",
+    "placeholders": {}
+  },
+  "errors.connection.refused": {
+    "message": "The server refused the connection. Check the address, port and service.",
+    "placeholders": {}
+  },
+  "errors.connection.unreachable_or_timeout": {
+    "message": "The server is unreachable or did not respond in time.",
+    "placeholders": {}
+  },
+  "errors.connection.api_not_found": {
+    "message": "No Zabbix API was found at this address. Check the base path.",
+    "placeholders": {}
+  },
+  "errors.tls.untrusted": {
+    "message": "The server certificate is not trusted. Add an approved CA certificate; TLS verification cannot be disabled.",
+    "placeholders": {}
+  },
+  "errors.tls.name_mismatch": {
+    "message": "The certificate was issued for a different name. Check the address or the certificate; TLS verification cannot be disabled.",
+    "placeholders": {}
+  },
+  "errors.tls.time_invalid": {
+    "message": "The server certificate is not valid for the current time.",
+    "placeholders": {}
+  },
+  "errors.auth.credentials_or_directory": {
+    "message": "Sign-in failed. Check the credentials. For LDAP accounts, the directory may also be unavailable.",
+    "placeholders": {}
+  },
+  "errors.auth.token_invalid_or_disabled": {
+    "message": "The API token is invalid or disabled.",
+    "placeholders": {}
+  },
+  "errors.auth.token_expired": {
+    "message": "The API token has expired.",
+    "placeholders": {}
+  },
+  "errors.auth.mfa_token_required": {
+    "message": "This MFA account cannot use password API sign-in. Use an API token allowed by your administrator.",
+    "placeholders": {}
+  },
+  "errors.permission.system_access": {
+    "message": "This account has no access to Zabbix.",
+    "placeholders": {}
+  },
+  "errors.permission.api_method": {
+    "message": "This account cannot call {method}.",
+    "placeholders": {
+      "method": "technical"
+    }
+  },
+  "errors.connection.failed": {
+    "message": "Could not connect to the server. Check the address and the network.",
+    "placeholders": {}
+  },
+  "errors.connection.unexpected_response": {
+    "message": "The server returned an unexpected response. Check the base path.",
+    "placeholders": {}
+  },
+  "errors.connection.version_unsupported": {
+    "message": "Zabbix {version} is not supported. You can continue working offline.",
+    "placeholders": {
+      "version": "technical"
+    }
+  },
+  "errors.connection.api_error": {
+    "message": "Zabbix returned an error for {method}.",
+    "placeholders": {
+      "method": "technical"
+    }
+  },
+  "errors.auth.session_expired": {
+    "message": "The Zabbix session has expired. Sign in again.",
+    "placeholders": {}
+  },
+  "errors.address.syntax": {
+    "message": "This is not a valid address.",
+    "placeholders": {}
+  },
+  "errors.address.scheme": {
+    "message": "The address must start with http or https.",
+    "placeholders": {}
+  },
+  "errors.address.userinfo": {
+    "message": "Remove the user name or password from the address; sign-in details are entered in the sign-in section.",
+    "placeholders": {}
+  },
+  "errors.address.query": {
+    "message": "Remove the query (?…) from the address.",
+    "placeholders": {}
+  },
+  "errors.address.fragment": {
+    "message": "Remove the fragment (#…) from the address.",
+    "placeholders": {}
+  },
+  "errors.address.host": {
+    "message": "The address has no server name.",
+    "placeholders": {}
+  },
+  "errors.trust.too_large": {
+    "message": "The certificate file is too large.",
+    "placeholders": {}
+  },
+  "errors.trust.empty": {
+    "message": "The file contains no certificate.",
+    "placeholders": {}
+  },
+  "errors.trust.invalid_pem": {
+    "message": "The file is not a valid PEM certificate.",
+    "placeholders": {}
+  },
+  "errors.trust.private_key": {
+    "message": "The file contains a private key; choose a file with the CA certificate only.",
+    "placeholders": {}
+  },
+  "errors.trust.too_many_certificates": {
+    "message": "The file contains too many certificates.",
+    "placeholders": {}
+  },
+  "errors.trust.rejected": {
+    "message": "This certificate cannot be used as a trusted CA certificate.",
+    "placeholders": {}
+  },
+  "errors.trust.changed": {
+    "message": "The stored CA certificate was changed outside the application. Choose the file again.",
+    "placeholders": {}
+  },
+  "errors.trust.missing": {
+    "message": "The stored CA certificate is missing. Choose the file again.",
+    "placeholders": {}
+  },
+  "errors.trust.upload_invalid": {
+    "message": "Choose exactly one PEM file.",
+    "placeholders": {}
+  },
+  "errors.profile.not_found": {
+    "message": "This connection profile no longer exists.",
+    "placeholders": {}
+  },
+  "errors.profile.name_invalid": {
+    "message": "Enter a profile name of {max_chars, plural, one {up to # character} other {up to # characters}} without control characters.",
+    "placeholders": {
+      "max_chars": "number"
+    }
+  },
+  "errors.profile.username_invalid": {
+    "message": "Enter a user name of {max_chars, plural, one {up to # character} other {up to # characters}} without control characters.",
+    "placeholders": {
+      "max_chars": "number"
+    }
+  },
+  "errors.profile.limit_reached": {
+    "message": "No more than {max, plural, one {# connection profile} other {# connection profiles}} can be saved.",
+    "placeholders": {
+      "max": "number"
+    }
+  },
+  "errors.profile.store_invalid": {
+    "message": "The connection profile file is damaged. It was not changed.",
+    "placeholders": {}
+  },
+  "errors.profile.store_linked_path": {
+    "message": "The connection profile file is a link; for safety it is neither read nor written.",
+    "placeholders": {}
+  },
+  "errors.profile.store_too_large": {
+    "message": "The connection profile file is too large.",
+    "placeholders": {}
+  },
+  "errors.profile.store_unavailable": {
+    "message": "Connection profiles cannot be read or saved on this computer.",
+    "placeholders": {}
+  },
+  "errors.profile.plain_http_unconfirmed": {
+    "message": "Confirm that the password or token may be stored for an HTTP address.",
+    "placeholders": {}
+  },
+  "errors.connection.not_connected": {
+    "message": "This connection is not active.",
+    "placeholders": {}
+  },
+  "errors.connection.secret_required": {
+    "message": "Enter the password or API token.",
+    "placeholders": {}
+  },
+  "errors.connection.secret_invalid": {
+    "message": "The password or token is too long.",
+    "placeholders": {}
+  },
+  "errors.connection.writes_not_confirmed": {
+    "message": "Dashboard writes were not confirmed.",
+    "placeholders": {}
+  },
+  "errors.connection.random_unavailable": {
+    "message": "The system random number source is unavailable.",
+    "placeholders": {}
+  },
+  "errors.connection.request_invalid": {
+    "message": "The application sent an invalid request. Reload the page and try again.",
+    "placeholders": {}
+  },
+  "errors.connection.service_unavailable": {
+    "message": "Connections are unavailable: the settings folder of this computer could not be found.",
+    "placeholders": {}
+  },
+  "errors.connection.unknown": {
+    "message": "The operation failed ({code}).",
+    "placeholders": {
+      "code": "technical"
+    }
+  },
+  "errors.credential.missing": {
+    "message": "No password or token is stored for this connection.",
+    "placeholders": {}
+  },
+  "errors.credential.locked": {
+    "message": "The system credential store is locked or access was denied.",
+    "placeholders": {}
+  },
+  "errors.credential.unavailable": {
+    "message": "The system credential store is unavailable on this computer.",
+    "placeholders": {}
+  },
+  "connection.form.store_password": {
+    "message": "Store the password in the system credential store",
+    "placeholders": {}
+  },
+  "connection.form.store_password_hint": {
+    "message": "An API token is safer: it can have an expiry date and can be revoked in Zabbix without changing the password.",
+    "placeholders": {}
+  },
+  "connection.form.http_confirm_password": {
+    "message": "Store the password even though HTTP sends it in clear text",
+    "placeholders": {}
+  },
+  "connection.form.password_stored": {
+    "message": "The password is kept in the system credential store. Leave the field empty to keep it.",
+    "placeholders": {}
+  },
+  "connection.form.token_stored": {
+    "message": "The token is kept in the system credential store. Leave the field empty to keep it.",
+    "placeholders": {}
+  },
+  "connection.action.forget_password": {
+    "message": "Forget stored password",
+    "placeholders": {}
+  },
+  "connection.forget_password.done": {
+    "message": "The password is removed from this computer.",
+    "placeholders": {}
+  },
+  "connection.action.use_default_account": {
+    "message": "Fill in the default account",
+    "placeholders": {}
+  },
+  "connection.form.default_account_hint": {
+    "message": "Fills in Admin and zabbix, the account of a new Zabbix installation. The button saves nothing by itself.",
+    "placeholders": {}
+  },
+  "connection.sign_in.password_will_be_stored": {
+    "message": "After a successful connection the password is stored in the system credential store.",
+    "placeholders": {}
+  },
+  "connection.card.auth.password_os_store": {
+    "message": "user name and password in the system credential store",
+    "placeholders": {}
+  },
+  "connection.default_password.title": {
+    "message": "The default password is used",
+    "placeholders": {}
+  },
+  "connection.default_password.body": {
+    "message": "Connection {profile} signed in with the default Zabbix password. Change it on a production server.",
+    "placeholders": {
+      "profile": "text"
+    }
+  },
+  "connection.default_password.dont_show": {
+    "message": "Do not show again for this connection",
+    "placeholders": {}
+  },
+  "connection.default_password.acknowledge": {
+    "message": "Got it",
+    "placeholders": {}
+  },
+  "connection.form.secret_in_memory": {
+    "message": "Kept in the application memory until you disconnect or end the session. Leave the field empty to keep it.",
+    "placeholders": {}
+  },
+  "connection.sign_in.password_memory_only": {
+    "message": "The password is kept only in memory until you disconnect or end the session.",
+    "placeholders": {}
+  }
+}

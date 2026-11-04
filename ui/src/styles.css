@@ -142,6 +142,7 @@ td a {
 .settings-link {
   display: inline-flex;
   align-items: center;
+  gap: var(--space-2);
   min-height: var(--control-standard);
   padding: 0 var(--space-3);
   border-radius: var(--radius-control);
@@ -169,6 +170,17 @@ td a {
   align-items: center;
   gap: var(--space-3);
   margin-inline-start: auto;
+}
+
+/* DEMO build only: synthetic drafts must never pass for real data in a screenshot. */
+.demo-marker {
+  margin: var(--space-4) var(--space-6) 0;
+  padding: var(--space-2) var(--space-4);
+  border: 2px dashed var(--status-warning-border);
+  border-radius: var(--radius-panel);
+  color: var(--status-warning-text);
+  background: var(--status-warning-surface);
+  font-weight: 600;
 }
 
 .app-alert {
@@ -272,6 +284,7 @@ main:focus {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: var(--space-2);
   min-height: var(--control-standard);
   padding: 0 var(--space-3);
   border: 1px solid var(--border-default);
@@ -509,7 +522,272 @@ main:focus {
   padding: 0 var(--space-3);
 }
 
+/* «Drafts» (mockup 02-01): search, list with a selected row and the details column. */
+.search-field {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  align-self: center;
+  padding-inline-start: var(--space-3);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-control);
+  color: var(--text-muted);
+  background: var(--surface-base);
+}
+
+.search-field input {
+  min-width: 14rem;
+  border: none;
+  outline-offset: 0;
+}
+
+.drafts-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(18rem, 24rem);
+  gap: var(--space-6);
+  align-items: start;
+}
+
+.drafts-list {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.row-select {
+  justify-content: flex-start;
+  width: 100%;
+  min-height: var(--control-compact);
+  padding: 0 var(--space-2);
+  border-color: transparent;
+  color: var(--text-link);
+  background: transparent;
+  font-weight: 600;
+  text-align: start;
+}
+
+.row-select:hover {
+  background: var(--action-ghost-hover);
+}
+
+tr.selected {
+  background: var(--surface-selected);
+  box-shadow: inset 3px 0 0 var(--border-selected);
+}
+
+.drafts-details,
+.details-list,
+.created,
+.details-actions {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.drafts-details h2 {
+  overflow-wrap: anywhere;
+}
+
+.details-list {
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.details-list div {
+  display: grid;
+  grid-template-columns: minmax(6rem, auto) minmax(0, 1fr);
+  gap: var(--space-3);
+}
+
+.details-list dt {
+  color: var(--text-muted);
+}
+
+.details-list dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.created-list,
+.widget-cards,
+.steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.created-list li,
+.details-note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.created-list li > svg {
+  flex: none;
+  color: var(--status-success-icon);
+}
+
+.created-list li.not-found > svg {
+  color: var(--status-warning-icon);
+}
+
+.created-text {
+  display: grid;
+}
+
+.details-note {
+  color: var(--text-muted);
+}
+
+.details-note > svg {
+  flex: none;
+}
+
+.recent-list .origin-line {
+  flex-basis: 100%;
+  overflow-wrap: anywhere;
+}
+
+/* «Overview» (mockup 07-01): source and target, composition, next steps. */
+.overview-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(16rem, 22rem);
+  gap: var(--space-6);
+  align-items: start;
+}
+
+.overview-main {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.overview-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.widget-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: var(--space-3);
+}
+
+.widget-card {
+  display: grid;
+  align-content: start;
+  justify-items: start;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-panel);
+  background: var(--surface-raised);
+  overflow-wrap: anywhere;
+}
+
+.composition h4 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-2) 0 0;
+}
+
+.steps {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.steps li {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.steps a,
+.step-title {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control-compact);
+  font-weight: 600;
+}
+
 /* Compact window 1024×720: the side column moves above the content; narrower — one column. */
+/* Result of the last command (P1-00E `success`): polite, never moves focus. */
+.app-status:empty {
+  display: none;
+}
+
+.app-notice {
+  display: grid;
+  gap: var(--space-1);
+  margin: var(--space-4) var(--space-6) 0;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--status-success-border);
+  border-radius: var(--radius-panel);
+  color: var(--status-success-text);
+  background: var(--status-success-surface);
+}
+
+/* «Dashboards in Zabbix» and the copy check (mockups 03-01, 03-03). */
+.tab-panel {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.search-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.search-form .field-error {
+  flex-basis: 100%;
+}
+
+th.numeric,
+td.numeric {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.server-widgets {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.server-widgets p {
+  display: grid;
+  margin: 0;
+}
+
+.copy-page {
+  border-block-end: 1px solid var(--border-subtle);
+  padding-block: var(--space-2);
+}
+
+.copy-page summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  min-height: var(--control-standard);
+  align-items: center;
+  cursor: pointer;
+}
+
+.copy-page-title {
+  font-weight: 600;
+}
+
+.copy-list {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding-inline-start: var(--space-4);
+}
+
+.copy-actions {
+  justify-content: flex-end;
+}
+
 @media (max-width: 64rem) {
   .workspace {
     grid-template-columns: minmax(0, 1fr);
@@ -530,7 +808,9 @@ main:focus {
   }
 
   .start-cards,
-  .structure-layout {
+  .structure-layout,
+  .drafts-layout,
+  .overview-layout {
     grid-template-columns: minmax(0, 1fr);
   }
 }
@@ -543,12 +823,112 @@ main:focus {
   }
 
   .tiles,
-  .screen-head.with-actions {
+  .screen-head.with-actions,
+  .overview-cards {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .search-field,
+  .search-field input {
+    min-width: 0;
+    width: 100%;
   }
 
   .header-end {
     margin-inline-start: 0;
+  }
+}
+
+/* «About and licenses» (P1-12, mockup 06-04). */
+.about {
+  display: grid;
+  gap: var(--space-4);
+  max-width: 60rem;
+}
+
+.about-program {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.about-logo {
+  flex: none;
+  width: 4rem;
+  height: 4rem;
+  object-fit: contain;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: minmax(8rem, max-content) minmax(0, 1fr);
+  gap: var(--space-2) var(--space-4);
+}
+
+.facts dt {
+  color: var(--text-secondary);
+}
+
+.about details {
+  border-block-start: 1px solid var(--border-subtle);
+  padding-block-start: var(--space-2);
+}
+
+.about summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.license-text,
+.report-preview {
+  max-height: 20rem;
+  overflow: auto;
+  margin-block: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-technical);
+  background: var(--surface-sunken);
+  color: var(--text-code);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.report-preview {
+  width: 100%;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.chip[aria-pressed='true'] {
+  background: var(--surface-selected);
+  border-color: var(--border-selected);
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.components {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.components th,
+.components td {
+  padding: var(--space-2) var(--space-3);
+  border-block-end: 1px solid var(--border-subtle);
+  text-align: start;
+}
+
+@media (max-width: 40rem) {
+  .facts {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -566,7 +946,580 @@ main:focus {
     text-decoration: underline;
   }
 
-  .preview-widget[aria-pressed='true'] {
+  .preview-widget[aria-pressed='true'],
+  tr.selected .row-select,
+  tr.selected .row-open {
     outline: 2px solid Highlight;
+  }
+}
+
+/* P2-08A: draft names open the draft, the rest of the row selects it; the workspace sections and
+   the next steps read as links. */
+.row-name {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 var(--space-2);
+}
+
+.row-open {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control-compact);
+  font-weight: 600;
+}
+
+.selectable-row {
+  cursor: pointer;
+}
+
+.selectable-row:not(.selected):hover {
+  background: var(--action-ghost-hover);
+}
+
+.side-nav-title {
+  margin: 0;
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.section-links a:not([aria-current='page']) {
+  color: var(--text-link);
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-base);
+}
+
+.steps .step-link {
+  justify-self: start;
+  margin-block-start: var(--space-1);
+}
+
+/* «Предпросмотр» of a server dashboard (P2-05E): read only, the «Structure» view. */
+.server-preview-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: var(--space-3);
+}
+
+/* «Привязки» (P1-05, mockups 09-01…09-03) and the ReplaceHost preview of «Публикация» (P1-08). */
+.step-bar ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.step-bar .step {
+  min-height: var(--control-standard);
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+}
+
+.step-bar .step.current {
+  border-color: var(--border-selected);
+  background: var(--surface-selected);
+}
+
+.step-bar .step.done {
+  color: var(--status-success-text);
+}
+
+.step-number {
+  font-weight: 700;
+}
+
+.bindings-columns,
+.mapping-layout,
+.diff-layout,
+.checks-layout {
+  display: grid;
+  grid-template-columns: minmax(18rem, 26rem) minmax(0, 1fr);
+  gap: var(--space-6);
+  align-items: start;
+}
+
+.bindings-columns.single {
+  grid-template-columns: minmax(0, 40rem);
+}
+
+.mapping-layout,
+.diff-layout,
+.checks-layout {
+  grid-template-columns: minmax(0, 1fr) minmax(16rem, 24rem);
+}
+
+.bindings-choices,
+.diff-main {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.choice-group {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.choice-group legend {
+  padding: 0 var(--space-1);
+}
+
+.nested-choices {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-panel);
+}
+
+.choice input[type='radio'],
+.choice input[type='checkbox'] {
+  min-height: var(--control-compact);
+}
+
+.host-name,
+.deps-page-title,
+.widget-name {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.note,
+.marker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.note > svg,
+.marker > svg {
+  flex: none;
+}
+
+.tone-success { color: var(--status-success-text); }
+.tone-info { color: var(--text-primary); }
+.tone-warning { color: var(--status-warning-text); }
+.tone-danger { color: var(--status-danger-text); }
+
+.warning-note {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--status-warning-border);
+  border-radius: var(--radius-panel);
+  color: var(--status-warning-text);
+  background: var(--status-warning-surface);
+}
+
+.deps-page {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.deps-page > summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-height: var(--control-standard);
+  cursor: pointer;
+}
+
+.deps-page .reason {
+  display: block;
+}
+
+.kept-box {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid var(--status-warning-border);
+  border-radius: var(--radius-panel);
+  background: var(--status-warning-surface);
+}
+
+.kept-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  font-weight: 700;
+}
+
+.kept-list li,
+.field-changes li,
+.history li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-3);
+  padding: var(--space-1) 0;
+}
+
+.kept-list,
+.field-changes,
+.history,
+.evidence,
+.reasons,
+.summary-list {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding-inline-start: var(--space-4);
+}
+
+.search-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: var(--space-2);
+}
+
+.search-row .field {
+  flex: 1 1 16rem;
+}
+
+.host-choice {
+  padding: var(--space-2) 0;
+  border-block-end: 1px solid var(--border-subtle);
+}
+
+.host-choice .description {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.mapping-table td {
+  vertical-align: top;
+}
+
+.mapping-table td > span {
+  display: block;
+}
+
+.inspector {
+  position: sticky;
+  inset-block-start: var(--space-4);
+  overflow-wrap: anywhere;
+}
+
+.inspector-object {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.inspector h4 {
+  margin: var(--space-2) 0 0;
+}
+
+.bindings-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+}
+
+.bindings-live:empty {
+  display: none;
+}
+
+.wizard-nav {
+  justify-content: flex-end;
+  padding-block-start: var(--space-2);
+  border-block-start: 1px solid var(--border-subtle);
+}
+
+.context-card {
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  margin: 0;
+}
+
+.context-card dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.readiness-card {
+  position: sticky;
+  inset-block-start: var(--space-4);
+}
+
+@media (max-width: 64rem) {
+  .bindings-columns,
+  .mapping-layout,
+  .diff-layout,
+  .checks-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .inspector,
+  .readiness-card {
+    position: static;
+  }
+}
+
+@media (forced-colors: active) {
+  .step-bar .step.current {
+    outline: 2px solid Highlight;
+  }
+}
+
+/* «Settings → Appearance» (P2-00G, mockup 06-01): two columns of cards, theme previews. */
+.appearance {
+  display: grid;
+  gap: var(--space-4);
+  max-width: 80rem;
+}
+
+.appearance-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr));
+  gap: var(--space-4);
+}
+
+.appearance-file {
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.appearance-group .choices {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.appearance-group h2.eyebrow {
+  font-size: 0.75rem;
+}
+
+.group-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.changed-badge {
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border-selected);
+  border-radius: var(--radius-pill);
+  color: var(--text-link);
+  background: var(--surface-selected);
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.theme-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  gap: var(--space-3);
+}
+
+.theme-option {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-panel);
+  background: var(--surface-base);
+}
+
+.theme-option.selected {
+  border: 2px solid var(--border-selected);
+  padding: calc(var(--space-2) - 1px);
+}
+
+.theme-option .choice label {
+  font-weight: 600;
+}
+
+.theme-preview {
+  display: flex;
+  gap: var(--space-1);
+  min-height: 4rem;
+  padding: var(--space-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-control);
+  cursor: pointer;
+}
+
+.theme-preview .panel {
+  flex: 1;
+  border: 1px solid;
+  border-radius: var(--radius-technical);
+}
+
+.theme-preview.system {
+  padding: 0;
+  overflow: hidden;
+  gap: 0;
+}
+
+.theme-preview .half {
+  display: flex;
+  flex: 1;
+  padding: var(--space-2);
+}
+
+.theme-preview.light,
+.theme-preview .half.light {
+  background: var(--theme-preview-light-canvas);
+}
+
+.theme-preview.light .panel,
+.theme-preview .half.light .panel {
+  border-color: var(--theme-preview-light-line);
+  background: var(--theme-preview-light-panel);
+}
+
+.theme-preview.dark,
+.theme-preview .half.dark {
+  background: var(--theme-preview-dark-canvas);
+}
+
+.theme-preview.dark .panel,
+.theme-preview .half.dark .panel {
+  border-color: var(--theme-preview-dark-line);
+  background: var(--theme-preview-dark-panel);
+}
+
+.theme-preview.high_contrast {
+  border: 2px solid var(--theme-preview-contrast-line);
+  background: var(--theme-preview-contrast-canvas);
+}
+
+.theme-preview.high_contrast .panel {
+  border: 2px solid var(--theme-preview-contrast-line);
+  background: var(--theme-preview-contrast-panel);
+}
+
+@media (max-width: 40rem) {
+  .appearance-file {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* In-application high contrast (O-038): the current place and links never rely on colour only. */
+:root[data-theme='high_contrast'] a {
+  text-decoration-thickness: 2px;
+}
+
+:root[data-theme='high_contrast'] .top-nav a[aria-current='page'],
+:root[data-theme='high_contrast'] .side-nav a[aria-current='page'],
+:root[data-theme='high_contrast'] .settings-link[aria-current='page'] {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.2em;
+  box-shadow: inset 0 -3px 0 var(--border-selected);
+}
+
+/* Publication: target, conflict, confirmation, write and recovery (P1-08D–G, P1-01G §4, P2-04F). */
+.publication-target,
+.publication-conflict,
+.publication-write,
+.recovery {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.conflict-layout,
+.write-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(16rem, 24rem);
+  gap: var(--space-6);
+  align-items: start;
+}
+
+.publication-conflict .exit {
+  display: grid;
+  gap: var(--space-1);
+  margin-block-end: var(--space-3);
+}
+
+.publication-conflict tr.overlap th,
+.publication-conflict tr.overlap td {
+  font-weight: 600;
+}
+
+.step-bar .step.error {
+  color: var(--status-danger-text);
+}
+
+.plain-list {
+  margin: 0;
+  padding-inline-start: var(--space-4);
+}
+
+.stages {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stage {
+  display: grid;
+  grid-template-columns: auto minmax(8rem, 12rem) minmax(0, 1fr);
+  gap: var(--space-2);
+  align-items: start;
+}
+
+.stage.done {
+  color: var(--status-success-text);
+}
+
+.stage.failed {
+  color: var(--status-danger-text);
+}
+
+.stage .muted {
+  overflow-wrap: anywhere;
+}
+
+.confirm-facts,
+.journal-facts {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.confirm-facts div,
+.journal-facts div {
+  display: grid;
+  grid-template-columns: minmax(8rem, 12rem) minmax(0, 1fr);
+  gap: var(--space-2);
+}
+
+.confirm-facts dd,
+.journal-facts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.recovery-list {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.recovery-screen {
+  padding-block-end: 0;
+}
+
+@media (max-width: 64rem) {
+  .conflict-layout,
+  .write-layout,
+  .stage,
+  .confirm-facts div,
+  .journal-facts div {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

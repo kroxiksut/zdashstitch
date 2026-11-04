@@ -1,0 +1,74 @@
+{
+  "desktop.fallback.title": {
+    "message": "Окно программы недоступно",
+    "placeholders": {}
+  },
+  "desktop.fallback.reason.engine_missing": {
+    "message": "Не установлен системный веб-движок, который показывает окно программы.",
+    "placeholders": {}
+  },
+  "desktop.fallback.reason.start_failed": {
+    "message": "Окно программы не запустилось.",
+    "placeholders": {}
+  },
+  "desktop.fallback.install.webview2": {
+    "message": "Установите Microsoft Edge WebView2 Runtime: {url}",
+    "placeholders": {
+      "url": "technical"
+    }
+  },
+  "desktop.fallback.install.webkitgtk": {
+    "message": "Установите WebKitGTK 4.1:",
+    "placeholders": {}
+  },
+  "desktop.fallback.install.red_os": {
+    "message": "RED OS 8: {command}",
+    "placeholders": {
+      "command": "technical"
+    }
+  },
+  "desktop.fallback.install.debian": {
+    "message": "Debian, Astra Linux 1.8: {command}",
+    "placeholders": {
+      "command": "technical"
+    }
+  },
+  "desktop.fallback.install.astra_1_7": {
+    "message": "В Astra Linux 1.7 нет WebKitGTK 4.1: продолжайте в браузере.",
+    "placeholders": {}
+  },
+  "desktop.fallback.restart": {
+    "message": "После установки запустите ZDashstitch снова.",
+    "placeholders": {}
+  },
+  "desktop.fallback.choice.browser": {
+    "message": "Продолжить в браузере",
+    "placeholders": {}
+  },
+  "desktop.fallback.choice.install": {
+    "message": "Установлю и перезапущу",
+    "placeholders": {}
+  },
+  "desktop.fallback.choice.yes_no": {
+    "message": "«Да» — продолжить в браузере. «Нет» — установлю и перезапущу; страница загрузки откроется в браузере.",
+    "placeholders": {}
+  },
+  "desktop.fallback.opening_browser": {
+    "message": "Программа открывается в браузере.",
+    "placeholders": {}
+  },
+  "desktop.browser.open_failed": {
+    "message": "Браузер не открылся. Откройте в браузере этот одноразовый адрес в течение двух минут: {url}",
+    "placeholders": {
+      "url": "technical"
+    }
+  },
+  "desktop.close.writing.title": {
+    "message": "Идёт запись в Zabbix",
+    "placeholders": {}
+  },
+  "desktop.close.writing.body": {
+    "message": "Окно нельзя закрыть, пока идёт запись в Zabbix. Дождитесь окончания записи или того, что её результат станет известен.",
+    "placeholders": {}
+  }
+}

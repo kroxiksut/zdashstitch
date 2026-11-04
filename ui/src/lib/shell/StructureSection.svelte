@@ -3,7 +3,7 @@
   import { Button, Checkbox, SelectField, TreeList, type DisplayText, type LocalizedText, type UserText } from '../components';
   import ComingLater from './ComingLater.svelte';
   import { widgetCount, type DraftDetail } from './drafts';
-  import { displayName, pageName, periodText, widgetGeometry, widgetTypeName } from './format';
+  import { dashboardPropertiesText, displayName, numberedPageName, periodText, widgetGeometry, widgetTypeName } from './format';
   import {
     DEFAULT_SCREEN_WIDTH,
     SCREEN_WIDTHS,
@@ -15,7 +15,13 @@
   // «Structure» for viewing (P1-01B §2a, mockup 08-01): tree as in Zabbix and a page preview
   // in grid proportions. Structure operations and the editor arrive later (P4); they stay visible
   // but unavailable (P1-01H §6). Synthetic data is off and unavailable until P1-04I is built.
-  let { i18n, draft }: { i18n: I18n; draft: DraftDetail } = $props();
+  // `readonly` (P2-05E, a server dashboard before copying): no structure or editor actions at all,
+  // since a server dashboard is never edited in place.
+  let { i18n, draft, readonly = false }: {
+    i18n: I18n;
+    draft: Pick<DraftDetail, 'kind' | 'name' | 'pages' | 'properties' | 'compatibility'>;
+    readonly?: boolean;
+  } = $props();
 
   type NodeRef =
     | { readonly kind: 'dashboard' }
@@ -41,7 +47,10 @@
         label: { value: draft.name, kind: 'user' },
         level: 1,
         expanded: true,
-        detail: { id: 'dashboards.summary.pages_widgets', params: { pages: draft.pages.length, widgets: widgetCount(draft.pages) } }
+        // Dashboard properties as in Zabbix (P1-01B §2a); the counts when the properties are unknown.
+        detail: draft.properties
+          ? { value: dashboardPropertiesText(i18n, draft.properties), kind: 'user' }
+          : { id: 'dashboards.summary.pages_widgets', params: { pages: draft.pages.length, widgets: widgetCount(draft.pages) } }
       });
       refs.set('structure-dashboard', { kind: 'dashboard' });
     }
@@ -49,7 +58,7 @@
       const pageId = `structure-page-${pageIndex}`;
       items.push({
         id: pageId,
-        label: { value: i18n.t('object.page.numbered', { number: pageIndex + 1, name: pageName(i18n, page.name) }), kind: 'user' },
+        label: { value: numberedPageName(i18n, page.name, pageIndex + 1), kind: 'user' },
         level: base + 1,
         expanded: true,
         detail: {
@@ -101,21 +110,28 @@
   <div class="structure-layout">
     <div class="structure-tree">
       <TreeList {i18n} label={{ id: 'draft.nav.structure' }} items={tree.items} bind:selected={selectedNode} />
-      <ComingLater {i18n} id="structure-page-actions">
-        <Button {i18n} label={{ id: 'draft.structure.action.add_page' }} disabled />
-        <Button {i18n} label={{ id: 'common.action.copy' }} disabled />
-        <Button {i18n} label={{ id: 'draft.structure.action.paste_page' }} disabled />
-      </ComingLater>
+      {#if !readonly}
+        <ComingLater {i18n} id="structure-page-actions">
+          {#if draft.kind === 'dashboard'}
+            <Button {i18n} label={{ id: 'draft.structure.dashboard_properties' }} disabled />
+          {/if}
+          <Button {i18n} label={{ id: 'draft.structure.action.add_page' }} disabled />
+          <Button {i18n} label={{ id: 'common.action.copy' }} disabled />
+          <Button {i18n} label={{ id: 'draft.structure.action.paste_page' }} disabled />
+        </ComingLater>
+      {/if}
       {#if selectedWidget}
         <section class="selected-widget" aria-labelledby="structure-selected-title">
           <h3 id="structure-selected-title">{displayName(selectedWidget.name, widgetTypeName(i18n, selectedWidget.type))}</h3>
           <p class="muted">{widgetGeometry(i18n, selectedWidget)}</p>
-          <ComingLater {i18n} id="structure-widget-edit" hint={{ id: 'editor.unavailable_yet' }}>
-            <Button {i18n} label={{ id: 'draft.structure.action.edit_widget' }} disabled />
-          </ComingLater>
-          <ComingLater {i18n} id="structure-widget-move">
-            <Button {i18n} label={{ id: 'draft.structure.action.move_widget' }} disabled />
-          </ComingLater>
+          {#if !readonly}
+            <ComingLater {i18n} id="structure-widget-edit" hint={{ id: 'editor.unavailable_yet' }}>
+              <Button {i18n} label={{ id: 'draft.structure.action.edit_widget' }} disabled />
+            </ComingLater>
+            <ComingLater {i18n} id="structure-widget-move">
+              <Button {i18n} label={{ id: 'draft.structure.action.move_widget' }} disabled />
+            </ComingLater>
+          {/if}
         </section>
       {/if}
     </div>

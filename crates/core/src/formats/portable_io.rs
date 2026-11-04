@@ -14,11 +14,13 @@ use cap_std::{
     fs::{Dir, OpenOptions},
 };
 use serde::{Serialize, de::DeserializeOwned};
+use serde_json::Value;
 use thiserror::Error;
 use zip::{CompressionMethod, DateTime, ZipArchive, ZipWriter, write::SimpleFileOptions};
 
 use super::{
     CatalogReference, FormatError, MetricCatalog, PortableProject, TypedProject, Validate,
+    strict::{self, DocumentSyntax},
     to_yaml_string, validate_project, validate_typed_project,
 };
 
@@ -27,7 +29,6 @@ pub const MAX_TOTAL_BYTES: usize = 32 * 1024 * 1024;
 pub const MAX_ARCHIVE_ENTRIES: usize = 33;
 pub const MAX_COMPRESSION_RATIO: u64 = 300;
 const MAX_ARCHIVE_BYTES: usize = 40 * 1024 * 1024;
-const MAX_YAML_DEPTH: usize = 40;
 static TEMP_COUNTER: AtomicU64 = AtomicU64::new(0);
 
 #[derive(Debug, Error)]
@@ -107,7 +108,7 @@ trait ProjectDocument: DeserializeOwned + Serialize + Validate {
         catalogs: &BTreeMap<String, MetricCatalog>,
     ) -> super::Result<()>;
 
-    fn prevalidate(value: &serde_yaml_ng::Value) -> super::Result<()> {
+    fn prevalidate(value: &Value) -> super::Result<()> {
         validate_project_format(value, Self::FORMAT)
     }
 }
@@ -141,7 +142,7 @@ impl ProjectDocument for TypedProject {
         validate_typed_project(self, catalogs)
     }
 
-    fn prevalidate(value: &serde_yaml_ng::Value) -> super::Result<()> {
+    fn prevalidate(value: &Value) -> super::Result<()> {
         validate_project_format(value, Self::FORMAT)?;
         prevalidate_typed_project(value)
     }
@@ -470,7 +471,7 @@ where
     T: DeserializeOwned + Validate,
 {
     let value = parse_yaml_value(raw)?;
-    let parsed: T = serde_yaml_ng::from_value(value).map_err(FormatError::from)?;
+    let parsed: T = strict::decode(DocumentSyntax::Yaml, value).map_err(FormatError::from)?;
     parsed.validate()?;
     Ok(parsed)
 }
@@ -478,34 +479,23 @@ where
 fn parse_project_yaml<T: ProjectDocument>(raw: &[u8]) -> Result<T> {
     let value = parse_yaml_value(raw)?;
     T::prevalidate(&value)?;
-    let parsed: T = serde_yaml_ng::from_value(value).map_err(FormatError::from)?;
+    let parsed: T = strict::decode(DocumentSyntax::Yaml, value).map_err(FormatError::from)?;
     parsed.validate()?;
     Ok(parsed)
 }
 
-fn parse_yaml_value(raw: &[u8]) -> Result<serde_yaml_ng::Value> {
+/// Strict YAML read shared with `from_yaml_str`: anchors/aliases, duplicate or
+/// non-string keys, tags, merge keys and nesting deeper than the reference
+/// `MAX_DEPTH` fail with the reference codes (`yaml_alias`, `yaml_duplicate_key`,
+/// `yaml_key`, `yaml_depth`, `yaml_invalid`).
+fn parse_yaml_value(raw: &[u8]) -> Result<Value> {
     if raw.len() > MAX_FILE_BYTES {
         return Err(PortableIoError::policy("file_size", "file too large"));
     }
-    let text = std::str::from_utf8(raw)
-        .map_err(|_| PortableIoError::policy("utf8", "file is not valid UTF-8"))?;
-    if contains_yaml_alias_marker(text) {
-        return Err(PortableIoError::policy(
-            "yaml_alias",
-            "YAML anchors and aliases are prohibited",
-        ));
-    }
-    let value: serde_yaml_ng::Value = serde_yaml_ng::from_str(text).map_err(FormatError::from)?;
-    if yaml_depth(&value) > MAX_YAML_DEPTH {
-        return Err(PortableIoError::policy(
-            "yaml_depth",
-            "YAML nesting is too deep",
-        ));
-    }
-    Ok(value)
+    Ok(strict::yaml_value_from_slice(raw).map_err(FormatError::from)?)
 }
 
-fn validate_project_format(value: &serde_yaml_ng::Value, expected: &str) -> super::Result<()> {
+fn validate_project_format(value: &Value, expected: &str) -> super::Result<()> {
     let actual = mapping_string(value, "format");
     if actual == Some(expected) {
         Ok(())
@@ -517,7 +507,7 @@ fn validate_project_format(value: &serde_yaml_ng::Value, expected: &str) -> supe
     }
 }
 
-fn prevalidate_typed_project(value: &serde_yaml_ng::Value) -> super::Result<()> {
+fn prevalidate_typed_project(value: &Value) -> super::Result<()> {
     let kind = mapping_string(value, "kind");
     if !matches!(kind, Some("dashboard" | "page")) {
         return Err(FormatError::validation(
@@ -525,7 +515,7 @@ fn prevalidate_typed_project(value: &serde_yaml_ng::Value) -> super::Result<()> 
             format!("unknown project kind {}", kind.unwrap_or("missing")),
         ));
     }
-    let provenance = mapping_value(value, "provenance");
+    let provenance = value.get("provenance");
     let provenance_kind = provenance.and_then(|entry| mapping_string(entry, "kind"));
     if !matches!(
         provenance_kind,
@@ -542,81 +532,8 @@ fn prevalidate_typed_project(value: &serde_yaml_ng::Value) -> super::Result<()> 
     Ok(())
 }
 
-fn mapping_value<'a>(
-    value: &'a serde_yaml_ng::Value,
-    key: &str,
-) -> Option<&'a serde_yaml_ng::Value> {
-    value
-        .as_mapping()?
-        .get(serde_yaml_ng::Value::String(key.to_owned()))
-}
-
-fn mapping_string<'a>(value: &'a serde_yaml_ng::Value, key: &str) -> Option<&'a str> {
-    mapping_value(value, key)?.as_str()
-}
-
-fn yaml_depth(value: &serde_yaml_ng::Value) -> usize {
-    match value {
-        serde_yaml_ng::Value::Sequence(items) => {
-            1 + items.iter().map(yaml_depth).max().unwrap_or(0)
-        }
-        serde_yaml_ng::Value::Mapping(items) => {
-            1 + items
-                .iter()
-                .map(|(key, value)| yaml_depth(key).max(yaml_depth(value)))
-                .max()
-                .unwrap_or(0)
-        }
-        serde_yaml_ng::Value::Tagged(tagged) => 1 + yaml_depth(&tagged.value),
-        _ => 0,
-    }
-}
-
-fn contains_yaml_alias_marker(text: &str) -> bool {
-    for line in text.lines() {
-        let mut single_quoted = false;
-        let mut double_quoted = false;
-        let mut escaped = false;
-        let characters: Vec<char> = line.chars().collect();
-        for (index, character) in characters.iter().copied().enumerate() {
-            if double_quoted && escaped {
-                escaped = false;
-                continue;
-            }
-            if double_quoted && character == '\\' {
-                escaped = true;
-                continue;
-            }
-            if !double_quoted && character == '\'' {
-                single_quoted = !single_quoted;
-                continue;
-            }
-            if !single_quoted && character == '"' {
-                double_quoted = !double_quoted;
-                continue;
-            }
-            if !single_quoted && !double_quoted && character == '#' {
-                break;
-            }
-            if !single_quoted
-                && !double_quoted
-                && matches!(character, '&' | '*')
-                && index
-                    .checked_sub(1)
-                    .and_then(|previous| characters.get(previous))
-                    .is_none_or(|previous| {
-                        previous.is_ascii_whitespace()
-                            || matches!(previous, '[' | '{' | ',' | ':' | '?' | '-')
-                    })
-                && characters
-                    .get(index + 1)
-                    .is_some_and(|next| next.is_ascii_alphanumeric() || matches!(next, '_' | '-'))
-            {
-                return true;
-            }
-        }
-    }
-    false
+fn mapping_string<'a>(value: &'a Value, key: &str) -> Option<&'a str> {
+    value.as_object()?.get(key)?.as_str()
 }
 
 fn enforce_file_limits(lengths: impl IntoIterator<Item = usize>) -> Result<()> {

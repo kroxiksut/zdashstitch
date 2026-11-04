@@ -188,7 +188,7 @@
             "pages": {
               "type": "array",
               "minItems": 1,
-              "maxItems": 32,
+              "maxItems": 50,
               "items": {
                 "type": "object",
                 "required": [
@@ -1724,7 +1724,7 @@
               "pages": {
                 "type": "array",
                 "minItems": 1,
-                "maxItems": 32,
+                "maxItems": 50,
                 "items": {
                   "type": "object",
                   "required": [

@@ -96,6 +96,18 @@
   --focus-gap: 2px;
   --motion-fast: 120ms;
   --motion-standard: 180ms;
+
+  /* Theme previews in «Settings → Appearance» (mockup 06-01): they depict each theme, so they
+     keep their values in every theme. */
+  --theme-preview-light-canvas: #f5f7fb;
+  --theme-preview-light-panel: #ffffff;
+  --theme-preview-light-line: #d0d5dd;
+  --theme-preview-dark-canvas: #1f2933;
+  --theme-preview-dark-panel: #323e4b;
+  --theme-preview-dark-line: #647682;
+  --theme-preview-contrast-canvas: #ffffff;
+  --theme-preview-contrast-panel: #ffffff;
+  --theme-preview-contrast-line: #000000;
 }
 
 :root[data-theme='dark'] {
@@ -241,15 +253,98 @@
   }
 }
 
+/* In-application high contrast (owner decision O-038, 2026-10-28): light-based, text >= 7:1,
+   borders and focus >= 4.5:1, thicker focus ring, no decorative shadows. The operating-system
+   contrast mode (`forced-colors`, below) still takes priority over this theme. */
+:root[data-theme='high_contrast'] {
+  color-scheme: light;
+  --surface-canvas: #ffffff;
+  --surface-base: #ffffff;
+  --surface-raised: #ffffff;
+  --surface-sunken: #f0f0f0;
+  --surface-overlay: #ffffff;
+  --surface-selected: #e5edff;
+  --surface-disabled: #ececec;
+  --text-primary: #000000;
+  --text-secondary: #1f1f1f;
+  --text-muted: #333333;
+  --text-inverse: #ffffff;
+  --text-link: #0032a0;
+  --text-disabled: #474747;
+  --text-code: #000000;
+  --border-subtle: #595959;
+  --border-default: #333333;
+  --border-strong: #000000;
+  --border-selected: #0032a0;
+  --border-disabled: #636363;
+  --action-primary-bg: #0032a0;
+  --action-primary-text: #ffffff;
+  --action-primary-hover: #00267a;
+  --action-primary-pressed: #001a57;
+  --action-secondary-bg: #ffffff;
+  --action-secondary-text: #000000;
+  --action-secondary-hover: #e8e8e8;
+  --action-secondary-pressed: #d1d1d1;
+  --action-ghost-bg: transparent;
+  --action-ghost-text: #0032a0;
+  --action-ghost-hover: #e5edff;
+  --action-ghost-pressed: #ccdbff;
+  --action-destructive-bg: #8f0013;
+  --action-destructive-text: #ffffff;
+  --action-destructive-hover: #730010;
+  --action-destructive-pressed: #57000c;
+  --focus-ring: #5b00c7;
+  --focus-offset: #ffffff;
+  --status-success-surface: #e6f6ec;
+  --status-success-text: #00591f;
+  --status-success-border: #00591f;
+  --status-success-icon: #00591f;
+  --status-info-surface: #e5edff;
+  --status-info-text: #0032a0;
+  --status-info-border: #0032a0;
+  --status-info-icon: #0032a0;
+  --status-warning-surface: #fff0d6;
+  --status-warning-text: #5e3200;
+  --status-warning-border: #5e3200;
+  --status-warning-icon: #5e3200;
+  --status-danger-surface: #fdeaea;
+  --status-danger-text: #8f0013;
+  --status-danger-border: #8f0013;
+  --status-danger-icon: #8f0013;
+  --overlay-scrim: rgb(0 0 0 / 64%);
+  --overlay-backdrop: rgb(255 255 255 / 92%);
+  --shadow-raised: none;
+  --shadow-overlay: none;
+  --grid-line: #666666;
+  --grid-major: #333333;
+  --grid-bounds: #000000;
+  --selection-fill: #ccdbff;
+  --selection-border: #0032a0;
+  --diff-added: #00591f;
+  --diff-changed: #5e3200;
+  --diff-removed: #8f0013;
+  --diff-unknown: #333333;
+  --focus-width: 3px;
+  --focus-gap: 2px;
+}
+
+/* Reduced motion: the system preference applies unless the settings choose explicitly. */
 @media (prefers-reduced-motion: reduce) {
-  :root {
+  :root:not([data-motion='no-preference']) {
     --motion-fast: 0ms;
     --motion-standard: 0ms;
   }
 }
 
+:root[data-motion='reduce'] {
+  --motion-fast: 0ms;
+  --motion-standard: 0ms;
+}
+
+/* System contrast mode wins over every theme, including `high_contrast`. */
 @media (forced-colors: active) {
-  :root {
+  :root,
+  :root[data-theme] {
     --surface-canvas: Canvas;
     --surface-base: Canvas;
     --surface-raised: Canvas;

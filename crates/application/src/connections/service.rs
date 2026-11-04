@@ -1,8 +1,12 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
 //! Connection use cases (P1-02H commands): profile CRUD, check, connect,
-//! disconnect, access mode and token storage. At most one connection is
-//! active; it always starts read-only (P1-02E).
+//! disconnect, access mode and secret storage. At most one connection is
+//! active; it always starts read-only (P1-02E). A password or API token is
+//! stored only in the operating-system store and only by the user's choice
+//! (O-037); otherwise it is kept only in this process's memory, per
+//! profile, until the local session ends, the user disconnects, the sign-in
+//! is rejected, or the profile's server or account changes.
 
 use std::collections::HashMap;
 use std::fmt;
@@ -17,7 +21,7 @@ use zdashstitch_zabbix::{
 };
 
 use super::ConnectionError;
-use super::check::{ConnectionCheckReport, IdentityMatch, run_check};
+use super::check::{ConnectionCheckReport, IdentityMatch, StepStatus, run_check};
 use super::credentials::{CredentialState, CredentialStore};
 use super::profile::{
     AuthInput, ConnectionProfile, ConnectionState, LastCheck, ModeOnConnect, ProfileAuth,
@@ -53,7 +57,8 @@ pub struct ConnectOutcome {
     pub connected: bool,
     /// The profile context generation was raised (new server identity).
     pub context_changed: bool,
-    /// Code of a failed token save after a successful connection.
+    /// Code of a failed save of the token or password after a successful
+    /// connection.
     pub credential_save: Option<&'static str>,
 }
 
@@ -79,6 +84,44 @@ pub struct DisconnectOutcome {
     pub logout: Option<&'static str>,
 }
 
+/// A Zabbix session already removed from [`ConnectionService`]. It holds
+/// the secret only until [`ClosedSession::logout`] finishes or it is
+/// dropped. `Debug` shows the profile ID only.
+#[must_use = "dropping the session erases its secret without user.logout"]
+pub struct ClosedSession {
+    connection_id: String,
+    gateway: ActiveGateway,
+}
+
+impl fmt::Debug for ClosedSession {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        formatter
+            .debug_struct("ClosedSession")
+            .field("connection_id", &self.connection_id)
+            .finish_non_exhaustive()
+    }
+}
+
+impl ClosedSession {
+    /// Profile ID of the closed connection.
+    #[must_use]
+    pub fn connection_id(&self) -> &str {
+        &self.connection_id
+    }
+
+    /// `user.logout` for password sessions (an API token stays valid on the
+    /// server). Returns the failure code, if any. The secret is erased when
+    /// this future completes or is dropped.
+    pub async fn logout(self) -> Option<&'static str> {
+        let result = match self.gateway {
+            ActiveGateway::ReadOnly(gateway) => gateway.logout().await,
+            ActiveGateway::ReadWrite(gateway) => gateway.logout().await,
+            ActiveGateway::Switching => Ok(()),
+        };
+        result.err().map(|error| error.failure().code.as_str())
+    }
+}
+
 enum ActiveGateway {
     ReadOnly(ReadOnlyGateway),
     ReadWrite(ReadWriteGateway),
@@ -98,6 +141,10 @@ pub struct ConnectionService {
     credentials: Box<dyn CredentialStore>,
     active: Option<ActiveConnection>,
     sign_in_failures: HashMap<String, u32>,
+    /// Secrets of profiles that do not store them (O-037), by profile ID.
+    /// Process memory only: never written to disk, logged or returned, and
+    /// zeroized on removal (`secrecy`).
+    memory_secrets: HashMap<String, SecretString>,
 }
 
 impl fmt::Debug for ConnectionService {
@@ -129,6 +176,46 @@ fn random_id(prefix: &str) -> Result<String, ConnectionError> {
     Ok(id)
 }
 
+/// Account of a fresh Zabbix installation, publicly documented. A sign-in
+/// with it raises the one-time default-password warning (O-037).
+const ZABBIX_DEFAULT_USERNAME: &str = "Admin";
+const ZABBIX_DEFAULT_PASSWORD: &str = "zabbix";
+
+/// Whether the credentials are the public default account. The comparison
+/// happens in memory only; neither value is logged or returned. The user
+/// name is compared without ASCII case because Zabbix can be configured for
+/// case-insensitive sign-in.
+fn uses_default_account(authentication: &Authentication) -> bool {
+    match authentication {
+        Authentication::UsernamePassword { username, password } => {
+            username.eq_ignore_ascii_case(ZABBIX_DEFAULT_USERNAME)
+                && password.expose_secret() == ZABBIX_DEFAULT_PASSWORD
+        }
+        Authentication::ApiToken(_) => false,
+    }
+}
+
+/// Sets the default-password warning of a report: the sign-in step passed
+/// with the default account and the profile has not hidden the warning.
+fn mark_default_password(report: &mut ConnectionCheckReport, default_account: bool, hidden: bool) {
+    report.default_password_warning = default_account
+        && !hidden
+        && report.steps.iter().any(|step| {
+            step.step == CheckStep::Auth
+                && matches!(step.status, StepStatus::Passed | StepStatus::Notice)
+        });
+}
+
+/// The sign-in step rejected the secret (wrong password, invalid or expired
+/// token): a remembered secret must not be tried again.
+fn sign_in_rejected(report: &ConnectionCheckReport) -> bool {
+    report.steps.iter().any(|step| {
+        step.step == CheckStep::Auth
+            && step.status == StepStatus::Failed
+            && step.code.is_some_and(|code| SIGN_IN_CODES.contains(&code))
+    })
+}
+
 const SIGN_IN_CODES: [&str; 5] = [
     "token_not_authorized",
     "token_expired",
@@ -147,6 +234,7 @@ impl ConnectionService {
             credentials,
             active: None,
             sign_in_failures: HashMap::new(),
+            memory_secrets: HashMap::new(),
         }
     }
 
@@ -179,6 +267,18 @@ impl ConnectionService {
     }
 
     pub fn create_profile(&mut self, input: &ProfileInput) -> Result<ProfileView, ConnectionError> {
+        self.create_profile_with_secret(input, None)
+    }
+
+    /// `profile.create` with the password or token typed in the profile
+    /// form (O-037). With storage chosen it goes to the operating-system
+    /// store before the profile is written (and is removed again when that
+    /// fails); otherwise it is kept in process memory only.
+    pub fn create_profile_with_secret(
+        &mut self,
+        input: &ProfileInput,
+        secret: Option<SecretString>,
+    ) -> Result<ProfileView, ConnectionError> {
         let mut profiles = self.profiles.load()?;
         if profiles.len() >= MAX_PROFILES {
             return Err(
@@ -186,6 +286,7 @@ impl ConnectionService {
             );
         }
         let (base_url, auth, trust) = self.validated_input(input)?;
+        let stores_secret = auth.secret_storage() == SecretStorage::OsStore;
         let profile = ConnectionProfile {
             connection_id: random_id("conn-")?,
             name: input.name.trim().to_owned(),
@@ -197,38 +298,80 @@ impl ConnectionService {
             context_generation: 0,
             identity: None,
             last_check: None,
+            default_password_warning_hidden: false,
         };
+        if let (Some(secret), true) = (&secret, stores_secret) {
+            self.credentials
+                .save(&profile.credential_ref, secret)
+                .map_err(ConnectionError::from_credential)?;
+        }
         profiles.push(profile.clone());
-        self.profiles.save(&profiles)?;
+        if let Err(error) = self.profiles.save(&profiles) {
+            if secret.is_some() && stores_secret {
+                let _ = self.credentials.delete(&profile.credential_ref);
+            }
+            return Err(error);
+        }
+        if let (Some(secret), false) = (secret, stores_secret) {
+            self.memory_secrets
+                .insert(profile.connection_id.clone(), secret);
+        }
         self.view(&profile)
+    }
+
+    pub async fn update_profile(
+        &mut self,
+        connection_id: &str,
+        input: &ProfileInput,
+    ) -> Result<ProfileUpdate, ConnectionError> {
+        self.update_profile_with_secret(connection_id, input, None)
+            .await
     }
 
     /// Renaming keeps the identity. Changing the address, account, auth
     /// method or trust material is a context change: the stored identity is
     /// cleared, the generation is raised, an active session of this profile
-    /// is closed and a stored token for the old server is removed.
-    pub async fn update_profile(
+    /// is closed and a stored secret for the old server or account is
+    /// removed. Turning storage off removes the stored secret too; a secret
+    /// kept in memory is dropped on a context change or a storage change. A
+    /// secret typed in the form (O-037) replaces the stored or remembered
+    /// one; without it the current one is kept.
+    pub async fn update_profile_with_secret(
         &mut self,
         connection_id: &str,
         input: &ProfileInput,
+        secret: Option<SecretString>,
     ) -> Result<ProfileUpdate, ConnectionError> {
         let mut profiles = self.profiles.load()?;
         let (base_url, auth, trust) = self.validated_input(input)?;
         let current = find(&profiles, connection_id)?.clone();
         let context_changed = current.base_url != base_url
             || current.auth.method() != auth.method()
-            || current.auth != auth && matches!(auth, ProfileAuth::Password { .. })
+            || current.auth.username() != auth.username()
             || current.trust != trust;
-        let token_must_go = context_changed
+        let secret_must_go = context_changed
             || (current.auth.secret_storage() == SecretStorage::OsStore
                 && auth.secret_storage() == SecretStorage::None);
-        if token_must_go && current.auth.secret_storage() == SecretStorage::OsStore {
+        if secret_must_go && current.auth.secret_storage() == SecretStorage::OsStore {
             self.credentials
                 .delete(&current.credential_ref)
                 .map_err(ConnectionError::from_credential)?;
         }
+        if context_changed || current.auth.secret_storage() != auth.secret_storage() {
+            self.memory_secrets.remove(connection_id);
+        }
         if context_changed && self.is_active(connection_id) {
             let _ = self.disconnect().await;
+        }
+        match (secret, auth.secret_storage()) {
+            (Some(secret), SecretStorage::OsStore) => self
+                .credentials
+                .save(&current.credential_ref, &secret)
+                .map_err(ConnectionError::from_credential)?,
+            (Some(secret), SecretStorage::None) => {
+                self.memory_secrets.insert(connection_id.to_owned(), secret);
+            }
+            (None, _) => {}
         }
         let profile = profiles
             .iter_mut()
@@ -242,6 +385,7 @@ impl ConnectionService {
             profile.context_generation = profile.context_generation.saturating_add(1);
             profile.identity = None;
             profile.last_check = None;
+            profile.default_password_warning_hidden = false;
         }
         let updated = profile.clone();
         self.profiles.save(&profiles)?;
@@ -251,8 +395,8 @@ impl ConnectionService {
         })
     }
 
-    /// Copies address, auth method, user name and trust reference. Neither
-    /// a stored token nor the identity is copied.
+    /// Copies address, auth method, user name, storage choice and trust
+    /// reference. Neither a stored secret nor the identity is copied.
     pub fn duplicate_profile(
         &mut self,
         connection_id: &str,
@@ -277,6 +421,7 @@ impl ConnectionService {
             context_generation: 0,
             identity: None,
             last_check: None,
+            default_password_warning_hidden: false,
         };
         profiles.push(copy.clone());
         self.profiles.save(&profiles)?;
@@ -299,16 +444,20 @@ impl ConnectionService {
             .delete(&profile.credential_ref)
             .err()
             .map(CredentialState::code);
+        self.memory_secrets.remove(connection_id);
         profiles.retain(|candidate| candidate.connection_id != connection_id);
         self.profiles.save(&profiles)?;
         self.sign_in_failures.remove(connection_id);
         Ok(DeleteOutcome { local_credential })
     }
 
-    /// `credential.forget`: removes the stored token from this computer.
-    pub fn forget_token(&mut self, connection_id: &str) -> Result<(), ConnectionError> {
+    /// `credential.forget`: removes the stored token or password from this
+    /// computer, and a remembered one from memory. A token stays valid on
+    /// the server until revoked there.
+    pub fn forget_secret(&mut self, connection_id: &str) -> Result<(), ConnectionError> {
         let profiles = self.profiles.load()?;
         let profile = find(&profiles, connection_id)?;
+        self.memory_secrets.remove(connection_id);
         self.credentials
             .delete(&profile.credential_ref)
             .map_err(ConnectionError::from_credential)
@@ -321,7 +470,9 @@ impl ConnectionService {
         secret: Option<SecretString>,
     ) -> Result<ConnectionCheckReport, ConnectionError> {
         let profile = find(&self.profiles.load()?, connection_id)?.clone();
+        let remember = Self::secret_to_remember(&profile, secret.as_ref());
         let (endpoint, trust, authentication) = self.prepare(&profile, secret)?;
+        let default_account = uses_default_account(&authentication);
         let outcome = run_check(
             endpoint,
             &trust,
@@ -335,7 +486,13 @@ impl ConnectionService {
             let _ = gateway.logout().await;
         }
         let mut report = outcome.report;
+        self.remember_secret(connection_id, remember, &report);
         self.count_sign_in_failures(connection_id, &mut report);
+        mark_default_password(
+            &mut report,
+            default_account,
+            profile.default_password_warning_hidden,
+        );
         self.record_last_check(connection_id, &report, None)?;
         Ok(report)
     }
@@ -352,18 +509,20 @@ impl ConnectionService {
             secret,
             accept_new_identity,
         } = request;
-        let save_token = match (&profile.auth, &secret) {
-            (
-                ProfileAuth::ApiToken {
-                    secret_storage: SecretStorage::OsStore,
-                },
-                Some(secret),
-            ) => Some(SecretString::from(secret.expose_secret().to_owned())),
+        // A secret typed at connect for a profile that stores it (the stored
+        // entry was missing or forgotten) is stored after a successful
+        // connection.
+        let save_secret = match (profile.auth.secret_storage(), &secret) {
+            (SecretStorage::OsStore, Some(secret)) => Some(secret.clone()),
             _ => None,
         };
+        let remember = Self::secret_to_remember(&profile, secret.as_ref());
         let (endpoint, trust, authentication) = self.prepare(&profile, secret)?;
-        if self.active.is_some() {
-            let _ = self.disconnect().await;
+        let default_account = uses_default_account(&authentication);
+        // Replacing another active connection closes its session but keeps
+        // its remembered secret: that is not a sign-out of that profile.
+        if let Some(closed) = self.take_active() {
+            let _ = closed.logout().await;
         }
         let outcome = run_check(
             endpoint,
@@ -375,7 +534,13 @@ impl ConnectionService {
         )
         .await;
         let mut report = outcome.report;
+        self.remember_secret(connection_id, remember, &report);
         self.count_sign_in_failures(connection_id, &mut report);
+        mark_default_password(
+            &mut report,
+            default_account,
+            profile.default_password_warning_hidden,
+        );
         let (Some(gateway), Some(observed), true) =
             (outcome.gateway, outcome.observed, report.passed())
         else {
@@ -396,9 +561,9 @@ impl ConnectionService {
         };
         let generation =
             self.record_last_check(connection_id, &report, Some((identity, context_changed)))?;
-        let credential_save = save_token.and_then(|token| {
+        let credential_save = save_secret.and_then(|secret| {
             self.credentials
-                .save(&profile.credential_ref, &token)
+                .save(&profile.credential_ref, &secret)
                 .err()
                 .map(CredentialState::code)
         });
@@ -416,23 +581,96 @@ impl ConnectionService {
     }
 
     /// `connection.disconnect`: `user.logout` for password sessions; the
-    /// secret is erased from memory with the gateway.
+    /// secret is erased from memory with the gateway, together with the
+    /// remembered secret of that profile (an explicit sign-out).
     pub async fn disconnect(&mut self) -> Result<DisconnectOutcome, ConnectionError> {
-        let Some(active) = self.active.take() else {
+        let Some(closed) = self.take_active() else {
             return Ok(DisconnectOutcome {
                 connection_id: None,
                 logout: None,
             });
         };
-        let result = match active.gateway {
-            ActiveGateway::ReadOnly(gateway) => gateway.logout().await,
-            ActiveGateway::ReadWrite(gateway) => gateway.logout().await,
-            ActiveGateway::Switching => Ok(()),
-        };
+        let connection_id = closed.connection_id.clone();
+        self.memory_secrets.remove(&connection_id);
+        let logout = closed.logout().await;
         Ok(DisconnectOutcome {
-            connection_id: Some(active.connection_id),
-            logout: result.err().map(|error| error.failure().code.as_str()),
+            connection_id: Some(connection_id),
+            logout,
         })
+    }
+
+    /// Part of `session.end` (P2-SEC-01E): takes the active connection out
+    /// of the service at once, without any network call, so no Zabbix
+    /// secret is held by the service afterwards. The returned session owns
+    /// the gateway: its optional `user.logout` is the caller's best-effort
+    /// step, and dropping it zeroizes the API token or password and the
+    /// Zabbix session (`secrecy`). Every secret remembered for profiles
+    /// that do not store it (O-037) is dropped (zeroized) here as well.
+    /// Saved profiles, trust material and the operating-system credential
+    /// store are not touched. Idempotent.
+    pub fn erase_session_secrets(&mut self) -> Option<ClosedSession> {
+        self.memory_secrets.clear();
+        self.take_active()
+    }
+
+    /// Whether a Zabbix secret of this service is held in memory: the
+    /// active connection's gateway or a remembered secret of a profile.
+    #[must_use]
+    pub fn holds_session_secrets(&self) -> bool {
+        self.active.is_some() || !self.memory_secrets.is_empty()
+    }
+
+    /// Takes the active connection out without touching remembered secrets.
+    fn take_active(&mut self) -> Option<ClosedSession> {
+        self.active.take().map(|active| ClosedSession {
+            connection_id: active.connection_id,
+            gateway: active.gateway,
+        })
+    }
+
+    /// A secret sent for a profile that does not store it is remembered in
+    /// memory for later connections (O-037).
+    fn secret_to_remember(
+        profile: &ConnectionProfile,
+        secret: Option<&SecretString>,
+    ) -> Option<SecretString> {
+        match profile.auth.secret_storage() {
+            SecretStorage::None => secret.cloned(),
+            SecretStorage::OsStore => None,
+        }
+    }
+
+    /// After a check or connect: a rejected sign-in drops the remembered
+    /// secret (the UI falls back to the sign-in dialog); otherwise a newly
+    /// sent secret replaces it.
+    fn remember_secret(
+        &mut self,
+        connection_id: &str,
+        sent: Option<SecretString>,
+        report: &ConnectionCheckReport,
+    ) {
+        if sign_in_rejected(report) {
+            self.memory_secrets.remove(connection_id);
+        } else if let Some(secret) = sent {
+            self.memory_secrets.insert(connection_id.to_owned(), secret);
+        }
+    }
+
+    /// «Do not show again for this connection» of the default-password
+    /// warning (O-037): a non-secret flag in the profile.
+    pub fn hide_default_password_warning(
+        &mut self,
+        connection_id: &str,
+    ) -> Result<ProfileView, ConnectionError> {
+        let mut profiles = self.profiles.load()?;
+        let profile = profiles
+            .iter_mut()
+            .find(|profile| profile.connection_id == connection_id)
+            .ok_or_else(|| ConnectionError::new("profile_not_found"))?;
+        profile.default_password_warning_hidden = true;
+        let updated = profile.clone();
+        self.profiles.save(&profiles)?;
+        self.view(&updated)
     }
 
     /// `connection.enable_writes`: only for the active connection and only
@@ -522,26 +760,27 @@ impl ConnectionService {
         validate_name(&input.name)?;
         let endpoint =
             ZabbixEndpoint::parse(&input.address).map_err(ConnectionError::from_zabbix)?;
+        let store_secret = match &input.auth {
+            AuthInput::ApiToken { store_token } => *store_token,
+            AuthInput::Password { store_password, .. } => *store_password,
+        };
+        // The same explicit confirmation for a stored token and a stored
+        // password: both travel in clear text over `http` (P1-02B, O-037).
+        if store_secret && endpoint.is_plain_http() && !input.confirm_plain_http_token_storage {
+            return Err(ConnectionError::new("plain_http_token_storage_unconfirmed"));
+        }
+        let secret_storage = if store_secret {
+            SecretStorage::OsStore
+        } else {
+            SecretStorage::None
+        };
         let auth = match &input.auth {
-            AuthInput::ApiToken { store_token } => {
-                if *store_token
-                    && endpoint.is_plain_http()
-                    && !input.confirm_plain_http_token_storage
-                {
-                    return Err(ConnectionError::new("plain_http_token_storage_unconfirmed"));
-                }
-                ProfileAuth::ApiToken {
-                    secret_storage: if *store_token {
-                        SecretStorage::OsStore
-                    } else {
-                        SecretStorage::None
-                    },
-                }
-            }
-            AuthInput::Password { username } => {
+            AuthInput::ApiToken { .. } => ProfileAuth::ApiToken { secret_storage },
+            AuthInput::Password { username, .. } => {
                 validate_username(username)?;
                 ProfileAuth::Password {
                     username: username.clone(),
+                    secret_storage,
                 }
             }
         };
@@ -568,28 +807,29 @@ impl ConnectionService {
             TrustSetting::System => TrustAnchors::system(),
             TrustSetting::CustomCa { ca_ref } => self.trust.load(ca_ref)?,
         };
-        let authentication = match (&profile.auth, secret) {
-            (ProfileAuth::ApiToken { .. }, Some(token)) => Authentication::ApiToken(token),
-            (
-                ProfileAuth::ApiToken {
-                    secret_storage: SecretStorage::OsStore,
-                },
-                None,
-            ) => Authentication::ApiToken(
-                self.credentials
-                    .load(&profile.credential_ref)
-                    .map_err(ConnectionError::from_credential)?,
-            ),
-            (ProfileAuth::Password { username }, Some(password)) => {
-                Authentication::UsernamePassword {
-                    username: username.clone(),
-                    password,
-                }
-            }
-            (auth, None) => {
-                return Err(ConnectionError::new("secret_required")
-                    .with("auth_method", auth.method().as_str()));
-            }
+        // A secret sent with the request wins; otherwise the stored one, or
+        // the one remembered in memory for a profile that does not store it.
+        let secret = match (secret, profile.auth.secret_storage()) {
+            (Some(secret), _) => secret,
+            (None, SecretStorage::OsStore) => self
+                .credentials
+                .load(&profile.credential_ref)
+                .map_err(ConnectionError::from_credential)?,
+            (None, SecretStorage::None) => self
+                .memory_secrets
+                .get(&profile.connection_id)
+                .cloned()
+                .ok_or_else(|| {
+                    ConnectionError::new("secret_required")
+                        .with("auth_method", profile.auth.method().as_str())
+                })?,
+        };
+        let authentication = match &profile.auth {
+            ProfileAuth::ApiToken { .. } => Authentication::ApiToken(secret),
+            ProfileAuth::Password { username, .. } => Authentication::UsernamePassword {
+                username: username.clone(),
+                password: secret,
+            },
         };
         Ok((endpoint, trust, authentication))
     }
@@ -688,16 +928,19 @@ impl ConnectionService {
             plain_http: endpoint.is_plain_http(),
             auth_method: profile.auth.method(),
             secret_storage: profile.auth.secret_storage(),
-            username: match &profile.auth {
-                ProfileAuth::Password { username } => Some(username.clone()),
-                ProfileAuth::ApiToken { .. } => None,
-            },
+            username: profile.auth.username().map(str::to_owned),
             trust: profile.trust.kind(),
+            ca_ref: match &profile.trust {
+                TrustSetting::CustomCa { ca_ref } => Some(ca_ref.clone()),
+                TrustSetting::System => None,
+            },
             ca_fingerprints,
             last_check: profile.last_check.clone(),
             state,
             mode: active.and_then(ActiveConnection::mode),
             context_generation: profile.context_generation,
+            default_password_warning_hidden: profile.default_password_warning_hidden,
+            secret_in_memory: self.memory_secrets.contains_key(&profile.connection_id),
         })
     }
 }

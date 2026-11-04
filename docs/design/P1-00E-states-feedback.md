@@ -1,6 +1,6 @@
 # P1-00E — состояния и feedback
 
-**Версия:** 1.0, 2026-10-24. **Статус:** принято для P1 handoff. Это UX/state contract, а не доказательство работающего UI.
+**Версия:** 1.1, 2026-10-26 (DESIGN-FIX-01: M-22 — текст `bindings.fitness.read_only`; m-06 — соответствие имён ADR-009 состояниям журнала, неопределённые `common.reason.*`/`common.progress.*` заменены); 1.0 — 2026-10-24. **Статус:** принято для P1 handoff. Это UX/state contract, а не доказательство работающего UI.
 
 ## 1. Инварианты
 
@@ -9,7 +9,7 @@
 3. `success` записи показывается только после требуемого read-back. HTTP 200, завершившийся progress или закрывшийся dialog успехом не являются.
 4. `unknown_outcome` — отдельное блокирующее состояние: повторная запись запрещена, доступно только reconciliation чтением.
 5. `read_only`, `disabled`, `unsupported`, `denied` и `offline` имеют разные причины и действия; общий серый вид без текста запрещён.
-   Метка «Только чтение» (`common.state.read_only`) относится только к режиму подключения. Виджет или ссылка, которые ZDashstitch не умеет изменять, получают «Изменение не поддерживается» (`common.state.edit_unsupported`) либо полный fitness-текст «Распознано, но доступно только для чтения» (`bindings.fitness.read_only`); объект при этом сохраняется без потерь.
+   Метка «Только чтение» (`common.state.read_only`) относится только к режиму подключения. Виджет или ссылка, которые ZDashstitch не умеет изменять, получают «Изменение не поддерживается» (`common.state.edit_unsupported`) либо полный fitness-текст «Распознано, изменение не поддерживается» (`bindings.fitness.read_only`, P1-00F §2); объект при этом сохраняется без потерь.
 6. Background refresh не крадёт focus, не закрывает dialog и не перезаписывает dirty input.
 
 ## 2. Interactive component state matrix
@@ -21,9 +21,9 @@
 | `pressed` | Краткая active surface | Native active/pressed | Toggle получает state label при необходимости |
 | `focus` | 2 px perimeter + offset, ≥3:1 | `:focus-visible`; не равно selected | Accessible name всегда существует |
 | `selected` | Mark/icon + selected surface/label | `aria-selected/current/checked` по pattern | State label при необходимости |
-| `disabled` | Сниженный акцент, причина рядом/в группе | Не focusable для native disabled | `common.reason.*` при неочевидной причине |
+| `disabled` | Сниженный акцент, причина рядом/в группе | Не focusable для native disabled | ID причины своей функции при неочевидной причине (например, `publication.requirement.*`); общего пространства `common.reason.*` нет |
 | `read_only` | Значение normal contrast, edit action отсутствует/locked | Focus/copy разрешены | `common.state.read_only` + reason |
-| `busy` | Label сохраняет контекст, indicator/stage | Повторная активация блокируется; cancel отдельно | `common.progress.*` или feature ID |
+| `busy` | Label сохраняет контекст, indicator/stage | Повторная активация блокируется; cancel отдельно | ID этапа своей функции (`publication.stage.*`, `connection.test.step.*`, `import.progress.*`); общего пространства `common.progress.*` нет |
 | `error` | Icon + text + field/row relation | `aria-invalid`, described error; summary after submit | `errors.*` |
 | `warning` | Icon + reason + next step | Не блокирует без явного guard | Feature warning ID |
 | `success` | Check/icon + verified label/detail | Polite status; не auto-focus | Только подтверждённый result ID |
@@ -46,6 +46,8 @@
 | `failed_before_write` | Нет server mutation | Local intent/input | Safe retry after cause fixed |
 | `partial_failure` | Да для continuation as success | Per-step results and journal | Inspect/reconcile; new plan for remaining work |
 | `verified` | Нет | Read-back result and audit record | Open result/continue |
+
+Имена `failed_before_write`, `partial_failure`, `structurally_verified` здесь и в §6 — из ADR-009. Соответствие состояниям журнала `JournalState` (`FailedBeforeSend`, `FailedAfterResponse`, `ReconciledFailed`, `ClosedManually` и др.), которые используют P1-01C, P1-08 и P1-10, — колонка «ADR-009 / P1-00E» в таблице P1-01C §6. В публикации MVP состояния `partial_failure` нет: запись — ровно один запрос (P1-08F); оно остаётся для будущих многошаговых операций.
 
 ## 4. Feedback priority
 

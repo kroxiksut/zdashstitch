@@ -1,55 +1,54 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-use std::{env, error::Error, net::Ipv4Addr, path::PathBuf};
+//! Browser-only local server: prints the one-time bootstrap URL and serves
+//! until Ctrl+C. The desktop launcher `zdashstitch` (O-036) starts the same
+//! server through [`zdashstitch_local_server::startup`].
 
-use tokio::net::TcpListener;
-use zdashstitch_local_server::{LocalSecurity, build_router, default_ui_dir};
+use std::{error::Error, process::ExitCode};
+
+use zdashstitch_local_server::{
+    instance::{self, InstanceConfig},
+    startup::{self, Launch, LaunchSettings},
+};
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn Error>> {
-    let port = configured_port()?;
-    let ui_dir = env::var_os("ZDASHSTITCH_UI_DIR")
-        .map(PathBuf::from)
-        .unwrap_or_else(default_ui_dir);
-    let listener = TcpListener::bind((Ipv4Addr::LOCALHOST, port)).await?;
-    let address = listener.local_addr()?;
-    let initial = LocalSecurity::initialize(address.port())?;
-    let bootstrap_url = initial.security.bootstrap_url(&initial.code);
-
-    println!("Bootstrap URL: {bootstrap_url}");
-    println!("UI directory: {}", ui_dir.display());
-    axum::serve(listener, build_router(ui_dir, initial.security))
-        .with_graceful_shutdown(shutdown_signal())
-        .await?;
-    Ok(())
+async fn main() -> Result<ExitCode, Box<dyn Error>> {
+    // Single instance per user (P2-SEC-01F): a repeated launch asks the
+    // running process for a fresh bootstrap URL and never binds a server.
+    let settings = LaunchSettings::from_env()?;
+    let server = match startup::launch(&settings).await? {
+        Launch::Primary(server) => server,
+        Launch::Running => return Ok(ask_running_instance(settings.instance()).await),
+    };
+    println!("Bootstrap URL: {}", server.bootstrap_url());
+    println!("UI directory: {}", server.ui_dir().display());
+    server.serve(shutdown_signal()).await?;
+    Ok(ExitCode::SUCCESS)
 }
 
+/// The bootstrap URL goes to stdout only, as for the first launch.
+async fn ask_running_instance(config: &InstanceConfig) -> ExitCode {
+    match instance::request_bootstrap(config).await {
+        Ok(url) => {
+            println!("ZDashstitch is already running; open it with this one-time URL.");
+            println!("Bootstrap URL: {url}");
+            ExitCode::SUCCESS
+        }
+        Err(error) => {
+            eprintln!(
+                "the running instance issued no bootstrap URL: {}",
+                error.code()
+            );
+            ExitCode::FAILURE
+        }
+    }
+}
+
+/// Resolves on Ctrl+C. Without a Ctrl+C handler it never resolves: the
+/// server keeps running instead of stopping at once.
 async fn shutdown_signal() {
     if let Err(error) = tokio::signal::ctrl_c().await {
         eprintln!("failed to install Ctrl+C handler: {error}");
-    }
-}
-
-fn configured_port() -> Result<u16, Box<dyn Error>> {
-    parse_port(env::var("ZDASHSTITCH_PORT"))
-}
-
-fn parse_port(value: Result<String, env::VarError>) -> Result<u16, Box<dyn Error>> {
-    match value {
-        Ok(value) => Ok(value.parse()?),
-        Err(env::VarError::NotPresent) => Ok(0),
-        Err(error) => Err(Box::new(error)),
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use std::env::VarError;
-
-    use super::parse_port;
-
-    #[test]
-    fn absent_port_requests_an_ephemeral_listener() {
-        assert_eq!(parse_port(Err(VarError::NotPresent)).ok(), Some(0));
+        std::future::pending::<()>().await;
     }
 }

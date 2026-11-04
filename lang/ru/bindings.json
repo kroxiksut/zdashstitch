@@ -1,0 +1,1003 @@
+{
+  "bindings.step.scope": {
+    "message": "Область",
+    "placeholders": {}
+  },
+  "bindings.step.dependencies": {
+    "message": "Зависимости",
+    "placeholders": {}
+  },
+  "bindings.step.new_host": {
+    "message": "Новый узел",
+    "placeholders": {}
+  },
+  "bindings.step.mapping": {
+    "message": "Соответствия",
+    "placeholders": {}
+  },
+  "bindings.step.summary": {
+    "message": "Итог",
+    "placeholders": {}
+  },
+  "bindings.step.done": {
+    "message": "пройден",
+    "placeholders": {}
+  },
+  "bindings.step.unavailable": {
+    "message": "пока недоступен",
+    "placeholders": {}
+  },
+  "bindings.a11y.steps": {
+    "message": "Шаги мастера",
+    "placeholders": {}
+  },
+  "bindings.draft_only": {
+    "message": "Меняется только черновик. Исходная панель на сервере не изменится, пока вы не опубликуете проверенный план.",
+    "placeholders": {}
+  },
+  "bindings.local_only": {
+    "message": "Привязки хранятся только на этом компьютере, вместе с черновиком. В файлы экспорта не попадают ни идентификаторы Zabbix, ни подключение.",
+    "placeholders": {}
+  },
+  "bindings.plan_invalid_note": {
+    "message": "Любое изменение привязок делает план публикации недействительным.",
+    "placeholders": {}
+  },
+  "bindings.intent.title": {
+    "message": "Намерение",
+    "placeholders": {}
+  },
+  "replace_host.source": {
+    "message": "Заменяемый узел сети",
+    "placeholders": {}
+  },
+  "bindings.intent.clone": {
+    "message": "Клонировать панель",
+    "placeholders": {}
+  },
+  "bindings.scope.whole": {
+    "message": "Вся панель: страниц — {pages}, виджетов — {widgets}",
+    "placeholders": {
+      "pages": "number",
+      "widgets": "number"
+    }
+  },
+  "bindings.scope.whole_page": {
+    "message": "Вся страница: виджетов — {widgets}",
+    "placeholders": {
+      "widgets": "number"
+    }
+  },
+  "bindings.scope.pages": {
+    "message": "Выбранные страницы",
+    "placeholders": {}
+  },
+  "bindings.scope.widgets": {
+    "message": "Выбранные виджеты",
+    "placeholders": {}
+  },
+  "bindings.scope.choose_pages": {
+    "message": "Страницы в области",
+    "placeholders": {}
+  },
+  "bindings.scope.choose_widgets": {
+    "message": "Виджеты в области",
+    "placeholders": {}
+  },
+  "bindings.scope.empty_selection": {
+    "message": "Выберите хотя бы одну страницу или виджет.",
+    "placeholders": {}
+  },
+  "bindings.scope.partial_warning": {
+    "message": "Ссылки на {host} вне области останутся без изменений: {count}",
+    "placeholders": {
+      "host": "text",
+      "count": "number"
+    }
+  },
+  "bindings.source.option_detail": {
+    "message": "{references, plural, one {# ссылка} few {# ссылки} many {# ссылок} other {# ссылки}} в {widgets, plural, one {# виджете} few {# виджетах} many {# виджетах} other {# виджетах}}",
+    "placeholders": {
+      "references": "number",
+      "widgets": "number"
+    }
+  },
+  "bindings.source.none": {
+    "message": "Черновик не ссылается ни на один узел сети, видимый учётной записи.",
+    "placeholders": {}
+  },
+  "bindings.source.unattributed": {
+    "message": "{count, plural, one {# ссылку проверить нельзя: объект скрыт, удалён или это прототип.} few {# ссылки проверить нельзя: объекты скрыты, удалены или это прототипы.} many {# ссылок проверить нельзя: объекты скрыты, удалены или это прототипы.} other {# ссылки проверить нельзя: объекты скрыты, удалены или это прототипы.}}",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "bindings.deps.title": {
+    "message": "Ссылки на {host}",
+    "placeholders": {
+      "host": "text"
+    }
+  },
+  "bindings.deps.choose_host": {
+    "message": "Выберите заменяемый узел сети, чтобы увидеть его ссылки.",
+    "placeholders": {}
+  },
+  "bindings.deps.count.changes": {
+    "message": "Изменятся: {count}",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "bindings.deps.count.kept": {
+    "message": "Останется на старом: {count}",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "bindings.deps.count.unverified": {
+    "message": "Не найдено или нет доступа: {count}",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "bindings.deps.column.widget": {
+    "message": "Виджет",
+    "placeholders": {}
+  },
+  "bindings.deps.column.type": {
+    "message": "Тип",
+    "placeholders": {}
+  },
+  "bindings.deps.column.reference": {
+    "message": "Как ссылается",
+    "placeholders": {}
+  },
+  "bindings.deps.column.outcome": {
+    "message": "Что будет",
+    "placeholders": {}
+  },
+  "bindings.deps.page_summary": {
+    "message": "{widgets, plural, one {# виджет} few {# виджета} many {# виджетов} other {# виджета}} · {references, plural, one {# ссылка} few {# ссылки} many {# ссылок} other {# ссылки}}",
+    "placeholders": {
+      "widgets": "number",
+      "references": "number"
+    }
+  },
+  "bindings.deps.pattern_rule": {
+    "message": "Шаблон узла сети по имени меняется, только если совпадает с видимым именем {host} без «*»; маски не меняются.",
+    "placeholders": {
+      "host": "text"
+    }
+  },
+  "bindings.ref.by_id": {
+    "message": "элемент данных (ID)",
+    "placeholders": {}
+  },
+  "bindings.ref.graph_id": {
+    "message": "график (ID)",
+    "placeholders": {}
+  },
+  "bindings.ref.host_id": {
+    "message": "узел сети (ID)",
+    "placeholders": {}
+  },
+  "bindings.ref.host_name_pattern": {
+    "message": "шаблон узла: имя",
+    "placeholders": {}
+  },
+  "bindings.ref.host_mask": {
+    "message": "маска узла (*)",
+    "placeholders": {}
+  },
+  "bindings.ref.prototype": {
+    "message": "прототип",
+    "placeholders": {}
+  },
+  "bindings.outcome.changes": {
+    "message": "изменится",
+    "placeholders": {}
+  },
+  "bindings.outcome.kept": {
+    "message": "останется на {host}",
+    "placeholders": {
+      "host": "text"
+    }
+  },
+  "bindings.kept.title": {
+    "message": "{count, plural, one {Останется на {host}: # виджет} few {Останется на {host}: # виджета} many {Останется на {host}: # виджетов} other {Останется на {host}: # виджета}}",
+    "placeholders": {
+      "count": "number",
+      "host": "text"
+    }
+  },
+  "bindings.kept.not_blocking": {
+    "message": "Это не блокирует замену, но перед публикацией список нужно подтвердить.",
+    "placeholders": {}
+  },
+  "bindings.kept.confirmed": {
+    "message": "Список подтверждён",
+    "placeholders": {}
+  },
+  "bindings.kept.unconfirmed": {
+    "message": "Список не подтверждён",
+    "placeholders": {}
+  },
+  "bindings.kept.by_decision": {
+    "message": "по вашему решению",
+    "placeholders": {}
+  },
+  "bindings.new_host.search": {
+    "message": "Поиск по имени узла сети",
+    "placeholders": {}
+  },
+  "bindings.new_host.search_action": {
+    "message": "Найти",
+    "placeholders": {}
+  },
+  "bindings.new_host.legend": {
+    "message": "Новый узел сети вместо {host}",
+    "placeholders": {
+      "host": "text"
+    }
+  },
+  "bindings.new_host.groups": {
+    "message": "Группы: {groups}",
+    "placeholders": {
+      "groups": "text"
+    }
+  },
+  "bindings.new_host.no_templates": {
+    "message": "К {host} не присоединены шаблоны.",
+    "placeholders": {
+      "host": "text"
+    }
+  },
+  "bindings.new_host.partial": {
+    "message": "Шаблонов источника: {found} из {total} — часть метрик не найдётся",
+    "placeholders": {
+      "found": "number",
+      "total": "number"
+    }
+  },
+  "bindings.targets.templates_coverage": {
+    "message": "Шаблонов источника на узле: {found} из {total}",
+    "placeholders": {
+      "found": "number",
+      "total": "number"
+    }
+  },
+  "bindings.new_host.visible_only": {
+    "message": "Показаны узлы, видимые учётной записи. Нужного узла нет — его нет или не хватает прав.",
+    "placeholders": {}
+  },
+  "bindings.new_host.empty": {
+    "message": "Узлы не найдены или учётная запись их не видит",
+    "placeholders": {}
+  },
+  "bindings.new_host.truncated": {
+    "message": "Показаны только первые узлы: {count}. Уточните поиск.",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "bindings.new_host.same_connection": {
+    "message": "Узлы берутся из того же подключения, что и исходная панель.",
+    "placeholders": {}
+  },
+  "bindings.new_host.chosen": {
+    "message": "Новый узел: {host}",
+    "placeholders": {
+      "host": "text"
+    }
+  },
+  "bindings.mapping.title": {
+    "message": "Заменить узел сети: {source} → {target}",
+    "placeholders": {
+      "source": "text",
+      "target": "text"
+    }
+  },
+  "bindings.mapping.target_missing": {
+    "message": "Новый узел сети не найден или нет доступа",
+    "placeholders": {}
+  },
+  "bindings.mapping.filter": {
+    "message": "Фильтр по совпадению",
+    "placeholders": {}
+  },
+  "bindings.mapping.column.source": {
+    "message": "Источник ({host})",
+    "placeholders": {
+      "host": "text"
+    }
+  },
+  "bindings.mapping.column.target": {
+    "message": "Цель ({host})",
+    "placeholders": {
+      "host": "text"
+    }
+  },
+  "bindings.mapping.column.match": {
+    "message": "Совпадение",
+    "placeholders": {}
+  },
+  "bindings.mapping.column.widget": {
+    "message": "Виджет",
+    "placeholders": {}
+  },
+  "bindings.mapping.caption": {
+    "message": "Соответствия ссылок",
+    "placeholders": {}
+  },
+  "bindings.mapping.empty_filter": {
+    "message": "Нет строк с таким статусом.",
+    "placeholders": {}
+  },
+  "bindings.mapping.no_rows": {
+    "message": "В области нет ссылок на заменяемый узел сети.",
+    "placeholders": {}
+  },
+  "bindings.mapping.candidates": {
+    "message": "Кандидаты",
+    "placeholders": {}
+  },
+  "bindings.mapping.candidates_count": {
+    "message": "{count, plural, one {# кандидат} few {# кандидата} many {# кандидатов} other {# кандидата}}",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "bindings.mapping.no_target": {
+    "message": "нет цели",
+    "placeholders": {}
+  },
+  "bindings.mapping.choose_lld_instance": {
+    "message": "Выбрать экземпляр вручную",
+    "placeholders": {}
+  },
+  "bindings.mapping.similar_name_not_proof": {
+    "message": "Похожее имя не считается доказательством: точным считается только тот же ключ, тип значения и единицы.",
+    "placeholders": {}
+  },
+  "bindings.mapping.keyboard_hint": {
+    "message": "Стрелки — переход по строкам; Enter — открыть кандидатов.",
+    "placeholders": {}
+  },
+  "bindings.match.exact": {
+    "message": "Точное соответствие",
+    "placeholders": {}
+  },
+  "bindings.match.compatible": {
+    "message": "Совместимо с отличиями",
+    "placeholders": {}
+  },
+  "bindings.match.ambiguous": {
+    "message": "Несколько кандидатов",
+    "placeholders": {}
+  },
+  "bindings.match.missing": {
+    "message": "Соответствующий элемент данных не найден",
+    "placeholders": {}
+  },
+  "bindings.match.unresolved_lld": {
+    "message": "Экземпляр LLD недоступен на целевом узле сети",
+    "placeholders": {}
+  },
+  "bindings.match.denied": {
+    "message": "Не найдено или не видно с текущими правами",
+    "placeholders": {}
+  },
+  "bindings.match_short.exact": {
+    "message": "Точно",
+    "placeholders": {}
+  },
+  "bindings.match_short.compatible": {
+    "message": "С отличиями",
+    "placeholders": {}
+  },
+  "bindings.match_short.ambiguous": {
+    "message": "Неоднозначно",
+    "placeholders": {}
+  },
+  "bindings.match_short.missing": {
+    "message": "Не найдено",
+    "placeholders": {}
+  },
+  "bindings.match_short.unresolved_lld": {
+    "message": "Не найдено (LLD)",
+    "placeholders": {}
+  },
+  "bindings.match_short.denied": {
+    "message": "Не найдено или нет доступа",
+    "placeholders": {}
+  },
+  "bindings.match_short.unverified": {
+    "message": "Не проверено",
+    "placeholders": {}
+  },
+  "bindings.fitness.editable": {
+    "message": "Можно изменить",
+    "placeholders": {}
+  },
+  "bindings.fitness.read_only": {
+    "message": "Распознано, изменение не поддерживается",
+    "placeholders": {}
+  },
+  "bindings.fitness.unsupported": {
+    "message": "Неподдерживаемая зависимость",
+    "placeholders": {}
+  },
+  "bindings.source_evidence": {
+    "message": "Основания сопоставления",
+    "placeholders": {}
+  },
+  "bindings.inspector.title": {
+    "message": "Выбранная ссылка",
+    "placeholders": {}
+  },
+  "bindings.inspector.none": {
+    "message": "Выберите строку, чтобы увидеть кандидатов и основания.",
+    "placeholders": {}
+  },
+  "bindings.inspector.field": {
+    "message": "Поле: {field}",
+    "placeholders": {
+      "field": "technical"
+    }
+  },
+  "bindings.evidence.source_item": {
+    "message": "Элемент данных на старом узле",
+    "placeholders": {}
+  },
+  "bindings.evidence.target_item": {
+    "message": "Элемент данных на новом узле",
+    "placeholders": {}
+  },
+  "bindings.evidence.key": {
+    "message": "Ключ элемента данных: {key}",
+    "placeholders": {
+      "key": "technical"
+    }
+  },
+  "bindings.evidence.units": {
+    "message": "Единицы измерения: {units}",
+    "placeholders": {
+      "units": "text"
+    }
+  },
+  "bindings.evidence.no_units": {
+    "message": "Единицы измерения: нет",
+    "placeholders": {}
+  },
+  "bindings.evidence.value_type": {
+    "message": "Тип информации: {type}",
+    "placeholders": {
+      "type": "text"
+    }
+  },
+  "bindings.evidence.origin.own": {
+    "message": "Собственный элемент данных узла",
+    "placeholders": {}
+  },
+  "bindings.evidence.origin.template": {
+    "message": "Унаследован из шаблона",
+    "placeholders": {}
+  },
+  "bindings.evidence.origin.lld": {
+    "message": "Обнаружен LLD по прототипу {key}",
+    "placeholders": {
+      "key": "technical"
+    }
+  },
+  "bindings.evidence.coverage": {
+    "message": "Шаблон элементов {pattern}: на старом узле — {source}, на новом — {target}",
+    "placeholders": {
+      "pattern": "technical",
+      "source": "number",
+      "target": "number"
+    }
+  },
+  "bindings.evidence.differences": {
+    "message": "Отличается: {differences}",
+    "placeholders": {
+      "differences": "text"
+    }
+  },
+  "bindings.value_type.float": {
+    "message": "Числовой (с плавающей точкой)",
+    "placeholders": {}
+  },
+  "bindings.value_type.character": {
+    "message": "Символ",
+    "placeholders": {}
+  },
+  "bindings.value_type.log": {
+    "message": "Журнал (лог)",
+    "placeholders": {}
+  },
+  "bindings.value_type.unsigned": {
+    "message": "Числовой (целое положительное)",
+    "placeholders": {}
+  },
+  "bindings.value_type.text": {
+    "message": "Текст",
+    "placeholders": {}
+  },
+  "bindings.value_type.binary": {
+    "message": "Двоичный",
+    "placeholders": {}
+  },
+  "bindings.difference.value_type": {
+    "message": "тип информации",
+    "placeholders": {}
+  },
+  "bindings.difference.units": {
+    "message": "единицы измерения",
+    "placeholders": {}
+  },
+  "bindings.difference.origin": {
+    "message": "происхождение из шаблона",
+    "placeholders": {}
+  },
+  "bindings.difference.pattern_coverage": {
+    "message": "покрытие шаблонов",
+    "placeholders": {}
+  },
+  "bindings.decision.choose": {
+    "message": "Выбрать",
+    "placeholders": {}
+  },
+  "bindings.decision.keep_on_source": {
+    "message": "Оставить на исходном",
+    "placeholders": {}
+  },
+  "bindings.decision.keep_hint": {
+    "message": "Поле сохранит {host}; виджет попадёт в список, который нужно подтвердить перед публикацией.",
+    "placeholders": {
+      "host": "text"
+    }
+  },
+  "bindings.decision.undo": {
+    "message": "Отменить решение",
+    "placeholders": {}
+  },
+  "bindings.decision.applied_candidate": {
+    "message": "Выбрано: {key}",
+    "placeholders": {
+      "key": "technical"
+    }
+  },
+  "bindings.decision.applied_keep": {
+    "message": "Оставлено на исходном по вашему решению",
+    "placeholders": {}
+  },
+  "bindings.decision.invalid": {
+    "message": "Решение больше не подходит этой строке; примите его заново.",
+    "placeholders": {}
+  },
+  "bindings.decision.unresolved": {
+    "message": "Без решения ссылка блокирует публикацию.",
+    "placeholders": {}
+  },
+  "bindings.decision.done": {
+    "message": "Решение сохранено в черновике",
+    "placeholders": {}
+  },
+  "bindings.decision.undone": {
+    "message": "Решение отменено",
+    "placeholders": {}
+  },
+  "bindings.candidates.legend": {
+    "message": "Кандидаты на {host}",
+    "placeholders": {
+      "host": "text"
+    }
+  },
+  "bindings.candidates.none": {
+    "message": "На новом узле нет кандидатов.",
+    "placeholders": {}
+  },
+  "bindings.reason.not_found_or_no_access": {
+    "message": "Не найдено или нет доступа",
+    "placeholders": {}
+  },
+  "bindings.reason.key_not_found": {
+    "message": "На новом узле нет элемента данных с тем же ключом",
+    "placeholders": {}
+  },
+  "bindings.reason.lld_instance_missing": {
+    "message": "Элемент данных найден LLD, на новом узле такого экземпляра нет",
+    "placeholders": {}
+  },
+  "bindings.reason.several_target_candidates": {
+    "message": "На новом узле несколько элементов данных с тем же ключом",
+    "placeholders": {}
+  },
+  "bindings.reason.value_type_incompatible": {
+    "message": "Тип информации не подходит этому виджету",
+    "placeholders": {}
+  },
+  "bindings.reason.value_type_differs": {
+    "message": "Тип информации отличается",
+    "placeholders": {}
+  },
+  "bindings.reason.units_differ": {
+    "message": "Единицы измерения отличаются",
+    "placeholders": {}
+  },
+  "bindings.reason.origin_differs": {
+    "message": "Происхождение из шаблона отличается",
+    "placeholders": {}
+  },
+  "bindings.reason.pattern_coverage_differs": {
+    "message": "Шаблоны элементов находят другое число элементов данных",
+    "placeholders": {}
+  },
+  "bindings.reason.item_patterns_without_target_items": {
+    "message": "Шаблоны элементов не находят элементов данных на новом узле",
+    "placeholders": {}
+  },
+  "bindings.reason.target_name_is_mask": {
+    "message": "Видимое имя нового узла содержит «*»",
+    "placeholders": {}
+  },
+  "bindings.reason.host_mask": {
+    "message": "Маски узлов с «*» не меняются",
+    "placeholders": {}
+  },
+  "bindings.reason.host_wildcard_all": {
+    "message": "Маска «*» совпадает со всеми узлами и не меняется",
+    "placeholders": {}
+  },
+  "bindings.reason.host_field_not_supported": {
+    "message": "Изменение поля узла сети в виджете этого типа не поддерживается",
+    "placeholders": {}
+  },
+  "bindings.reason.pattern_field_not_supported": {
+    "message": "Изменение этого поля шаблона не поддерживается",
+    "placeholders": {}
+  },
+  "bindings.reason.classic_graph_contract_pending": {
+    "message": "Изменение классических графиков не поддерживается до лабораторной проверки",
+    "placeholders": {}
+  },
+  "bindings.reason.graph_name_not_found": {
+    "message": "На новом узле нет графика с тем же именем",
+    "placeholders": {}
+  },
+  "bindings.reason.widget_not_editable": {
+    "message": "Изменение виджета этого типа не поддерживается",
+    "placeholders": {}
+  },
+  "bindings.reason.field_not_replaceable": {
+    "message": "Это поле не меняется при замене узла сети",
+    "placeholders": {}
+  },
+  "bindings.reason.unknown_widget": {
+    "message": "Неизвестный тип виджета: сохраняется как есть",
+    "placeholders": {}
+  },
+  "bindings.reason.unknown_field": {
+    "message": "Неизвестное поле: сохраняется как есть",
+    "placeholders": {}
+  },
+  "bindings.reason.prototype_owner_unknown": {
+    "message": "Прототип: его узел сети проверить нельзя",
+    "placeholders": {}
+  },
+  "bindings.reason.unknown": {
+    "message": "Код причины: {code}",
+    "placeholders": {
+      "code": "technical"
+    }
+  },
+  "bindings.state.checked": {
+    "message": "Проверена",
+    "placeholders": {}
+  },
+  "bindings.state.stale": {
+    "message": "Устарела",
+    "placeholders": {}
+  },
+  "bindings.state.invalid": {
+    "message": "Недействительна",
+    "placeholders": {}
+  },
+  "bindings.check_reason.server_version_changed": {
+    "message": "Изменилась версия Zabbix",
+    "placeholders": {}
+  },
+  "bindings.check_reason.resolution_changed": {
+    "message": "Данные на сервере изменились",
+    "placeholders": {}
+  },
+  "bindings.check_reason.reference_gone": {
+    "message": "Ссылка больше не найдена",
+    "placeholders": {}
+  },
+  "bindings.check_reason.reference_added": {
+    "message": "Найдена новая ссылка на узел сети",
+    "placeholders": {}
+  },
+  "bindings.check_reason.target_not_visible": {
+    "message": "Новый узел не найден или нет доступа",
+    "placeholders": {}
+  },
+  "bindings.check_reason.candidate_not_visible": {
+    "message": "Выбранный элемент данных не найден или нет доступа",
+    "placeholders": {}
+  },
+  "bindings.change.changed": {
+    "message": "Изменится",
+    "placeholders": {}
+  },
+  "bindings.change.untouched": {
+    "message": "Без изменений",
+    "placeholders": {}
+  },
+  "bindings.change.unresolved": {
+    "message": "Не решено",
+    "placeholders": {}
+  },
+  "bindings.change.kept_on_source": {
+    "message": "Останется на старом",
+    "placeholders": {}
+  },
+  "bindings.summary.title": {
+    "message": "Итог замены",
+    "placeholders": {}
+  },
+  "bindings.summary.changes": {
+    "message": "Изменятся: ссылок — {fields}, виджетов — {widgets}",
+    "placeholders": {
+      "fields": "number",
+      "widgets": "number"
+    }
+  },
+  "bindings.summary.untouched": {
+    "message": "Не меняются: виджетов — {widgets}",
+    "placeholders": {
+      "widgets": "number"
+    }
+  },
+  "bindings.summary.kept": {
+    "message": "Останутся на старом: {count}",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "bindings.summary.unresolved": {
+    "message": "Не решено (блокирует публикацию): {count}",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "bindings.summary.only_changes": {
+    "message": "Остальные ряды, настройки, геометрия и доступ не меняются.",
+    "placeholders": {}
+  },
+  "bindings.summary.blocked": {
+    "message": "{count, plural, one {Публикация заблокирована: # блокировка} few {Публикация заблокирована: # блокировки} many {Публикация заблокирована: # блокировок} other {Публикация заблокирована: # блокировки}}",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "bindings.stored.title": {
+    "message": "Сохранённая замена: {source} → {target}",
+    "placeholders": {
+      "source": "text",
+      "target": "text"
+    }
+  },
+  "bindings.stored.change_hint": {
+    "message": "Чтобы выбрать другой узел или область, сначала сбросьте все привязки.",
+    "placeholders": {}
+  },
+  "bindings.calculated_at": {
+    "message": "Рассчитано {time} · Zabbix {version}",
+    "placeholders": {
+      "time": "datetime",
+      "version": "technical"
+    }
+  },
+  "bindings.checked_at": {
+    "message": "Проверено заново {time}",
+    "placeholders": {
+      "time": "datetime"
+    }
+  },
+  "bindings.action.back": {
+    "message": "Назад",
+    "placeholders": {}
+  },
+  "bindings.action.next_dependencies": {
+    "message": "Далее: зависимости",
+    "placeholders": {}
+  },
+  "bindings.action.next_new_host": {
+    "message": "Далее: новый узел",
+    "placeholders": {}
+  },
+  "bindings.action.next_mapping": {
+    "message": "Далее: соответствия",
+    "placeholders": {}
+  },
+  "bindings.action.next_summary": {
+    "message": "Далее: итог",
+    "placeholders": {}
+  },
+  "bindings.action.to_publication": {
+    "message": "К публикации",
+    "placeholders": {}
+  },
+  "bindings.action.check_all": {
+    "message": "Проверить все",
+    "placeholders": {}
+  },
+  "bindings.action.reset_all": {
+    "message": "Сбросить все привязки",
+    "placeholders": {}
+  },
+  "bindings.action.retry": {
+    "message": "Повторить",
+    "placeholders": {}
+  },
+  "bindings.action.connect": {
+    "message": "Открыть подключения",
+    "placeholders": {}
+  },
+  "bindings.progress.inventory": {
+    "message": "Чтение ссылок черновика…",
+    "placeholders": {}
+  },
+  "bindings.progress.search": {
+    "message": "Поиск узлов сети…",
+    "placeholders": {}
+  },
+  "bindings.progress.calculating": {
+    "message": "Расчёт соответствий: только чтение, на сервере ничего не меняется…",
+    "placeholders": {}
+  },
+  "bindings.progress.checking": {
+    "message": "Проверка всех привязок…",
+    "placeholders": {}
+  },
+  "bindings.progress.saving": {
+    "message": "Сохранение в черновике…",
+    "placeholders": {}
+  },
+  "bindings.offline.title": {
+    "message": "Для подбора узлов нужно подключение",
+    "placeholders": {}
+  },
+  "bindings.offline.body": {
+    "message": "Подключитесь через профиль, которым сделана копия. Сохранённые соответствия и предпросмотр работают без подключения.",
+    "placeholders": {}
+  },
+  "bindings.offline.check_all": {
+    "message": "Для «Проверить все» нужно подключение.",
+    "placeholders": {}
+  },
+  "bindings.load_failed": {
+    "message": "Не удалось загрузить привязки",
+    "placeholders": {}
+  },
+  "bindings.command_failed": {
+    "message": "Действие не выполнено",
+    "placeholders": {}
+  },
+  "bindings.reset.title": {
+    "message": "Сбросить все привязки?",
+    "placeholders": {}
+  },
+  "bindings.reset.body": {
+    "message": "Замена и все решения будут удалены из черновика. Сервер не изменится.",
+    "placeholders": {}
+  },
+  "bindings.reset.done": {
+    "message": "Все привязки сброшены",
+    "placeholders": {}
+  },
+  "bindings.calculated.done": {
+    "message": "Соответствия рассчитаны",
+    "placeholders": {}
+  },
+  "bindings.checked.done": {
+    "message": "Привязки проверены",
+    "placeholders": {}
+  },
+  "bindings.history.title": {
+    "message": "История привязок",
+    "placeholders": {}
+  },
+  "bindings.history.empty": {
+    "message": "Записей пока нет.",
+    "placeholders": {}
+  },
+  "bindings.history.op.replace_host": {
+    "message": "Рассчитана замена",
+    "placeholders": {}
+  },
+  "bindings.history.op.replace_host_decision": {
+    "message": "Записано решение",
+    "placeholders": {}
+  },
+  "bindings.history.op.replace_host_confirm_kept": {
+    "message": "Подтверждён список",
+    "placeholders": {}
+  },
+  "bindings.history.op.unknown": {
+    "message": "Операция {op}",
+    "placeholders": {
+      "op": "technical"
+    }
+  },
+  "errors.replace_host.not_calculated": {
+    "message": "В черновике ещё нет замены узла сети.",
+    "placeholders": {}
+  },
+  "errors.replace_host.same_host": {
+    "message": "Выберите другой узел: новый узел совпадает с заменяемым.",
+    "placeholders": {}
+  },
+  "errors.replace_host.scope_invalid": {
+    "message": "Область не совпадает с черновиком. Выберите страницы или виджеты заново.",
+    "placeholders": {}
+  },
+  "errors.replace_host.scope_outside_draft": {
+    "message": "Область выходит за страницу этого черновика.",
+    "placeholders": {}
+  },
+  "errors.replace_host.pending": {
+    "message": "В черновике уже есть другая замена. Сначала сбросьте все привязки.",
+    "placeholders": {}
+  },
+  "errors.replace_host.binding_not_found": {
+    "message": "Ссылки больше нет в соответствиях. Обновите привязки.",
+    "placeholders": {}
+  },
+  "errors.replace_host.decision_not_applicable": {
+    "message": "Это решение недоступно для этой строки.",
+    "placeholders": {}
+  },
+  "errors.replace_host.candidate_not_visible": {
+    "message": "Выбранного элемента данных нет среди предложенных кандидатов.",
+    "placeholders": {}
+  },
+  "errors.replace_host.candidate_value_type_incompatible": {
+    "message": "Тип информации этого элемента данных не подходит графику.",
+    "placeholders": {}
+  },
+  "errors.replace_host.kept_empty": {
+    "message": "Подтверждать нечего.",
+    "placeholders": {}
+  },
+  "errors.replace_host.kept_changed": {
+    "message": "Список изменился после показа. Проверьте его ещё раз и подтвердите.",
+    "placeholders": {}
+  },
+  "errors.replace_host.operation_not_found": {
+    "message": "Запись уже удалена.",
+    "placeholders": {}
+  },
+  "errors.replace_host.changed_concurrently": {
+    "message": "Черновик изменился в другом окне. Обновите его и повторите.",
+    "placeholders": {}
+  },
+  "errors.replace_host.source_not_visible": {
+    "message": "Заменяемый узел сети не найден или нет доступа.",
+    "placeholders": {}
+  },
+  "errors.replace_host.host_objects_limit": {
+    "message": "У узла сети слишком много элементов данных или графиков для сравнения.",
+    "placeholders": {}
+  },
+  "errors.replace_host.internal": {
+    "message": "Черновик не удалось сопоставить со снимком.",
+    "placeholders": {}
+  },
+  "errors.replace_host.other_connection": {
+    "message": "Активно другое подключение. Привязки используют подключение, которым сделана копия.",
+    "placeholders": {}
+  }
+}

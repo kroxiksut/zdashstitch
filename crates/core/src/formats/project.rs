@@ -30,7 +30,12 @@ pub enum ProjectKind {
 }
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
-#[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
+#[serde(
+    tag = "kind",
+    rename_all = "snake_case",
+    deny_unknown_fields,
+    from = "ProjectProvenanceInput"
+)]
 pub enum ProjectProvenance {
     Local,
     MigratedV1 {
@@ -41,6 +46,49 @@ pub enum ProjectProvenance {
         source_page_id: Option<String>,
     },
     ServerSnapshot,
+}
+
+/// Deserialization form of [`ProjectProvenance`]. Unit variants of an
+/// internally tagged enum ignore `deny_unknown_fields` (serde-rs/serde#2294),
+/// so `local` and `server_snapshot` wrap an empty struct that rejects extra
+/// fields. Serialization keeps using the derived `kind: local` form.
+#[derive(Deserialize)]
+#[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
+enum ProjectProvenanceInput {
+    Local(NoFields),
+    MigratedV1 {
+        legacy_format: ProjectFormat,
+        source_project_id: String,
+        source_dashboard_id: String,
+        #[serde(default)]
+        source_page_id: Option<String>,
+    },
+    ServerSnapshot(NoFields),
+}
+
+/// Payload of a tagged unit variant: accepts no fields besides the tag.
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+pub(crate) struct NoFields {}
+
+impl From<ProjectProvenanceInput> for ProjectProvenance {
+    fn from(input: ProjectProvenanceInput) -> Self {
+        match input {
+            ProjectProvenanceInput::Local(NoFields {}) => Self::Local,
+            ProjectProvenanceInput::MigratedV1 {
+                legacy_format,
+                source_project_id,
+                source_dashboard_id,
+                source_page_id,
+            } => Self::MigratedV1 {
+                legacy_format,
+                source_project_id,
+                source_dashboard_id,
+                source_page_id,
+            },
+            ProjectProvenanceInput::ServerSnapshot(NoFields {}) => Self::ServerSnapshot,
+        }
+    }
 }
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
@@ -311,7 +359,7 @@ impl Validate for PortableProject {
             "project dashboards must contain 1..=16 entries",
         )?;
         for dashboard in &self.dashboards {
-            dashboard.validate()?;
+            dashboard.validate_with_page_limit(PROJECT_V1_MAX_PAGES)?;
             ensure(
                 dashboard.pages.iter().all(|page| {
                     page.widgets
@@ -332,7 +380,9 @@ impl Validate for TypedProject {
         self.declared_compatibility.validate()?;
         validate_catalogs_and_roles(&self.catalogs, &self.roles, true)?;
         match (self.kind, &self.root) {
-            (ProjectKind::Dashboard, ProjectRoot::Dashboard(dashboard)) => dashboard.validate()?,
+            (ProjectKind::Dashboard, ProjectRoot::Dashboard(dashboard)) => {
+                dashboard.validate_with_page_limit(PROJECT_V2_MAX_PAGES)?
+            }
             (ProjectKind::Page, ProjectRoot::Page(page)) => page.validate()?,
             _ => {
                 return Err(FormatError::validation(
@@ -548,14 +598,22 @@ fn validate_catalogs_and_roles(
     Ok(())
 }
 
-impl Validate for Dashboard {
-    fn validate(&self) -> Result<()> {
+/// Maximum number of pages in one dashboard of the legacy `project/v1` format.
+pub const PROJECT_V1_MAX_PAGES: usize = 32;
+
+/// Maximum number of pages in the dashboard root of `project/v2`; matches the Zabbix limit
+/// for one dashboard (owner decision of 2026-10-26, coherence review question 1).
+pub const PROJECT_V2_MAX_PAGES: usize = 50;
+
+impl Dashboard {
+    /// Validates the dashboard with the page limit of the format that contains it.
+    pub fn validate_with_page_limit(&self, max_pages: usize) -> Result<()> {
         ensure_slug(&self.id, "dashboard id")?;
         ensure_len(&self.name, 1, 200, "dashboard_name", "dashboard name")?;
         ensure(
-            (1..=32).contains(&self.pages.len()),
+            (1..=max_pages).contains(&self.pages.len()),
             "page_count",
-            "dashboard pages must contain 1..=32 entries",
+            format!("dashboard pages must contain 1..={max_pages} entries"),
         )?;
         for page in &self.pages {
             page.validate()?;

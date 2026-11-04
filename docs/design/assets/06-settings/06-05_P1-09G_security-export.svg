@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 1600 1000" fill="#17213a" role="img" aria-labelledby="title desc">
   <title id="title">ZDashstitch — настройки: безопасность и экспорт</title>
-  <desc id="desc">Светлый макет раздела «Безопасность и экспорт»: «Завершить сессию», политика экспорта (папка, существующий файл, вид пакета, доверенный перенос недоступен, проверка чувствительных значений всегда), подтверждения, которые нельзя отключить, и приватность без телеметрии.</desc>
+  <desc id="desc">Светлый макет раздела «Безопасность и экспорт»: «Завершить сеанс», политика экспорта (папка, существующий файл, вид пакета, доверенный перенос недоступен, проверка чувствительных значений всегда), подтверждения, которые нельзя отключить, и приватность без телеметрии.</desc>
   <defs>
     <!-- Tabler Icons outline v3.49.0 (MIT), see assets/icons/THIRD_PARTY.md -->
     <symbol id="ti-logout" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2"/><path d="M9 12h12l-3 -3"/><path d="M18 15l3 -3"/></symbol>
@@ -62,7 +62,7 @@
   <text x="316" y="250" class="small">Сохранённые черновики остаются на диске.</text>
   <rect x="868" y="212" width="220" height="42" rx="10" fill="#ffffff" stroke="#c9d3ea"/>
   <use href="#ti-logout" x="884" y="224.0" width="18" height="18" color="#a32935"/>
-  <text x="990" y="238" class="button" fill="#a32935" text-anchor="middle">Завершить сессию</text>
+  <text x="990" y="238" class="button" fill="#a32935" text-anchor="middle">Завершить сеанс</text>
   <text x="868" y="280" class="xs muted">Недоступно во время записи в Zabbix</text>
   <rect x="292" y="314" width="820" height="486" rx="16" fill="#ffffff" stroke="#d0d5dd"/>
   <text x="316" y="348" class="label muted">ЭКСПОРТ</text>
@@ -109,7 +109,7 @@
   <use href="#ti-lock" x="1156" y="392" width="18" height="18" color="#475467"/>
   <text x="1184" y="406" class="small">Сброс настроек</text>
   <use href="#ti-lock" x="1156" y="426" width="18" height="18" color="#475467"/>
-  <text x="1184" y="440" class="small">Завершить сессию</text>
+  <text x="1184" y="440" class="small">Завершить сеанс</text>
   <text x="1156" y="480" class="xs muted">Остальные подтверждения (удаление</text>
   <text x="1156" y="498" class="xs muted">страницы, массовые действия) —</text>
   <text x="1156" y="516" class="xs muted">в разделе «Редактор».</text>

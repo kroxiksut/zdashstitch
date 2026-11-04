@@ -112,33 +112,78 @@ def test_plural_argument_must_be_a_number(tmp_path: Path) -> None:
 
 def test_select_requires_other_and_a_text_argument(tmp_path: Path) -> None:
     path = tmp_path / "catalog.json"
-    BUILD_I18N.validate_entry(
-        path,
-        "test.message",
-        {
-            "message": "{count, plural, one {# page} other {# pages}}{sources, select, other {: {sources}}}",
-            "placeholders": {"count": "number", "sources": "text_optional"},
-        },
-        "en",
-    )
+    for argument_type in ("text", "technical"):
+        BUILD_I18N.validate_entry(
+            path,
+            "test.message",
+            {
+                "message": "{kind, select, page {Page {name}} dashboard {Dashboard} other {Object}}",
+                "placeholders": {"kind": argument_type, "name": "text"},
+            },
+            "en",
+        )
     with pytest.raises(BUILD_I18N.CatalogError, match="other branch"):
         BUILD_I18N.validate_entry(
             path,
             "test.message",
             {"message": "{kind, select, page {Page}}", "placeholders": {"kind": "text"}},
         )
-    with pytest.raises(BUILD_I18N.CatalogError, match="must be declared text"):
+    with pytest.raises(BUILD_I18N.CatalogError, match="duplicate select key"):
         BUILD_I18N.validate_entry(
             path,
             "test.message",
-            {"message": "{kind, select, other {x}}", "placeholders": {"kind": "number"}},
+            {"message": "{kind, select, page {A} page {B} other {C}}", "placeholders": {"kind": "text"}},
         )
+    with pytest.raises(BUILD_I18N.CatalogError, match="invalid select key"):
+        BUILD_I18N.validate_entry(
+            path,
+            "test.message",
+            {"message": "{kind, select, Page {A} other {C}}", "placeholders": {"kind": "text"}},
+        )
+    # The select argument is required (O-035): neither a number nor an optional type.
+    for argument_type in ("number", "technical_optional", "date"):
+        with pytest.raises(BUILD_I18N.CatalogError, match="must be declared text or technical"):
+            BUILD_I18N.validate_entry(
+                path,
+                "test.message",
+                {"message": "{kind, select, other {x}}", "placeholders": {"kind": argument_type}},
+            )
     with pytest.raises(BUILD_I18N.CatalogError, match="placeholder mismatch"):
         BUILD_I18N.validate_entry(
             path,
             "test.message",
             {"message": "{kind, select, other {{name}}}", "placeholders": {"kind": "text"}},
         )
+
+
+def test_optional_select_suffix_type_is_rejected(tmp_path: Path) -> None:
+    # O-035: an optional part of a phrase is a separate message ID, not an empty select branch.
+    assert "text_optional" not in BUILD_I18N.PLACEHOLDER_TYPES
+    with pytest.raises(BUILD_I18N.CatalogError, match="unsupported placeholder type"):
+        BUILD_I18N.validate_entry(
+            tmp_path / "catalog.json",
+            "test.message",
+            {
+                "message": "{count, plural, one {# page} other {# pages}}{sources, select, other {: {sources}}}",
+                "placeholders": {"count": "number", "sources": "text_optional"},
+            },
+            "en",
+        )
+
+
+def test_generated_select_arguments_are_required(tmp_path: Path) -> None:
+    catalogs = {
+        locale: {
+            "test.message": {
+                "message": "{kind, select, other {{name}}}",
+                "placeholders": {"kind": "text", "name": "technical_optional"},
+            }
+        }
+        for locale in BUILD_I18N.LOCALES
+    }
+    generated = BUILD_I18N.generate_typescript(catalogs)
+    assert '"kind": string;' in generated
+    assert '"name"?: string | undefined;' in generated
 
 
 def test_unknown_placeholder_type_is_rejected(tmp_path: Path) -> None:

@@ -1,0 +1,1649 @@
+{
+  "publication.title": {
+    "message": "Preview and publish",
+    "placeholders": {}
+  },
+  "publication.a11y.steps": {
+    "message": "Publication steps",
+    "placeholders": {}
+  },
+  "publication.step.target": {
+    "message": "Target",
+    "placeholders": {}
+  },
+  "publication.step.checks": {
+    "message": "Checks",
+    "placeholders": {}
+  },
+  "publication.step.changes": {
+    "message": "Changes",
+    "placeholders": {}
+  },
+  "publication.step.confirm": {
+    "message": "Confirmation",
+    "placeholders": {}
+  },
+  "publication.step.write": {
+    "message": "Write and verify",
+    "placeholders": {}
+  },
+  "publication.context.operation": {
+    "message": "Operation",
+    "placeholders": {}
+  },
+  "publication.context.source": {
+    "message": "Source (base)",
+    "placeholders": {}
+  },
+  "publication.context.target": {
+    "message": "Target dashboard",
+    "placeholders": {}
+  },
+  "publication.context.target_not_chosen": {
+    "message": "Not chosen",
+    "placeholders": {}
+  },
+  "publication.context.connection": {
+    "message": "Connection",
+    "placeholders": {}
+  },
+  "publication.context.scope": {
+    "message": "Scope",
+    "placeholders": {}
+  },
+  "publication.context.scope_value": {
+    "message": "{changed} of {total, plural, one {# widget} other {# widgets}}",
+    "placeholders": {
+      "changed": "number",
+      "total": "number"
+    }
+  },
+  "publication.context.pages_value": {
+    "message": "{count, plural, one {# page} other {# pages}}",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "publication.preview.read_only_note": {
+    "message": "Checks only read; nothing changes on the server until you confirm the write.",
+    "placeholders": {}
+  },
+  "publication.none.title": {
+    "message": "Nothing to publish yet",
+    "placeholders": {}
+  },
+  "publication.none.body": {
+    "message": "Choose the change in «Bindings»: the preview appears after the mapping is calculated.",
+    "placeholders": {}
+  },
+  "publication.preflight.title": {
+    "message": "Preflight checks",
+    "placeholders": {}
+  },
+  "publication.preflight.blocked": {
+    "message": "Publication is blocked",
+    "placeholders": {}
+  },
+  "publication.check.summary.ready": {
+    "message": "Ready to confirm",
+    "placeholders": {}
+  },
+  "publication.check.recheck": {
+    "message": "Check again",
+    "placeholders": {}
+  },
+  "publication.check.summary.plan_not_built": {
+    "message": "No write plan is built while blockers remain.",
+    "placeholders": {}
+  },
+  "publication.check.count.blocking": {
+    "message": "Blocking: {count}",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "publication.check.count.warnings": {
+    "message": "Warnings: {count}",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "publication.check.status.blocks": {
+    "message": "Blocks",
+    "placeholders": {}
+  },
+  "publication.check.status.warning": {
+    "message": "Warning",
+    "placeholders": {}
+  },
+  "publication.check.group.connection": {
+    "message": "Connection and permissions",
+    "placeholders": {}
+  },
+  "publication.check.group.source": {
+    "message": "Source",
+    "placeholders": {}
+  },
+  "publication.check.group.widgets": {
+    "message": "Widgets and fields",
+    "placeholders": {}
+  },
+  "publication.check.group.bindings": {
+    "message": "Bindings",
+    "placeholders": {}
+  },
+  "publication.check.group.plan": {
+    "message": "Plan",
+    "placeholders": {}
+  },
+  "publication.check.fixed_in": {
+    "message": "Fixed in: {section}",
+    "placeholders": {
+      "section": "text"
+    }
+  },
+  "publication.check.confirm_kept": {
+    "message": "Confirm the list of widgets that stay on the old host",
+    "placeholders": {}
+  },
+  "publication.check.action.confirm_kept": {
+    "message": "Confirm list ({count})",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "publication.check.action.open_bindings": {
+    "message": "Open bindings",
+    "placeholders": {}
+  },
+  "publication.check.none": {
+    "message": "No findings.",
+    "placeholders": {}
+  },
+  "publication.finding.no_changes": {
+    "message": "The draft changes nothing on the server.",
+    "placeholders": {}
+  },
+  "publication.finding.capability_not_verified": {
+    "message": "Not verified for this server: {capability}",
+    "placeholders": {
+      "capability": "technical"
+    }
+  },
+  "publication.finding.connection_required": {
+    "message": "Connect to Zabbix to check the server.",
+    "placeholders": {}
+  },
+  "publication.finding.write_mode_required": {
+    "message": "The connection is read-only: publication needs read-write mode.",
+    "placeholders": {}
+  },
+  "publication.finding.server_version_mismatch": {
+    "message": "The server version differs from the snapshot ({base_version}).",
+    "placeholders": {
+      "base_version": "technical"
+    }
+  },
+  "publication.finding.write_contract_unverified": {
+    "message": "Not verified by a laboratory contract: {contract}",
+    "placeholders": {
+      "contract": "text"
+    }
+  },
+  "publication.finding.target_host_not_visible": {
+    "message": "The new host is not found or not visible.",
+    "placeholders": {}
+  },
+  "publication.finding.binding_unresolved": {
+    "message": "The reference is not resolved",
+    "placeholders": {}
+  },
+  "publication.finding.source_unverified": {
+    "message": "The reference cannot be checked: it may point at the replaced host",
+    "placeholders": {}
+  },
+  "publication.finding.decision_invalid": {
+    "message": "The decision no longer fits the reference",
+    "placeholders": {}
+  },
+  "publication.finding.binding_stale": {
+    "message": "The binding is out of date: check it again",
+    "placeholders": {}
+  },
+  "publication.finding.binding_invalid": {
+    "message": "The binding is invalid",
+    "placeholders": {}
+  },
+  "publication.finding.match_differences": {
+    "message": "Matched with differences: {differences}",
+    "placeholders": {
+      "differences": "text"
+    }
+  },
+  "publication.finding.kept_on_source": {
+    "message": "Stays on {host}",
+    "placeholders": {
+      "host": "text"
+    }
+  },
+  "publication.finding.kept_on_source_confirmation_stale": {
+    "message": "The list changed after confirmation: confirm it again",
+    "placeholders": {}
+  },
+  "publication.finding.scope_link_crossing.provider_outside": {
+    "message": "A widget link crosses the scope: the source widget is outside",
+    "placeholders": {}
+  },
+  "publication.finding.scope_link_crossing.consumer_outside": {
+    "message": "A widget link crosses the scope: the receiving widget is outside",
+    "placeholders": {}
+  },
+  "publication.finding.unknown": {
+    "message": "Finding code: {code}",
+    "placeholders": {
+      "code": "technical"
+    }
+  },
+  "publication.contract.update_one_page_with_full_fields": {
+    "message": "updating a page with all its fields",
+    "placeholders": {}
+  },
+  "publication.contract.preserve_untouched_pages": {
+    "message": "keeping untouched pages",
+    "placeholders": {}
+  },
+  "publication.contract.preserve_widget_references": {
+    "message": "keeping widget links",
+    "placeholders": {}
+  },
+  "publication.contract.reconcile_unknown_outcome": {
+    "message": "checking an unknown result",
+    "placeholders": {}
+  },
+  "publication.contract.item_widget_itemid": {
+    "message": "the item of the «Item value» widget",
+    "placeholders": {}
+  },
+  "publication.contract.svggraph_dataset_itemids": {
+    "message": "items of «Graph» data sets",
+    "placeholders": {}
+  },
+  "publication.contract.svggraph_dataset_hosts": {
+    "message": "host patterns of «Graph» data sets",
+    "placeholders": {}
+  },
+  "publication.contract.update_several_pages": {
+    "message": "several pages in one update",
+    "placeholders": {}
+  },
+  "publication.diff.tab.local": {
+    "message": "My changes: base → draft",
+    "placeholders": {}
+  },
+  "publication.diff.tab.remote": {
+    "message": "On server: base → Zabbix now",
+    "placeholders": {}
+  },
+  "publication.diff.no_changes": {
+    "message": "No changes",
+    "placeholders": {}
+  },
+  "publication.diff.filter.label": {
+    "message": "Show",
+    "placeholders": {}
+  },
+  "publication.diff.filter.changed": {
+    "message": "Changed",
+    "placeholders": {}
+  },
+  "publication.diff.filter.kept": {
+    "message": "Stay",
+    "placeholders": {}
+  },
+  "publication.diff.filter.untouched": {
+    "message": "Not changed",
+    "placeholders": {}
+  },
+  "publication.diff.filter.unresolved": {
+    "message": "Not resolved",
+    "placeholders": {}
+  },
+  "publication.diff.search": {
+    "message": "Search by widget name, field or value",
+    "placeholders": {}
+  },
+  "publication.diff.column.object": {
+    "message": "Object",
+    "placeholders": {}
+  },
+  "publication.diff.column.change": {
+    "message": "Change",
+    "placeholders": {}
+  },
+  "publication.diff.column.before": {
+    "message": "Before (base)",
+    "placeholders": {}
+  },
+  "publication.diff.column.after": {
+    "message": "After",
+    "placeholders": {}
+  },
+  "publication.diff.change.field": {
+    "message": "{count, plural, one {# field changed} other {# fields changed}}",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "publication.diff.change.kept": {
+    "message": "Stays on the old host",
+    "placeholders": {}
+  },
+  "publication.diff.change.unresolved": {
+    "message": "Not resolved",
+    "placeholders": {}
+  },
+  "publication.diff.page_summary": {
+    "message": "{changed} of {total} widgets changed",
+    "placeholders": {
+      "changed": "number",
+      "total": "number"
+    }
+  },
+  "publication.diff.matching_by_id": {
+    "message": "Widgets are matched by Zabbix IDs from the base; they are sent and preserved on write.",
+    "placeholders": {}
+  },
+  "publication.diff.out_of_scope": {
+    "message": "Outside the scope",
+    "placeholders": {}
+  },
+  "publication.diff.empty_filter": {
+    "message": "No widgets match the filter and search.",
+    "placeholders": {}
+  },
+  "publication.diff.remote_later": {
+    "message": "Run «Check again» with the draft's connection to compare with the current state of the server.",
+    "placeholders": {}
+  },
+  "publication.diff.caption": {
+    "message": "Changes on page {page}",
+    "placeholders": {
+      "page": "text"
+    }
+  },
+  "publication.diff.inspector.title": {
+    "message": "Selected",
+    "placeholders": {}
+  },
+  "publication.diff.inspector.none": {
+    "message": "Choose a widget to see its changes.",
+    "placeholders": {}
+  },
+  "publication.diff.inspector.changed_fields": {
+    "message": "Changed fields",
+    "placeholders": {}
+  },
+  "publication.diff.inspector.sources": {
+    "message": "Data sources",
+    "placeholders": {}
+  },
+  "publication.diff.inspector.series": {
+    "message": "Data set {index}",
+    "placeholders": {
+      "index": "number"
+    }
+  },
+  "publication.diff.inspector.unchanged": {
+    "message": "Not changed",
+    "placeholders": {}
+  },
+  "publication.diff.inspector.unchanged_body": {
+    "message": "Position, size, refresh period and all other fields.",
+    "placeholders": {}
+  },
+  "publication.tech.title": {
+    "message": "Technical details",
+    "placeholders": {}
+  },
+  "publication.tech.widgetid": {
+    "message": "Widget ID",
+    "placeholders": {}
+  },
+  "publication.tech.pageid": {
+    "message": "Page ID",
+    "placeholders": {}
+  },
+  "publication.tech.widget_type": {
+    "message": "Widget type code",
+    "placeholders": {}
+  },
+  "publication.tech.fields": {
+    "message": "Field codes",
+    "placeholders": {}
+  },
+  "publication.tech.base": {
+    "message": "Base fingerprint",
+    "placeholders": {}
+  },
+  "publication.tech.local": {
+    "message": "Draft fingerprint",
+    "placeholders": {}
+  },
+  "publication.tech.revision": {
+    "message": "Draft revision",
+    "placeholders": {}
+  },
+  "publication.later.hint": {
+    "message": "Publishing comes in a later version: no plan is built and nothing is written.",
+    "placeholders": {}
+  },
+  "publication.kept.confirmed_done": {
+    "message": "List confirmed",
+    "placeholders": {}
+  },
+  "publication.plan.invalidated": {
+    "message": "The plan is no longer valid: {reason}. Build a new preview.",
+    "placeholders": {
+      "reason": "text"
+    }
+  },
+  "publication.plan.reason.draft_changed": {
+    "message": "the draft changed after preview",
+    "placeholders": {}
+  },
+  "publication.plan.reason.target_changed": {
+    "message": "the target or action changed",
+    "placeholders": {}
+  },
+  "publication.plan.reason.connection_changed": {
+    "message": "the connection, mode or credentials changed",
+    "placeholders": {}
+  },
+  "publication.plan.reason.bindings_changed": {
+    "message": "bindings changed",
+    "placeholders": {}
+  },
+  "publication.plan.reason.source_changed": {
+    "message": "the dashboard on the server changed or must be checked again",
+    "placeholders": {}
+  },
+  "publication.plan.reason.app_restarted": {
+    "message": "the application was restarted",
+    "placeholders": {}
+  },
+  "publication.plan.reason.session_ended": {
+    "message": "the local session ended",
+    "placeholders": {}
+  },
+  "publication.plan.reason.unknown": {
+    "message": "unknown reason ({code})",
+    "placeholders": {
+      "code": "technical"
+    }
+  },
+  "publication.finding.dashboard_not_editable": {
+    "message": "No permission to change the target dashboard",
+    "placeholders": {}
+  },
+  "publication.contract.resend_widget_type": {
+    "message": "resending an unchanged {widget_type} widget on a changed page",
+    "placeholders": {
+      "widget_type": "technical"
+    }
+  },
+  "intent.save_as_copy": {
+    "message": "Save as copy",
+    "placeholders": {}
+  },
+  "intent.replace_item_fields": {
+    "message": "Replace items",
+    "placeholders": {}
+  },
+  "intent.unknown": {
+    "message": "Operation {code}",
+    "placeholders": {
+      "code": "technical"
+    }
+  },
+  "publication.context.target_same": {
+    "message": "The same dashboard on the server",
+    "placeholders": {}
+  },
+  "publication.context.target_new": {
+    "message": "New dashboard «{name}»",
+    "placeholders": {
+      "name": "text"
+    }
+  },
+  "publication.context.target_hint": {
+    "message": "chosen at the «Target» step",
+    "placeholders": {}
+  },
+  "publication.expected.title": {
+    "message": "Expected result: {summary}",
+    "placeholders": {
+      "summary": "text"
+    }
+  },
+  "publication.expected.replace_host": {
+    "message": "{count, plural, one {in # widget the host {source} is replaced by {target}; the rest of the dashboard does not change} other {in # widgets the host {source} is replaced by {target}; the rest of the dashboard does not change}}",
+    "placeholders": {
+      "count": "number",
+      "source": "text",
+      "target": "text"
+    }
+  },
+  "publication.expected.save_as_copy": {
+    "message": "{pages, plural, one {a new private dashboard «{name}» with # page; the source dashboard does not change} other {a new private dashboard «{name}» with # pages; the source dashboard does not change}}",
+    "placeholders": {
+      "pages": "number",
+      "name": "text"
+    }
+  },
+  "publication.expected.choose_action": {
+    "message": "choose the action at the «Target» step",
+    "placeholders": {}
+  },
+  "publication.target.title": {
+    "message": "Action",
+    "placeholders": {}
+  },
+  "publication.target.choose_explicitly": {
+    "message": "Choose explicitly: there is no default.",
+    "placeholders": {}
+  },
+  "publication.target.save_copy": {
+    "message": "Save as copy",
+    "placeholders": {}
+  },
+  "publication.target.save_copy_hint": {
+    "message": "A new dashboard with the host replaced. The source dashboard does not change.",
+    "placeholders": {}
+  },
+  "publication.target.update_source": {
+    "message": "Update the source dashboard «{dashboard_name}»",
+    "placeholders": {
+      "dashboard_name": "text"
+    }
+  },
+  "publication.target.update_source_hint": {
+    "message": "Changes the existing dashboard on the server with one request after confirmation.",
+    "placeholders": {}
+  },
+  "publication.target.update_visible_to_all": {
+    "message": "Everyone with access to this dashboard will see it changed.",
+    "placeholders": {}
+  },
+  "publication.target.name": {
+    "message": "New dashboard name",
+    "placeholders": {}
+  },
+  "publication.target.name_server_check": {
+    "message": "Dashboard names are unique on the whole server, including dashboards you cannot see. The server makes the final check on write.",
+    "placeholders": {}
+  },
+  "publication.target.name_required": {
+    "message": "Enter the name of the new dashboard.",
+    "placeholders": {}
+  },
+  "publication.target.no_retarget": {
+    "message": "The target cannot be another dashboard: the host replacement is written to the source dashboard or to its copy.",
+    "placeholders": {}
+  },
+  "publication.untouched.title": {
+    "message": "Not changed",
+    "placeholders": {}
+  },
+  "publication.untouched.widgets": {
+    "message": "{count, plural, one {# widget without references to {host} is sent as is, with its IDs} other {# widgets without references to {host} are sent as is, with their IDs}}",
+    "placeholders": {
+      "count": "number",
+      "host": "text"
+    }
+  },
+  "publication.untouched.pages": {
+    "message": "Pages, their order and periods; the dashboard name and properties",
+    "placeholders": {}
+  },
+  "publication.untouched.access": {
+    "message": "Owner and sharing are not sent in the request, so they stay as they are",
+    "placeholders": {}
+  },
+  "publication.untouched.zabbix_objects": {
+    "message": "Hosts, templates, items and triggers never change",
+    "placeholders": {}
+  },
+  "publication.untouched.source": {
+    "message": "The source dashboard «{dashboard_name}» does not change",
+    "placeholders": {
+      "dashboard_name": "text"
+    }
+  },
+  "publication.access.title": {
+    "message": "Owner and sharing",
+    "placeholders": {}
+  },
+  "publication.access.copy_private": {
+    "message": "The new dashboard is private and you are its owner. Writing sharing is turned on after its laboratory check.",
+    "placeholders": {}
+  },
+  "publication.access.update_not_sent": {
+    "message": "This publication does not change the owner or sharing: the request does not contain them.",
+    "placeholders": {}
+  },
+  "publication.action.next_checks": {
+    "message": "Next: checks",
+    "placeholders": {}
+  },
+  "publication.action.next_changes": {
+    "message": "Next: changes",
+    "placeholders": {}
+  },
+  "publication.action.next_confirm": {
+    "message": "Next: confirmation",
+    "placeholders": {}
+  },
+  "publication.action.back_target": {
+    "message": "Back: target",
+    "placeholders": {}
+  },
+  "publication.action.back_checks": {
+    "message": "Back: checks",
+    "placeholders": {}
+  },
+  "publication.action.back_changes": {
+    "message": "Back: changes",
+    "placeholders": {}
+  },
+  "publication.action.confirm_dialog": {
+    "message": "Confirm write…",
+    "placeholders": {}
+  },
+  "publication.action.confirm_write": {
+    "message": "Write to Zabbix",
+    "placeholders": {}
+  },
+  "publication.action.reconcile": {
+    "message": "Check result",
+    "placeholders": {}
+  },
+  "publication.action.open_in_zabbix": {
+    "message": "Open in Zabbix",
+    "placeholders": {}
+  },
+  "publication.action.open_journal": {
+    "message": "Operation journal",
+    "placeholders": {}
+  },
+  "publication.action.back_to_draft": {
+    "message": "Back to the draft",
+    "placeholders": {}
+  },
+  "publication.action.new_preview": {
+    "message": "New preview",
+    "placeholders": {}
+  },
+  "publication.action.open_server": {
+    "message": "Open «Dashboards in Zabbix»",
+    "placeholders": {}
+  },
+  "publication.confirm.requirements": {
+    "message": "Confirmation needs the read-write mode of the draft's connection, a chosen action and checks without blockers.",
+    "placeholders": {}
+  },
+  "publication.confirm.building": {
+    "message": "The plan is being built and checked…",
+    "placeholders": {}
+  },
+  "publication.confirm.target_line": {
+    "message": "Target: {target}.",
+    "placeholders": {
+      "target": "text"
+    }
+  },
+  "publication.confirm.title": {
+    "message": "Confirm writing the dashboard",
+    "placeholders": {}
+  },
+  "publication.confirm.question_update": {
+    "message": "{count, plural, one {Write # verified change to the dashboard «{dashboard_name}»?} other {Write # verified changes to the dashboard «{dashboard_name}»?}}",
+    "placeholders": {
+      "count": "number",
+      "dashboard_name": "text"
+    }
+  },
+  "publication.confirm.question_create": {
+    "message": "Create the new dashboard «{name}»?",
+    "placeholders": {
+      "name": "text"
+    }
+  },
+  "publication.confirm.field.connection": {
+    "message": "Connection",
+    "placeholders": {}
+  },
+  "publication.confirm.connection_value": {
+    "message": "{profile} · Zabbix {version} · read-write",
+    "placeholders": {
+      "profile": "text",
+      "version": "technical"
+    }
+  },
+  "publication.confirm.field.dashboard": {
+    "message": "Dashboard",
+    "placeholders": {}
+  },
+  "publication.confirm.dashboard_existing": {
+    "message": "«{dashboard_name}» — existing, updated",
+    "placeholders": {
+      "dashboard_name": "text"
+    }
+  },
+  "publication.confirm.dashboard_new": {
+    "message": "«{name}» — new, private",
+    "placeholders": {
+      "name": "text"
+    }
+  },
+  "publication.confirm.field.action": {
+    "message": "Action",
+    "placeholders": {}
+  },
+  "publication.confirm.api_update": {
+    "message": "One request that updates the dashboard",
+    "placeholders": {}
+  },
+  "publication.confirm.api_create": {
+    "message": "One request that creates the dashboard",
+    "placeholders": {}
+  },
+  "publication.confirm.field.changes": {
+    "message": "Changes",
+    "placeholders": {}
+  },
+  "publication.confirm.changes_update": {
+    "message": "{count, plural, one {# field: host {source} → {target}} other {# fields: host {source} → {target}}}",
+    "placeholders": {
+      "count": "number",
+      "source": "text",
+      "target": "text"
+    }
+  },
+  "publication.confirm.changes_create": {
+    "message": "{pages, plural, one {# page with all its widgets} other {# pages with all their widgets}}",
+    "placeholders": {
+      "pages": "number"
+    }
+  },
+  "publication.confirm.field.unchanged": {
+    "message": "Not changed",
+    "placeholders": {}
+  },
+  "publication.confirm.unchanged_update": {
+    "message": "{count, plural, one {# widget, the pages, properties, owner and sharing} other {# widgets, the pages, properties, owner and sharing}}",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "publication.confirm.field.warnings": {
+    "message": "Warnings",
+    "placeholders": {}
+  },
+  "publication.confirm.warnings_reviewed": {
+    "message": "{count, plural, one {# warning — reviewed} other {# warnings — reviewed}}",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "publication.confirm.field.kept": {
+    "message": "Stays on {host}",
+    "placeholders": {
+      "host": "text"
+    }
+  },
+  "publication.confirm.kept_confirmed": {
+    "message": "{count, plural, one {# reference — list confirmed} other {# references — list confirmed}}",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "publication.confirm.field.plan": {
+    "message": "Plan",
+    "placeholders": {}
+  },
+  "publication.confirm.plan_once": {
+    "message": "Valid once; built at {time}",
+    "placeholders": {
+      "time": "datetime"
+    }
+  },
+  "publication.confirm.reread": {
+    "message": "The dashboard is read again before sending. If it changed after the check at {time}, nothing is written.",
+    "placeholders": {
+      "time": "datetime"
+    }
+  },
+  "publication.confirm.create_name_check": {
+    "message": "The name is checked by the server on write: a dashboard you cannot see may already have it.",
+    "placeholders": {}
+  },
+  "publication.confirm.invalid_when": {
+    "message": "The plan becomes invalid if the draft, target, connection, mode or permissions change — then a new preview is needed.",
+    "placeholders": {}
+  },
+  "publication.confirm.no_cancel_after_send": {
+    "message": "After sending, the write cannot be cancelled; the result is checked by reading back.",
+    "placeholders": {}
+  },
+  "publication.stages.title": {
+    "message": "Stages",
+    "placeholders": {}
+  },
+  "publication.stage.pre_read": {
+    "message": "Read before write",
+    "placeholders": {}
+  },
+  "publication.stage.name_check": {
+    "message": "Name check",
+    "placeholders": {}
+  },
+  "publication.stage.write": {
+    "message": "Write",
+    "placeholders": {}
+  },
+  "publication.stage.read_back": {
+    "message": "Read back",
+    "placeholders": {}
+  },
+  "publication.stage.structure": {
+    "message": "Structure",
+    "placeholders": {}
+  },
+  "publication.stage.sources": {
+    "message": "Data sources",
+    "placeholders": {}
+  },
+  "publication.stage.display": {
+    "message": "Display",
+    "placeholders": {}
+  },
+  "publication.stage.display_not_checked": {
+    "message": "Not checked automatically: open the dashboard in Zabbix",
+    "placeholders": {}
+  },
+  "publication.stage.waiting": {
+    "message": "Waiting for the server response…",
+    "placeholders": {}
+  },
+  "publication.stage.sending": {
+    "message": "Sending one verified request…",
+    "placeholders": {}
+  },
+  "publication.stage.pre_read_done": {
+    "message": "The dashboard matches the base",
+    "placeholders": {}
+  },
+  "publication.stage.name_check_done": {
+    "message": "Free among visible dashboards",
+    "placeholders": {}
+  },
+  "publication.stage.write_done": {
+    "message": "One request, response received",
+    "placeholders": {}
+  },
+  "publication.stage.write_unknown": {
+    "message": "The request was sent, no usable response was received: the dashboard may have been written.",
+    "placeholders": {}
+  },
+  "publication.stage.not_sent": {
+    "message": "Not sent",
+    "placeholders": {}
+  },
+  "publication.stage.read_back_done": {
+    "message": "The dashboard was read back",
+    "placeholders": {}
+  },
+  "publication.stage.not_done": {
+    "message": "Not done",
+    "placeholders": {}
+  },
+  "publication.stage.structure_done": {
+    "message": "Changed as in the plan; untouched widgets, pages and IDs are in place; unknown fields kept",
+    "placeholders": {}
+  },
+  "publication.stage.sources_done": {
+    "message": "References point to the items of the plan",
+    "placeholders": {}
+  },
+  "publication.stage.at": {
+    "message": "{time}",
+    "placeholders": {
+      "time": "datetime"
+    }
+  },
+  "publication.state.verified": {
+    "message": "Verified by reading back",
+    "placeholders": {}
+  },
+  "publication.state.conflict": {
+    "message": "Changed on the server",
+    "placeholders": {}
+  },
+  "publication.state.failed_before_send": {
+    "message": "Not sent",
+    "placeholders": {}
+  },
+  "publication.state.failed_after_response": {
+    "message": "Error after the server response",
+    "placeholders": {}
+  },
+  "publication.state.unknown_outcome": {
+    "message": "Publication result unknown",
+    "placeholders": {}
+  },
+  "publication.state.reconciled_verified": {
+    "message": "Checked: written",
+    "placeholders": {}
+  },
+  "publication.state.reconciled_failed": {
+    "message": "Checked: not written",
+    "placeholders": {}
+  },
+  "publication.state.manual_check_required": {
+    "message": "Manual check required",
+    "placeholders": {}
+  },
+  "publication.state.submitting": {
+    "message": "Writing, no result",
+    "placeholders": {}
+  },
+  "publication.state.confirmed": {
+    "message": "Confirmed, not sent",
+    "placeholders": {}
+  },
+  "publication.state.closed_manually": {
+    "message": "Closed manually, result not checked",
+    "placeholders": {}
+  },
+  "publication.result.verified_body": {
+    "message": "Structure and data sources were checked. Check how the dashboard looks in Zabbix.",
+    "placeholders": {}
+  },
+  "publication.result.unknown_body": {
+    "message": "Do not publish again. Read the dashboard to find out the result.",
+    "placeholders": {}
+  },
+  "publication.result.failed_after_response_body": {
+    "message": "The server answered, but the result is not as planned. Only a check by reading is possible, then a new plan.",
+    "placeholders": {}
+  },
+  "publication.result.failed_before_send_body": {
+    "message": "Nothing was sent: {reason}",
+    "placeholders": {
+      "reason": "text"
+    }
+  },
+  "publication.result.reconciled_verified_body": {
+    "message": "Checked by reading: the dashboard is as planned.",
+    "placeholders": {}
+  },
+  "publication.result.reconciled_failed_body": {
+    "message": "Checked by reading: nothing was written. Build a new preview.",
+    "placeholders": {}
+  },
+  "publication.result.manual_body": {
+    "message": "Reading did not find exactly one dashboard as planned: none, several or a different structure. Check in Zabbix; new writes to this target stay blocked until the result is checked or the operation is closed without checking.",
+    "placeholders": {}
+  },
+  "publication.result.manual_update_body": {
+    "message": "The dashboard matches neither the plan nor the base, or it is not visible. Check it in Zabbix; new writes to it stay blocked until the result is checked or the operation is closed without checking.",
+    "placeholders": {}
+  },
+  "publication.result.closed_manually_body": {
+    "message": "Closed without checking: the result stays unknown. A new publication starts with a fresh read.",
+    "placeholders": {}
+  },
+  "publication.result.base_advanced": {
+    "message": "The snapshot after writing became the new base of this draft.",
+    "placeholders": {}
+  },
+  "publication.result.base_not_advanced": {
+    "message": "The draft keeps its previous base; check the source before the next publication.",
+    "placeholders": {}
+  },
+  "publication.result.copy_created": {
+    "message": "The new dashboard «{name}» was added to the dashboards created from this draft.",
+    "placeholders": {
+      "name": "text"
+    }
+  },
+  "publication.result.journal_error": {
+    "message": "The journal could not record the result ({code}): the operation is treated as unfinished.",
+    "placeholders": {
+      "code": "technical"
+    }
+  },
+  "errors.publication.name_taken_maybe_hidden": {
+    "message": "The name is taken, possibly by a dashboard you cannot see. Nothing was created; choose another name.",
+    "placeholders": {}
+  },
+  "publication.reconcile.title": {
+    "message": "What the result check shows",
+    "placeholders": {}
+  },
+  "publication.reconcile.column.found": {
+    "message": "Found",
+    "placeholders": {}
+  },
+  "publication.reconcile.column.result": {
+    "message": "Result",
+    "placeholders": {}
+  },
+  "publication.reconcile.column.next": {
+    "message": "Next",
+    "placeholders": {}
+  },
+  "publication.reconcile.found_one": {
+    "message": "One dashboard, structure as planned",
+    "placeholders": {}
+  },
+  "publication.reconcile.found_none_or_other": {
+    "message": "None, several, or a different structure",
+    "placeholders": {}
+  },
+  "publication.reconcile.found_expected": {
+    "message": "The dashboard as planned",
+    "placeholders": {}
+  },
+  "publication.reconcile.found_base": {
+    "message": "The dashboard as in the base",
+    "placeholders": {}
+  },
+  "publication.reconcile.found_other": {
+    "message": "Something else, or not visible",
+    "placeholders": {}
+  },
+  "publication.reconcile.next_continue": {
+    "message": "you can continue",
+    "placeholders": {}
+  },
+  "publication.reconcile.next_new_preview": {
+    "message": "new preview",
+    "placeholders": {}
+  },
+  "publication.reconcile.next_open": {
+    "message": "open in Zabbix",
+    "placeholders": {}
+  },
+  "publication.reconcile.write_blocked": {
+    "message": "New writes to this target are blocked until the result is checked.",
+    "placeholders": {}
+  },
+  "publication.reconcile.create_note": {
+    "message": "Read only: the dashboard is looked up by exact name and structure fingerprint. Nothing is sent again.",
+    "placeholders": {}
+  },
+  "publication.reconcile.update_note": {
+    "message": "Read only: the dashboard is compared with the planned result and with the base. Nothing is sent again.",
+    "placeholders": {}
+  },
+  "publication.reconcile.read_only_enough": {
+    "message": "Read-only mode is enough for the check.",
+    "placeholders": {}
+  },
+  "publication.journal.title": {
+    "message": "Journal",
+    "placeholders": {}
+  },
+  "publication.journal.description": {
+    "message": "Local record of the operation. It holds no request content, secrets or server answers.",
+    "placeholders": {}
+  },
+  "publication.journal.field.state": {
+    "message": "State",
+    "placeholders": {}
+  },
+  "publication.journal.field.started": {
+    "message": "Started",
+    "placeholders": {}
+  },
+  "publication.journal.field.finished": {
+    "message": "Finished",
+    "placeholders": {}
+  },
+  "publication.journal.field.sent": {
+    "message": "Sent",
+    "placeholders": {}
+  },
+  "publication.journal.field.repeats": {
+    "message": "Repeated writes",
+    "placeholders": {}
+  },
+  "publication.journal.field.operation": {
+    "message": "Operation",
+    "placeholders": {}
+  },
+  "publication.journal.field.operation_id": {
+    "message": "Operation ID",
+    "placeholders": {}
+  },
+  "publication.journal.field.connection": {
+    "message": "Connection",
+    "placeholders": {}
+  },
+  "publication.journal.field.server_version": {
+    "message": "Zabbix version",
+    "placeholders": {}
+  },
+  "publication.journal.field.target": {
+    "message": "Target",
+    "placeholders": {}
+  },
+  "publication.journal.field.source": {
+    "message": "Source",
+    "placeholders": {}
+  },
+  "publication.journal.field.sends": {
+    "message": "Write requests",
+    "placeholders": {}
+  },
+  "publication.journal.field.evidence": {
+    "message": "What the check found",
+    "placeholders": {}
+  },
+  "publication.journal.field.closed_by": {
+    "message": "Closed by",
+    "placeholders": {}
+  },
+  "publication.journal.field.transitions": {
+    "message": "States",
+    "placeholders": {}
+  },
+  "publication.journal.transition": {
+    "message": "{state} — {time}",
+    "placeholders": {
+      "state": "text",
+      "time": "datetime"
+    }
+  },
+  "publication.journal.disk_note": {
+    "message": "The journal record was written to disk before sending. After a restart the operation is shown before any new write.",
+    "placeholders": {}
+  },
+  "publication.journal.target_existing": {
+    "message": "Dashboard «{name}»",
+    "placeholders": {
+      "name": "text"
+    }
+  },
+  "publication.journal.target_existing_unnamed": {
+    "message": "Existing dashboard",
+    "placeholders": {}
+  },
+  "publication.journal.target_new": {
+    "message": "New dashboard «{name}»",
+    "placeholders": {
+      "name": "text"
+    }
+  },
+  "publication.journal.source_draft": {
+    "message": "Draft «{name}», revision {revision}",
+    "placeholders": {
+      "name": "text",
+      "revision": "number"
+    }
+  },
+  "publication.journal.source_removed": {
+    "message": "A removed draft",
+    "placeholders": {}
+  },
+  "publication.journal.profile_removed": {
+    "message": "A removed connection profile",
+    "placeholders": {}
+  },
+  "publication.evidence.unknown": {
+    "message": "Code: {code}",
+    "placeholders": {
+      "code": "technical"
+    }
+  },
+  "publication.evidence.read_back_matches": {
+    "message": "the read-back matched the plan",
+    "placeholders": {}
+  },
+  "publication.evidence.reconcile_confirmed": {
+    "message": "exactly the planned dashboard was found",
+    "placeholders": {}
+  },
+  "publication.evidence.dashboard_name_taken": {
+    "message": "the name is taken",
+    "placeholders": {}
+  },
+  "publication.evidence.reconcile_not_found": {
+    "message": "no dashboard with this name",
+    "placeholders": {}
+  },
+  "publication.evidence.reconcile_ambiguous": {
+    "message": "several dashboards with this name",
+    "placeholders": {}
+  },
+  "publication.evidence.reconcile_structure_mismatch": {
+    "message": "a dashboard with another structure",
+    "placeholders": {}
+  },
+  "publication.evidence.expected_found": {
+    "message": "the dashboard as planned",
+    "placeholders": {}
+  },
+  "publication.evidence.source_found": {
+    "message": "the dashboard as in the base",
+    "placeholders": {}
+  },
+  "publication.evidence.other_found": {
+    "message": "another state of the dashboard",
+    "placeholders": {}
+  },
+  "publication.evidence.not_visible": {
+    "message": "the dashboard is missing or not visible",
+    "placeholders": {}
+  },
+  "publication.conflict.title": {
+    "message": "The dashboard «{dashboard_name}» changed on the server after copying",
+    "placeholders": {
+      "dashboard_name": "text"
+    }
+  },
+  "publication.conflict.body": {
+    "message": "The old plan cannot be published; updating this dashboard is stopped. Your draft is not changed and stays saved.",
+    "placeholders": {}
+  },
+  "publication.conflict.detected_at": {
+    "message": "Detected at the check at {time}: the server does not match the snapshot of {snapshot}.",
+    "placeholders": {
+      "time": "datetime",
+      "snapshot": "datetime"
+    }
+  },
+  "publication.conflict.missing_title": {
+    "message": "The dashboard «{dashboard_name}» is not found on the server or is not visible",
+    "placeholders": {
+      "dashboard_name": "text"
+    }
+  },
+  "publication.conflict.missing_body": {
+    "message": "It cannot be updated. Your draft is not changed: you can save it as a new dashboard.",
+    "placeholders": {}
+  },
+  "publication.conflict.stale_title": {
+    "message": "The server version differs from the snapshot",
+    "placeholders": {}
+  },
+  "publication.conflict.stale_body": {
+    "message": "The source cannot be compared with the base. Copy the dashboard again or save the draft as a new dashboard.",
+    "placeholders": {}
+  },
+  "publication.conflict.column.object": {
+    "message": "Object",
+    "placeholders": {}
+  },
+  "publication.conflict.column.server": {
+    "message": "Change on the server",
+    "placeholders": {}
+  },
+  "publication.conflict.column.mine": {
+    "message": "My changes",
+    "placeholders": {}
+  },
+  "publication.conflict.caption": {
+    "message": "On server: base → Zabbix now",
+    "placeholders": {}
+  },
+  "publication.conflict.object.dashboard": {
+    "message": "Dashboard",
+    "placeholders": {}
+  },
+  "publication.conflict.object.page": {
+    "message": "Page {number}. {name}",
+    "placeholders": {
+      "number": "number",
+      "name": "text"
+    }
+  },
+  "publication.conflict.object.widget": {
+    "message": "{name} · {widget_type}",
+    "placeholders": {
+      "name": "text",
+      "widget_type": "technical"
+    }
+  },
+  "publication.conflict.change.dashboard_properties": {
+    "message": "Dashboard properties changed",
+    "placeholders": {}
+  },
+  "publication.conflict.change.access": {
+    "message": "Owner or sharing changed",
+    "placeholders": {}
+  },
+  "publication.conflict.change.page_added": {
+    "message": "Page added",
+    "placeholders": {}
+  },
+  "publication.conflict.change.page_removed": {
+    "message": "Page removed",
+    "placeholders": {}
+  },
+  "publication.conflict.change.page_renamed": {
+    "message": "Page renamed",
+    "placeholders": {}
+  },
+  "publication.conflict.change.page_changed": {
+    "message": "Page period or order changed",
+    "placeholders": {}
+  },
+  "publication.conflict.change.widget_added": {
+    "message": "Widget added",
+    "placeholders": {}
+  },
+  "publication.conflict.change.widget_removed": {
+    "message": "Widget removed",
+    "placeholders": {}
+  },
+  "publication.conflict.change.widget_changed": {
+    "message": "Widget changed",
+    "placeholders": {}
+  },
+  "publication.conflict.change.widget_moved": {
+    "message": "Widget moved or resized",
+    "placeholders": {}
+  },
+  "publication.conflict.mine.host_replaced": {
+    "message": "Host replaced",
+    "placeholders": {}
+  },
+  "publication.conflict.mine.none": {
+    "message": "—",
+    "placeholders": {}
+  },
+  "publication.conflict.overlap": {
+    "message": "{count, plural, one {Overlaps your changes: # widget} other {Overlaps your changes: # widgets}}",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "publication.conflict.truncated": {
+    "message": "{count, plural, one {# more change is not listed} other {# more changes are not listed}}",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "publication.conflict.no_author": {
+    "message": "The Zabbix API does not report who changed the dashboard or when: only that it differs from the snapshot. There is no automatic merge.",
+    "placeholders": {}
+  },
+  "publication.conflict.next_title": {
+    "message": "What next",
+    "placeholders": {}
+  },
+  "publication.conflict.save_copy_hint": {
+    "message": "Your version becomes a new dashboard. The dashboard changed on the server is not touched.",
+    "placeholders": {}
+  },
+  "workcopy.refetch.action": {
+    "message": "Copy again",
+    "placeholders": {}
+  },
+  "publication.conflict.refetch_hint": {
+    "message": "A new copy from the server, with the host replacement calculated again; decisions are made again by hand. This draft stays as it is.",
+    "placeholders": {}
+  },
+  "publication.conflict.overwrite": {
+    "message": "Overwrite — not available",
+    "placeholders": {}
+  },
+  "publication.conflict.overwrite_unavailable": {
+    "message": "Overwrite is not available: it would discard other changes. There is no automatic merge.",
+    "placeholders": {}
+  },
+  "publication.conflict.recheck_hint": {
+    "message": "Check again: if the dashboard on the server was returned to the snapshot, the conflict disappears.",
+    "placeholders": {}
+  },
+  "publication.conflict.refetched": {
+    "message": "The new copy «{name}» was created.",
+    "placeholders": {
+      "name": "text"
+    }
+  },
+  "publication.conflict.refetch_not_replayed": {
+    "message": "The host replacement could not be calculated again on the new copy ({code}): set it in «Bindings».",
+    "placeholders": {
+      "code": "technical"
+    }
+  },
+  "publication.conflict.open_new_copy": {
+    "message": "Open the new copy",
+    "placeholders": {}
+  },
+  "publication.journal_block": {
+    "message": "An unfinished operation blocks this dashboard: check its result first.",
+    "placeholders": {}
+  },
+  "publication.journal_block_damaged": {
+    "message": "A damaged journal file blocks this dashboard: move it to quarantine first.",
+    "placeholders": {}
+  },
+  "errors.publication.plan_not_found": {
+    "message": "The plan no longer exists: it was used, cancelled or ended with the session. Build a new preview.",
+    "placeholders": {}
+  },
+  "errors.publication.plan_mismatch": {
+    "message": "The confirmation does not match the plan shown; nothing was sent. Build a new preview.",
+    "placeholders": {}
+  },
+  "errors.publication.blocked": {
+    "message": "Publication is blocked: fix the findings in «Checks».",
+    "placeholders": {}
+  },
+  "errors.publication.target_blocked": {
+    "message": "The unfinished operation {operation_id} blocks this target until its result is checked.",
+    "placeholders": {
+      "operation_id": "technical"
+    }
+  },
+  "errors.publication.journal_damaged": {
+    "message": "The damaged journal file {operation_id} blocks publication until it is moved to quarantine.",
+    "placeholders": {
+      "operation_id": "technical"
+    }
+  },
+  "errors.publication.local_mismatch": {
+    "message": "The verified update does not reproduce the draft; nothing was sent.",
+    "placeholders": {}
+  },
+  "errors.publication.reconcile_server_changed": {
+    "message": "The result can be checked only on the same server with the same account as the operation.",
+    "placeholders": {}
+  },
+  "errors.publication.reconcile_partial_visibility": {
+    "message": "Not every dashboard with this name could be read, so nothing was decided. Check again.",
+    "placeholders": {}
+  },
+  "errors.publication.reconcile_not_needed": {
+    "message": "The operation already has a result.",
+    "placeholders": {}
+  },
+  "errors.publication.operation_running": {
+    "message": "The operation is still running.",
+    "placeholders": {}
+  },
+  "errors.publication.operation_not_found": {
+    "message": "The journal entry is not found.",
+    "placeholders": {}
+  },
+  "errors.publication.journal_not_damaged": {
+    "message": "The journal file is readable: check the result or close the operation instead.",
+    "placeholders": {}
+  },
+  "errors.publication.quarantine_exists": {
+    "message": "A file with this name is already in quarantine.",
+    "placeholders": {}
+  },
+  "errors.publication.journal_write_failed": {
+    "message": "The publication journal could not be written; nothing was sent.",
+    "placeholders": {}
+  },
+  "errors.publication.code": {
+    "message": "Publication was refused: {code}",
+    "placeholders": {
+      "code": "technical"
+    }
+  },
+  "startup.recovery.found": {
+    "message": "{count, plural, one {An unfinished operation was found} other {# unfinished operations were found}}",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "startup.recovery.body": {
+    "message": "{intent}: {object_kind}, source {source}, target {target} on {profile}. Sent at {time}. Do not publish to this target again until the result is checked.",
+    "placeholders": {
+      "intent": "text",
+      "object_kind": "text",
+      "source": "text",
+      "target": "text",
+      "profile": "text",
+      "time": "datetime"
+    }
+  },
+  "startup.recovery.state": {
+    "message": "State: {state}",
+    "placeholders": {
+      "state": "text"
+    }
+  },
+  "startup.recovery.connect_first": {
+    "message": "Connect to {profile} to check the result. Read-only mode is enough.",
+    "placeholders": {
+      "profile": "text"
+    }
+  },
+  "startup.recovery.action.connect": {
+    "message": "Connect",
+    "placeholders": {}
+  },
+  "startup.recovery.action.open_draft": {
+    "message": "Open draft",
+    "placeholders": {}
+  },
+  "startup.recovery.close_unverified": {
+    "message": "Close without checking",
+    "placeholders": {}
+  },
+  "startup.recovery.close_unverified.title": {
+    "message": "Close without checking?",
+    "placeholders": {}
+  },
+  "startup.recovery.close_unverified.confirm": {
+    "message": "Close the operation {operation_id} to {target} sent at {time} without checking the result? The result stays unknown; the journal keeps the entry.",
+    "placeholders": {
+      "operation_id": "technical",
+      "target": "text",
+      "time": "datetime"
+    }
+  },
+  "startup.recovery.closed_manually": {
+    "message": "Closed manually, result not checked",
+    "placeholders": {}
+  },
+  "startup.recovery.damaged.title": {
+    "message": "{count, plural, one {A damaged journal file blocks publication} other {# damaged journal files block publication}}",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "startup.recovery.damaged.body_target": {
+    "message": "The journal file {operation_id} cannot be read ({code}). Publishing to «{target}» is blocked until the file is moved to quarantine.",
+    "placeholders": {
+      "operation_id": "technical",
+      "code": "technical",
+      "target": "text"
+    }
+  },
+  "startup.recovery.damaged.body_all": {
+    "message": "The journal file {operation_id} cannot be read ({code}) and its target is unknown: every publication is blocked until the file is moved to quarantine.",
+    "placeholders": {
+      "operation_id": "technical",
+      "code": "technical"
+    }
+  },
+  "startup.recovery.quarantine": {
+    "message": "Move to quarantine",
+    "placeholders": {}
+  },
+  "startup.recovery.quarantine.title": {
+    "message": "Move the journal file to quarantine?",
+    "placeholders": {}
+  },
+  "startup.recovery.quarantine.confirm": {
+    "message": "The file {operation_id} moves unchanged to journal/quarantine and stops blocking publication. Nothing is deleted or sent. If that operation reached the server, check the dashboard in Zabbix before publishing again.",
+    "placeholders": {
+      "operation_id": "technical"
+    }
+  },
+  "startup.recovery.quarantined": {
+    "message": "The journal file was moved to quarantine.",
+    "placeholders": {}
+  },
+  "startup.recovery.closed": {
+    "message": "The operation was closed without checking.",
+    "placeholders": {}
+  },
+  "startup.recovery.load_failed": {
+    "message": "The publication journal could not be read ({code}).",
+    "placeholders": {
+      "code": "technical"
+    }
+  },
+  "startup.recovery.a11y.region": {
+    "message": "Unfinished publication operations",
+    "placeholders": {}
+  },
+  "publication.journal.close": {
+    "message": "Close",
+    "placeholders": {}
+  },
+  "publication.diff.remote_current": {
+    "message": "No changes on the server since the snapshot.",
+    "placeholders": {}
+  },
+  "publication.confirm.offline": {
+    "message": "Writing needs the draft's own connection in read-write mode.",
+    "placeholders": {}
+  },
+  "publication.confirm.summary_title": {
+    "message": "Ready to write",
+    "placeholders": {}
+  },
+  "publication.checks.source_title": {
+    "message": "Source",
+    "placeholders": {}
+  },
+  "publication.checks.source_current": {
+    "message": "The dashboard on the server matches the snapshot · checked {time}",
+    "placeholders": {
+      "time": "datetime"
+    }
+  },
+  "publication.checks.source_not_checked": {
+    "message": "Not checked yet against the server",
+    "placeholders": {}
+  },
+  "publication.checks.checking": {
+    "message": "Reading the server…",
+    "placeholders": {}
+  },
+  "publication.step.unavailable_reason": {
+    "message": "Available after the checks pass",
+    "placeholders": {}
+  }
+}

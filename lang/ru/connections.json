@@ -1,0 +1,1033 @@
+{
+  "connection.list.subtitle": {
+    "message": "Профили серверов Zabbix. Локальные черновики работают без подключения.",
+    "placeholders": {}
+  },
+  "connection.list.empty": {
+    "message": "Подключений пока нет",
+    "placeholders": {}
+  },
+  "connection.action.new": {
+    "message": "Новое подключение",
+    "placeholders": {}
+  },
+  "connection.action.continue_offline": {
+    "message": "Продолжить без подключения",
+    "placeholders": {}
+  },
+  "connection.state.connected_mode": {
+    "message": "Подключено · {mode}",
+    "placeholders": {
+      "mode": "text"
+    }
+  },
+  "connection.state.last_check_failed": {
+    "message": "Последняя проверка: ошибка",
+    "placeholders": {}
+  },
+  "connection.warning.http": {
+    "message": "HTTP без шифрования: данные входа передаются открытым текстом",
+    "placeholders": {}
+  },
+  "connection.form.profile_name": {
+    "message": "Имя профиля",
+    "placeholders": {}
+  },
+  "connection.form.api_url": {
+    "message": "Адрес API: {url}",
+    "placeholders": {
+      "url": "technical"
+    }
+  },
+  "connection.form.server_changed.title": {
+    "message": "Это другой сервер",
+    "placeholders": {}
+  },
+  "connection.form.server_changed.body": {
+    "message": "После сохранения привязки и планы публикации этого подключения нужно будет проверить заново.",
+    "placeholders": {}
+  },
+  "connection.form.password_not_stored": {
+    "message": "Без сохранения пароль хранится только в памяти программы до отключения или завершения сеанса, затем его спросят снова.",
+    "placeholders": {}
+  },
+  "connection.form.store_token": {
+    "message": "Сохранить токен в системном хранилище",
+    "placeholders": {}
+  },
+  "connection.form.trust_system": {
+    "message": "Системное хранилище сертификатов",
+    "placeholders": {}
+  },
+  "connection.form.trust_custom_ca": {
+    "message": "Добавить доверенный сертификат УЦ",
+    "placeholders": {}
+  },
+  "connection.form.tls_no_bypass": {
+    "message": "Отключить проверку сертификата нельзя.",
+    "placeholders": {}
+  },
+  "connection.test.title": {
+    "message": "Проверка подключения «{profile}»",
+    "placeholders": {
+      "profile": "text"
+    }
+  },
+  "connection.test.step.endpoint": {
+    "message": "Адрес и TLS",
+    "placeholders": {}
+  },
+  "connection.test.step.api": {
+    "message": "API Zabbix",
+    "placeholders": {}
+  },
+  "connection.test.step.auth": {
+    "message": "Вход",
+    "placeholders": {}
+  },
+  "connection.test.step.identity": {
+    "message": "Идентичность сервера",
+    "placeholders": {}
+  },
+  "connection.test.step.capabilities": {
+    "message": "Права и возможности",
+    "placeholders": {}
+  },
+  "connection.test.not_checked": {
+    "message": "Не проверялось: {reason}",
+    "placeholders": {
+      "reason": "text"
+    }
+  },
+  "connection.test.report.include_address": {
+    "message": "Включить адрес сервера в отчёт",
+    "placeholders": {}
+  },
+  "connection.test.report.copy": {
+    "message": "Копировать отчёт",
+    "placeholders": {}
+  },
+  "connection.enable_writes.title": {
+    "message": "Разрешить запись панелей?",
+    "placeholders": {}
+  },
+  "connection.enable_writes.never": {
+    "message": "Узлы сети, шаблоны, элементы данных, триггеры и пользователи не изменяются никогда.",
+    "placeholders": {}
+  },
+  "connection.enable_writes.duration": {
+    "message": "До отключения или перезапуска приложения, затем снова «Только чтение».",
+    "placeholders": {}
+  },
+  "connection.enable_writes.no_extra_rights": {
+    "message": "Права учётной записи в Zabbix не расширяются.",
+    "placeholders": {}
+  },
+  "connection.action.forget_token": {
+    "message": "Забыть сохранённый токен",
+    "placeholders": {}
+  },
+  "connection.forget_token.not_revoked": {
+    "message": "Токен удалён с этого компьютера, но действует в Zabbix, пока его там не отзовут.",
+    "placeholders": {}
+  },
+  "connection.form.endpoint": {
+    "message": "Адрес Zabbix",
+    "placeholders": {}
+  },
+  "connection.form.auth_method": {
+    "message": "Способ аутентификации",
+    "placeholders": {}
+  },
+  "connection.form.api_token": {
+    "message": "API-токен",
+    "placeholders": {}
+  },
+  "connection.form.username": {
+    "message": "Имя пользователя",
+    "placeholders": {}
+  },
+  "connection.form.password": {
+    "message": "Пароль",
+    "placeholders": {}
+  },
+  "connection.form.custom_ca": {
+    "message": "Доверенный сертификат УЦ",
+    "placeholders": {}
+  },
+  "connection.action.test": {
+    "message": "Проверить подключение",
+    "placeholders": {}
+  },
+  "connection.action.enable_writes": {
+    "message": "Разрешить запись панелей",
+    "placeholders": {}
+  },
+  "connection.action.set_read_only": {
+    "message": "Вернуть «Только чтение»",
+    "placeholders": {}
+  },
+  "connection.result.version": {
+    "message": "Zabbix {version}",
+    "placeholders": {
+      "version": "technical"
+    }
+  },
+  "connection.mode.read_only_help": {
+    "message": "Данные сервера можно читать; объекты Zabbix изменяться не будут.",
+    "placeholders": {}
+  },
+  "connection.mode.read_write_help": {
+    "message": "После предпросмотра и подтверждения можно записывать только проверенные операции с глобальными панелями.",
+    "placeholders": {}
+  },
+  "connection.auth.mfa_token_required": {
+    "message": "Для этой учётной записи с MFA нельзя войти по паролю. Используйте API-токен, разрешённый администратором.",
+    "placeholders": {}
+  },
+  "connection.state.connecting": {
+    "message": "Подключение…",
+    "placeholders": {}
+  },
+  "connection.state.read_only_profile": {
+    "message": "Только чтение · {profile}",
+    "placeholders": {
+      "profile": "text"
+    }
+  },
+  "connection.state.read_write_profile": {
+    "message": "Чтение-запись · {profile}",
+    "placeholders": {
+      "profile": "text"
+    }
+  },
+  "connection.state.context_changed": {
+    "message": "Сервер изменился · {profile}",
+    "placeholders": {
+      "profile": "text"
+    }
+  },
+  "connection.list.empty_help": {
+    "message": "Для локальных черновиков сервер не нужен. Добавьте подключение, чтобы копировать панели из Zabbix или публиковать их.",
+    "placeholders": {}
+  },
+  "connection.list.load_failed": {
+    "message": "Не удалось загрузить список подключений.",
+    "placeholders": {}
+  },
+  "connection.list.no_secrets": {
+    "message": "Пароли и токены не показываются на этом экране и не попадают в файлы, журналы и отчёты.",
+    "placeholders": {}
+  },
+  "connection.a11y.profiles": {
+    "message": "Профили подключений",
+    "placeholders": {}
+  },
+  "connection.state.needs_sign_in": {
+    "message": "Нужен вход",
+    "placeholders": {}
+  },
+  "connection.mode.read_only": {
+    "message": "только чтение",
+    "placeholders": {}
+  },
+  "connection.mode.read_write": {
+    "message": "чтение-запись",
+    "placeholders": {}
+  },
+  "connection.card.checked_at": {
+    "message": "проверено {time}",
+    "placeholders": {
+      "time": "datetime"
+    }
+  },
+  "connection.card.never_checked": {
+    "message": "ещё не проверялось",
+    "placeholders": {}
+  },
+  "connection.card.auth.token_os_store": {
+    "message": "API-токен в системном хранилище",
+    "placeholders": {}
+  },
+  "connection.card.auth.token_memory": {
+    "message": "API-токен, только в памяти",
+    "placeholders": {}
+  },
+  "connection.card.auth.password": {
+    "message": "имя пользователя и пароль, пароль только в памяти",
+    "placeholders": {}
+  },
+  "connection.action.connect": {
+    "message": "Подключиться",
+    "placeholders": {}
+  },
+  "connection.action.disconnect": {
+    "message": "Отключиться",
+    "placeholders": {}
+  },
+  "connection.action.check": {
+    "message": "Проверить",
+    "placeholders": {}
+  },
+  "connection.action.edit": {
+    "message": "Изменить",
+    "placeholders": {}
+  },
+  "connection.action.sign_in": {
+    "message": "Войти",
+    "placeholders": {}
+  },
+  "connection.action.cancel": {
+    "message": "Отмена",
+    "placeholders": {}
+  },
+  "connection.action.save": {
+    "message": "Сохранить",
+    "placeholders": {}
+  },
+  "connection.action.retry": {
+    "message": "Повторить",
+    "placeholders": {}
+  },
+  "connection.action.fix_sign_in": {
+    "message": "Изменить данные входа",
+    "placeholders": {}
+  },
+  "connection.action.fix_address": {
+    "message": "Изменить адрес",
+    "placeholders": {}
+  },
+  "connection.action.confirm_new_server": {
+    "message": "Подтвердить новый сервер и подключиться",
+    "placeholders": {}
+  },
+  "connection.action.back_to_list": {
+    "message": "К списку подключений",
+    "placeholders": {}
+  },
+  "connection.connected": {
+    "message": "Подключено к «{profile}» в режиме «Только чтение».",
+    "placeholders": {
+      "profile": "text"
+    }
+  },
+  "connection.connect_failed": {
+    "message": "Не удалось подключиться к «{profile}».",
+    "placeholders": {
+      "profile": "text"
+    }
+  },
+  "connection.disconnected": {
+    "message": "Подключение «{profile}» закрыто. Локальная работа доступна.",
+    "placeholders": {
+      "profile": "text"
+    }
+  },
+  "connection.logout_failed": {
+    "message": "Выход на сервере не подтверждён; сессия в приложении всё равно закрыта.",
+    "placeholders": {}
+  },
+  "connection.credential_save_failed": {
+    "message": "Пароль или токен не удалось сохранить в системном хранилище; он хранится в памяти до отключения.",
+    "placeholders": {}
+  },
+  "connection.editor.title_new": {
+    "message": "Новое подключение",
+    "placeholders": {}
+  },
+  "connection.editor.title_edit": {
+    "message": "Изменить подключение «{profile}»",
+    "placeholders": {
+      "profile": "text"
+    }
+  },
+  "connection.editor.section.profile": {
+    "message": "Профиль",
+    "placeholders": {}
+  },
+  "connection.editor.section.sign_in": {
+    "message": "Вход",
+    "placeholders": {}
+  },
+  "connection.editor.section.trust": {
+    "message": "Доверие к сертификату",
+    "placeholders": {}
+  },
+  "connection.editor.section.mode": {
+    "message": "Режим после подключения",
+    "placeholders": {}
+  },
+  "connection.form.endpoint_hint": {
+    "message": "Как в адресной строке браузера, с портом и путём",
+    "placeholders": {}
+  },
+  "connection.form.api_url_pending": {
+    "message": "Адрес API появится, когда адрес Zabbix будет корректным.",
+    "placeholders": {}
+  },
+  "connection.form.auth_password": {
+    "message": "Имя пользователя и пароль",
+    "placeholders": {}
+  },
+  "connection.form.mfa_hint": {
+    "message": "Для учётной записи с MFA вход по паролю через API недоступен — используйте API-токен, выданный администратором.",
+    "placeholders": {}
+  },
+  "connection.form.token_at_connect": {
+    "message": "Без сохранения токен хранится только в памяти программы до отключения или завершения сеанса, затем его спросят снова.",
+    "placeholders": {}
+  },
+  "connection.form.http_confirm": {
+    "message": "Сохранить токен, хотя по HTTP он передаётся открытым текстом",
+    "placeholders": {}
+  },
+  "connection.form.custom_ca_hint": {
+    "message": "Файл PEM, только для этого подключения",
+    "placeholders": {}
+  },
+  "connection.form.custom_ca_choose": {
+    "message": "Файл PEM с сертификатом УЦ",
+    "placeholders": {}
+  },
+  "connection.form.custom_ca_loaded": {
+    "message": "{count, plural, one {Загружен # сертификат} few {Загружено # сертификата} many {Загружено # сертификатов} other {Загружено # сертификата}}",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "connection.form.custom_ca_fingerprint": {
+    "message": "Отпечаток SHA-256: {fingerprint}",
+    "placeholders": {
+      "fingerprint": "technical"
+    }
+  },
+  "connection.form.custom_ca_required": {
+    "message": "Выберите файл PEM с сертификатом УЦ.",
+    "placeholders": {}
+  },
+  "connection.form.custom_ca_loading": {
+    "message": "Загрузка сертификата…",
+    "placeholders": {}
+  },
+  "connection.form.mode_read_only": {
+    "message": "Только чтение. Запись панелей включается отдельно и до отключения.",
+    "placeholders": {}
+  },
+  "connection.form.rename_keeps_server": {
+    "message": "Переименование профиля не меняет сервер. Смена адреса, порта или пути — меняет.",
+    "placeholders": {}
+  },
+  "connection.form.rules.title": {
+    "message": "Правила адреса",
+    "placeholders": {}
+  },
+  "connection.form.rules.scheme": {
+    "message": "Адрес начинается с http или https.",
+    "placeholders": {}
+  },
+  "connection.form.rules.port_path": {
+    "message": "Можно указать порт и базовый путь.",
+    "placeholders": {}
+  },
+  "connection.form.rules.rejected": {
+    "message": "В адресе нельзя указывать имя пользователя или пароль, строку запроса (?…) и фрагмент (#…).",
+    "placeholders": {}
+  },
+  "connection.form.rules.http": {
+    "message": "Для http данные входа идут открытым текстом; сохранить пароль или токен для такого профиля можно только после явного подтверждения.",
+    "placeholders": {}
+  },
+  "connection.form.has_errors": {
+    "message": "Проверьте отмеченные поля.",
+    "placeholders": {}
+  },
+  "connection.saved": {
+    "message": "Подключение «{profile}» сохранено.",
+    "placeholders": {
+      "profile": "text"
+    }
+  },
+  "connection.duplicate.name": {
+    "message": "{profile} (копия)",
+    "placeholders": {
+      "profile": "text"
+    }
+  },
+  "connection.delete.title": {
+    "message": "Удалить подключение «{profile}»?",
+    "placeholders": {
+      "profile": "text"
+    }
+  },
+  "connection.delete.body": {
+    "message": "Черновики, рабочие копии и снимки сохраняются. Сохранённые пароль или токен удаляются с этого компьютера; токен действует в Zabbix, пока его там не отзовут.",
+    "placeholders": {}
+  },
+  "connection.delete.disconnect_first": {
+    "message": "Подключение активно и сначала будет закрыто.",
+    "placeholders": {}
+  },
+  "connection.deleted": {
+    "message": "Подключение «{profile}» удалено.",
+    "placeholders": {
+      "profile": "text"
+    }
+  },
+  "connection.delete.credential_left": {
+    "message": "Сохранённые пароль или токен не удалось удалить из системного хранилища.",
+    "placeholders": {}
+  },
+  "connection.test.subtitle": {
+    "message": "Шаги выполняются по порядку; следующий шаг не начинается, пока не пройден предыдущий.",
+    "placeholders": {}
+  },
+  "connection.test.crumb": {
+    "message": "Проверка",
+    "placeholders": {}
+  },
+  "connection.test.running": {
+    "message": "Проверка подключения…",
+    "placeholders": {}
+  },
+  "connection.test.idle": {
+    "message": "Проверка ещё не запускалась.",
+    "placeholders": {}
+  },
+  "connection.test.passed": {
+    "message": "Все шаги пройдены.",
+    "placeholders": {}
+  },
+  "connection.test.failed_at": {
+    "message": "Проверка остановлена на шаге «{step}».",
+    "placeholders": {
+      "step": "text"
+    }
+  },
+  "connection.a11y.steps": {
+    "message": "Шаги проверки",
+    "placeholders": {}
+  },
+  "connection.test.step_heading": {
+    "message": "{number}. {name}",
+    "placeholders": {
+      "number": "number",
+      "name": "text"
+    }
+  },
+  "connection.test.status.passed": {
+    "message": "Пройден",
+    "placeholders": {}
+  },
+  "connection.test.status.notice": {
+    "message": "Пройден с замечанием",
+    "placeholders": {}
+  },
+  "connection.test.status.failed": {
+    "message": "Ошибка",
+    "placeholders": {}
+  },
+  "connection.test.status.not_checked": {
+    "message": "Не проверялось",
+    "placeholders": {}
+  },
+  "connection.test.result.endpoint": {
+    "message": "Соединение установлено, сертификат проверен.",
+    "placeholders": {}
+  },
+  "connection.test.result.api": {
+    "message": "Найден API Zabbix {version}.",
+    "placeholders": {
+      "version": "technical"
+    }
+  },
+  "connection.test.result.auth_token": {
+    "message": "Вход выполнен по API-токену.",
+    "placeholders": {}
+  },
+  "connection.test.result.auth_password": {
+    "message": "Вход выполнен по имени пользователя и паролю.",
+    "placeholders": {}
+  },
+  "connection.test.result.identity_matches": {
+    "message": "Тот же сервер, что и при прошлом подключении.",
+    "placeholders": {}
+  },
+  "connection.test.result.capabilities": {
+    "message": "Все нужные методы чтения доступны.",
+    "placeholders": {}
+  },
+  "connection.test.capabilities_denied": {
+    "message": "Недоступно этой учётной записи: {methods}. Связанные функции будут недоступны; можно продолжить в режиме «Только чтение».",
+    "placeholders": {
+      "methods": "technical"
+    }
+  },
+  "connection.identity.first_seen": {
+    "message": "Первое подключение: идентичность сервера запомнена.",
+    "placeholders": {}
+  },
+  "connection.identity.version_changed": {
+    "message": "Сервер обновлён с {previous_version} до {version}; планы публикации нужно построить заново.",
+    "placeholders": {
+      "previous_version": "technical",
+      "version": "technical"
+    }
+  },
+  "connection.identity.changed": {
+    "message": "По этому адресу отвечает другой сервер. Подтвердите, что это нужный сервер; привязки и планы этого подключения придётся проверить заново.",
+    "placeholders": {}
+  },
+  "connection.identity.accepted": {
+    "message": "Новый сервер подтверждён.",
+    "placeholders": {}
+  },
+  "connection.test.reason.endpoint": {
+    "message": "нужно, чтобы сервер был доступен",
+    "placeholders": {}
+  },
+  "connection.test.reason.api": {
+    "message": "нужно найти API Zabbix",
+    "placeholders": {}
+  },
+  "connection.test.reason.auth": {
+    "message": "нужен успешный вход",
+    "placeholders": {}
+  },
+  "connection.test.reason.identity": {
+    "message": "нужно подтвердить идентичность сервера",
+    "placeholders": {}
+  },
+  "connection.test.during_sign_in": {
+    "message": "Соединение прервалось во время входа.",
+    "placeholders": {}
+  },
+  "connection.test.details.title": {
+    "message": "Технические сведения",
+    "placeholders": {}
+  },
+  "connection.test.details.code": {
+    "message": "Код",
+    "placeholders": {}
+  },
+  "connection.test.details.step": {
+    "message": "Шаг",
+    "placeholders": {}
+  },
+  "connection.test.details.method": {
+    "message": "Способ",
+    "placeholders": {}
+  },
+  "connection.test.details.time": {
+    "message": "Время",
+    "placeholders": {}
+  },
+  "connection.test.details.version": {
+    "message": "Версия Zabbix",
+    "placeholders": {}
+  },
+  "connection.test.report.scope": {
+    "message": "В отчёте нет пароля, токена, ответов сервера и путей к файлам; адрес — только по галке.",
+    "placeholders": {}
+  },
+  "connection.test.report.copied": {
+    "message": "Отчёт скопирован.",
+    "placeholders": {}
+  },
+  "connection.test.report.copy_failed": {
+    "message": "Не удалось скопировать отчёт в буфер обмена.",
+    "placeholders": {}
+  },
+  "connection.test.lockout_hint": {
+    "message": "Zabbix блокирует вход на 30 секунд после 5 ошибок.",
+    "placeholders": {}
+  },
+  "connection.sign_in.title": {
+    "message": "Вход в «{profile}»",
+    "placeholders": {
+      "profile": "text"
+    }
+  },
+  "connection.sign_in.description": {
+    "message": "Адрес сервера: {address}",
+    "placeholders": {
+      "address": "technical"
+    }
+  },
+  "connection.sign_in.username": {
+    "message": "Имя пользователя: {username}",
+    "placeholders": {
+      "username": "text"
+    }
+  },
+  "connection.sign_in.username_hint": {
+    "message": "Имя пользователя меняется только в профиле подключения.",
+    "placeholders": {}
+  },
+  "connection.sign_in.token_will_be_stored": {
+    "message": "После успешного подключения токен сохраняется в системном хранилище.",
+    "placeholders": {}
+  },
+  "connection.sign_in.token_memory_only": {
+    "message": "Токен хранится только в памяти до отключения или завершения сеанса.",
+    "placeholders": {}
+  },
+  "connection.sign_in.in_progress": {
+    "message": "Вход…",
+    "placeholders": {}
+  },
+  "connection.sign_in.waiting": {
+    "message": "Ожидание ответа сервера. Для учётных записей LDAP это может занять больше времени.",
+    "placeholders": {}
+  },
+  "connection.sign_in.locked": {
+    "message": "Zabbix временно заблокировал вход на 30 секунд. Повторите через {seconds, plural, one {# секунду} few {# секунды} many {# секунд} other {# секунды}}.",
+    "placeholders": {
+      "seconds": "number"
+    }
+  },
+  "connection.sign_in.password_required": {
+    "message": "Введите пароль.",
+    "placeholders": {}
+  },
+  "connection.sign_in.token_required": {
+    "message": "Введите API-токен.",
+    "placeholders": {}
+  },
+  "connection.enable_writes.context": {
+    "message": "Подключение «{profile}» · Zabbix {version}",
+    "placeholders": {
+      "profile": "text",
+      "version": "technical"
+    }
+  },
+  "connection.enable_writes.available_title": {
+    "message": "Станет доступно",
+    "placeholders": {}
+  },
+  "connection.enable_writes.available": {
+    "message": "Создание панели, сохранение копии, клонирование, добавление страниц и виджетов, замена узла сети в панели.",
+    "placeholders": {}
+  },
+  "connection.enable_writes.plan_only": {
+    "message": "Каждая запись — только после предпросмотра, проверки и подтверждения плана.",
+    "placeholders": {}
+  },
+  "connection.enable_writes.never_title": {
+    "message": "Не изменяется никогда",
+    "placeholders": {}
+  },
+  "connection.enable_writes.duration_title": {
+    "message": "Срок действия",
+    "placeholders": {}
+  },
+  "connection.enable_writes.return_hint": {
+    "message": "Вернуть «Только чтение» можно в любой момент кнопкой в шапке.",
+    "placeholders": {}
+  },
+  "connection.enable_writes.enabled": {
+    "message": "Запись панелей разрешена для «{profile}» до отключения.",
+    "placeholders": {
+      "profile": "text"
+    }
+  },
+  "connection.read_only_restored": {
+    "message": "Режим «Только чтение» восстановлен; планы публикации этого подключения больше недействительны.",
+    "placeholders": {}
+  },
+  "errors.connection.dns_unresolvable": {
+    "message": "Не удалось определить адрес сервера. Проверьте адрес Zabbix.",
+    "placeholders": {}
+  },
+  "errors.connection.refused": {
+    "message": "Сервер отклонил подключение. Проверьте адрес, порт и работу службы.",
+    "placeholders": {}
+  },
+  "errors.connection.unreachable_or_timeout": {
+    "message": "Сервер недоступен или не ответил вовремя.",
+    "placeholders": {}
+  },
+  "errors.connection.api_not_found": {
+    "message": "По этому адресу API Zabbix не найден. Проверьте базовый путь.",
+    "placeholders": {}
+  },
+  "errors.tls.untrusted": {
+    "message": "Сертификат сервера не является доверенным. Добавьте разрешённый сертификат УЦ; проверку TLS отключить нельзя.",
+    "placeholders": {}
+  },
+  "errors.tls.name_mismatch": {
+    "message": "Сертификат выдан для другого имени. Проверьте адрес или сертификат; отключить проверку TLS нельзя.",
+    "placeholders": {}
+  },
+  "errors.tls.time_invalid": {
+    "message": "Сертификат сервера недействителен по сроку.",
+    "placeholders": {}
+  },
+  "errors.auth.credentials_or_directory": {
+    "message": "Не удалось войти. Проверьте учётные данные. Для учётной записи LDAP также может быть недоступен каталог.",
+    "placeholders": {}
+  },
+  "errors.auth.token_invalid_or_disabled": {
+    "message": "API-токен неверен или отключён.",
+    "placeholders": {}
+  },
+  "errors.auth.token_expired": {
+    "message": "Срок действия API-токена истёк.",
+    "placeholders": {}
+  },
+  "errors.auth.mfa_token_required": {
+    "message": "Для этой учётной записи с MFA недоступен вход в API по паролю. Используйте API-токен, разрешённый администратором.",
+    "placeholders": {}
+  },
+  "errors.permission.system_access": {
+    "message": "У этой учётной записи нет доступа к Zabbix.",
+    "placeholders": {}
+  },
+  "errors.permission.api_method": {
+    "message": "Эта учётная запись не может вызвать метод {method}.",
+    "placeholders": {
+      "method": "technical"
+    }
+  },
+  "errors.connection.failed": {
+    "message": "Не удалось подключиться к серверу. Проверьте адрес и сеть.",
+    "placeholders": {}
+  },
+  "errors.connection.unexpected_response": {
+    "message": "Сервер вернул неожиданный ответ. Проверьте базовый путь.",
+    "placeholders": {}
+  },
+  "errors.connection.version_unsupported": {
+    "message": "Zabbix {version} не поддерживается. Можно продолжить работу автономно.",
+    "placeholders": {
+      "version": "technical"
+    }
+  },
+  "errors.connection.api_error": {
+    "message": "Zabbix вернул ошибку для метода {method}.",
+    "placeholders": {
+      "method": "technical"
+    }
+  },
+  "errors.auth.session_expired": {
+    "message": "Сессия Zabbix истекла. Войдите снова.",
+    "placeholders": {}
+  },
+  "errors.address.syntax": {
+    "message": "Это некорректный адрес.",
+    "placeholders": {}
+  },
+  "errors.address.scheme": {
+    "message": "Адрес должен начинаться с http или https.",
+    "placeholders": {}
+  },
+  "errors.address.userinfo": {
+    "message": "Уберите имя пользователя или пароль из адреса; данные входа вводятся в разделе «Вход».",
+    "placeholders": {}
+  },
+  "errors.address.query": {
+    "message": "Уберите из адреса строку запроса (?…).",
+    "placeholders": {}
+  },
+  "errors.address.fragment": {
+    "message": "Уберите из адреса фрагмент (#…).",
+    "placeholders": {}
+  },
+  "errors.address.host": {
+    "message": "В адресе нет имени сервера.",
+    "placeholders": {}
+  },
+  "errors.trust.too_large": {
+    "message": "Файл сертификата слишком большой.",
+    "placeholders": {}
+  },
+  "errors.trust.empty": {
+    "message": "В файле нет сертификата.",
+    "placeholders": {}
+  },
+  "errors.trust.invalid_pem": {
+    "message": "Файл не является корректным сертификатом PEM.",
+    "placeholders": {}
+  },
+  "errors.trust.private_key": {
+    "message": "Файл содержит закрытый ключ; выберите файл только с сертификатом УЦ.",
+    "placeholders": {}
+  },
+  "errors.trust.too_many_certificates": {
+    "message": "В файле слишком много сертификатов.",
+    "placeholders": {}
+  },
+  "errors.trust.rejected": {
+    "message": "Этот сертификат нельзя использовать как доверенный сертификат УЦ.",
+    "placeholders": {}
+  },
+  "errors.trust.changed": {
+    "message": "Сохранённый сертификат УЦ изменён вне приложения. Выберите файл заново.",
+    "placeholders": {}
+  },
+  "errors.trust.missing": {
+    "message": "Сохранённый сертификат УЦ не найден. Выберите файл заново.",
+    "placeholders": {}
+  },
+  "errors.trust.upload_invalid": {
+    "message": "Выберите ровно один файл PEM.",
+    "placeholders": {}
+  },
+  "errors.profile.not_found": {
+    "message": "Этот профиль подключения больше не существует.",
+    "placeholders": {}
+  },
+  "errors.profile.name_invalid": {
+    "message": "Введите имя профиля длиной до {max_chars, plural, one {# символа} few {# символов} many {# символов} other {# символа}} без управляющих символов.",
+    "placeholders": {
+      "max_chars": "number"
+    }
+  },
+  "errors.profile.username_invalid": {
+    "message": "Введите имя пользователя длиной до {max_chars, plural, one {# символа} few {# символов} many {# символов} other {# символа}} без управляющих символов.",
+    "placeholders": {
+      "max_chars": "number"
+    }
+  },
+  "errors.profile.limit_reached": {
+    "message": "Можно сохранить не больше {max, plural, one {# профиля} few {# профилей} many {# профилей} other {# профиля}} подключений.",
+    "placeholders": {
+      "max": "number"
+    }
+  },
+  "errors.profile.store_invalid": {
+    "message": "Файл профилей подключений повреждён. Он не изменялся.",
+    "placeholders": {}
+  },
+  "errors.profile.store_linked_path": {
+    "message": "Файл профилей подключений является ссылкой; из соображений безопасности он не читается и не записывается.",
+    "placeholders": {}
+  },
+  "errors.profile.store_too_large": {
+    "message": "Файл профилей подключений слишком большой.",
+    "placeholders": {}
+  },
+  "errors.profile.store_unavailable": {
+    "message": "Профили подключений нельзя прочитать или сохранить на этом компьютере.",
+    "placeholders": {}
+  },
+  "errors.profile.plain_http_unconfirmed": {
+    "message": "Подтвердите сохранение пароля или токена для адреса HTTP.",
+    "placeholders": {}
+  },
+  "errors.connection.not_connected": {
+    "message": "Это подключение не активно.",
+    "placeholders": {}
+  },
+  "errors.connection.secret_required": {
+    "message": "Введите пароль или API-токен.",
+    "placeholders": {}
+  },
+  "errors.connection.secret_invalid": {
+    "message": "Пароль или токен слишком длинный.",
+    "placeholders": {}
+  },
+  "errors.connection.writes_not_confirmed": {
+    "message": "Запись панелей не подтверждена.",
+    "placeholders": {}
+  },
+  "errors.connection.random_unavailable": {
+    "message": "Системный источник случайных чисел недоступен.",
+    "placeholders": {}
+  },
+  "errors.connection.request_invalid": {
+    "message": "Приложение отправило некорректный запрос. Перезагрузите страницу и повторите.",
+    "placeholders": {}
+  },
+  "errors.connection.service_unavailable": {
+    "message": "Подключения недоступны: не найдена папка настроек на этом компьютере.",
+    "placeholders": {}
+  },
+  "errors.connection.unknown": {
+    "message": "Операция не выполнена ({code}).",
+    "placeholders": {
+      "code": "technical"
+    }
+  },
+  "errors.credential.missing": {
+    "message": "Для этого подключения не сохранены ни пароль, ни токен.",
+    "placeholders": {}
+  },
+  "errors.credential.locked": {
+    "message": "Системное хранилище учётных данных заблокировано или доступ запрещён.",
+    "placeholders": {}
+  },
+  "errors.credential.unavailable": {
+    "message": "Системное хранилище учётных данных недоступно на этом компьютере.",
+    "placeholders": {}
+  },
+  "connection.form.store_password": {
+    "message": "Сохранить пароль в системном хранилище",
+    "placeholders": {}
+  },
+  "connection.form.store_password_hint": {
+    "message": "API-токен безопаснее: у него может быть срок действия, и его можно отозвать в Zabbix, не меняя пароль.",
+    "placeholders": {}
+  },
+  "connection.form.http_confirm_password": {
+    "message": "Сохранить пароль, хотя по HTTP он передаётся открытым текстом",
+    "placeholders": {}
+  },
+  "connection.form.password_stored": {
+    "message": "Пароль хранится в системном хранилище. Оставьте поле пустым, чтобы не менять его.",
+    "placeholders": {}
+  },
+  "connection.form.token_stored": {
+    "message": "Токен хранится в системном хранилище. Оставьте поле пустым, чтобы не менять его.",
+    "placeholders": {}
+  },
+  "connection.action.forget_password": {
+    "message": "Забыть сохранённый пароль",
+    "placeholders": {}
+  },
+  "connection.forget_password.done": {
+    "message": "Пароль удалён с этого компьютера.",
+    "placeholders": {}
+  },
+  "connection.action.use_default_account": {
+    "message": "Подставить учётную запись по умолчанию",
+    "placeholders": {}
+  },
+  "connection.form.default_account_hint": {
+    "message": "Подставляет Admin и zabbix — учётную запись новой установки Zabbix. Сама кнопка ничего не сохраняет.",
+    "placeholders": {}
+  },
+  "connection.sign_in.password_will_be_stored": {
+    "message": "После успешного подключения пароль сохраняется в системном хранилище.",
+    "placeholders": {}
+  },
+  "connection.card.auth.password_os_store": {
+    "message": "имя пользователя и пароль в системном хранилище",
+    "placeholders": {}
+  },
+  "connection.default_password.title": {
+    "message": "Используется пароль по умолчанию",
+    "placeholders": {}
+  },
+  "connection.default_password.body": {
+    "message": "Подключение «{profile}» выполнило вход с паролем Zabbix по умолчанию. Смените его на рабочем сервере.",
+    "placeholders": {
+      "profile": "text"
+    }
+  },
+  "connection.default_password.dont_show": {
+    "message": "Больше не показывать для этого подключения",
+    "placeholders": {}
+  },
+  "connection.default_password.acknowledge": {
+    "message": "Понятно",
+    "placeholders": {}
+  },
+  "connection.form.secret_in_memory": {
+    "message": "Хранится в памяти программы до отключения или завершения сеанса. Оставьте поле пустым, чтобы не менять его.",
+    "placeholders": {}
+  },
+  "connection.sign_in.password_memory_only": {
+    "message": "Пароль хранится только в памяти до отключения или завершения сеанса.",
+    "placeholders": {}
+  }
+}

@@ -1,6 +1,6 @@
 # P1-01A — Пользователи, контексты и точки входа
 
-Статус: принято владельцем 25.10.2026. Это design specification, не реализованный экран.
+Статус: принято владельцем 25.10.2026; ревизия 26.10.2026 (DESIGN-FIX-01: ID имени продукта по реализации — m-31). Это design specification, не реализованный экран.
 
 Проверочный макет: [`assets/01-start/01-01_P1-01A_start.svg`](assets/01-start/01-01_P1-01A_start.svg). Макет выполнен только в светлой теме и содержит один экран.
 
@@ -52,7 +52,7 @@
 
 ## 5. Message IDs
 
-Используются утверждённые `startup.title`, `startup.subtitle`, `startup.action.import_files`, `startup.action.connect`, `startup.recovery.found`, `session.bootstrap.invalid`, `session.expired.*` и новые ID из P1-00F (`startup.server.*`, `startup.local.*`, `startup.action.choose_dashboard`, `startup.action.new_dashboard`, `startup.action.new_page`, `startup.recent.*`, `object.kind.*`, `object.origin.*`, `intent.*`).
+Используются утверждённые `common.product_name` (имя продукта; прежний `startup.title` не используется, P1-00F §11), `startup.subtitle`, `startup.action.import_files`, `startup.action.connect`, `startup.recovery.found`, `session.bootstrap.invalid`, `session.expired.*` и новые ID из P1-00F (`startup.server.*`, `startup.local.*`, `startup.action.choose_dashboard`, `startup.action.new_dashboard`, `startup.action.new_page`, `startup.recent.*`, `object.kind.*`, `object.origin.*`, `intent.*`).
 
 Для P1-01 дополнительно:
 

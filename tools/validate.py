@@ -28,6 +28,8 @@ MAX_COMPRESSION_RATIO = 300
 ARCHIVE_PROJECT = 'project.yaml'
 CATALOG_PATH = re.compile(r'^metrics/[a-z][a-z0-9_-]{1,63}\.ya?ml$')
 WIDGET_TYPE_PATTERN = re.compile(r'^[a-z][a-z0-9._-]{0,127}$')
+# Page limit of the project/v2 dashboard root, mirrored by Rust PROJECT_V2_MAX_PAGES.
+PROJECT_V2_MAX_PAGES = 50
 FIELD_OBJECT_KINDS = {
     2: 'host_group', 3: 'host', 4: 'item', 5: 'item_prototype', 6: 'graph',
     7: 'graph_prototype', 8: 'map', 9: 'service', 10: 'sla', 11: 'user',
@@ -45,7 +47,10 @@ class ProjectValidationError(ValueError):
 class StrictLoader(yaml.SafeLoader):
     def compose_node(self, parent, index):
         if self.check_event(yaml.AliasEvent):
-            raise ValueError('YAML aliases are prohibited')
+            raise ProjectValidationError('yaml_alias', 'YAML aliases are prohibited')
+        event = self.peek_event()
+        if getattr(event, 'anchor', None) is not None:
+            raise ProjectValidationError('yaml_alias', 'YAML anchors are prohibited')
         return super().compose_node(parent, index)
 
 
@@ -53,8 +58,10 @@ def construct_mapping(loader, node, deep=False):
     out = {}
     for k, v in node.value:
         key = loader.construct_object(k, deep=deep)
-        if not isinstance(key, str) or key in out:
-            raise ValueError('Duplicate or non-string YAML map key')
+        if not isinstance(key, str):
+            raise ProjectValidationError('yaml_key', 'Non-string YAML map key')
+        if key in out:
+            raise ProjectValidationError('yaml_duplicate_key', 'Duplicate YAML map key')
         out[key] = loader.construct_object(v, deep=deep)
     return out
 
@@ -71,14 +78,21 @@ def depth(obj):
 
 
 def load_bytes(data: bytes):
+    """Strict YAML load. Error codes are shared with Rust `formats::strict`."""
     if len(data) > MAX_FILE:
-        raise ValueError('File too large')
+        raise ProjectValidationError('file_size', 'File too large')
     try:
-        parsed = yaml.load(data.decode('utf-8'), Loader=StrictLoader)
-    except (UnicodeDecodeError, yaml.YAMLError, RecursionError) as exc:
-        raise ValueError(f'Invalid UTF-8/YAML: {exc}') from exc
+        text = data.decode('utf-8')
+    except UnicodeDecodeError as exc:
+        raise ProjectValidationError('utf8', f'Invalid UTF-8: {exc}') from exc
+    try:
+        parsed = yaml.load(text, Loader=StrictLoader)
+    except RecursionError as exc:
+        raise ProjectValidationError('yaml_depth', 'Nesting too deep') from exc
+    except yaml.YAMLError as exc:
+        raise ProjectValidationError('yaml_invalid', f'Invalid YAML: {exc}') from exc
     if depth(parsed) > MAX_DEPTH:
-        raise ValueError('Nesting too deep')
+        raise ProjectValidationError('yaml_depth', 'Nesting too deep')
     return parsed
 
 
@@ -312,6 +326,12 @@ def validate_project_shape(project, expected_format=None):
                     'invalid_version_range',
                     'maximum_exclusive must be greater than minimum',
                 )
+    if kind == 'dashboard' and isinstance(root.get('pages'), list):
+        if not 1 <= len(root['pages']) <= PROJECT_V2_MAX_PAGES:
+            raise ProjectValidationError(
+                'page_count',
+                f'dashboard pages must contain 1..={PROJECT_V2_MAX_PAGES} entries',
+            )
     validate_zabbix_widget_shape(project)
     return project
 

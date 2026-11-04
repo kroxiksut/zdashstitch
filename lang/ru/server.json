@@ -1,0 +1,450 @@
+{
+  "server.tab.dashboards": {
+    "message": "Панели",
+    "placeholders": {}
+  },
+  "server.tab.templates": {
+    "message": "Шаблоны",
+    "placeholders": {}
+  },
+  "server.subtitle": {
+    "message": "{profile} · Zabbix {version} · {mode}. Сервер не изменяется на этом экране.",
+    "placeholders": {"profile": "text", "version": "technical", "mode": "text"}
+  },
+  "server.owner.you": {
+    "message": "вы",
+    "placeholders": {}
+  },
+  "server.owner.other": {
+    "message": "другой пользователь",
+    "placeholders": {}
+  },
+  "server.column.editable": {
+    "message": "Изменение",
+    "placeholders": {}
+  },
+  "server.column.mine": {
+    "message": "У меня",
+    "placeholders": {}
+  },
+  "server.editable_count": {
+    "message": "{editable} из {total}",
+    "placeholders": {"editable": "number", "total": "number"}
+  },
+  "server.visibility_note": {
+    "message": "Показаны панели, видимые учётной записи подключения. Если нужной панели нет, её нет на сервере или не хватает прав — Zabbix эти случаи не различает.",
+    "placeholders": {}
+  },
+  "server.action.copy": {
+    "message": "Скопировать с сервера",
+    "placeholders": {}
+  },
+  "server.action.open_copy": {
+    "message": "Открыть копию",
+    "placeholders": {}
+  },
+  "server.actions_start_with_copy": {
+    "message": "Каждое действие начинается с копии: сервер меняется только из раздела «Публикация» по проверенному плану.",
+    "placeholders": {}
+  },
+  "copy.title": {
+    "message": "Скопировать «{dashboard_name}» с сервера",
+    "placeholders": {"dashboard_name": "text"}
+  },
+  "copy.saved.snapshot": {
+    "message": "Снимок: панель как прочитана, без изменений. С ним сравнивается всё последующее (база).",
+    "placeholders": {}
+  },
+  "copy.saved.draft": {
+    "message": "Черновик: копия с сервера для правки. Правки хранятся отдельно от снимка, поэтому повторное копирование их не теряет.",
+    "placeholders": {}
+  },
+  "copy.saved.access": {
+    "message": "Владелец и доступ: для восстановления при публикации. В файлы и экспорт не попадают никогда.",
+    "placeholders": {}
+  },
+  "copy.not_saved": {
+    "message": "Значения метрик, данные узлов сети, пароли и токены.",
+    "placeholders": {}
+  },
+  "copy.read_twice": {
+    "message": "Панель читается дважды. Если она изменится во время чтения, копия не создаётся.",
+    "placeholders": {}
+  },
+  "copy.existing": {
+    "message": "У вас уже есть копия этой панели от {time}. Новая копия создаётся отдельно, существующая не меняется.",
+    "placeholders": {"time": "datetime"}
+  },
+  "errors.import.inconsistent": {
+    "message": "Панель изменилась во время чтения. Копия не создана; повторите.",
+    "placeholders": {}
+  },
+  "dashboards.visibility.private": {
+    "message": "Личная",
+    "placeholders": {}
+  },
+  "dashboards.permission.not_visible_or_denied": {
+    "message": "Панели не найдены либо учётная запись не может их просматривать",
+    "placeholders": {}
+  },
+  "intent.replace_host": {
+    "message": "Заменить узел сети",
+    "placeholders": {}
+  },
+  "errors.storage.linked": {
+    "message": "Путь содержит символьную ссылку или точку повторной обработки.",
+    "placeholders": {}
+  },
+  "dashboards.visibility.shared": {
+    "message": "Общая",
+    "placeholders": {}
+  },
+  "server.column.name": {
+    "message": "Имя",
+    "placeholders": {}
+  },
+  "server.column.owner": {
+    "message": "Владелец",
+    "placeholders": {}
+  },
+  "server.column.access": {
+    "message": "Доступ",
+    "placeholders": {}
+  },
+  "server.column.pages": {
+    "message": "Страниц",
+    "placeholders": {}
+  },
+  "server.column.widgets": {
+    "message": "Виджетов",
+    "placeholders": {}
+  },
+  "server.filter.legend": {
+    "message": "Владелец и доступ",
+    "placeholders": {}
+  },
+  "server.filter.mine": {
+    "message": "Мои",
+    "placeholders": {}
+  },
+  "server.filter.shared": {
+    "message": "Общие",
+    "placeholders": {}
+  },
+  "server.search.placeholder": {
+    "message": "Поиск по имени панели",
+    "placeholders": {}
+  },
+  "server.search.action": {
+    "message": "Найти",
+    "placeholders": {}
+  },
+  "server.action.refresh": {
+    "message": "Обновить список",
+    "placeholders": {}
+  },
+  "server.action.clone": {
+    "message": "Клонировать",
+    "placeholders": {}
+  },
+  "server.mine.copy": {
+    "message": "копия · {date}",
+    "placeholders": {"date": "date"}
+  },
+  "server.mine.unknown": {
+    "message": "неизвестно",
+    "placeholders": {}
+  },
+  "server.details.owner": {
+    "message": "Владелец — {owner}",
+    "placeholders": {"owner": "text"}
+  },
+  "server.details.pages": {
+    "message": "Страницы",
+    "placeholders": {}
+  },
+  "server.details.widgets": {
+    "message": "Виджеты",
+    "placeholders": {}
+  },
+  "server.details.editable": {
+    "message": "Изменение поддерживается: {count}",
+    "placeholders": {"count": "number"}
+  },
+  "server.details.not_editable": {
+    "message": "Изменение не поддерживается: {count}",
+    "placeholders": {"count": "number"}
+  },
+  "server.details.copied_as_is": {
+    "message": "копируются как есть",
+    "placeholders": {}
+  },
+  "server.details.type_count": {
+    "message": "{type} {count}",
+    "placeholders": {"type": "text", "count": "number"}
+  },
+  "server.details.existing_copy": {
+    "message": "Есть копия от {time}.",
+    "placeholders": {"time": "datetime"}
+  },
+  "server.details.select_hint": {
+    "message": "Выберите панель, чтобы увидеть её страницы и действия.",
+    "placeholders": {}
+  },
+  "server.take_page.legend": {
+    "message": "Какую страницу взять",
+    "placeholders": {}
+  },
+  "server.list.truncated": {
+    "message": "{count, plural, one {Прочитана только первая # панель.} few {Прочитаны только первые # панели.} many {Прочитаны только первые # панелей.} other {Прочитаны только первые # панели.}} Уточните поиск, чтобы увидеть остальные.",
+    "placeholders": {"count": "number"}
+  },
+  "server.list.copies_unknown": {
+    "message": "Локальные копии не проверены: локальное хранилище не читается.",
+    "placeholders": {}
+  },
+  "server.list.load_failed": {
+    "message": "Не удалось загрузить список панелей",
+    "placeholders": {}
+  },
+  "server.preview.load_failed": {
+    "message": "Не удалось прочитать панель",
+    "placeholders": {}
+  },
+  "server.empty.offline": {
+    "message": "Подключитесь к Zabbix, чтобы увидеть панели",
+    "placeholders": {}
+  },
+  "server.empty.other_connection": {
+    "message": "Это подключение не активно. Подключитесь к нему, чтобы увидеть его панели.",
+    "placeholders": {}
+  },
+  "server.pagination.label": {
+    "message": "Страницы списка панелей",
+    "placeholders": {}
+  },
+  "server.pagination.previous": {
+    "message": "Назад",
+    "placeholders": {}
+  },
+  "server.pagination.next": {
+    "message": "Далее",
+    "placeholders": {}
+  },
+  "server.templates.later": {
+    "message": "Импорт шаблонов в библиотеку появится позже.",
+    "placeholders": {}
+  },
+  "copy.breadcrumb": {
+    "message": "Копирование",
+    "placeholders": {}
+  },
+  "copy.scope.whole": {
+    "message": "Вся панель: {summary}. Одну страницу берёт действие «Взять страницу».",
+    "placeholders": {"summary": "text"}
+  },
+  "copy.section.composition": {
+    "message": "Состав",
+    "placeholders": {}
+  },
+  "copy.page_summary": {
+    "message": "{widgets}: изменение поддерживается — {editable}, нет — {other}",
+    "placeholders": {"widgets": "text", "editable": "number", "other": "number"}
+  },
+  "copy.widget.editable": {
+    "message": "изменение поддерживается",
+    "placeholders": {}
+  },
+  "copy.widget.as_is": {
+    "message": "копируется как есть",
+    "placeholders": {}
+  },
+  "copy.section.dependencies": {
+    "message": "Зависимости",
+    "placeholders": {}
+  },
+  "copy.dep.hosts": {
+    "message": "Узлы сети",
+    "placeholders": {}
+  },
+  "copy.dep.items": {
+    "message": "Элементы данных",
+    "placeholders": {}
+  },
+  "copy.dep.by_id_or_pattern": {
+    "message": "{total, plural, one {# ссылка} few {# ссылки} many {# ссылок} other {# ссылки}}: {by_id} по ID, {by_pattern} по шаблону имени",
+    "placeholders": {"total": "number", "by_id": "number", "by_pattern": "number"}
+  },
+  "copy.dep.graphs": {
+    "message": "Графики",
+    "placeholders": {}
+  },
+  "copy.dep.references": {
+    "message": "Связи между виджетами",
+    "placeholders": {}
+  },
+  "copy.dep.references_value": {
+    "message": "{count} — сохраняются вместе с виджетами",
+    "placeholders": {"count": "number"}
+  },
+  "copy.dep.unknown_fields": {
+    "message": "Неизвестные поля",
+    "placeholders": {}
+  },
+  "copy.dep.unknown_fields_value": {
+    "message": "{count} — сохраняются как есть, не меняются",
+    "placeholders": {"count": "number"}
+  },
+  "copy.dep.other": {
+    "message": "Прочие ссылки",
+    "placeholders": {}
+  },
+  "copy.dep.not_copied": {
+    "message": "Узлы сети и элементы данных не копируются: копия хранит ссылки на них.",
+    "placeholders": {}
+  },
+  "copy.section.saved": {
+    "message": "Что сохранится на этом компьютере",
+    "placeholders": {}
+  },
+  "copy.section.not_saved": {
+    "message": "Не сохраняется",
+    "placeholders": {}
+  },
+  "copy.existing.refetch_hint": {
+    "message": "Обновить базу существующей копии — «Скопировать заново» в её обзоре.",
+    "placeholders": {}
+  },
+  "copy.action.new_copy": {
+    "message": "Новая копия",
+    "placeholders": {}
+  },
+  "copy.action.open_mine": {
+    "message": "Открыть мою копию",
+    "placeholders": {}
+  },
+  "copy.progress": {
+    "message": "Панель читается дважды, копия сохраняется…",
+    "placeholders": {}
+  },
+  "copy.result.created": {
+    "message": "Копия создана: «{name}»",
+    "placeholders": {"name": "text"}
+  },
+  "copy.result.metadata_partial": {
+    "message": "Единицы и сопоставления значений прочитаны не для всех элементов данных.",
+    "placeholders": {}
+  },
+  "copy.result.metadata_unavailable": {
+    "message": "Единицы и сопоставления значений элементов данных прочитать не удалось; копия создана без них.",
+    "placeholders": {}
+  },
+  "copy.result.failed": {
+    "message": "Копия не создана",
+    "placeholders": {}
+  },
+  "errors.workcopy.not_visible_or_denied": {
+    "message": "Панель не найдена либо учётная запись не может её просматривать.",
+    "placeholders": {}
+  },
+  "errors.workcopy.page_not_found": {
+    "message": "Страницы больше нет на панели. Копия не создана.",
+    "placeholders": {}
+  },
+  "errors.workcopy.search_invalid": {
+    "message": "Введите строку поиска длиной до {max, plural, one {# символа} few {# символов} many {# символов} other {# символа}} без управляющих символов.",
+    "placeholders": {"max": "number"}
+  },
+  "errors.drafts.name_invalid": {
+    "message": "Введите имя длиной до {max, plural, one {# символа} few {# символов} many {# символов} other {# символа}} без управляющих символов.",
+    "placeholders": {"max": "number"}
+  },
+  "errors.workcopy.corrupt": {
+    "message": "Файл черновика повреждён. Он не изменялся.",
+    "placeholders": {}
+  },
+  "errors.workcopy.too_large": {
+    "message": "Файл черновика слишком большой; он не прочитан.",
+    "placeholders": {}
+  },
+  "errors.workcopy.unsupported_operation": {
+    "message": "Черновик содержит изменения из более новой версии ZDashstitch. Он не изменялся.",
+    "placeholders": {}
+  },
+  "errors.snapshot.missing": {
+    "message": "Снимок этой копии не найден.",
+    "placeholders": {}
+  },
+  "errors.snapshot.corrupt": {
+    "message": "Снимок этой копии повреждён. Он не изменялся.",
+    "placeholders": {}
+  },
+  "errors.snapshot.too_large": {
+    "message": "Панель слишком велика для сохранения снимка. Копия не создана.",
+    "placeholders": {}
+  },
+  "errors.snapshot.unsupported_adapter": {
+    "message": "Снимок сделан для версии Zabbix, которую эта сборка не поддерживает.",
+    "placeholders": {}
+  },
+  "errors.snapshot.shape_invalid": {
+    "message": "Zabbix вернул панель в неожиданном виде. Копия не создана.",
+    "placeholders": {}
+  },
+  "errors.workcopy.storage_unavailable": {
+    "message": "Локальное хранилище недоступно: черновики нельзя прочитать или сохранить.",
+    "placeholders": {}
+  },
+  "errors.workcopy.storage_file_too_large": {
+    "message": "Файл в локальном хранилище слишком большой; он не прочитан.",
+    "placeholders": {}
+  },
+  "errors.workcopy.storage_limit_reached": {
+    "message": "Достигнут предел локального хранилища. Ничего не сохранено.",
+    "placeholders": {}
+  },
+  "errors.workcopy.storage_write_failed": {
+    "message": "Не удалось записать в локальное хранилище. Ничего не сохранено.",
+    "placeholders": {}
+  },
+  "errors.workcopy.settings_unavailable": {
+    "message": "Файл настроек не читается, поэтому расположение хранилища неизвестно. Ничего не прочитано и не сохранено.",
+    "placeholders": {}
+  },
+  "errors.import.policy": {
+    "message": "Файл отклонён правилами безопасности импорта ({code}).",
+    "placeholders": {"code": "technical"}
+  },
+  "errors.import.unsafe_structure": {
+    "message": "Файл содержит структуру, запрещённую для безопасного импорта ({code}).",
+    "placeholders": {"code": "technical"}
+  },
+  "errors.import.parse": {
+    "message": "Не удалось разобрать файл {format}.",
+    "placeholders": {"format": "technical"}
+  },
+  "errors.import.validation": {
+    "message": "Импортируемые данные противоречивы ({code}).",
+    "placeholders": {"code": "technical"}
+  },
+  "server.action.preview": {
+    "message": "Предпросмотр",
+    "placeholders": {}
+  },
+  "server.preview.breadcrumb": {
+    "message": "Предпросмотр",
+    "placeholders": {}
+  },
+  "server.preview.badge": {
+    "message": "Только просмотр",
+    "placeholders": {}
+  },
+  "server.preview.note": {
+    "message": "Панель прочитана с сервера только для просмотра: на этом компьютере ничего не сохраняется. Чтобы изменить панель, сначала скопируйте её.",
+    "placeholders": {}
+  },
+  "server.preview.page_to_take": {
+    "message": "Страница, которую взять",
+    "placeholders": {}
+  }
+}

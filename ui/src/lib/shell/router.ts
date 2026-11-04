@@ -13,7 +13,6 @@ export const SETTINGS_SECTIONS = [
   'connections',
   'security',
   'diagnostics',
-  // TODO(P1-12): About/Licenses entry point — `/settings/about` is reserved and has no content yet.
   'about'
 ] as const;
 export type SettingsSection = (typeof SETTINGS_SECTIONS)[number];
@@ -24,8 +23,19 @@ export type Route =
   | { readonly name: 'start' }
   | { readonly name: 'drafts' }
   | { readonly name: 'server'; readonly connectionLocalId: string | null }
+  // P1-01H §2: the copy check (mockup 03-03). The chosen dashboard lives in memory only, never in
+  // the address: a reload returns to the dashboard list.
+  | { readonly name: 'server_copy'; readonly connectionLocalId: string }
+  // P2-05E: read-only preview of the chosen server dashboard; like the copy check, the dashboard
+  // lives in memory only (no Zabbix ID in the address), so a reload returns to the list.
+  | { readonly name: 'server_preview'; readonly connectionLocalId: string }
   | { readonly name: 'library' }
   | { readonly name: 'connections' }
+  // P2-01G: editor and check of one profile (mockups 05-02, 05-03 breadcrumbs). `localId` is the
+  // opaque profile ID, never an address or a name.
+  | { readonly name: 'connection_new' }
+  | { readonly name: 'connection_edit'; readonly localId: string }
+  | { readonly name: 'connection_check'; readonly localId: string }
   | { readonly name: 'settings'; readonly section: SettingsSection }
   | { readonly name: 'draft'; readonly localId: string; readonly section: DraftSection };
 
@@ -67,13 +77,23 @@ export function parseRoute(pathname: string): ParsedRoute {
     case 'library':
       return second === undefined ? { route: { name: 'library' } } : { route: { name: 'library' }, canonical: '/library' };
     case 'connections':
-      return second === undefined
-        ? { route: { name: 'connections' } }
-        : { route: { name: 'connections' }, canonical: '/connections' };
+      if (second === undefined) return { route: { name: 'connections' } };
+      if (second === 'new' && third === undefined) return { route: { name: 'connection_new' } };
+      if (isLocalId(second) && rest.length === 0) {
+        if (third === 'edit') return { route: { name: 'connection_edit', localId: second } };
+        if (third === 'check') return { route: { name: 'connection_check', localId: second } };
+      }
+      return { route: { name: 'connections' }, canonical: '/connections' };
     case 'server':
       if (second === undefined) return { route: { name: 'server', connectionLocalId: null } };
       if (isLocalId(second) && third === 'dashboards' && rest.length === 0) {
         return { route: { name: 'server', connectionLocalId: second } };
+      }
+      if (isLocalId(second) && third === 'copy' && rest.length === 0) {
+        return { route: { name: 'server_copy', connectionLocalId: second } };
+      }
+      if (isLocalId(second) && third === 'preview' && rest.length === 0) {
+        return { route: { name: 'server_preview', connectionLocalId: second } };
       }
       return { route: { name: 'server', connectionLocalId: null }, canonical: '/server' };
     case 'settings':
@@ -111,15 +131,39 @@ export function settingsPath(section: SettingsSection): string {
   return `/settings/${section}`;
 }
 
+export function connectionPath(localId: string, view: 'edit' | 'check'): string {
+  return `/connections/${encodeURIComponent(localId)}/${view}`;
+}
+
 export function serverPath(connectionLocalId: string | null): string {
   return connectionLocalId === null ? '/server' : `/server/${encodeURIComponent(connectionLocalId)}/dashboards`;
+}
+
+export function serverCopyPath(connectionLocalId: string): string {
+  return `/server/${encodeURIComponent(connectionLocalId)}/copy`;
+}
+
+export function serverPreviewPath(connectionLocalId: string): string {
+  return `/server/${encodeURIComponent(connectionLocalId)}/preview`;
 }
 
 export type TopSection = 'start' | 'drafts' | 'server' | 'library' | 'connections' | 'settings';
 
 /** The global header item that owns a route; an open draft belongs to «Drafts». */
 export function topSection(route: Route): TopSection {
-  return route.name === 'draft' ? 'drafts' : route.name;
+  switch (route.name) {
+    case 'draft':
+      return 'drafts';
+    case 'server_copy':
+    case 'server_preview':
+      return 'server';
+    case 'connection_new':
+    case 'connection_edit':
+    case 'connection_check':
+      return 'connections';
+    default:
+      return route.name;
+  }
 }
 
 export function sameRoute(left: Route, right: Route): boolean {

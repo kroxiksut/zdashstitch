@@ -1,6 +1,6 @@
 # P1-00D — инвентарь и анатомия компонентов
 
-**Версия:** 1.0, 2026-10-24. **Статус:** принято для P1 handoff. Компоненты описывают общий UI-язык; feature-specific composition остаётся в P1-01—P1-10. Runtime-компоненты создаются в P2-00.
+**Версия:** 1.1, 2026-10-26 (DESIGN-FIX-01: без слова «project», m-02); 1.0 — 2026-10-24. **Статус:** принято для P1 handoff. Компоненты описывают общий UI-язык; feature-specific composition остаётся в P1-01—P1-10. Runtime-компоненты создаются в P2-00.
 
 ## 1. Общие правила
 
@@ -26,7 +26,7 @@
 | Radio group | legend, radio options, descriptions | Взаимоисключающий небольшой набор | APG radio: arrows, `Space` | Общий; access mode/export mode — feature pattern |
 | Switch | checkbox semantics, visible on/off label | Немедленная обратимая setting; не submit/permission | `Space` | Общий; не использовать для read/write elevation |
 | Tabs | tablist, tab, tabpanel, optional count | Peer views одного context; не route hierarchy | APG tabs; arrows/Home/End, activation documented | Общий; dashboard pages — feature pattern с overflow |
-| Tree/list | labelled container, rows, disclosure, selection/status | Project/library/page outline; server names | APG tree/listbox; arrows, Home/End, typeahead if stable | Общий; canvas outline — feature pattern |
+| Tree/list | labelled container, rows, disclosure, selection/status | Dashboard → page → widget outline of a draft, library and page lists; server names | APG tree/listbox; arrows, Home/End, typeahead if stable | Общий; canvas outline — feature pattern |
 | Table/data-grid | caption/label, headers, rows, sort/filter/pagination, selection | Сравнимые records; technical columns; expandable details | Native table for read-only; APG grid only if cell interaction needed | Общий; diff/resolver mapping — feature patterns |
 | Badge/status | icon/shape, localized label, optional count | Краткий state, не действие | Не focusable без action | Общий; exact/read-only/conflict mappings documented in feature |
 | Tooltip | trigger relation, plain text popup | Дополнительная подсказка, полный truncated label | Hover/focus/touch; `Escape` dismiss | Общий |

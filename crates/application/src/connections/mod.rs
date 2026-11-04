@@ -24,10 +24,25 @@ pub use profile::{
     ProfileInput, ProfileView, SecretStorage, StoredIdentity, TrustInput, TrustSetting,
 };
 pub use repository::{ImportedTrust, ProfileRepository, TrustStore};
+/// Secret wrapper of [`ConnectRequest::secret`], re-exported so the HTTP
+/// boundary can wrap a secret right after parsing without its own dependency.
+pub use secrecy::SecretString;
 pub use service::{
-    ConnectOutcome, ConnectRequest, ConnectionService, DeleteOutcome, DisconnectOutcome,
-    ProfileUpdate,
+    ClosedSession, ConnectOutcome, ConnectRequest, ConnectionService, DeleteOutcome,
+    DisconnectOutcome, ProfileUpdate,
 };
+
+impl ConnectionService {
+    /// Service over the platform configuration directory, the directory of
+    /// the settings file (P2-01H): `connections.yaml` and `trusted-ca/`.
+    pub fn platform_default(
+        credentials: Box<dyn CredentialStore>,
+    ) -> Result<Self, ConnectionError> {
+        let (configuration, _) = crate::settings::platform_paths(|name| std::env::var_os(name))
+            .map_err(|_| ConnectionError::new("profile_store_unavailable"))?;
+        Ok(Self::new(configuration, credentials))
+    }
+}
 
 /// Failure of a connection use case outside the network check itself: a
 /// code plus safe parameters. `Display` shows only the code.
