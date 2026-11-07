@@ -11,6 +11,7 @@
 mod capabilities;
 mod client;
 mod create;
+mod create_permission;
 mod dashboards;
 mod error;
 mod gateway;
@@ -34,8 +35,8 @@ pub use create::{
     DashboardCreateOutcome, LinkOutsidePage, MAX_DASHBOARD_NAME_CHARS, MAX_NAMED_DASHBOARDS,
     NamedDashboards, ReadBackVerdict, UnknownCopyReason, UnknownCopyWidget,
     VerifiedDashboardCreate, check_created_dashboard, create_requirements, create_requirements_for,
-    dashboard_content_fingerprint, is_valid_dashboard_name, reconcile_created_dashboard,
-    verify_dashboard_create, verify_dashboard_create_for,
+    dashboard_comparison_content, dashboard_content_fingerprint, is_valid_dashboard_name,
+    reconcile_created_dashboard, verify_dashboard_create, verify_dashboard_create_for,
 };
 pub use dashboards::{
     DashboardListPage, DashboardListing, DashboardPageListing, ITEM_METADATA_BATCH, ItemMetadata,
@@ -49,9 +50,10 @@ pub use gateway::{
 };
 pub use inventory::{InventoryMethod, InventoryProbe, MethodOutcome};
 pub use lookups::{
-    GraphDetails, GraphPrototypeDetails, HostDetails, HostListing, HostObjects, ItemDetails,
-    ItemDiscoveryLink, ItemFlags, ItemPrototypeDetails, LOOKUP_BATCH, MAX_HOST_OBJECTS,
-    MAX_HOST_SEARCH, MAX_HOST_SEARCH_CHARS, TemplateRef,
+    ExactHostTag, GraphDetails, GraphPrototypeDetails, HostDetails, HostGroupListing, HostListing,
+    HostObjects, HostSearchFilter, ItemDetails, ItemDiscoveryLink, ItemFlags, ItemPrototypeDetails,
+    LOOKUP_BATCH, MAX_FILTER_CHARS, MAX_HOST_GROUP_SEARCH, MAX_HOST_OBJECTS, MAX_HOST_SEARCH,
+    MAX_HOST_SEARCH_CHARS, TemplateRef,
 };
 pub use snapshot::{
     ADAPTER_ID_7_4, DashboardSnapshotAnalysis, DependencyKind, DependencyState, SnapshotDependency,

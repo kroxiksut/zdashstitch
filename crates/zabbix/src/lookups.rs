@@ -4,13 +4,15 @@
 //! classic graphs with the evidence fields of the P1-IN-03 status model
 //! (`key_`, `value_type`, `units`, `flags`, `templateid`, LLD parent).
 //!
-//! Every call uses a method of the P1-IN-08 read allowlist (`host.get`,
-//! `item.get`, `graph.get`, `itemprototype.get`, `graphprototype.get`).
+//! Every call uses a method of the P1-IN-08 read allowlist (`hostgroup.get`,
+//! `host.get`, `item.get`, `graph.get`, `itemprototype.get`,
+//! `graphprototype.get`).
 //! Prototypes are read only by ID, to find the owner (host or template) of
 //! the prototype fields of widget field types 5 and 7 (decision 2026-10-26).
 //! Objects hidden by permissions are simply absent from the answers; Zabbix
 //! does not tell them apart from missing objects (P1-IN-08).
 
+use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 
 use crate::dashboards::is_zabbix_id;
@@ -25,11 +27,40 @@ pub const MAX_HOST_OBJECTS: usize = 20_000;
 pub const MAX_HOST_SEARCH: usize = 100;
 /// Longest host search text, in characters (the Zabbix host name limit).
 pub const MAX_HOST_SEARCH_CHARS: usize = 128;
+/// Largest page of a host-group search.
+pub const MAX_HOST_GROUP_SEARCH: usize = 100;
+/// Longest group search text or exact tag component.
+pub const MAX_FILTER_CHARS: usize = 255;
+
+/// One exact `tag=value` host filter. Several entries are ANDed. Duplicate
+/// tag names are refused so Zabbix's AND/OR evaluation cannot weaken AND.
+#[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
+pub struct ExactHostTag {
+    pub tag: String,
+    pub value: String,
+}
+
+/// Read-only filters for a target-host picker. A group is optional and
+/// singular; choosing more hosts is independent from filtering them.
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
+pub struct HostSearchFilter {
+    pub name: String,
+    pub groupid: Option<String>,
+    pub tags: Vec<ExactHostTag>,
+}
+
+/// A host group visible to the current account.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct HostGroupListing {
+    pub groupid: String,
+    pub name: String,
+}
 
 /// A host as seen by the account. `name` is the visible name, which
 /// `svggraph` host patterns are matched against; `host` is the technical
 /// name.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct HostDetails {
     pub hostid: String,
     pub host: String,
@@ -37,7 +68,8 @@ pub struct HostDetails {
 }
 
 /// A template linked directly to a host (server data).
-#[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct TemplateRef {
     pub templateid: String,
     pub name: String,
@@ -45,7 +77,8 @@ pub struct TemplateRef {
 
 /// A host found by a search, with its host groups and directly linked
 /// templates (server data, for choosing a target host).
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct HostListing {
     pub hostid: String,
     pub host: String,
@@ -257,33 +290,50 @@ impl ReadOnlyGateway {
         search: &str,
         limit: usize,
     ) -> Result<HostObjects<HostListing>> {
-        if limit == 0 || limit > MAX_HOST_SEARCH {
-            return Err(ZabbixError::SnapshotShape(
-                "host search limit is out of range".to_owned(),
-            ));
-        }
-        if search.chars().count() > MAX_HOST_SEARCH_CHARS || search.chars().any(char::is_control) {
-            return Err(ZabbixError::SnapshotShape(
-                "host search text is too long or has control characters".to_owned(),
-            ));
-        }
-        let mut params = json!({
-            "output": ["hostid", "host", "name"],
-            "selectHostGroups": ["name"],
-            "selectParentTemplates": ["templateid", "name"],
-            "sortfield": "name",
-            "limit": limit + 1
-        });
-        if !search.is_empty() {
-            params["search"] = json!({"host": search, "name": search});
-            params["searchByAny"] = json!(true);
-        }
+        self.search_hosts_filtered(
+            &HostSearchFilter {
+                name: search.to_owned(),
+                ..HostSearchFilter::default()
+            },
+            limit,
+        )
+        .await
+    }
+
+    /// Hosts matching an optional group, exact tag pairs (AND) and a name
+    /// substring. Filters only discover candidates; callers persist an
+    /// explicit host list, never the filter.
+    pub async fn search_hosts_filtered(
+        &self,
+        filter: &HostSearchFilter,
+        limit: usize,
+    ) -> Result<HostObjects<HostListing>> {
+        let params = host_search_params(filter, limit)?;
         let raw: Vec<Value> = self.read_typed(ReadMethod::HostGet, params).await?;
         let truncated = raw.len() > limit;
         let objects = raw
             .iter()
             .take(limit)
             .map(parse_host_listing)
+            .collect::<Result<_>>()?;
+        Ok(HostObjects { objects, truncated })
+    }
+
+    /// Visible host groups whose name contains `search`, sorted by name.
+    /// An empty result means absent or not visible; Zabbix does not expose
+    /// which case applies.
+    pub async fn search_host_groups(
+        &self,
+        search: &str,
+        limit: usize,
+    ) -> Result<HostObjects<HostGroupListing>> {
+        let params = host_group_search_params(search, limit)?;
+        let raw: Vec<Value> = self.read_typed(ReadMethod::HostgroupGet, params).await?;
+        let truncated = raw.len() > limit;
+        let objects = raw
+            .iter()
+            .take(limit)
+            .map(parse_host_group)
             .collect::<Result<_>>()?;
         Ok(HostObjects { objects, truncated })
     }
@@ -512,6 +562,100 @@ fn parse_host(host: &Value) -> Result<HostDetails> {
     })
 }
 
+fn valid_filter_text(text: &str, max: usize) -> bool {
+    text.chars().count() <= max && !text.chars().any(char::is_control)
+}
+
+fn host_search_params(filter: &HostSearchFilter, limit: usize) -> Result<Value> {
+    if limit == 0 || limit > MAX_HOST_SEARCH {
+        return Err(ZabbixError::SnapshotShape(
+            "host search limit is out of range".to_owned(),
+        ));
+    }
+    if !valid_filter_text(&filter.name, MAX_HOST_SEARCH_CHARS) {
+        return Err(ZabbixError::SnapshotShape(
+            "host search text is too long or has control characters".to_owned(),
+        ));
+    }
+    if filter
+        .groupid
+        .as_deref()
+        .is_some_and(|groupid| !is_zabbix_id(groupid))
+    {
+        return Err(ZabbixError::SnapshotShape(
+            "host search groupid is invalid".to_owned(),
+        ));
+    }
+    let mut tag_names = std::collections::BTreeSet::new();
+    for tag in &filter.tags {
+        if tag.tag.is_empty()
+            || !valid_filter_text(&tag.tag, MAX_FILTER_CHARS)
+            || !valid_filter_text(&tag.value, MAX_FILTER_CHARS)
+            || !tag_names.insert(tag.tag.as_str())
+        {
+            return Err(ZabbixError::SnapshotShape(
+                "host search tags must have unique non-empty names and valid exact values"
+                    .to_owned(),
+            ));
+        }
+    }
+
+    let mut params = json!({
+        "output": ["hostid", "host", "name"],
+        "selectHostGroups": ["name"],
+        "selectParentTemplates": ["templateid", "name"],
+        "sortfield": "name",
+        "limit": limit + 1
+    });
+    if !filter.name.is_empty() {
+        params["search"] = json!({"host": filter.name, "name": filter.name});
+        params["searchByAny"] = json!(true);
+    }
+    if let Some(groupid) = &filter.groupid {
+        params["groupids"] = json!([groupid]);
+    }
+    if !filter.tags.is_empty() {
+        params["evaltype"] = json!(0);
+        params["tags"] = Value::Array(
+            filter
+                .tags
+                .iter()
+                .map(|tag| json!({"tag": tag.tag, "value": tag.value, "operator": 1}))
+                .collect(),
+        );
+    }
+    Ok(params)
+}
+
+fn host_group_search_params(search: &str, limit: usize) -> Result<Value> {
+    if limit == 0 || limit > MAX_HOST_GROUP_SEARCH {
+        return Err(ZabbixError::SnapshotShape(
+            "host group search limit is out of range".to_owned(),
+        ));
+    }
+    if !valid_filter_text(search, MAX_FILTER_CHARS) {
+        return Err(ZabbixError::SnapshotShape(
+            "host group search text is too long or has control characters".to_owned(),
+        ));
+    }
+    let mut params = json!({
+        "output": ["groupid", "name"],
+        "sortfield": "name",
+        "limit": limit + 1
+    });
+    if !search.is_empty() {
+        params["search"] = json!({"name": search});
+    }
+    Ok(params)
+}
+
+fn parse_host_group(group: &Value) -> Result<HostGroupListing> {
+    Ok(HostGroupListing {
+        groupid: id_field(group, "groupid", "host group")?,
+        name: string_field(group, "name", "host group")?.to_owned(),
+    })
+}
+
 fn parse_host_listing(host: &Value) -> Result<HostListing> {
     let details = parse_host(host)?;
     let mut groups = host
@@ -688,9 +832,66 @@ mod tests {
     use serde_json::json;
 
     use super::{
-        ItemFlags, parse_graph, parse_graph_prototype, parse_host, parse_host_listing, parse_item,
-        parse_item_prototype,
+        ExactHostTag, HostSearchFilter, ItemFlags, host_group_search_params, host_search_params,
+        parse_graph, parse_graph_prototype, parse_host, parse_host_group, parse_host_listing,
+        parse_item, parse_item_prototype,
     };
+
+    #[test]
+    fn target_filters_use_allowlisted_exact_and_semantics() {
+        let params = host_search_params(
+            &HostSearchFilter {
+                name: "pg-b".to_owned(),
+                groupid: Some("81".to_owned()),
+                tags: vec![
+                    ExactHostTag {
+                        tag: "role".to_owned(),
+                        value: "pgsql".to_owned(),
+                    },
+                    ExactHostTag {
+                        tag: "site".to_owned(),
+                        value: "pilot".to_owned(),
+                    },
+                ],
+            },
+            20,
+        )
+        .unwrap_or_else(|error| panic!("host params: {error}"));
+        assert_eq!(params["groupids"], json!(["81"]));
+        assert_eq!(params["search"], json!({"host": "pg-b", "name": "pg-b"}));
+        assert_eq!(params["evaltype"], 0);
+        assert_eq!(params["tags"][0]["operator"], 1);
+        assert_eq!(params["tags"][1]["tag"], "site");
+        assert_eq!(params["limit"], 21);
+
+        let duplicate = HostSearchFilter {
+            tags: vec![
+                ExactHostTag {
+                    tag: "role".to_owned(),
+                    value: "pgsql".to_owned(),
+                },
+                ExactHostTag {
+                    tag: "role".to_owned(),
+                    value: "shared".to_owned(),
+                },
+            ],
+            ..HostSearchFilter::default()
+        };
+        assert!(host_search_params(&duplicate, 20).is_err());
+    }
+
+    #[test]
+    fn host_group_search_is_bounded_and_parsed() {
+        let params = host_group_search_params("Pilot", 25)
+            .unwrap_or_else(|error| panic!("group params: {error}"));
+        assert_eq!(params["search"], json!({"name": "Pilot"}));
+        assert_eq!(params["limit"], 26);
+        let group = parse_host_group(&json!({"groupid": "81", "name": "Pilot/DB"}))
+            .unwrap_or_else(|error| panic!("group: {error}"));
+        assert_eq!(group.groupid, "81");
+        assert_eq!(group.name, "Pilot/DB");
+        assert!(parse_host_group(&json!({"groupid": "bad", "name": "x"})).is_err());
+    }
 
     #[test]
     fn item_prototype_keeps_owner_template_origin_and_rule() {

@@ -41,6 +41,28 @@ fn is_reparse_point(metadata: &std::fs::Metadata) -> bool {
     metadata.file_attributes() & FILE_ATTRIBUTE_REPARSE_POINT != 0
 }
 
+fn reject_reparse_points_below(base: &Path, directory: &Path) -> Result<(), InstanceError> {
+    let relative = directory
+        .strip_prefix(base)
+        .map_err(|_| InstanceError::DirectoryInsecure)?;
+    if relative.as_os_str().is_empty() {
+        return Err(InstanceError::DirectoryInsecure);
+    }
+    let mut current = base.to_path_buf();
+    for component in relative.components() {
+        current.push(component);
+        match std::fs::symlink_metadata(&current) {
+            Ok(metadata) if is_reparse_point(&metadata) => {
+                return Err(InstanceError::DirectoryInsecure);
+            }
+            Ok(_) => {}
+            Err(error) if error.kind() == io::ErrorKind::NotFound => break,
+            Err(_) => return Err(InstanceError::DirectoryUnavailable),
+        }
+    }
+    Ok(())
+}
+
 /// A development override (`ZDASHSTITCH_INSTANCE_DIR`) is accepted only
 /// strictly inside `%LOCALAPPDATA%`, whose profile ACL keeps other users
 /// out; std offers no owner or ACL check without `unsafe`, so a shared
@@ -56,8 +78,14 @@ pub(super) fn check_override(directory: &Path) -> Result<PathBuf, InstanceError>
     {
         return Err(InstanceError::DirectoryInsecure);
     }
-    let base = local_app_data().ok_or(InstanceError::DirectoryUnavailable)?;
-    let base = std::fs::canonicalize(base).map_err(|_| InstanceError::DirectoryUnavailable)?;
+    let visible_base = local_app_data().ok_or(InstanceError::DirectoryUnavailable)?;
+    // Inspect the path as supplied before canonicalizing it. On Windows,
+    // `canonicalize` may retain the visible path of a directory junction,
+    // which would make a junction below LOCALAPPDATA appear contained even
+    // when its target lies elsewhere.
+    reject_reparse_points_below(&visible_base, directory)?;
+    let base =
+        std::fs::canonicalize(&visible_base).map_err(|_| InstanceError::DirectoryUnavailable)?;
     let mut existing = directory;
     while !existing.exists() {
         existing = existing.parent().ok_or(InstanceError::DirectoryInsecure)?;
@@ -68,6 +96,7 @@ pub(super) fn check_override(directory: &Path) -> Result<PathBuf, InstanceError>
         return Err(InstanceError::DirectoryInsecure);
     }
     std::fs::create_dir_all(directory).map_err(|_| InstanceError::DirectoryUnavailable)?;
+    reject_reparse_points_below(&visible_base, directory)?;
     let canonical =
         std::fs::canonicalize(directory).map_err(|_| InstanceError::DirectoryUnavailable)?;
     let relative = canonical

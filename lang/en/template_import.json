@@ -1,0 +1,21 @@
+{
+  "template_import.choose_native": {"message":"Choose files…","placeholders":{}},
+  "template_import.help": {"message":"Choose Zabbix 7.4 template exports in YAML, JSON or XML. Review the result before saving catalogs on this computer.","placeholders":{}},
+  "template_import.choose": {"message":"Upload through the browser","placeholders":{}},
+  "template_import.inspect": {"message":"Inspect files","placeholders":{}},
+  "template_import.save": {"message":"Save catalogs to the library","placeholders":{}},
+  "template_import.catalogs": {"message":"Metric catalogs","placeholders":{}},
+  "template_import.empty": {"message":"No metric catalogs have been saved yet.","placeholders":{}},
+  "template_import.action_failed": {"message":"The file operation failed. Inspect the files again before retrying.","placeholders":{}},
+  "template_import.list_failed": {"message":"The local metric library could not be read.","placeholders":{}},
+  "template_import.saved": {"message":"Catalogs saved: {count}.","placeholders":{"count":"number"}},
+  "template_import.becomes": {"message":"Metric catalogs to save: {count}, one per template.","placeholders":{"count":"number"}},
+  "template_import.preview_counts": {"message":"Metrics: {metrics}. Discovery rules: {rules}. Metrics with preview hints: {hints}.","placeholders":{"metrics":"number","rules":"number","hints":"number"}},
+  "template_import.new_version": {"message":"A new version will be saved. Earlier versions are kept.","placeholders":{}},
+  "template_import.partial": {"message":"Only supported metric data is imported. Template dashboards and configuration outside the catalog are skipped.","placeholders":{}},
+  "template_import.missing_parent": {"message":"A parent template is missing from this export.","placeholders":{}},
+  "template_import.unresolved_macros": {"message":"Some macro values require additional context.","placeholders":{}},
+  "template_import.rejected": {"message":"File rejected ({code}).","placeholders":{"code":"text"}},
+  "template_import.position": {"message":"Line {line}, column {column}.","placeholders":{"line":"number","column":"number"}},
+  "template_import.version": {"message":"Catalog version {version} · Zabbix export {export_version}","placeholders":{"version":"number","export_version":"text"}}
+}

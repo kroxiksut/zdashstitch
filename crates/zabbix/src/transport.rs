@@ -285,6 +285,25 @@ impl Transport {
         self.call(method.api_method(), params, Some(token)).await
     }
 
+    /// The role ID comes from a fresh check of this credential in the
+    /// gateway. Keep the scope and selected fields out of generic reads.
+    pub(crate) async fn read_own_role_rules(
+        &self,
+        roleid: &str,
+        token: &SecretString,
+    ) -> Result<Vec<Value>> {
+        self.call(
+            crate::create_permission::OWN_ROLE_METHOD,
+            serde_json::json!({
+                "roleids": [roleid],
+                "output": ["roleid", "type"],
+                "selectRules": ["api.access", "api.mode", "api", "actions"]
+            }),
+            Some(token),
+        )
+        .await
+    }
+
     /// Write methods require a grant that only `ReadWriteGateway` holds.
     pub(crate) async fn write<T: DeserializeOwned>(
         &self,

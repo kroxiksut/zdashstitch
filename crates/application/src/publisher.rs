@@ -737,7 +737,8 @@ pub async fn publish_confirmed_plan(
 /// Checks shared by every plan right before send, then the journal and the
 /// closed adapter path:
 ///
-/// 1. session generation, publication authority, server version, report;
+/// 1. session generation, publication authority, server version, report,
+///    and a fresh editable check for workcopy updates;
 /// 2. the journal opens the operation (`confirmed` on disk) only when no
 ///    entry blocks the target;
 /// 3. the adapter re-reads Remote (`Remote != source` → `Conflict`, zero
@@ -760,6 +761,16 @@ pub(crate) async fn send_confirmed(
         return plan.refuse(Some(PlanInvalidReason::ConnectionChanged));
     }
     if plan.confirmed_at < plan.created_at || !plan.compatibility.allows_publication() {
+        return plan.refuse(None);
+    }
+    if plan.workcopy_binding().is_some()
+        && !matches!(
+            client
+                .dashboard_is_editable(plan.update.dashboard_id())
+                .await,
+            Ok(true)
+        )
+    {
         return plan.refuse(None);
     }
     let record = operation_record(client, &plan);

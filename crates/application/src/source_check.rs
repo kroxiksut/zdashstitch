@@ -38,7 +38,7 @@
 //! }
 //! ```
 
-use zdashstitch_zabbix::{ReadOnlyGateway, ZabbixError};
+use zdashstitch_zabbix::{ReadOnlyGateway, VersionedDashboardSnapshot, ZabbixError};
 
 use crate::PlanInvalidReason;
 use crate::replace_host::{ReplaceHostPreview, SessionContext};
@@ -98,50 +98,74 @@ impl WorkcopyService {
         if file.source.connection_id != connection_id {
             return Err(WorkcopyError::new("workcopy_other_connection"));
         }
-        let check = |state, checked_at_ms, remote_fingerprint, invalidated| SourceCheck {
-            local_id: local_id.to_owned(),
-            freshness: DraftFreshness {
-                state,
-                checked_at_ms,
-            },
-            base_fingerprint: base.fingerprint().to_owned(),
-            remote_fingerprint,
-            invalidated,
-        };
-        if reader.capabilities().version != *base.server_version() {
-            return Ok(check(
-                DraftFreshnessState::Stale,
-                None,
-                None,
-                Some(PlanInvalidReason::ConnectionChanged),
-            ));
-        }
-        let remote = reader
-            .dashboard_snapshot(connection_id, base.dashboard_id())
-            .await
-            .map_err(|error| read_error(&error))?;
-        let checked_at_ms = now_ms();
-        Ok(match remote {
-            None => check(
-                DraftFreshnessState::SourceMissing,
-                None,
-                None,
-                Some(PlanInvalidReason::SourceChanged),
-            ),
-            Some(remote) if remote.fingerprint() == base.fingerprint() => check(
-                DraftFreshnessState::Current,
-                Some(checked_at_ms),
-                Some(remote.fingerprint().to_owned()),
-                None,
-            ),
-            Some(remote) => check(
-                DraftFreshnessState::Conflict,
-                None,
-                Some(remote.fingerprint().to_owned()),
-                Some(PlanInvalidReason::SourceChanged),
-            ),
-        })
+        check_snapshot_source(reader, local_id, &base).await
     }
+
+    /// Compares the source with the Base pinned by a Clone branch. This
+    /// observation can be taken before create and after read-back even if
+    /// the source workcopy was updated independently in the meantime.
+    pub async fn check_clone_source(
+        &self,
+        reader: &ReadOnlyGateway,
+        clone_id: &str,
+    ) -> Result<SourceCheck, WorkcopyError> {
+        let branch = self.open_clone_workcopy(clone_id)?;
+        let draft = branch.draft();
+        if reader.identity().fingerprint() != draft.intent().server_identity_fingerprint() {
+            return Err(WorkcopyError::new("clone_intent_server_changed"));
+        }
+        check_snapshot_source(reader, clone_id, draft.base()).await
+    }
+}
+
+pub(crate) async fn check_snapshot_source(
+    reader: &ReadOnlyGateway,
+    local_id: &str,
+    base: &VersionedDashboardSnapshot,
+) -> Result<SourceCheck, WorkcopyError> {
+    let check = |state, checked_at_ms, remote_fingerprint, invalidated| SourceCheck {
+        local_id: local_id.to_owned(),
+        freshness: DraftFreshness {
+            state,
+            checked_at_ms,
+        },
+        base_fingerprint: base.fingerprint().to_owned(),
+        remote_fingerprint,
+        invalidated,
+    };
+    if reader.capabilities().version != *base.server_version() {
+        return Ok(check(
+            DraftFreshnessState::Stale,
+            None,
+            None,
+            Some(PlanInvalidReason::ConnectionChanged),
+        ));
+    }
+    let remote = reader
+        .dashboard_snapshot(base.connection_id(), base.dashboard_id())
+        .await
+        .map_err(|error| read_error(&error))?;
+    let checked_at_ms = now_ms();
+    Ok(match remote {
+        None => check(
+            DraftFreshnessState::SourceMissing,
+            None,
+            None,
+            Some(PlanInvalidReason::SourceChanged),
+        ),
+        Some(remote) if remote.fingerprint() == base.fingerprint() => check(
+            DraftFreshnessState::Current,
+            Some(checked_at_ms),
+            Some(remote.fingerprint().to_owned()),
+            None,
+        ),
+        Some(remote) => check(
+            DraftFreshnessState::Conflict,
+            None,
+            Some(remote.fingerprint().to_owned()),
+            Some(PlanInvalidReason::SourceChanged),
+        ),
+    })
 }
 
 /// The publication preview inputs re-checked against the server.

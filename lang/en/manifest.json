@@ -2,5 +2,5 @@
   "locale": "en",
   "source_locale": "en",
   "fallback_locale": "en",
-  "namespaces": ["common", "errors", "startup", "nav", "objects", "drafts", "checks", "settings", "shell", "widgets", "connections", "server", "bindings", "publication", "desktop"]
+  "namespaces": ["common", "errors", "startup", "nav", "objects", "drafts", "checks", "settings", "shell", "widgets", "connections", "server", "bindings", "publication", "clone", "desktop", "template_import"]
 }

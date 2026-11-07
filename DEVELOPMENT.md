@@ -136,6 +136,37 @@ normally (`npm --prefix ui run build`), run `cargo run -p
 zdashstitch-local-server` without `ZDASHSTITCH_UI_DIR`, and add a laboratory
 Zabbix profile under «Connections».
 
+## Optional local XERJ search
+
+XERJ is an optional developer tool, not an application dependency. The pinned
+local pilot uses XERJ `1.0.0-rc.100`, a loopback-only authenticated node, the
+offline lexical embedder, and disabled feedback. The index may contain private
+planning text and must not be published or committed.
+
+Install the verified `xerj.exe` at
+`%LOCALAPPDATA%\Programs\xerj\xerj.exe`, then use the helper:
+
+```powershell
+.\tools\xerj-local.ps1 start
+.\tools\xerj-local.ps1 update
+.\tools\xerj-local.ps1 search 'Точка продолжения P2-04G' -Prefix zdash-planning
+.\tools\xerj-local.ps1 def VerifiedPlan
+.\tools\xerj-local.ps1 status
+.\tools\xerj-local.ps1 stop
+```
+
+`zdash-all` contains code and documentation. `zdash-planning` contains fresh
+local copies of `TASKS_RU.md`, `OPEN_DECISIONS.md`, and
+`IMPLEMENTATION_LOG.md`. `.xerjignore` explicitly makes those ignored source
+files visible to the whole-repository index without making Git track them.
+Never replace these narrow rules with `--no-ignore`: ignored trees may contain
+credentials, laboratory state, logs, virtual environments, and build output.
+
+The node stores its authenticated local index under `%USERPROFILE%\xerj-data`.
+The helper never prints `admin.key`; MCP clients read the same local key through
+XERJ's loopback discovery. Start the node before opening an MCP-backed agent
+session, and restart that client after changing its MCP configuration.
+
 ## Checks
 
 ```powershell

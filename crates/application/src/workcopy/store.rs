@@ -44,6 +44,7 @@ use crate::settings::cap_metadata_is_reparse;
 const SNAPSHOTS: &str = "snapshots";
 const WORKCOPIES: &str = "workcopies";
 const WORKCOPY_FILE: &str = "workcopy.json";
+const LOCAL_SNAPSHOT_FILE: &str = "local.json";
 const TEMP_PREFIX: &str = ".zds-";
 const TEMP_SUFFIX: &str = ".tmp";
 const STAGING_PREFIX: &str = ".zds-staging-";
@@ -227,8 +228,27 @@ impl LocalStore {
     /// a staging directory, which is then renamed to the workcopy ID.
     pub(crate) fn create_workcopy(&self, file: &WorkcopyFile) -> Result<(), WorkcopyError> {
         let raw = workcopy_bytes(file)?;
+        self.create_local_draft(WORKCOPIES, &file.workcopy_id, &raw, None)
+    }
+
+    pub(crate) fn create_local_draft(
+        &self,
+        namespace: &str,
+        id: &str,
+        raw: &[u8],
+        local_snapshot: Option<&[u8]>,
+    ) -> Result<(), WorkcopyError> {
+        if !super::is_workcopy_id(id) {
+            return Err(WorkcopyError::new("workcopy_id_invalid"));
+        }
+        if raw.len() > MAX_WORKCOPY_FILE_BYTES {
+            return Err(WorkcopyError::new("workcopy_too_large"));
+        }
+        if local_snapshot.is_some_and(|raw| raw.len() > MAX_SNAPSHOT_FILE_BYTES) {
+            return Err(WorkcopyError::new("snapshot_too_large"));
+        }
         let workcopies = self
-            .path(&[WORKCOPIES], true)?
+            .path(&[namespace], true)?
             .ok_or_else(|| WorkcopyError::new("storage_unavailable"))?;
         remove_stale_staging(&workcopies);
         if count_workcopies(&workcopies)? >= MAX_WORKCOPIES {
@@ -236,10 +256,10 @@ impl LocalStore {
                 WorkcopyError::new("storage_limit_reached").with("max", MAX_WORKCOPIES.to_string())
             );
         }
-        if exists_any(&workcopies, &file.workcopy_id)? {
+        if exists_any(&workcopies, id)? {
             return Err(WorkcopyError::new("storage_write_failed").with("io", "AlreadyExists"));
         }
-        let staging_name = format!("{STAGING_PREFIX}{}-{}", own_marker(), file.workcopy_id);
+        let staging_name = format!("{STAGING_PREFIX}{}-{id}", own_marker());
         workcopies
             .create_dir_with(&staging_name, &private_dir_builder())
             .map_err(|error| write_error(&error))?;
@@ -250,13 +270,16 @@ impl LocalStore {
                 let staging = workcopies
                     .open_dir_nofollow(&staging_name)
                     .map_err(|error| write_error(&error))?;
-                write_atomic(&staging, WORKCOPY_FILE, &raw)?;
+                write_atomic(&staging, WORKCOPY_FILE, raw)?;
+                if let Some(local) = local_snapshot {
+                    write_atomic(&staging, LOCAL_SNAPSHOT_FILE, local)?;
+                }
             }
             if fail::triggered(CrashPoint::WorkcopyCommit) {
                 return Err(WorkcopyError::new("storage_write_failed").with("io", "Simulated"));
             }
             workcopies
-                .rename(&staging_name, &workcopies, &file.workcopy_id)
+                .rename(&staging_name, &workcopies, id)
                 .map_err(|error| write_error(&error))?;
             sync_dir(&workcopies);
             Ok(())
@@ -278,11 +301,7 @@ impl LocalStore {
     }
 
     pub(crate) fn load_workcopy(&self, workcopy_id: &str) -> Result<WorkcopyFile, WorkcopyError> {
-        let directory = self
-            .path(&[WORKCOPIES, workcopy_id], false)?
-            .ok_or_else(|| WorkcopyError::new("workcopy_not_found"))?;
-        let raw = read_bounded(&directory, WORKCOPY_FILE, MAX_WORKCOPY_FILE_BYTES)?
-            .ok_or_else(|| WorkcopyError::new("workcopy_corrupt"))?;
+        let raw = self.load_local_draft(WORKCOPIES, workcopy_id)?;
         check_format(
             &raw,
             WORKCOPY_FORMAT,
@@ -294,6 +313,38 @@ impl LocalStore {
             serde_json::from_slice(&raw).map_err(|_| WorkcopyError::new("workcopy_corrupt"))?;
         file.validate(workcopy_id)?;
         Ok(file)
+    }
+
+    pub(crate) fn load_local_draft(
+        &self,
+        namespace: &str,
+        id: &str,
+    ) -> Result<Vec<u8>, WorkcopyError> {
+        self.read_local_draft_file(namespace, id, WORKCOPY_FILE, MAX_WORKCOPY_FILE_BYTES)
+    }
+
+    pub(crate) fn load_draft_snapshot(
+        &self,
+        namespace: &str,
+        id: &str,
+    ) -> Result<Vec<u8>, WorkcopyError> {
+        self.read_local_draft_file(namespace, id, LOCAL_SNAPSHOT_FILE, MAX_SNAPSHOT_FILE_BYTES)
+    }
+
+    fn read_local_draft_file(
+        &self,
+        namespace: &str,
+        id: &str,
+        name: &str,
+        limit: usize,
+    ) -> Result<Vec<u8>, WorkcopyError> {
+        if !super::is_workcopy_id(id) {
+            return Err(WorkcopyError::new("workcopy_id_invalid"));
+        }
+        let directory = self
+            .path(&[namespace, id], false)?
+            .ok_or_else(|| WorkcopyError::new("workcopy_not_found"))?;
+        read_bounded(&directory, name, limit)?.ok_or_else(|| WorkcopyError::new("workcopy_corrupt"))
     }
 
     /// IDs of committed workcopies, sorted. Staging and temporary entries
@@ -415,7 +466,7 @@ fn count_workcopies(workcopies: &Dir) -> Result<usize, WorkcopyError> {
 
 /// Reads a regular file without following links, at most `limit` bytes.
 /// `None` when the file does not exist.
-fn read_bounded(
+pub(crate) fn read_bounded(
     directory: &Dir,
     name: &str,
     limit: usize,
@@ -452,7 +503,7 @@ fn own_marker() -> String {
 
 /// Writes `raw` to a fresh private temporary file in `directory`, syncs it
 /// and renames it over `name`. The temporary file is removed on failure.
-fn write_atomic(directory: &Dir, name: &str, raw: &[u8]) -> Result<(), WorkcopyError> {
+pub(crate) fn write_atomic(directory: &Dir, name: &str, raw: &[u8]) -> Result<(), WorkcopyError> {
     let counter = TEMP_COUNTER.fetch_add(1, Ordering::Relaxed);
     let temporary = format!("{TEMP_PREFIX}{}{counter}{TEMP_SUFFIX}", own_marker());
     let mut options = OpenOptions::new();

@@ -287,7 +287,7 @@ pub(crate) fn now_ms() -> u64 {
         })
 }
 
-fn new_workcopy_id() -> Result<String, WorkcopyError> {
+pub(crate) fn new_workcopy_id() -> Result<String, WorkcopyError> {
     let mut bytes = [0u8; 16];
     getrandom::fill(&mut bytes).map_err(|_| WorkcopyError::new("random_source_unavailable"))?;
     let mut id = String::with_capacity(35);

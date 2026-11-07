@@ -327,6 +327,115 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn template_upload_requires_preview_and_commits_valid_files_once() {
+        let root = tempdir().unwrap_or_else(|error| panic!("{error}"));
+        let ui = tempdir().unwrap_or_else(|error| panic!("{error}"));
+        let (security, code) = security();
+        let transfers = BrowserTransferService::new();
+        let router = super::build_router_with_api_and_transfers(
+            ui.path(),
+            security,
+            super::drafts::routes(
+                super::ConnectionsHandle::unavailable(),
+                super::drafts::DraftsHandle::at(root.path().to_owned()),
+            ),
+            transfers.clone(),
+        );
+        let cookie = session_cookie(&router, &code).await;
+        let csrf = csrf_token(&router, &cookie).await;
+        let set = transfers
+            .create_upload_set()
+            .unwrap_or_else(|error| panic!("{error:?}"));
+        let inspect = format!("/api/library/template-import/{}/inspect", set.id);
+        let run = format!("/api/library/template-import/{}/run", set.id);
+        let post = |path: &str, token| {
+            api_request(
+                "POST",
+                path,
+                &cookie,
+                token,
+                "application/json",
+                Body::from("{}"),
+            )
+        };
+        let payload = br#"{"zabbix_export":{"version":"7.4","templates":[{"template":"fixture","items":[{"name":"Ping","key":"agent.ping","delay":"30s"}]},{"template":"other"}]}}"#;
+        for (name, bytes) in [
+            ("good.json", payload.as_slice()),
+            (
+                "unsafe.xml",
+                b"<!DOCTYPE zabbix_export SYSTEM 'file:///private'><zabbix_export/>".as_slice(),
+            ),
+        ] {
+            let upload = format!("/api/uploads/{}/files/{name}", set.id);
+            assert_eq!(
+                status(
+                    &router,
+                    api_request(
+                        "POST",
+                        &upload,
+                        &cookie,
+                        Some(&csrf),
+                        "application/octet-stream",
+                        Body::from(bytes)
+                    )
+                )
+                .await,
+                StatusCode::CREATED
+            );
+        }
+
+        assert_eq!(
+            status(&router, post(&run, Some(&csrf))).await,
+            StatusCode::NOT_FOUND
+        );
+        assert_eq!(
+            status(&router, post(&inspect, None)).await,
+            StatusCode::FORBIDDEN
+        );
+        let response = router
+            .clone()
+            .oneshot(post(&inspect, Some(&csrf)))
+            .await
+            .unwrap_or_else(|error| panic!("{error}"));
+        assert_eq!(response.status(), StatusCode::OK);
+        let bytes = response
+            .into_body()
+            .collect()
+            .await
+            .unwrap_or_else(|error| panic!("{error}"))
+            .to_bytes();
+        let result: Value =
+            serde_json::from_slice(&bytes).unwrap_or_else(|error| panic!("{error}"));
+        assert_eq!(result[0]["status"], "ready");
+        assert_eq!(result[0]["catalogs"].as_array().map(Vec::len), Some(2));
+        assert_eq!(result[0]["catalogs"][0]["metrics_with_hints"], 1);
+        assert_eq!(result[1]["status"], "rejected");
+        assert_eq!(result[1]["code"], "xml_dtd");
+        assert!(!String::from_utf8_lossy(&bytes).contains("file:///private"));
+        assert!(!root.path().join("library").exists());
+        assert!(
+            transfers
+                .add_file(
+                    &set.id,
+                    "later.json",
+                    axum::body::Bytes::from_static(payload)
+                )
+                .is_err()
+        );
+        assert_eq!(
+            status(&router, post(&run, Some(&csrf))).await,
+            StatusCode::OK
+        );
+        assert_eq!(
+            status(&router, post(&run, Some(&csrf))).await,
+            StatusCode::NOT_FOUND
+        );
+        let library =
+            zdashstitch_application::catalog_library::CatalogLibrary::new(root.path().to_owned());
+        assert_eq!(library.list().ok().map(|catalogs| catalogs.len()), Some(2));
+    }
+
+    #[tokio::test]
     async fn health_is_read_only_and_honest() {
         let (security, code) = security();
         let router = build_router("missing-ui", security);

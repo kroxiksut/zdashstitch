@@ -260,6 +260,8 @@ Read-only анализ snapshot расширен агрегатами (`Snapshot
 
 Предлагаемый read allowlist для P2-01E: `apiinfo.version`, `user.login`, `user.logout`, `user.checkAuthentication`, `hostgroup.get`, `templategroup.get`, `host.get`, `template.get`, `item.get`, `graph.get`, `itemprototype.get`, `graphprototype.get`, `dashboard.get`, `user.get`, `usergroup.get`, `configuration.export` (16 методов; `itemprototype.get` и `graphprototype.get` добавлены решением владельца 26.10.2026 для определения владельца прототипов в полях виджетов типов 5 и 7). Методы вне списка в allowlist не входят.
 
+**Дополнение владельца 06.11.2026 (P3-01F/G).** `role.get` добавлен только как отдельное чтение правил собственной роли для Clone на 7.4.16. Адаптер берёт роль из свежей `user.checkAuthentication` той же учётки, запрашивает единственный `roleid` и поля `api.access`, `api.mode`, `api`, `actions`. Универсальный read и стандартная проверка подключения этот метод не вызывают. Пустой, неполный или чужой ответ блокирует выдачу плана. Перед отправкой право сверяется снова.
+
 ## P1-IN-09 — выбор файлов и каталогов из браузерного GUI
 
 **Статус:** исследование выполнено; автоматическая часть прототипа выполнена на Windows 10 и Ubuntu 26.04; ручная проверка диалога (поверх каких браузеров открывается, экранный диктор, сетевые пути) перенесена в приёмку P2-07. Astra и RED OS отложены. O-023 решено 24.10.2026: нативный диалог — основной путь, браузерные upload/download — резерв (ADR-012 D-12).

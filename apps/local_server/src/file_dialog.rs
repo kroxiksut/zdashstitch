@@ -41,6 +41,10 @@ impl DialogErrorCode {
 pub trait DialogBackend: Send + Sync + 'static {
     fn available(&self, intent: DialogIntent) -> bool;
     fn show(&self, intent: DialogIntent) -> Option<PathBuf>;
+
+    fn show_files(&self) -> Option<Vec<PathBuf>> {
+        self.show(DialogIntent::OpenFile).map(|file| vec![file])
+    }
 }
 
 #[derive(Clone, Copy, Debug, Default)]
@@ -58,6 +62,12 @@ impl DialogBackend for NativeDialogBackend {
             DialogIntent::OpenDirectory => dialog.pick_folder(),
             DialogIntent::SaveFile => dialog.save_file(),
         }
+    }
+
+    fn show_files(&self) -> Option<Vec<PathBuf>> {
+        rfd::FileDialog::new()
+            .add_filter("Zabbix", &["yaml", "yml", "json", "xml"])
+            .pick_files()
     }
 }
 
@@ -131,6 +141,28 @@ impl<B: DialogBackend> FileDialogService<B> {
         cancellation: DialogCancellation,
         timeout: Duration,
     ) -> Result<PathBuf, DialogErrorCode> {
+        self.choose_with(intent, cancellation, timeout, move |backend| {
+            backend.show(intent)
+        })
+        .await
+    }
+
+    pub(crate) async fn choose_files(
+        &self,
+        cancellation: DialogCancellation,
+        timeout: Duration,
+    ) -> Result<Vec<PathBuf>, DialogErrorCode> {
+        self.choose_with(DialogIntent::OpenFile, cancellation, timeout, B::show_files)
+            .await
+    }
+
+    async fn choose_with<T: Send + 'static>(
+        &self,
+        intent: DialogIntent,
+        cancellation: DialogCancellation,
+        timeout: Duration,
+        show: impl FnOnce(&B) -> Option<T> + Send + 'static,
+    ) -> Result<T, DialogErrorCode> {
         if cancellation.is_cancelled() {
             return Err(DialogErrorCode::UserCancelled);
         }
@@ -150,7 +182,7 @@ impl<B: DialogBackend> FileDialogService<B> {
         let busy = self.inner.busy.clone();
         let mut worker = tokio::task::spawn_blocking(move || {
             let _guard = BusyGuard(busy);
-            backend.show(intent)
+            show(&backend)
         });
 
         tokio::select! {

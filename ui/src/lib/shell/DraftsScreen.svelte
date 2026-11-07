@@ -86,8 +86,8 @@
       <Button {i18n} variant="primary" label={{ id: 'drafts.action.create' }} disabled>
         {#snippet leadingIcon()}<Icon name="plus" size={18} />{/snippet}
       </Button>
-      <Button {i18n} label={{ id: 'startup.action.import_files' }} disabled />
     </ComingLater>
+    <a href="/library">{i18n.t('startup.action.import_files')}</a>
   </header>
 
   {#if drafts === null}

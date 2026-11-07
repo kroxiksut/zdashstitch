@@ -1,0 +1,4 @@
+# Keep local planning context searchable without tracking the source files in Git.
+!TASKS_RU.md
+!OPEN_DECISIONS.md
+!IMPLEMENTATION_LOG.md

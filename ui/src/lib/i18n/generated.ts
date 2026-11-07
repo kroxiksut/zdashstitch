@@ -279,6 +279,111 @@ export const catalogs = {
     "checks.summary.publication_blocked": "{count, plural, one {Publication — blocked: # issue} other {Publication — blocked: # issues}}",
     "checks.summary.publication_ready": "Publication — possible after server checks",
     "checks.summary.save_always": "Save locally — always possible",
+    "clone.blocked": "Some references or widget types prevent publication.",
+    "clone.cancel": "Cancel",
+    "clone.choose": "Choose a target",
+    "clone.compare.absent": "Absent",
+    "clone.compare.access": "Owner and access",
+    "clone.compare.added": "Added",
+    "clone.compare.all": "All",
+    "clone.compare.changed": "Changed",
+    "clone.compare.count": "Rows shown: {count}",
+    "clone.compare.dashboard": "Dashboard",
+    "clone.compare.different": "The copy differs from the expected result",
+    "clone.compare.drift": "The current copy has changed since the verified read-back.",
+    "clone.compare.expected": "Expected in the copy",
+    "clone.compare.failed": "Could not load the clone comparison.",
+    "clone.compare.field": "Field",
+    "clone.compare.filter": "Show rows",
+    "clone.compare.geometry": "Position {x}, {y} · size {width} × {height}",
+    "clone.compare.kept": "Kept on the source",
+    "clone.compare.mapping": "Go to clone settings",
+    "clone.compare.no_observation": "Reading unavailable",
+    "clone.compare.observed": "Read from Zabbix",
+    "clone.compare.owner": "Expected owner",
+    "clone.compare.owner_differs": "Different owner",
+    "clone.compare.page": "Page",
+    "clone.compare.page_group": "Page {page} · {count} rows",
+    "clone.compare.pending": "The copy has not been read yet. You can compare the original and the expected result.",
+    "clone.compare.private": "Private dashboard",
+    "clone.compare.public": "Public dashboard",
+    "clone.compare.refresh": "Refresh comparison",
+    "clone.compare.shared": "Sharing is present",
+    "clone.compare.source": "Original snapshot",
+    "clone.compare.title": "Compare clone",
+    "clone.compare.unavailable": "The copy is currently unavailable for reading. Connect to its server with the account used for publication.",
+    "clone.compare.unnamed": "Untitled",
+    "clone.compare.unresolved": "Unresolved",
+    "clone.compare.unshared": "No sharing entries",
+    "clone.compare.untouched": "Unchanged",
+    "clone.compare.unverified": "The reported copy is visible. Its publication has not been verified.",
+    "clone.compare.value_hidden": "Value hidden",
+    "clone.compare.verdict": "Check code",
+    "clone.compare.verified": "The current copy matches the verified read-back.",
+    "clone.compare.widget": "Widget",
+    "clone.confirm_kept": "I confirm this list.",
+    "clone.confirm_title": "Create a private dashboard",
+    "clone.edit": "Change clone settings",
+    "clone.error.growth_color": "The sample series needs a saved color before it can be copied.",
+    "clone.error.growth_metric": "A target series could not be matched or has a different value type or unit. Check the selected hosts.",
+    "clone.error.growth_other_references": "The sample host has other editable references. This expansion supports a host with one editable series.",
+    "clone.error.growth_preview": "The preview no longer matches the draft. Review the series again before saving.",
+    "clone.error.growth_selection": "Choose a series, map both of its source hosts to distinct targets and select a separate host for the new series.",
+    "clone.error.growth_single_host": "The selected series uses a host that also feeds a single-host widget. Choose the series from the other host or keep the current number of series.",
+    "clone.error.lld_required": "Choose a discovered item for each unresolved row.",
+    "clone.error.lld_stale": "The discovered items have changed. Check the mappings again.",
+    "clone.error.name": "Enter a valid name for the new dashboard.",
+    "clone.error.pattern_invalid": "Enter a non-empty pattern of at most 255 bytes.",
+    "clone.error.pattern_required": "Choose what to do with every graph pattern.",
+    "clone.error.pattern_stale": "The pattern matches have changed. Preview the matches again.",
+    "clone.error.pattern_unverified": "Could not verify the matches on all selected targets.",
+    "clone.error.stale_source": "The source draft changed. Open the clone settings again.",
+    "clone.error.target_selection": "Choose a distinct visible target for each host you want to replace.",
+    "clone.error.unresolved": "Some references could not be matched. Check your target hosts.",
+    "clone.find": "Find hosts",
+    "clone.growth.added": "Added",
+    "clone.growth.after": "Series in the clone",
+    "clone.growth.before": "Source series",
+    "clone.growth.host": "Host for the new series",
+    "clone.growth.none": "Keep the current number of series",
+    "clone.growth.option": "Page {page}, widget {widget}, data set {dataset}, row {row} — {host} · {item}",
+    "clone.growth.preview": "Preview series",
+    "clone.growth.sample": "Series to copy",
+    "clone.growth.title": "Expand an SVG graph from two to three series",
+    "clone.keep_patterns": "Keep these patterns. The copy can show data from the source area.",
+    "clone.keep_source": "Keep the source host",
+    "clone.kept": "References kept on source hosts",
+    "clone.lld.none_required": "No discovered items require a manual choice.",
+    "clone.lld.prototype": "Discovery prototype",
+    "clone.lld.review": "Check metric mappings",
+    "clone.lld.row": "Page {page}, widget {widget} — discovered item on {host}",
+    "clone.name": "Name of the new dashboard",
+    "clone.narrow_search": "Narrow the search to see more relevant hosts.",
+    "clone.open": "Set up a clone",
+    "clone.pattern.choose": "Choose what to do",
+    "clone.pattern.count": "Matches on selected targets: {count}",
+    "clone.pattern.decision": "Pattern decision",
+    "clone.pattern.host_row": "Page {page}, widget {widget} — host mask",
+    "clone.pattern.item_row": "Page {page}, widget {widget} — item pattern",
+    "clone.pattern.keep": "Keep as is",
+    "clone.pattern.preview": "Preview matches",
+    "clone.pattern.replace": "Use a new pattern",
+    "clone.pattern.scope": "The preview checks selected target hosts. In Zabbix a mask can also match other hosts.",
+    "clone.pattern.title": "Graph patterns",
+    "clone.pattern.truncated": "Only the first matches are shown.",
+    "clone.pattern.value": "New pattern",
+    "clone.plan": "Review publication",
+    "clone.private_copy": "A new private dashboard will be created on the same connection.",
+    "clone.read_only": "Enable read-write mode to publish the clone.",
+    "clone.reconcile": "Check publication result",
+    "clone.save": "Save clone draft",
+    "clone.search": "Search for target hosts",
+    "clone.summary": "{pages} pages, {widgets} widgets, {changes} mapped references.",
+    "clone.target_for": "Target for {host}",
+    "clone.targets": "Target hosts",
+    "clone.title": "Clone dashboard",
+    "clone.working": "Working on the clone…",
+    "clone.write": "Create in Zabbix",
     "common.action.cancel": "Cancel",
     "common.action.copy": "Copy",
     "common.action.delete": "Delete",
@@ -1311,6 +1416,25 @@ export const catalogs = {
     "startup.status.writes_disabled": "Disabled",
     "startup.status.writes_enabled": "Enabled",
     "startup.subtitle": "Create and maintain Zabbix dashboards locally",
+    "template_import.action_failed": "The file operation failed. Inspect the files again before retrying.",
+    "template_import.becomes": "Metric catalogs to save: {count}, one per template.",
+    "template_import.catalogs": "Metric catalogs",
+    "template_import.choose": "Upload through the browser",
+    "template_import.choose_native": "Choose files…",
+    "template_import.empty": "No metric catalogs have been saved yet.",
+    "template_import.help": "Choose Zabbix 7.4 template exports in YAML, JSON or XML. Review the result before saving catalogs on this computer.",
+    "template_import.inspect": "Inspect files",
+    "template_import.list_failed": "The local metric library could not be read.",
+    "template_import.missing_parent": "A parent template is missing from this export.",
+    "template_import.new_version": "A new version will be saved. Earlier versions are kept.",
+    "template_import.partial": "Only supported metric data is imported. Template dashboards and configuration outside the catalog are skipped.",
+    "template_import.position": "Line {line}, column {column}.",
+    "template_import.preview_counts": "Metrics: {metrics}. Discovery rules: {rules}. Metrics with preview hints: {hints}.",
+    "template_import.rejected": "File rejected ({code}).",
+    "template_import.save": "Save catalogs to the library",
+    "template_import.saved": "Catalogs saved: {count}.",
+    "template_import.unresolved_macros": "Some macro values require additional context.",
+    "template_import.version": "Catalog version {version} · Zabbix export {export_version}",
     "widget.type.actionlog": "Action log",
     "widget.type.clock": "Clock",
     "widget.type.discovery": "Discovery status",
@@ -1623,6 +1747,111 @@ export const catalogs = {
     "checks.summary.publication_blocked": "{count, plural, one {Публикация — заблокирована: # нарушение} few {Публикация — заблокирована: # нарушения} many {Публикация — заблокирована: # нарушений} other {Публикация — заблокирована: # нарушения}}",
     "checks.summary.publication_ready": "Публикация — возможна после проверок на сервере",
     "checks.summary.save_always": "Сохранить локально — можно всегда",
+    "clone.blocked": "Некоторые ссылки или типы виджетов блокируют публикацию.",
+    "clone.cancel": "Отмена",
+    "clone.choose": "Выберите целевой узел",
+    "clone.compare.absent": "Отсутствует",
+    "clone.compare.access": "Владелец и доступ",
+    "clone.compare.added": "Добавленные",
+    "clone.compare.all": "Все",
+    "clone.compare.changed": "Изменённые",
+    "clone.compare.count": "Строк показано — {count}",
+    "clone.compare.dashboard": "Панель",
+    "clone.compare.different": "Копия отличается от ожидаемого результата",
+    "clone.compare.drift": "Текущая копия изменилась после проверочного чтения.",
+    "clone.compare.expected": "Ожидается в копии",
+    "clone.compare.failed": "Не удалось загрузить сравнение клона.",
+    "clone.compare.field": "Поле",
+    "clone.compare.filter": "Показать строки",
+    "clone.compare.geometry": "Позиция {x}, {y} · размер {width} × {height}",
+    "clone.compare.kept": "Остаётся на источнике",
+    "clone.compare.mapping": "К настройкам клона",
+    "clone.compare.no_observation": "Данных чтения нет",
+    "clone.compare.observed": "Прочитано из Zabbix",
+    "clone.compare.owner": "Ожидаемый владелец",
+    "clone.compare.owner_differs": "Другой владелец",
+    "clone.compare.page": "Страница",
+    "clone.compare.page_group": "Страница {page} · строк — {count}",
+    "clone.compare.pending": "Копия ещё не прочитана. Можно сравнить исходный снимок и ожидаемый результат.",
+    "clone.compare.private": "Личная панель",
+    "clone.compare.public": "Общедоступная панель",
+    "clone.compare.refresh": "Обновить сравнение",
+    "clone.compare.shared": "Есть разрешения общего доступа",
+    "clone.compare.source": "Исходный снимок",
+    "clone.compare.title": "Сравнить клон",
+    "clone.compare.unavailable": "Копия сейчас недоступна для чтения. Подключитесь к её серверу под учётной записью публикации.",
+    "clone.compare.unnamed": "Без имени",
+    "clone.compare.unresolved": "Неразрешённые",
+    "clone.compare.unshared": "Разрешений общего доступа нет",
+    "clone.compare.untouched": "Без изменений",
+    "clone.compare.unverified": "Панель, о которой сообщил Zabbix, доступна для чтения. Результат публикации ещё не подтверждён.",
+    "clone.compare.value_hidden": "Значение скрыто",
+    "clone.compare.verdict": "Код проверки",
+    "clone.compare.verified": "Текущая копия совпадает с результатом проверочного чтения.",
+    "clone.compare.widget": "Виджет",
+    "clone.confirm_kept": "Подтверждаю этот список.",
+    "clone.confirm_title": "Создание личной панели",
+    "clone.edit": "Изменить настройки клона",
+    "clone.error.growth_color": "Чтобы скопировать ряд-образец, нужен сохранённый цвет этого ряда.",
+    "clone.error.growth_metric": "Для одного из целевых рядов не найдено соответствие либо отличается тип данных или единица измерения. Проверьте выбранные узлы сети.",
+    "clone.error.growth_other_references": "На узел ряда-образца есть другие редактируемые ссылки. Здесь поддерживается расширение узла с одним редактируемым рядом.",
+    "clone.error.growth_preview": "Предпросмотр больше не соответствует черновику. Проверьте ряды ещё раз перед сохранением.",
+    "clone.error.growth_selection": "Выберите ряд, сопоставьте оба исходных узла сети с разными целевыми и укажите отдельный узел для нового ряда.",
+    "clone.error.growth_single_host": "Узел сети выбранного ряда также используется в виджете с одним узлом. Выберите ряд другого узла или сохраните число рядов.",
+    "clone.error.lld_required": "Выберите обнаруженный элемент данных для каждой неразрешённой строки.",
+    "clone.error.lld_stale": "Обнаруженные элементы данных изменились. Проверьте соответствия снова.",
+    "clone.error.name": "Введите допустимое имя новой панели.",
+    "clone.error.pattern_invalid": "Введите непустой шаблон длиной до 255 байт.",
+    "clone.error.pattern_required": "Выберите действие для каждого шаблона графика.",
+    "clone.error.pattern_stale": "Совпадения изменились. Просмотрите их ещё раз.",
+    "clone.error.pattern_unverified": "Не удалось проверить совпадения на всех выбранных узлах сети.",
+    "clone.error.stale_source": "Исходный черновик изменился. Откройте настройки клона снова.",
+    "clone.error.target_selection": "Для каждого заменяемого узла сети выберите отдельный доступный целевой узел.",
+    "clone.error.unresolved": "Некоторые ссылки не удалось сопоставить. Проверьте целевые узлы сети.",
+    "clone.find": "Найти узлы",
+    "clone.growth.added": "Добавлен",
+    "clone.growth.after": "Ряды в клоне",
+    "clone.growth.before": "Исходные ряды",
+    "clone.growth.host": "Узел сети для нового ряда",
+    "clone.growth.none": "Сохранить текущее число рядов",
+    "clone.growth.option": "Страница {page}, виджет {widget}, набор данных {dataset}, ряд {row} — {host} · {item}",
+    "clone.growth.preview": "Просмотреть ряды",
+    "clone.growth.sample": "Ряд-образец",
+    "clone.growth.title": "Расширение графика с двух до трёх рядов",
+    "clone.keep_patterns": "Оставить эти шаблоны как есть. Копия может показать данные исходной области.",
+    "clone.keep_source": "Оставить исходный узел",
+    "clone.kept": "Ссылки, которые останутся на исходных узлах",
+    "clone.lld.none_required": "Для обнаруженных элементов данных ручной выбор не требуется.",
+    "clone.lld.prototype": "Прототип обнаружения",
+    "clone.lld.review": "Проверить соответствия метрик",
+    "clone.lld.row": "Страница {page}, виджет {widget} — обнаруженный элемент данных на узле {host}",
+    "clone.name": "Имя новой панели",
+    "clone.narrow_search": "Уточните запрос, чтобы найти нужный узел.",
+    "clone.open": "Настроить клон",
+    "clone.pattern.choose": "Выберите действие",
+    "clone.pattern.count": "Число совпадений на выбранных узлах сети — {count}",
+    "clone.pattern.decision": "Действие с шаблоном",
+    "clone.pattern.host_row": "Страница {page}, виджет {widget} — маска узлов сети",
+    "clone.pattern.item_row": "Страница {page}, виджет {widget} — шаблон элементов данных",
+    "clone.pattern.keep": "Оставить как есть",
+    "clone.pattern.preview": "Показать совпадения",
+    "clone.pattern.replace": "Указать новый шаблон",
+    "clone.pattern.scope": "Предпросмотр проверяет выбранные целевые узлы сети. В Zabbix маска может совпасть и с другими узлами.",
+    "clone.pattern.title": "Шаблоны графиков",
+    "clone.pattern.truncated": "Показаны только первые совпадения.",
+    "clone.pattern.value": "Новый шаблон",
+    "clone.plan": "К публикации",
+    "clone.private_copy": "В том же подключении будет создана новая личная панель.",
+    "clone.read_only": "Для публикации клона включите режим чтения и записи.",
+    "clone.reconcile": "Проверить результат публикации",
+    "clone.save": "Сохранить черновик клона",
+    "clone.search": "Поиск целевых узлов сети",
+    "clone.summary": "Число страниц — {pages}, число виджетов — {widgets}. Сопоставлено ссылок — {changes}.",
+    "clone.target_for": "Целевой узел для {host}",
+    "clone.targets": "Целевые узлы сети",
+    "clone.title": "Клонирование панели",
+    "clone.working": "Выполняется операция с клоном…",
+    "clone.write": "Создать в Zabbix",
     "common.action.cancel": "Отмена",
     "common.action.copy": "Копировать",
     "common.action.delete": "Удалить",
@@ -2655,6 +2884,25 @@ export const catalogs = {
     "startup.status.writes_disabled": "Запрещена",
     "startup.status.writes_enabled": "Разрешена",
     "startup.subtitle": "Локальное создание и сопровождение панелей Zabbix",
+    "template_import.action_failed": "Не удалось обработать файлы. Перед повторной попыткой проверьте их ещё раз.",
+    "template_import.becomes": "Будет сохранено каталогов метрик: {count}, по одному на шаблон.",
+    "template_import.catalogs": "Каталоги метрик",
+    "template_import.choose": "Загрузить через браузер",
+    "template_import.choose_native": "Выбрать файлы…",
+    "template_import.empty": "Пока нет сохранённых каталогов метрик.",
+    "template_import.help": "Выберите экспорт шаблонов Zabbix 7.4 в YAML, JSON или XML. Проверьте результат перед сохранением каталогов на этом компьютере.",
+    "template_import.inspect": "Проверить файлы",
+    "template_import.list_failed": "Не удалось прочитать локальную библиотеку каталогов.",
+    "template_import.missing_parent": "В экспорте отсутствует родительский шаблон.",
+    "template_import.new_version": "Будет сохранена новая версия. Прежние версии останутся в библиотеке.",
+    "template_import.partial": "Импортируются поддерживаемые данные метрик. Панели шаблонов и настройки за пределами каталога пропускаются.",
+    "template_import.position": "Строка {line}, столбец {column}.",
+    "template_import.preview_counts": "Метрик: {metrics}. Правил обнаружения: {rules}. Метрик с подсказками: {hints}.",
+    "template_import.rejected": "Файл отклонён ({code}).",
+    "template_import.save": "Сохранить каталоги в библиотеку",
+    "template_import.saved": "Сохранено каталогов: {count}.",
+    "template_import.unresolved_macros": "Для некоторых макросов нужны дополнительные данные.",
+    "template_import.version": "Версия каталога {version} · экспорт Zabbix {export_version}",
     "widget.type.actionlog": "Журнал действий",
     "widget.type.clock": "Часы",
     "widget.type.discovery": "Состояние обнаружения",
@@ -3101,6 +3349,146 @@ export const placeholderTypes = {
   },
   "checks.summary.publication_ready": {},
   "checks.summary.save_always": {},
+  "clone.blocked": {},
+  "clone.cancel": {},
+  "clone.choose": {},
+  "clone.compare.absent": {},
+  "clone.compare.access": {},
+  "clone.compare.added": {},
+  "clone.compare.all": {},
+  "clone.compare.changed": {},
+  "clone.compare.count": {
+    "count": "number"
+  },
+  "clone.compare.dashboard": {},
+  "clone.compare.different": {},
+  "clone.compare.drift": {},
+  "clone.compare.expected": {},
+  "clone.compare.failed": {},
+  "clone.compare.field": {},
+  "clone.compare.filter": {},
+  "clone.compare.geometry": {
+    "x": "text",
+    "y": "text",
+    "width": "text",
+    "height": "text"
+  },
+  "clone.compare.kept": {},
+  "clone.compare.mapping": {},
+  "clone.compare.no_observation": {},
+  "clone.compare.observed": {},
+  "clone.compare.owner": {},
+  "clone.compare.owner_differs": {},
+  "clone.compare.page": {},
+  "clone.compare.page_group": {
+    "page": "number",
+    "count": "number"
+  },
+  "clone.compare.pending": {},
+  "clone.compare.private": {},
+  "clone.compare.public": {},
+  "clone.compare.refresh": {},
+  "clone.compare.shared": {},
+  "clone.compare.source": {},
+  "clone.compare.title": {},
+  "clone.compare.unavailable": {},
+  "clone.compare.unnamed": {},
+  "clone.compare.unresolved": {},
+  "clone.compare.unshared": {},
+  "clone.compare.untouched": {},
+  "clone.compare.unverified": {},
+  "clone.compare.value_hidden": {},
+  "clone.compare.verdict": {},
+  "clone.compare.verified": {},
+  "clone.compare.widget": {},
+  "clone.confirm_kept": {},
+  "clone.confirm_title": {},
+  "clone.edit": {},
+  "clone.error.growth_color": {},
+  "clone.error.growth_metric": {},
+  "clone.error.growth_other_references": {},
+  "clone.error.growth_preview": {},
+  "clone.error.growth_selection": {},
+  "clone.error.growth_single_host": {},
+  "clone.error.lld_required": {},
+  "clone.error.lld_stale": {},
+  "clone.error.name": {},
+  "clone.error.pattern_invalid": {},
+  "clone.error.pattern_required": {},
+  "clone.error.pattern_stale": {},
+  "clone.error.pattern_unverified": {},
+  "clone.error.stale_source": {},
+  "clone.error.target_selection": {},
+  "clone.error.unresolved": {},
+  "clone.find": {},
+  "clone.growth.added": {},
+  "clone.growth.after": {},
+  "clone.growth.before": {},
+  "clone.growth.host": {},
+  "clone.growth.none": {},
+  "clone.growth.option": {
+    "page": "number",
+    "widget": "number",
+    "dataset": "number",
+    "row": "number",
+    "host": "text",
+    "item": "text"
+  },
+  "clone.growth.preview": {},
+  "clone.growth.sample": {},
+  "clone.growth.title": {},
+  "clone.keep_patterns": {},
+  "clone.keep_source": {},
+  "clone.kept": {},
+  "clone.lld.none_required": {},
+  "clone.lld.prototype": {},
+  "clone.lld.review": {},
+  "clone.lld.row": {
+    "page": "number",
+    "widget": "number",
+    "host": "text"
+  },
+  "clone.name": {},
+  "clone.narrow_search": {},
+  "clone.open": {},
+  "clone.pattern.choose": {},
+  "clone.pattern.count": {
+    "count": "number"
+  },
+  "clone.pattern.decision": {},
+  "clone.pattern.host_row": {
+    "page": "number",
+    "widget": "number"
+  },
+  "clone.pattern.item_row": {
+    "page": "number",
+    "widget": "number"
+  },
+  "clone.pattern.keep": {},
+  "clone.pattern.preview": {},
+  "clone.pattern.replace": {},
+  "clone.pattern.scope": {},
+  "clone.pattern.title": {},
+  "clone.pattern.truncated": {},
+  "clone.pattern.value": {},
+  "clone.plan": {},
+  "clone.private_copy": {},
+  "clone.read_only": {},
+  "clone.reconcile": {},
+  "clone.save": {},
+  "clone.search": {},
+  "clone.summary": {
+    "pages": "number",
+    "widgets": "number",
+    "changes": "number"
+  },
+  "clone.target_for": {
+    "host": "text"
+  },
+  "clone.targets": {},
+  "clone.title": {},
+  "clone.working": {},
+  "clone.write": {},
   "common.action.cancel": {},
   "common.action.copy": {},
   "common.action.delete": {},
@@ -4560,6 +4948,41 @@ export const placeholderTypes = {
   "startup.status.writes_disabled": {},
   "startup.status.writes_enabled": {},
   "startup.subtitle": {},
+  "template_import.action_failed": {},
+  "template_import.becomes": {
+    "count": "number"
+  },
+  "template_import.catalogs": {},
+  "template_import.choose": {},
+  "template_import.choose_native": {},
+  "template_import.empty": {},
+  "template_import.help": {},
+  "template_import.inspect": {},
+  "template_import.list_failed": {},
+  "template_import.missing_parent": {},
+  "template_import.new_version": {},
+  "template_import.partial": {},
+  "template_import.position": {
+    "line": "number",
+    "column": "number"
+  },
+  "template_import.preview_counts": {
+    "metrics": "number",
+    "rules": "number",
+    "hints": "number"
+  },
+  "template_import.rejected": {
+    "code": "text"
+  },
+  "template_import.save": {},
+  "template_import.saved": {
+    "count": "number"
+  },
+  "template_import.unresolved_macros": {},
+  "template_import.version": {
+    "version": "number",
+    "export_version": "text"
+  },
   "widget.type.actionlog": {},
   "widget.type.clock": {},
   "widget.type.discovery": {},
@@ -5444,6 +5867,336 @@ export interface MessageParamsById {
 
   };
   "checks.summary.save_always": {
+
+  };
+  "clone.blocked": {
+
+  };
+  "clone.cancel": {
+
+  };
+  "clone.choose": {
+
+  };
+  "clone.compare.absent": {
+
+  };
+  "clone.compare.access": {
+
+  };
+  "clone.compare.added": {
+
+  };
+  "clone.compare.all": {
+
+  };
+  "clone.compare.changed": {
+
+  };
+  "clone.compare.count": {
+    "count": number;
+  };
+  "clone.compare.dashboard": {
+
+  };
+  "clone.compare.different": {
+
+  };
+  "clone.compare.drift": {
+
+  };
+  "clone.compare.expected": {
+
+  };
+  "clone.compare.failed": {
+
+  };
+  "clone.compare.field": {
+
+  };
+  "clone.compare.filter": {
+
+  };
+  "clone.compare.geometry": {
+    "x": string;
+    "y": string;
+    "width": string;
+    "height": string;
+  };
+  "clone.compare.kept": {
+
+  };
+  "clone.compare.mapping": {
+
+  };
+  "clone.compare.no_observation": {
+
+  };
+  "clone.compare.observed": {
+
+  };
+  "clone.compare.owner": {
+
+  };
+  "clone.compare.owner_differs": {
+
+  };
+  "clone.compare.page": {
+
+  };
+  "clone.compare.page_group": {
+    "page": number;
+    "count": number;
+  };
+  "clone.compare.pending": {
+
+  };
+  "clone.compare.private": {
+
+  };
+  "clone.compare.public": {
+
+  };
+  "clone.compare.refresh": {
+
+  };
+  "clone.compare.shared": {
+
+  };
+  "clone.compare.source": {
+
+  };
+  "clone.compare.title": {
+
+  };
+  "clone.compare.unavailable": {
+
+  };
+  "clone.compare.unnamed": {
+
+  };
+  "clone.compare.unresolved": {
+
+  };
+  "clone.compare.unshared": {
+
+  };
+  "clone.compare.untouched": {
+
+  };
+  "clone.compare.unverified": {
+
+  };
+  "clone.compare.value_hidden": {
+
+  };
+  "clone.compare.verdict": {
+
+  };
+  "clone.compare.verified": {
+
+  };
+  "clone.compare.widget": {
+
+  };
+  "clone.confirm_kept": {
+
+  };
+  "clone.confirm_title": {
+
+  };
+  "clone.edit": {
+
+  };
+  "clone.error.growth_color": {
+
+  };
+  "clone.error.growth_metric": {
+
+  };
+  "clone.error.growth_other_references": {
+
+  };
+  "clone.error.growth_preview": {
+
+  };
+  "clone.error.growth_selection": {
+
+  };
+  "clone.error.growth_single_host": {
+
+  };
+  "clone.error.lld_required": {
+
+  };
+  "clone.error.lld_stale": {
+
+  };
+  "clone.error.name": {
+
+  };
+  "clone.error.pattern_invalid": {
+
+  };
+  "clone.error.pattern_required": {
+
+  };
+  "clone.error.pattern_stale": {
+
+  };
+  "clone.error.pattern_unverified": {
+
+  };
+  "clone.error.stale_source": {
+
+  };
+  "clone.error.target_selection": {
+
+  };
+  "clone.error.unresolved": {
+
+  };
+  "clone.find": {
+
+  };
+  "clone.growth.added": {
+
+  };
+  "clone.growth.after": {
+
+  };
+  "clone.growth.before": {
+
+  };
+  "clone.growth.host": {
+
+  };
+  "clone.growth.none": {
+
+  };
+  "clone.growth.option": {
+    "page": number;
+    "widget": number;
+    "dataset": number;
+    "row": number;
+    "host": string;
+    "item": string;
+  };
+  "clone.growth.preview": {
+
+  };
+  "clone.growth.sample": {
+
+  };
+  "clone.growth.title": {
+
+  };
+  "clone.keep_patterns": {
+
+  };
+  "clone.keep_source": {
+
+  };
+  "clone.kept": {
+
+  };
+  "clone.lld.none_required": {
+
+  };
+  "clone.lld.prototype": {
+
+  };
+  "clone.lld.review": {
+
+  };
+  "clone.lld.row": {
+    "page": number;
+    "widget": number;
+    "host": string;
+  };
+  "clone.name": {
+
+  };
+  "clone.narrow_search": {
+
+  };
+  "clone.open": {
+
+  };
+  "clone.pattern.choose": {
+
+  };
+  "clone.pattern.count": {
+    "count": number;
+  };
+  "clone.pattern.decision": {
+
+  };
+  "clone.pattern.host_row": {
+    "page": number;
+    "widget": number;
+  };
+  "clone.pattern.item_row": {
+    "page": number;
+    "widget": number;
+  };
+  "clone.pattern.keep": {
+
+  };
+  "clone.pattern.preview": {
+
+  };
+  "clone.pattern.replace": {
+
+  };
+  "clone.pattern.scope": {
+
+  };
+  "clone.pattern.title": {
+
+  };
+  "clone.pattern.truncated": {
+
+  };
+  "clone.pattern.value": {
+
+  };
+  "clone.plan": {
+
+  };
+  "clone.private_copy": {
+
+  };
+  "clone.read_only": {
+
+  };
+  "clone.reconcile": {
+
+  };
+  "clone.save": {
+
+  };
+  "clone.search": {
+
+  };
+  "clone.summary": {
+    "pages": number;
+    "widgets": number;
+    "changes": number;
+  };
+  "clone.target_for": {
+    "host": string;
+  };
+  "clone.targets": {
+
+  };
+  "clone.title": {
+
+  };
+  "clone.working": {
+
+  };
+  "clone.write": {
 
   };
   "common.action.cancel": {
@@ -8602,6 +9355,67 @@ export interface MessageParamsById {
   };
   "startup.subtitle": {
 
+  };
+  "template_import.action_failed": {
+
+  };
+  "template_import.becomes": {
+    "count": number;
+  };
+  "template_import.catalogs": {
+
+  };
+  "template_import.choose": {
+
+  };
+  "template_import.choose_native": {
+
+  };
+  "template_import.empty": {
+
+  };
+  "template_import.help": {
+
+  };
+  "template_import.inspect": {
+
+  };
+  "template_import.list_failed": {
+
+  };
+  "template_import.missing_parent": {
+
+  };
+  "template_import.new_version": {
+
+  };
+  "template_import.partial": {
+
+  };
+  "template_import.position": {
+    "line": number;
+    "column": number;
+  };
+  "template_import.preview_counts": {
+    "metrics": number;
+    "rules": number;
+    "hints": number;
+  };
+  "template_import.rejected": {
+    "code": string;
+  };
+  "template_import.save": {
+
+  };
+  "template_import.saved": {
+    "count": number;
+  };
+  "template_import.unresolved_macros": {
+
+  };
+  "template_import.version": {
+    "version": number;
+    "export_version": string;
   };
   "widget.type.actionlog": {
 

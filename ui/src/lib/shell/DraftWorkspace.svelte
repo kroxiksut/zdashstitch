@@ -2,6 +2,7 @@
   import { untrack } from 'svelte';
   import type { I18n } from '../i18n';
   import BindingsSection from '../bindings/BindingsSection.svelte';
+  import CloneSection from '../bindings/CloneSection.svelte';
   import PublicationSection from '../bindings/PublicationSection.svelte';
   import type { ReplaceHostStore } from '../bindings/store.svelte';
   import type { PublicationStore, RecoveryStore } from '../publication/store.svelte';
@@ -154,6 +155,12 @@
       {:else if section === 'structure'}
         <StructureSection {i18n} {draft} />
       {:else if section === 'bindings' && replaceHost}
+        {#if !demo && draft.kind === 'dashboard' && draft.origin === 'server_copy'}
+          {#key localId}
+            <CloneSection {i18n} {localId} connected={serverReads} writable={serverReads && connection?.writable === true}
+              onjournal={recovery ? (id) => { void recovery?.show(id); } : undefined} />
+          {/key}
+        {/if}
         <BindingsSection {i18n} store={replaceHost} {localId} {serverReads} />
       {:else if section === 'bindings'}
         <EmptyState {i18n} heading={{ id: 'draft.nav.bindings' }} reason={{ id: 'common.state.coming_later' }} />

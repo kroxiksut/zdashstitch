@@ -55,7 +55,18 @@ All user-visible text from Rust/Axum, TypeScript and Svelte uses shared localiza
 - On Windows, set `$env:PYTHONUTF8='1'` before the reference suite. In sandboxed runs, use a unique temporary path inside the ignored environment to avoid stale ACLs: `$pytestTemp = ".venv/pytest-$PID"; .\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider --basetemp $pytestTemp`.
 - This environment is only for specification/reference checks; it is not a runtime dependency of the planned Rust application.
 
-## 7. Task report format
+## 7. Optional local XERJ search
+
+- XERJ is optional developer tooling, never an application, build, CI, or runtime dependency.
+- When XERJ would materially help a code task, first run `tools/xerj-local.ps1 status`. If it is stopped or unhealthy, agents are authorized to run `tools/xerj-local.ps1 start`; use this vetted helper only, never improvise another data directory, port, bind address or `--insecure` launch. Starting the node is optional and must not block ordinary `rg`/Git work when XERJ is unavailable.
+- Use the local read-only surfaces `xerj_map`, `xerj_search`, `xerj_def`, `xerj_batch_search`, `xerj_semantic_search`, `xerj_hybrid_search`, and `xerj_plan` against the loopback node and the explicitly selected ZDashstitch prefix. Call `xerj_map` before structured queries. Prefer lexical definition search for named symbols; use semantic or hybrid search when the exact name is unknown.
+- If a search reports the selected ZDashstitch index stale, agents may run `tools/xerj-local.ps1 update`. This authorization covers only the helper's existing ZDashstitch prefixes and ignore rules; never autoindex another root, use `--no-ignore`, remove an index, or broaden the corpus to credentials, laboratory state, corporate data or other private directories.
+- **Rerank is unconditionally forbidden.** Never pass `rerank` to any XERJ tool and never configure an external relevance provider; indexed text must not leave the local node. This prohibition is not relaxed by a general request to use XERJ.
+- Never call XERJ field-report, feedback, Corpus Hub, corpus-feedback, sharing, proxy/external embedding, memory-write, brain link/unlink, index-removal or other outbound/destructive operations. Local read-only `memory_recall`, `brain_overview` and `brain_ego` require an explicit owner request because they are outside normal code search.
+- Keep `XERJ_DISABLE_FEEDBACK=true`, local lexical embedding, API authentication and loopback binding. Never place the API key, index, private planning files, setup URL or XERJ logs in Git, chat output, issue reports or external services.
+- `.xerjignore` may re-include named local planning files for the local index; do not use `--no-ignore` or broaden the rules to secrets, credentials, laboratory state, or corporate data.
+
+## 8. Task report format
 
 ```text
 Task ID:

@@ -4,6 +4,13 @@
 //!
 //! Planning, confirmation and the closed dashboard publication boundary.
 
+mod clone_comparison;
+mod clone_dashboard;
+pub mod clone_mapping;
+mod clone_preflight;
+mod clone_setup;
+pub use clone_comparison::CloneComparison;
+pub mod catalog_library;
 mod compatibility;
 pub mod connections;
 mod create_dashboard;
@@ -22,6 +29,15 @@ pub mod workcopy;
 use zdashstitch_core::ProductStage;
 use zdashstitch_zabbix::{Result as ZabbixResult, SnapshotSummary, VersionedDashboardSnapshot};
 
+pub use clone_dashboard::{
+    CloneDashboardIntent, CloneReadBackVerdict, CloneSourceIdentity, CloneTargetAreaSelection,
+    CloneWorkcopy, PrepareCloneIntentRequest, SavedCloneWorkcopy, validate_clone_references,
+};
+pub use clone_preflight::{CloneKeptSource, CloneLocalPreview};
+pub use clone_setup::{
+    CloneGrowthPreview, CloneLldRow, ClonePatternReview, ClonePatternReviewRequest,
+    CloneSeriesOption, CloneSetup, CloneSetupRequest,
+};
 pub use compatibility::{
     CompatibilityKnowledge, CompatibilityNotice, CompatibilityNoticeLevel,
     DraftCompatibilityReport, DraftWidgetField, DraftWidgetUsage, PortableWidgetCreateError,
@@ -29,9 +45,11 @@ pub use compatibility::{
     validate_portable_widget_for_create,
 };
 pub use create_dashboard::{
-    ConfirmedCreatePlan, CreatePlanError, CreatePlanPreview, CreatePublishReport, CreateRecovery,
-    CreateRefusal, NameCheck, SAVE_AS_COPY_OPERATION, SaveAsCopyRequest, VerifiedCreatePlan,
-    plan_save_as_copy, publish_save_as_copy_plan, reconcile_create, reconcile_save_as_copy,
+    ClonePublicationPreview, ClonePublicationRequest, ConfirmedCreatePlan, CreatePlanError,
+    CreatePlanPreview, CreatePublishReport, CreateRecovery, CreateRefusal, NameCheck,
+    SAVE_AS_COPY_OPERATION, SaveAsCopyRequest, VerifiedCreatePlan, plan_clone_dashboard,
+    plan_save_as_copy, preflight_clone_publication, publish_clone_dashboard_plan,
+    publish_save_as_copy_plan, reconcile_create, reconcile_save_as_copy,
 };
 pub use generated_message_ids::MessageId;
 pub use publish_journal::{

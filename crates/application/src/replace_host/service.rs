@@ -279,7 +279,7 @@ impl WorkcopyService {
 
     /// Writes a new operation list after checking that the draft did not
     /// change since `revision` was read.
-    fn commit_operations(
+    pub(crate) fn commit_operations(
         &self,
         local_id: &str,
         revision: u64,
@@ -297,7 +297,7 @@ impl WorkcopyService {
         Ok(file)
     }
 
-    fn load_log(
+    pub(crate) fn load_log(
         &self,
         local_id: &str,
     ) -> Result<(WorkcopyFile, VersionedDashboardSnapshot, Vec<Operation>), WorkcopyError> {
@@ -624,28 +624,16 @@ impl WorkcopyService {
         local_id: &str,
     ) -> Result<VersionedDashboardSnapshot, WorkcopyError> {
         let (_, base, operations) = self.load_log(local_id)?;
-        let Some(log) = ReplaceHostLog::of(&operations) else {
-            return Ok(base);
-        };
-        let current = rows(
-            &log,
-            &Freshness {
-                server_version: None,
-                fresh: None,
-            },
-        );
-        materialize(&base, &changes(&current))
+        materialize_local_operations(base, &operations)
     }
 }
 
-#[cfg(test)]
-pub(crate) fn materialize_for_tests(
-    base: &VersionedDashboardSnapshot,
-    operations: &[Value],
+pub(crate) fn materialize_local_operations(
+    base: VersionedDashboardSnapshot,
+    operations: &[Operation],
 ) -> Result<VersionedDashboardSnapshot, WorkcopyError> {
-    let operations = parse_log(operations, base.storage_fingerprint())?;
-    let Some(log) = ReplaceHostLog::of(&operations) else {
-        return Ok(base.clone());
+    let Some(log) = ReplaceHostLog::of(operations) else {
+        return Ok(base);
     };
     let current = rows(
         &log,
@@ -654,5 +642,14 @@ pub(crate) fn materialize_for_tests(
             fresh: None,
         },
     );
-    materialize(base, &changes(&current))
+    materialize(&base, &changes(&current))
+}
+
+#[cfg(test)]
+pub(crate) fn materialize_for_tests(
+    base: &VersionedDashboardSnapshot,
+    operations: &[Value],
+) -> Result<VersionedDashboardSnapshot, WorkcopyError> {
+    let operations = parse_log(operations, base.storage_fingerprint())?;
+    materialize_local_operations(base.clone(), &operations)
 }

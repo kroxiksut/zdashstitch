@@ -12,6 +12,7 @@
 
 use std::collections::{BTreeMap, BTreeSet};
 
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use zdashstitch_zabbix::{
     AdapterRegistry, DependencyKind, SnapshotDependency, VersionedDashboardSnapshot,
@@ -24,7 +25,8 @@ use super::pattern::is_mask;
 use super::status::{Applicability, ReasonCode};
 
 /// Address of a widget in Base: positions plus server IDs when present.
-#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct WidgetAddress {
     /// 0-based page position in Base.
     pub page_index: usize,
@@ -35,7 +37,8 @@ pub struct WidgetAddress {
 }
 
 /// Address of one widget field in Base.
-#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct FieldAddress {
     pub widget: WidgetAddress,
     /// Zabbix field name, e.g. `itemid.0`, `ds.1.hosts.0`.

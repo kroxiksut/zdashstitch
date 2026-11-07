@@ -25,7 +25,7 @@ use zdashstitch_application::MessageId;
 use crate::{AttachmentResponse, LocalSecurity};
 
 const TRANSFER_TTL: Duration = Duration::from_secs(10 * 60);
-const MAX_FILES: usize = 32;
+pub(crate) const MAX_FILES: usize = 32;
 const MAX_FILE_BYTES: usize = 16 * 1024 * 1024;
 const MAX_TOTAL_BYTES: usize = 32 * 1024 * 1024;
 const MAX_UPLOAD_SETS: usize = 8;
@@ -51,12 +51,20 @@ struct TransferState {
 
 struct UploadSet {
     files: BTreeMap<String, Bytes>,
+    phase: UploadPhase,
     /// ASCII-case-folded paths. No Unicode normalization crate is in the
     /// dependency tree, so names that differ only by Unicode form or by
     /// non-ASCII case are still treated as distinct.
     folded_paths: BTreeSet<String>,
     total_bytes: usize,
     expires_at: Instant,
+}
+
+#[derive(Clone, Copy, Eq, PartialEq)]
+enum UploadPhase {
+    Open,
+    Inspecting,
+    Inspected,
 }
 
 struct DownloadRecord {
@@ -160,7 +168,7 @@ impl TransferError {
         }
     }
 
-    fn message_id(self) -> MessageId {
+    pub(crate) fn message_id(self) -> MessageId {
         match self {
             Self::InvalidOrExpired => MessageId::HTTP_TRANSFER_INVALID,
             Self::InvalidRelativePath => MessageId::HTTP_TRANSFER_INVALID_PATH,
@@ -205,6 +213,7 @@ impl BrowserTransferService {
             id.clone(),
             UploadSet {
                 files: BTreeMap::new(),
+                phase: UploadPhase::Open,
                 folded_paths: BTreeSet::new(),
                 total_bytes: 0,
                 expires_at: Instant::now() + self.inner.ttl,
@@ -230,6 +239,7 @@ impl BrowserTransferService {
         let set = state
             .upload_sets
             .get(upload_set_id)
+            .filter(|set| set.phase == UploadPhase::Open)
             .ok_or(TransferError::InvalidOrExpired)?;
         if set.files.len() >= MAX_FILES {
             return Err(TransferError::TooManyFiles);
@@ -262,6 +272,7 @@ impl BrowserTransferService {
         let set = state
             .upload_sets
             .get_mut(upload_set_id)
+            .filter(|set| set.phase == UploadPhase::Open)
             .ok_or(TransferError::InvalidOrExpired)?;
         if set.files.contains_key(relative_path) || set.folded_paths.contains(&folded_path) {
             return Err(TransferError::DuplicateFile);
@@ -297,7 +308,57 @@ impl BrowserTransferService {
     }
 
     pub fn take_upload_set(&self, id: &str) -> Result<Vec<UploadedFile>, TransferError> {
+        self.take_set(id, UploadPhase::Open)
+    }
+
+    /// Freezes the exact file selection presented for preview. Bytes are
+    /// shared with the existing quota-bound upload set until confirmation.
+    pub(crate) fn seal_upload_set(&self, id: &str) -> Result<Vec<UploadedFile>, TransferError> {
         let mut state = self.lock_and_prune();
+        let set = state
+            .upload_sets
+            .get_mut(id)
+            .filter(|set| set.phase == UploadPhase::Open && !set.files.is_empty())
+            .ok_or(TransferError::InvalidOrExpired)?;
+        set.phase = UploadPhase::Inspecting;
+        Ok(set
+            .files
+            .iter()
+            .map(|(relative_path, bytes)| UploadedFile {
+                relative_path: relative_path.clone(),
+                bytes: bytes.clone(),
+            })
+            .collect())
+    }
+
+    pub(crate) fn complete_inspection(&self, id: &str) -> Result<(), TransferError> {
+        let mut state = self.lock_and_prune();
+        let set = state
+            .upload_sets
+            .get_mut(id)
+            .filter(|set| set.phase == UploadPhase::Inspecting)
+            .ok_or(TransferError::InvalidOrExpired)?;
+        set.phase = UploadPhase::Inspected;
+        set.expires_at = Instant::now() + self.inner.ttl;
+        Ok(())
+    }
+
+    pub(crate) fn take_sealed_upload_set(
+        &self,
+        id: &str,
+    ) -> Result<Vec<UploadedFile>, TransferError> {
+        self.take_set(id, UploadPhase::Inspected)
+    }
+
+    fn take_set(&self, id: &str, phase: UploadPhase) -> Result<Vec<UploadedFile>, TransferError> {
+        let mut state = self.lock_and_prune();
+        if !state
+            .upload_sets
+            .get(id)
+            .is_some_and(|set| set.phase == phase)
+        {
+            return Err(TransferError::InvalidOrExpired);
+        }
         let set = state
             .upload_sets
             .remove(id)

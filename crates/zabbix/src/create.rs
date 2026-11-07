@@ -271,6 +271,7 @@ impl CreateRequirements {
 /// deserializable, and its payload is never exposed.
 pub struct VerifiedDashboardCreate {
     connection_id: String,
+    source_dashboardid: String,
     server_version: ZabbixVersion,
     authority_fingerprint: String,
     local_fingerprint: String,
@@ -336,6 +337,8 @@ pub struct CreateExpectation {
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum ReadBackVerdict {
     Matches,
+    /// Clone must create a new dashboard, with its own identity.
+    SourceDashboard,
     /// Read under another connection or version.
     ConnectionDiffers,
     NameDiffers,
@@ -356,6 +359,7 @@ impl ReadBackVerdict {
     pub const fn as_str(self) -> &'static str {
         match self {
             Self::Matches => "matches",
+            Self::SourceDashboard => "source_dashboard",
             Self::ConnectionDiffers => "connection_differs",
             Self::NameDiffers => "name_differs",
             Self::ContentDiffers => "content_differs",
@@ -430,6 +434,8 @@ pub enum CreateSendRefusal {
     ContractUnverified(CreateContract),
     /// The name check before send could not read.
     NameCheckFailed,
+    CreatePermissionUnverified,
+    SourceChanged,
     /// The caller could not record `submitting` before the send.
     SubmitNotRecorded,
 }
@@ -441,6 +447,8 @@ impl CreateSendRefusal {
             Self::AuthorityChanged => "connection_changed",
             Self::ContractUnverified(_) => "write_contract_unverified",
             Self::NameCheckFailed => "name_check_failed",
+            Self::CreatePermissionUnverified => "dashboard_create_permission_unverified",
+            Self::SourceChanged => "source_changed",
             Self::SubmitNotRecorded => "submitting_not_recorded",
         }
     }
@@ -860,6 +868,7 @@ pub fn verify_dashboard_create_for(
     }
     Ok(VerifiedDashboardCreate {
         connection_id: local.connection_id().to_owned(),
+        source_dashboardid: local.dashboard_id().to_owned(),
         server_version: local.server_version().clone(),
         authority_fingerprint: context.binding_fingerprint().to_owned(),
         local_fingerprint: local.fingerprint().to_owned(),
@@ -939,6 +948,13 @@ fn content_fingerprint(document: &Value) -> Option<String> {
         write!(&mut output, "{byte:02x}").ok()?;
     }
     Some(output)
+}
+
+/// Normalized structure for local comparison, using the same rules as
+/// create verification. Callers must project it before exposing it to a UI.
+#[must_use]
+pub fn dashboard_comparison_content(snapshot: &VersionedDashboardSnapshot) -> Option<Value> {
+    canonical_content(snapshot.raw_api_document())
 }
 
 /// Content fingerprint of a read dashboard, comparable with
@@ -1160,6 +1176,34 @@ impl ReadWriteGateway {
     where
         G: FnOnce() -> bool + Send,
     {
+        self.create_dashboard_with_source(create, None, before_send)
+            .await
+    }
+
+    /// Clone uses the same codec and one-send path, with an additional
+    /// re-read of its original and the effective permission of this role.
+    pub async fn create_verified_clone_dashboard<G>(
+        &self,
+        create: &VerifiedDashboardCreate,
+        base: &VersionedDashboardSnapshot,
+        before_send: G,
+    ) -> DashboardCreateOutcome
+    where
+        G: FnOnce() -> bool + Send,
+    {
+        self.create_dashboard_with_source(create, Some(base), before_send)
+            .await
+    }
+
+    async fn create_dashboard_with_source<G>(
+        &self,
+        create: &VerifiedDashboardCreate,
+        base: Option<&VersionedDashboardSnapshot>,
+        before_send: G,
+    ) -> DashboardCreateOutcome
+    where
+        G: FnOnce() -> bool + Send,
+    {
         let context = self.publication_context();
         if !context.is_live_authenticated()
             || context.binding_fingerprint() != create.authority_fingerprint
@@ -1192,6 +1236,24 @@ impl ReadWriteGateway {
                 );
             }
         }
+        if let Some(base) = base {
+            if base.connection_id() != create.connection_id
+                || base.dashboard_id() != create.source_dashboardid
+                || *base.server_version() != create.server_version
+                || !matches!(
+                    self.reader().dashboard_snapshot(base.connection_id(), base.dashboard_id()).await,
+                    Ok(Some(snapshot)) if snapshot.fingerprint() == base.fingerprint()
+                )
+            {
+                return DashboardCreateOutcome::FailedBeforeSend(CreateSendRefusal::SourceChanged);
+            }
+            if !matches!(self.reader().dashboard_create_permission().await, Ok(true)) {
+                return DashboardCreateOutcome::FailedBeforeSend(
+                    CreateSendRefusal::CreatePermissionUnverified,
+                );
+            }
+        }
+        let original = base.map(VersionedDashboardSnapshot::dashboard_id);
         if !before_send() {
             return DashboardCreateOutcome::FailedBeforeSend(CreateSendRefusal::SubmitNotRecorded);
         }
@@ -1208,8 +1270,16 @@ impl ReadWriteGateway {
             .await;
         match dispatch {
             Ok(result) => match created_id(&result) {
+                Some(dashboardid) if original == Some(dashboardid.as_str()) => {
+                    DashboardCreateOutcome::FailedAfterResponse {
+                        reason: CreateFailureReason::ReadBackMismatch(
+                            ReadBackVerdict::SourceDashboard,
+                        ),
+                        dashboardid: Some(dashboardid),
+                    }
+                }
                 Some(dashboardid) => self.read_back(&expectation, dashboardid).await,
-                None => self.reconcile_unknown(&expectation).await,
+                None => self.reconcile_unknown(&expectation, original).await,
             },
             Err(error) if is_name_taken(&error, &create.name) => {
                 DashboardCreateOutcome::NameTaken { sent: true }
@@ -1220,7 +1290,7 @@ impl ReadWriteGateway {
             },
             // Transport loss, HTTP status (a proxy may answer after the
             // server committed), oversized or malformed answers: unknown.
-            Err(_) => self.reconcile_unknown(&expectation).await,
+            Err(_) => self.reconcile_unknown(&expectation, original).await,
         }
     }
 
@@ -1256,7 +1326,11 @@ impl ReadWriteGateway {
         }
     }
 
-    async fn reconcile_unknown(&self, expectation: &CreateExpectation) -> DashboardCreateOutcome {
+    async fn reconcile_unknown(
+        &self,
+        expectation: &CreateExpectation,
+        original: Option<&str>,
+    ) -> DashboardCreateOutcome {
         let mut last = CreateReconciliation::NotFound;
         for attempt in 0..READ_ATTEMPTS {
             if attempt > 0 {
@@ -1271,6 +1345,13 @@ impl ReadWriteGateway {
                 fingerprint,
             } = last
             {
+                if original == Some(dashboardid.as_str()) {
+                    return DashboardCreateOutcome::UnknownOutcome {
+                        reconciliation: CreateReconciliation::Mismatch {
+                            verdict: ReadBackVerdict::SourceDashboard,
+                        },
+                    };
+                }
                 return DashboardCreateOutcome::ReconciledVerified {
                     dashboardid,
                     fingerprint,

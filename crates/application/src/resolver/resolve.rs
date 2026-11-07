@@ -25,6 +25,7 @@
 
 use std::collections::BTreeSet;
 
+use serde::{Deserialize, Serialize};
 use zdashstitch_zabbix::{GraphDetails, HostDetails, ItemDetails, ItemFlags, ItemPrototypeDetails};
 
 use super::ResolverError;
@@ -80,7 +81,8 @@ pub struct ReplaceHostRequest {
 }
 
 /// The referencing value in Base.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
 pub enum SourceValue {
     Item {
         itemid: String,
@@ -105,7 +107,8 @@ pub enum SourceValue {
 }
 
 /// The value the field would get on the target.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
 pub enum TargetValue {
     Item { itemid: String },
     Graph { graphid: String },
@@ -114,7 +117,8 @@ pub enum TargetValue {
 }
 
 /// Where an item comes from.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
 pub enum ItemOrigin {
     /// Created on the host itself.
     Own,
@@ -129,7 +133,8 @@ pub enum ItemOrigin {
 }
 
 /// Item evidence shown to the user (P1-05D: key, type, units, template).
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct ItemEvidence {
     pub itemid: String,
     pub key: String,
@@ -140,7 +145,8 @@ pub struct ItemEvidence {
     pub origin: ItemOrigin,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct GraphEvidence {
     pub graphid: String,
     pub name: String,
@@ -148,7 +154,8 @@ pub struct GraphEvidence {
     pub discovered: bool,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
 pub enum Evidence {
     Item(ItemEvidence),
     Graph(GraphEvidence),
@@ -601,22 +608,43 @@ impl Context<'_> {
         }
     }
 
-    /// Discovered items of the target created from a prototype with the same
-    /// key. Evidence for a manual choice only.
+    /// Discovered items of the target created from the same template
+    /// prototype. A matching prototype key alone is not evidence: unrelated
+    /// discovery rules may expose the same text. Evidence for a manual choice
+    /// only; this function never selects a candidate.
     fn lld_candidates(&self, item: &ItemDetails) -> Vec<ItemEvidence> {
         let Some(link) = &item.discovery else {
             return Vec::new();
         };
+        let Some(source_prototype) = self.source.item_prototypes.get(&link.parent_itemid) else {
+            return Vec::new();
+        };
+        let source_identity = source_prototype
+            .templateid
+            .as_deref()
+            .unwrap_or(source_prototype.itemid.as_str());
         let mut candidates: Vec<ItemEvidence> = self
             .target
             .target_items
             .iter()
             .filter(|candidate| {
+                let Some(other) = candidate.discovery.as_ref() else {
+                    return false;
+                };
+                let Some(target_prototype) =
+                    self.target.target_item_prototypes.get(&other.parent_itemid)
+                else {
+                    return false;
+                };
+                let target_identity = target_prototype
+                    .templateid
+                    .as_deref()
+                    .unwrap_or(target_prototype.itemid.as_str());
                 candidate.flags == ItemFlags::Discovered
-                    && candidate
-                        .discovery
-                        .as_ref()
-                        .is_some_and(|other| other.prototype_key == link.prototype_key)
+                    && source_prototype.key == link.prototype_key
+                    && target_prototype.key == other.prototype_key
+                    && source_prototype.key == target_prototype.key
+                    && source_identity == target_identity
             })
             .map(|candidate| self.item_evidence(candidate))
             .collect();

@@ -14,15 +14,17 @@ use axum::{Json, Router, extract::State, routing::post};
 use secrecy::SecretString;
 use serde_json::{Value, json};
 use tokio::task::JoinHandle;
+use zdashstitch_application::connections::ConnectionService;
 use zdashstitch_application::replace_host::{ReplaceHostPreview, SessionContext};
 use zdashstitch_application::resolver::{ReplaceHostRequest, ResolveScope};
 use zdashstitch_application::workcopy::DraftFreshnessState;
 use zdashstitch_application::workcopy::{ImportRequest, ImportScope, WorkcopyService};
 use zdashstitch_application::{
-    CloseManuallyRequest, EndSessionRequest, FindingCode, JournalProgress, JournalState,
-    LocalSession, PlanError, PlanInvalidReason, PublishJournal, ReplaceHostPlanRequest,
-    VerifiedPlan, plan_replace_host, publish_confirmed_plan, publish_replace_host_plan,
-    recheck_replace_host, reconcile_update,
+    ClonePublicationRequest, CloseManuallyRequest, CreatePlanError, EndSessionRequest, FindingCode,
+    JournalProgress, JournalState, LocalSession, PlanError, PlanInvalidReason, PublishJournal,
+    ReplaceHostPlanRequest, VerifiedPlan, plan_clone_dashboard, plan_replace_host,
+    preflight_clone_publication, publish_clone_dashboard_plan, publish_confirmed_plan,
+    publish_replace_host_plan, recheck_replace_host, reconcile_update,
 };
 use zdashstitch_zabbix::{
     Authentication, ReadWriteGateway, ZabbixClient, ZabbixEndpoint, read_only_allowlist,
@@ -32,6 +34,10 @@ const CONNECTION: &str = "conn-00000000000000000000000000000002";
 
 struct MockData {
     dashboard: Value,
+    extra_host: Option<Value>,
+    own_role_rules: Option<Value>,
+    returned_roleid: &'static str,
+    created_dashboard: Option<Value>,
     editable: bool,
     calls: Vec<Value>,
     /// The next `dashboard.update` is applied, but its answer is not
@@ -160,16 +166,45 @@ async fn rpc(State(data): State<Shared>, Json(body): Json<Value>) -> Response {
     }
     let result = match body["method"].as_str().unwrap_or_default() {
         "apiinfo.version" => json!("7.4.16"),
-        "user.checkAuthentication" => json!({"userid": "3", "username": "synthetic"}),
+        "user.checkAuthentication" => {
+            json!({"userid": "3", "username": "synthetic", "roleid": "7", "type": 2})
+        }
+        "role.get" => {
+            assert_eq!(
+                params,
+                json!({
+                    "roleids": ["7"], "output": ["roleid", "type"],
+                    "selectRules": ["api.access", "api.mode", "api", "actions"],
+                })
+            );
+            data.own_role_rules.as_ref().map_or_else(
+                || json!([]),
+                |rules| json!([{"roleid": data.returned_roleid, "type": "2", "rules": rules}]),
+            )
+        }
         "dashboard.get" if data.hidden => json!([]),
         "dashboard.get" if params.get("editable").is_some() && !data.editable => json!([]),
-        "dashboard.get" => json!([data.dashboard.clone()]),
+        "dashboard.get" => {
+            let by_id = ids(&params, "dashboardids");
+            let names = params["filter"]["name"].as_array();
+            Value::Array(
+                std::iter::once(&data.dashboard)
+                    .chain(&data.created_dashboard)
+                    .filter(|dashboard| {
+                        matches(dashboard, "dashboardid", by_id.as_ref())
+                            && names.is_none_or(|names| names.contains(&dashboard["name"]))
+                    })
+                    .cloned()
+                    .collect(),
+            )
+        }
         "host.get" => {
             let by_id = ids(&params, "hostids");
             let names = params["search"]["name"].as_array().cloned();
             Value::Array(
                 hosts()
                     .into_iter()
+                    .chain(data.extra_host.clone())
                     .filter(|host| {
                         matches(host, "hostid", by_id.as_ref())
                             && names.as_ref().is_none_or(|names| {
@@ -196,6 +231,9 @@ async fn rpc(State(data): State<Shared>, Json(body): Json<Value>) -> Response {
             )
         }
         "graph.get" => json!([]),
+        "hostgroup.get" | "templategroup.get" | "template.get" | "user.get" | "usergroup.get" => {
+            json!([])
+        }
         "dashboard.update" => {
             let reorder = data.reorder_on_update;
             apply_update(&mut data.dashboard, &params);
@@ -203,6 +241,17 @@ async fn rpc(State(data): State<Shared>, Json(body): Json<Value>) -> Response {
                 reorder_sent_pages(&mut data.dashboard, &params);
             }
             json!({"dashboardids": ["950"]})
+        }
+        "dashboard.create" => {
+            assert!(data.created_dashboard.is_none(), "a second create was sent");
+            let mut created = params.clone();
+            created["dashboardid"] = json!("951");
+            created["userid"] = json!("3");
+            created["private"] = json!("1");
+            created["pages"][0]["dashboard_pageid"] = json!("1900");
+            created["pages"][0]["widgets"][0]["widgetid"] = json!("2900");
+            data.created_dashboard = Some(created);
+            json!({"dashboardids": ["951"]})
         }
         _ => {
             return Json(json!({"jsonrpc": "2.0", "id": id, "error": {
@@ -281,6 +330,10 @@ impl Mock {
     async fn start_with(server_dashboard: Value) -> Self {
         let data: Shared = Arc::new(Mutex::new(MockData {
             dashboard: server_dashboard,
+            extra_host: None,
+            own_role_rules: None,
+            returned_roleid: "7",
+            created_dashboard: None,
             editable: true,
             calls: Vec::new(),
             lose_update_answer: false,
@@ -831,11 +884,606 @@ async fn a_workcopy_plan_cannot_bypass_the_draft_check_and_needs_write_permissio
     assert!(mock.updates().is_empty());
 }
 
+#[tokio::test]
+async fn revoked_edit_permission_after_preview_sends_no_update() {
+    let mock = Mock::start().await;
+    let preview = mock.calculate(one_page()).await;
+    let plan = ok_plan(mock.plan(&mock.request(&preview)).await);
+    lock(&mock.data).editable = false;
+
+    let report = mock.publish(plan).await;
+
+    assert_eq!(report.states.last(), Some(&JournalState::FailedBeforeSend));
+    assert!(mock.updates().is_empty());
+    assert!(mock.reads_only());
+}
+
+#[tokio::test]
+async fn another_server_cannot_send_the_confirmed_plan() {
+    let source = Mock::start().await;
+    let other = Mock::start().await;
+    let preview = source.calculate(one_page()).await;
+    let plan = ok_plan(source.plan(&source.request(&preview)).await);
+    let plan_id = plan.preview().plan_id;
+    let confirmed = plan
+        .confirm(&plan_id)
+        .unwrap_or_else(|error| panic!("confirm: {error}"));
+    let stage = source
+        .session
+        .begin_write(confirmed.session())
+        .unwrap_or_else(|_| panic!("write stage"));
+    let report = publish_replace_host_plan(
+        &source.service,
+        other.writer(),
+        &source.journal,
+        confirmed,
+        &stage,
+    )
+    .await;
+    assert_eq!(
+        report.invalidated,
+        Some(PlanInvalidReason::ConnectionChanged)
+    );
+    assert!(source.updates().is_empty());
+    assert!(other.updates().is_empty());
+}
+
+#[tokio::test]
+async fn g2_multi_page_update_preserves_sharing_layout_and_confirmed_kept_fields() {
+    let mut before = dashboard();
+    before["userGroups"] = json!([{"usrgrpid": "8", "permission": "2"}]);
+    for page_index in 0..2 {
+        let page = before["pages"][page_index]["widgets"]
+            .as_array_mut()
+            .unwrap_or_else(|| panic!("widgets"));
+        for index in 0..4 {
+            let id = (2600 + page_index * 10 + index).to_string();
+            page.push(widget(
+                &id,
+                if index == 3 { "svggraph" } else { "item" },
+                36 + (index % 3) as u32 * 12,
+                if index == 3 {
+                    json!([
+                        {"type":"0", "name":"ds.0.dataset_type", "value":"0"},
+                        {"type":"4", "name":"ds.0.itemids.0", "value":"101"},
+                        {"type":"4", "name":"ds.0.itemids.1", "value":"202"},
+                        {"type":"1", "name":"ds.0.color.0", "value":"AA0000"},
+                        {"type":"1", "name":"ds.0.color.1", "value":"00AA00"}
+                    ])
+                } else {
+                    json!([{"type":"4", "name":"itemid.0", "value":"101"}])
+                },
+            ));
+            page.last_mut().unwrap_or_else(|| panic!("widget"))["y"] =
+                json!(if index == 3 { "8" } else { "4" });
+        }
+    }
+    before["pages"][0]["widgets"][2]["fields"][0]["value"] = json!("db-old-*");
+    let mock = Mock::start_with(before.clone()).await;
+    let preview = mock.calculate(ResolveScope::Dashboard).await;
+    assert_eq!(preview.changes.len(), 11);
+    assert!(preview.kept_on_source.entries.len() >= 2);
+    assert!(mock.plan(&mock.request(&preview)).await.is_err());
+    assert!(mock.updates().is_empty());
+    let preview = mock
+        .service
+        .confirm_kept_on_source(
+            &mock.local_id,
+            &preview.kept_on_source.digest,
+            mock.context(),
+        )
+        .unwrap_or_else(|error| panic!("confirm kept: {error}"));
+    let plan = ok_plan(mock.plan(&mock.request(&preview)).await);
+    let report = mock.publish(plan).await;
+    assert_eq!(report.states.last(), Some(&JournalState::Verified));
+    assert_eq!(mock.updates().len(), 1);
+    let mut expected = before;
+    for page in expected["pages"]
+        .as_array_mut()
+        .unwrap_or_else(|| panic!("pages"))
+    {
+        for widget in page["widgets"]
+            .as_array_mut()
+            .unwrap_or_else(|| panic!("widgets"))
+        {
+            for field in widget["fields"]
+                .as_array_mut()
+                .unwrap_or_else(|| panic!("fields"))
+            {
+                if field["type"] == "4" {
+                    match field["value"].as_str() {
+                        Some("101") => field["value"] = json!("201"),
+                        Some("102") => field["value"] = json!("202"),
+                        _ => {}
+                    }
+                }
+            }
+        }
+    }
+    assert_eq!(lock(&mock.data).dashboard, expected);
+}
+
 fn journal_code(error: &PlanError) -> Option<&'static str> {
     match error {
         PlanError::Journal(error) => Some(error.code()),
         _ => None,
     }
+}
+
+async fn clone_fixture() -> (Mock, ConnectionService, ClonePublicationRequest) {
+    use zdashstitch_application::PrepareCloneIntentRequest;
+    use zdashstitch_application::clone_mapping::{
+        CloneBindingCheck, FrozenTargetSelection, ReferenceMapping, SaveCloneMappingRequest,
+        SourceHostDecision, SourceHostMapping, SourceRoleId, TargetMetricResolution, TargetSlot,
+        TargetSlotId, materialize_clone,
+    };
+    use zdashstitch_application::connections::{
+        AuthInput, ConnectRequest, MemoryCredentialStore, ProfileInput, TrustInput,
+    };
+    use zdashstitch_application::resolver::{resolve_replace_host_with, source_model};
+    use zdashstitch_zabbix::{HostDetails, HostListing, WidgetCapabilityRegistry};
+
+    let mut raw = dashboard();
+    raw["pages"] = json!([{
+        "dashboard_pageid": "1500", "name": "Main", "display_period": "0",
+        "widgets": [raw["pages"][0]["widgets"][0].clone()]
+    }]);
+    let mock = Mock::start_with(raw).await;
+    let unused_target = HostDetails {
+        hostid: "13".to_owned(),
+        host: "synthetic-unused".to_owned(),
+        name: "Synthetic unused".to_owned(),
+    };
+    let extra_host = json!(unused_target);
+    lock(&mock.data).extra_host = Some(extra_host.clone());
+    let mut connections = ConnectionService::new(
+        mock._dir.path().join("connections"),
+        Box::new(MemoryCredentialStore::default()),
+    );
+    let profile = connections
+        .create_profile(&ProfileInput {
+            name: "Synthetic clone".to_owned(),
+            address: mock.writer().reader().endpoint().base_url().to_string(),
+            auth: AuthInput::ApiToken { store_token: false },
+            trust: TrustInput::System,
+            confirm_plain_http_token_storage: false,
+        })
+        .unwrap_or_else(|error| panic!("profile: {error}"));
+    let connection_id = &profile.local_id;
+    connections
+        .connect(
+            connection_id,
+            ConnectRequest {
+                secret: Some(SecretString::from("synthetic-token".to_owned())),
+                accept_new_identity: false,
+            },
+        )
+        .await
+        .unwrap_or_else(|error| panic!("connection: {error}"));
+    let reader = connections.reader().unwrap_or_else(|| panic!("reader"));
+    let source_id = mock
+        .service
+        .import(
+            reader,
+            connection_id,
+            &ImportRequest {
+                dashboardid: "950".to_owned(),
+                scope: ImportScope::Dashboard,
+                name: None,
+            },
+        )
+        .await
+        .unwrap_or_else(|error| panic!("source import: {error}"))
+        .local_id;
+    let replace = mock
+        .service
+        .calculate_replace_host(
+            reader,
+            &source_id,
+            &ReplaceHostRequest {
+                source_hostid: "11".to_owned(),
+                target_hostid: "12".to_owned(),
+                scope: ResolveScope::Dashboard,
+            },
+            SessionContext::Connected {
+                access_mode: reader.mode(),
+                capabilities: reader.capabilities(),
+            },
+        )
+        .await
+        .unwrap_or_else(|error| panic!("replace: {error}"));
+    let base = mock
+        .service
+        .base_snapshot(&source_id)
+        .unwrap_or_else(|error| panic!("base: {error}"));
+    let source_local = mock
+        .service
+        .local_snapshot(&source_id)
+        .unwrap_or_else(|error| panic!("source Local: {error}"));
+    assert_ne!(source_local.fingerprint(), base.fingerprint());
+    let model = source_model(&source_local, &WidgetCapabilityRegistry::v7_4())
+        .unwrap_or_else(|error| panic!("model: {error}"));
+    let resolved = resolve_replace_host_with(
+        reader,
+        &model,
+        &ReplaceHostRequest {
+            source_hostid: "12".to_owned(),
+            target_hostid: "11".to_owned(),
+            scope: ResolveScope::Dashboard,
+        },
+    )
+    .await
+    .unwrap_or_else(|error| panic!("resolve: {error}"));
+    let target = resolved.target_host.unwrap_or_else(|| panic!("target"));
+    let slot_id = TargetSlotId("pilot".to_owned());
+    let references = resolved
+        .rows
+        .into_iter()
+        .map(|row| ReferenceMapping {
+            field: row.field,
+            widget_type: row.widget_type,
+            source: row.source,
+            source_evidence: row.source_evidence,
+            targets: vec![TargetMetricResolution {
+                slot_id: slot_id.clone(),
+                target: row.target,
+                match_status: row.match_status,
+                applicability: row.applicability,
+                reasons: row.reasons,
+                differences: row.differences,
+                evidence: row.target_evidence,
+                candidates: row.candidates,
+                decision: None,
+                check: CloneBindingCheck::Checked,
+                check_reason: None,
+            }],
+        })
+        .collect();
+    let mappings = vec![
+        SourceHostMapping {
+            role_id: SourceRoleId("db".to_owned()),
+            source_host: resolved.source_host,
+            references,
+            decision: SourceHostDecision::TargetSlots(vec![TargetSlot {
+                slot_id,
+                host: target.clone(),
+            }]),
+        },
+        SourceHostMapping {
+            role_id: SourceRoleId("unused".to_owned()),
+            source_host: target.clone(),
+            references: vec![],
+            decision: SourceHostDecision::TargetSlots(vec![TargetSlot {
+                slot_id: TargetSlotId("unused".to_owned()),
+                host: unused_target.clone(),
+            }]),
+        },
+    ];
+    let local = materialize_clone(&source_local, &mappings, &[], &[])
+        .unwrap_or_else(|error| panic!("Local: {error}"));
+    assert_eq!(local.fingerprint(), base.fingerprint());
+    let mapping = mock
+        .service
+        .save_clone_mapping(
+            &source_id,
+            SaveCloneMappingRequest {
+                expected_workcopy_revision: replace.revision,
+                connection_id: connection_id.clone(),
+                server_identity_fingerprint: reader.identity().fingerprint().to_owned(),
+                server_version: "7.4.16".to_owned(),
+                local_fingerprint: Some(local.fingerprint().to_owned()),
+                mappings,
+                pattern_decisions: vec![],
+            },
+        )
+        .unwrap_or_else(|error| panic!("mapping: {error}"));
+    let intent = mock
+        .service
+        .prepare_clone_intent(PrepareCloneIntentRequest {
+            source_workcopy_id: source_id,
+            target_connection_id: connection_id.clone(),
+            target_name: "Separate copy".to_owned(),
+            expected_mapping_revision: mapping.state.mapping_revision,
+            target_selection: FrozenTargetSelection::new(
+                [target, unused_target]
+                    .into_iter()
+                    .map(|host| HostListing {
+                        hostid: host.hostid,
+                        host: host.host,
+                        name: host.name,
+                        groups: vec![],
+                        templates: vec![],
+                    })
+                    .collect(),
+            )
+            .unwrap_or_else(|error| panic!("selection: {error}")),
+        })
+        .unwrap_or_else(|error| panic!("intent: {error}"));
+    let branch = mock
+        .service
+        .begin_clone_workcopy(intent)
+        .and_then(|draft| mock.service.save_clone_workcopy(draft, &[]))
+        .unwrap_or_else(|error| panic!("branch: {error}"));
+    let request = ClonePublicationRequest {
+        local_id: branch.local_id().to_owned(),
+        connection_id: connection_id.clone(),
+        mapping_revision: mapping.state.mapping_revision,
+        base_fingerprint: base.fingerprint().to_owned(),
+        local_fingerprint: local.fingerprint().to_owned(),
+        target_name: "Separate copy".to_owned(),
+        kept_digest: None,
+        session: mock.session.current(),
+    };
+    (mock, connections, request)
+}
+
+#[tokio::test]
+async fn clone_preflight_rechecks_source_local_and_remote_base_using_only_reads() {
+    let (mock, mut connections, request) = clone_fixture().await;
+    let extra_host = lock(&mock.data)
+        .extra_host
+        .clone()
+        .unwrap_or_else(|| panic!("unused host"));
+    let preflight = async |connections: &ConnectionService, request: &ClonePublicationRequest| {
+        preflight_clone_publication(
+            &mock.service,
+            &mock.journal,
+            &mock.session,
+            connections,
+            request,
+        )
+        .await
+    };
+    let preview = preflight(&connections, &request)
+        .await
+        .unwrap_or_else(|error| panic!("read-only preflight: {error}"));
+    assert_eq!(
+        preview.draft.local().fingerprint(),
+        request.local_fingerprint
+    );
+    assert!(!preview.compatibility.allows_publication());
+    assert!(
+        preview
+            .compatibility
+            .with_code(FindingCode::WriteModeRequired)
+            .next()
+            .is_some()
+    );
+    connections
+        .enable_writes(&request.connection_id, true)
+        .unwrap_or_else(|error| panic!("enable writes: {error}"));
+    let preview = preflight(&connections, &request)
+        .await
+        .unwrap_or_else(|error| panic!("read-write preflight: {error}"));
+    assert!(!preview.compatibility.allows_publication());
+    assert!(
+        preview
+            .compatibility
+            .with_code(FindingCode::WriteModeRequired)
+            .next()
+            .is_none()
+    );
+    assert!(
+        preview.compatibility.checks.iter().any(|check| {
+            check.name == "dashboard_create_permission_verified" && check.blocking
+        })
+    );
+    let stale = ClonePublicationRequest {
+        mapping_revision: request.mapping_revision + 1,
+        ..request.clone()
+    };
+    assert!(matches!(
+        preflight(&connections, &stale).await,
+        Err(CreatePlanError::Invalidated(
+            PlanInvalidReason::DraftChanged
+        ))
+    ));
+    let renamed = ClonePublicationRequest {
+        target_name: "Different copy".to_owned(),
+        ..request.clone()
+    };
+    assert!(matches!(
+        preflight(&connections, &renamed).await,
+        Err(CreatePlanError::Invalidated(
+            PlanInvalidReason::TargetChanged
+        ))
+    ));
+    let stale_acknowledgement = ClonePublicationRequest {
+        kept_digest: Some("old digest".to_owned()),
+        ..request.clone()
+    };
+    let preview = preflight(&connections, &stale_acknowledgement)
+        .await
+        .unwrap_or_else(|error| panic!("stale acknowledgement preflight: {error}"));
+    assert!(
+        preview
+            .compatibility
+            .with_code(FindingCode::KeptOnSourceConfirmationStale)
+            .next()
+            .is_some()
+    );
+    lock(&mock.data).extra_host = None;
+    assert!(matches!(
+        preflight(&connections, &request).await,
+        Err(CreatePlanError::Workcopy(error)) if error.code() == "clone_target_not_visible"
+    ));
+    let mut renamed_host = extra_host.clone();
+    renamed_host["name"] = json!("Renamed synthetic host");
+    lock(&mock.data).extra_host = Some(renamed_host);
+    assert!(matches!(
+        preflight(&connections, &request).await,
+        Err(CreatePlanError::Workcopy(error)) if error.code() == "clone_target_selection_changed"
+    ));
+    lock(&mock.data).extra_host = Some(extra_host);
+    lock(&mock.data).dashboard["name"] = json!("Concurrent change");
+    assert!(matches!(
+        preflight(&connections, &request).await,
+        Err(CreatePlanError::Workcopy(error)) if error.code() == "clone_remote_changed"
+    ));
+    mock.session
+        .end(EndSessionRequest { confirmed: true })
+        .unwrap_or_else(|_| panic!("end session"));
+    assert!(matches!(
+        preflight(&connections, &request).await,
+        Err(CreatePlanError::Invalidated(
+            PlanInvalidReason::SessionEnded
+        ))
+    ));
+    assert!(mock.reads_only());
+    assert!(
+        mock.journal
+            .list()
+            .unwrap_or_else(|error| panic!("journal: {error}"))
+            .entries
+            .is_empty()
+    );
+}
+
+#[tokio::test]
+async fn clone_create_requires_permission_at_plan_and_send_and_links_the_verified_copy() {
+    use zdashstitch_zabbix::{CreateSendRefusal, DashboardCreateOutcome};
+
+    let (mock, mut connections, request) = clone_fixture().await;
+    let source_id = mock
+        .service
+        .open_clone_workcopy(&request.local_id)
+        .unwrap_or_else(|error| panic!("branch: {error}"))
+        .draft()
+        .intent()
+        .source()
+        .source_workcopy_id
+        .clone();
+    let original = lock(&mock.data).dashboard.clone();
+    connections
+        .enable_writes(&request.connection_id, true)
+        .unwrap_or_else(|error| panic!("enable writes: {error}"));
+    let plan = || {
+        plan_clone_dashboard(
+            &mock.service,
+            &mock.journal,
+            &mock.session,
+            &connections,
+            &request,
+        )
+    };
+    assert!(matches!(
+        plan().await,
+        Err(CreatePlanError::Incompatible(_))
+    ));
+    let allowed = json!({
+        "api.access": "1", "api.mode": "0", "api": [],
+        "actions": [{"name": "edit_dashboards", "status": "1"}]
+    });
+    let mut denied = allowed.clone();
+    denied["api"] = json!(["dashboard.*"]);
+    {
+        let mut data = lock(&mock.data);
+        data.own_role_rules = Some(allowed.clone());
+        data.returned_roleid = "8";
+    }
+    assert!(matches!(
+        plan().await,
+        Err(CreatePlanError::Incompatible(_))
+    ));
+    lock(&mock.data).returned_roleid = "7";
+    lock(&mock.data).own_role_rules = Some(denied.clone());
+    assert!(matches!(
+        plan().await,
+        Err(CreatePlanError::Incompatible(_))
+    ));
+    assert!(mock.reads_only());
+
+    let publish = async |confirmed: zdashstitch_application::ConfirmedCreatePlan| {
+        let stage = mock
+            .session
+            .begin_write(confirmed.session())
+            .unwrap_or_else(|_| panic!("write stage"));
+        publish_clone_dashboard_plan(
+            &mock.service,
+            &connections,
+            &mock.journal,
+            confirmed,
+            &stage,
+        )
+        .await
+    };
+    let confirm = |plan: zdashstitch_application::VerifiedCreatePlan| {
+        let preview = plan.preview();
+        assert_eq!(preview.operation, "clone_dashboard");
+        plan.confirm(&preview.plan_id)
+            .unwrap_or_else(|error| panic!("confirm: {error}"))
+    };
+    lock(&mock.data).own_role_rules = Some(allowed.clone());
+    let ready = confirm(plan().await.unwrap_or_else(|error| panic!("plan: {error}")));
+    lock(&mock.data).own_role_rules = Some(denied);
+    let refused = publish(ready).await;
+    assert_eq!(
+        refused.outcome,
+        Some(DashboardCreateOutcome::FailedBeforeSend(
+            CreateSendRefusal::CreatePermissionUnverified,
+        ))
+    );
+    assert_eq!(refused.journal_state, Some(JournalState::FailedBeforeSend));
+    assert!(mock.reads_only());
+    assert!(
+        mock.service
+            .draft(&source_id)
+            .unwrap_or_else(|error| panic!("source: {error}"))
+            .summary
+            .created_dashboards
+            .is_empty()
+    );
+
+    lock(&mock.data).own_role_rules = Some(allowed);
+    let ready = confirm(plan().await.unwrap_or_else(|error| panic!("plan: {error}")));
+    let result = publish(ready).await;
+    assert_eq!(
+        result.journal_state,
+        Some(JournalState::Verified),
+        "{result:?}"
+    );
+    assert!(result.record_error.is_none(), "{result:?}");
+    assert!(
+        result
+            .clone_source
+            .as_ref()
+            .and_then(|source| source.as_ref().ok())
+            .is_some_and(|source| source.is_current())
+    );
+    let entry = mock
+        .journal
+        .entry(&result.plan_id)
+        .unwrap_or_else(|error| panic!("entry: {error}"));
+    assert_eq!(entry.intent, "clone_dashboard");
+    assert_eq!(entry.sends, 1);
+    assert_eq!(entry.created_dashboardid.as_deref(), Some("951"));
+    let linked = mock
+        .service
+        .draft(&source_id)
+        .unwrap_or_else(|error| panic!("source: {error}"));
+    assert_eq!(linked.summary.created_dashboards.len(), 1);
+    assert_eq!(
+        linked.summary.created_dashboards[0].name,
+        request.target_name
+    );
+    assert_eq!(
+        linked.summary.created_dashboards[0].connection_id,
+        request.connection_id
+    );
+    let data = lock(&mock.data);
+    assert_eq!(data.dashboard, original);
+    assert_eq!(
+        data.calls
+            .iter()
+            .filter(|call| call["method"] == "dashboard.create")
+            .count(),
+        1
+    );
+    assert!(
+        data.calls
+            .iter()
+            .all(|call| call["method"] != "dashboard.update")
+    );
 }
 
 /// P2-04D: an unknown outcome is on disk, blocks every new plan and every

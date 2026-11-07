@@ -9,6 +9,11 @@ license.workspace = true
 publish = false
 
 [dependencies]
+serde.workspace = true
+roxmltree = "=0.21.1"
+serde_json.workspace = true
+sha2.workspace = true
+thiserror.workspace = true
 zdashstitch-core = { path = "../core" }
 
 [lints]

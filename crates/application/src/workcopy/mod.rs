@@ -50,13 +50,13 @@ pub use formats::{
     DraftKind, ItemMetadataState, LocalMetadata, StoredItemMetadata, StoredValueMap,
     StoredValueMapping,
 };
-pub(crate) use service::now_ms;
 pub use service::{
     AccessCounts, AccessFilter, DashboardAccess, DashboardOwner, ExistingCopy, ImportOutcome,
     ImportPreview, ImportRequest, ImportScope, MAX_DRAFT_NAME_CHARS, MAX_IMPORT_ATTEMPTS,
     MAX_ITEM_METADATA_ITEMS, MAX_LIST_PAGE, PreviewDependencies, PreviewPage, PreviewWidget,
     ServerDashboardList, ServerDashboardQuery, ServerDashboardRow, WorkcopyService,
 };
+pub(crate) use service::{new_workcopy_id, now_ms};
 pub use view::{
     CreatedDashboard, DamagedDraft, DashboardProperties, DraftDetail, DraftFreshness,
     DraftFreshnessState, DraftList, DraftLocalState, DraftOrigin, DraftPage, DraftSource,

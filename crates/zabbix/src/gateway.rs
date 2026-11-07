@@ -186,6 +186,7 @@ pub fn read_only_allowlist() -> Vec<&'static str> {
         .iter()
         .map(|method| method.api_method())
         .chain(ReadMethod::ALL.iter().map(|method| method.api_method()))
+        .chain([crate::create_permission::OWN_ROLE_METHOD])
         .collect()
 }
 
@@ -608,7 +609,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn read_only_allowlist_is_exactly_p1_in_08() {
+    fn read_only_allowlist_is_p1_in_08_plus_scoped_own_role() {
         let mut actual = read_only_allowlist();
         actual.sort_unstable();
         let mut expected = vec![
@@ -628,9 +629,15 @@ mod tests {
             "user.get",
             "usergroup.get",
             "configuration.export",
+            "role.get",
         ];
         expected.sort_unstable();
         assert_eq!(actual, expected);
+        assert!(
+            ReadMethod::ALL
+                .iter()
+                .all(|method| method.api_method() != "role.get")
+        );
         assert!(
             actual
                 .iter()

@@ -1,0 +1,21 @@
+{
+  "template_import.choose_native": {"message":"Выбрать файлы…","placeholders":{}},
+  "template_import.help": {"message":"Выберите экспорт шаблонов Zabbix 7.4 в YAML, JSON или XML. Проверьте результат перед сохранением каталогов на этом компьютере.","placeholders":{}},
+  "template_import.choose": {"message":"Загрузить через браузер","placeholders":{}},
+  "template_import.inspect": {"message":"Проверить файлы","placeholders":{}},
+  "template_import.save": {"message":"Сохранить каталоги в библиотеку","placeholders":{}},
+  "template_import.catalogs": {"message":"Каталоги метрик","placeholders":{}},
+  "template_import.empty": {"message":"Пока нет сохранённых каталогов метрик.","placeholders":{}},
+  "template_import.action_failed": {"message":"Не удалось обработать файлы. Перед повторной попыткой проверьте их ещё раз.","placeholders":{}},
+  "template_import.list_failed": {"message":"Не удалось прочитать локальную библиотеку каталогов.","placeholders":{}},
+  "template_import.saved": {"message":"Сохранено каталогов: {count}.","placeholders":{"count":"number"}},
+  "template_import.becomes": {"message":"Будет сохранено каталогов метрик: {count}, по одному на шаблон.","placeholders":{"count":"number"}},
+  "template_import.preview_counts": {"message":"Метрик: {metrics}. Правил обнаружения: {rules}. Метрик с подсказками: {hints}.","placeholders":{"metrics":"number","rules":"number","hints":"number"}},
+  "template_import.new_version": {"message":"Будет сохранена новая версия. Прежние версии останутся в библиотеке.","placeholders":{}},
+  "template_import.partial": {"message":"Импортируются поддерживаемые данные метрик. Панели шаблонов и настройки за пределами каталога пропускаются.","placeholders":{}},
+  "template_import.missing_parent": {"message":"В экспорте отсутствует родительский шаблон.","placeholders":{}},
+  "template_import.unresolved_macros": {"message":"Для некоторых макросов нужны дополнительные данные.","placeholders":{}},
+  "template_import.rejected": {"message":"Файл отклонён ({code}).","placeholders":{"code":"text"}},
+  "template_import.position": {"message":"Строка {line}, столбец {column}.","placeholders":{"line":"number","column":"number"}},
+  "template_import.version": {"message":"Версия каталога {version} · экспорт Zabbix {export_version}","placeholders":{"version":"number","export_version":"text"}}
+}

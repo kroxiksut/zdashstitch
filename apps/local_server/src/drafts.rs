@@ -43,6 +43,9 @@ use zdashstitch_application::{
 use crate::connections::ConnectionsHandle;
 use crate::security::LocalSecurity;
 
+#[path = "catalog_import.rs"]
+mod catalog_import;
+
 /// Default page of «Панели в Zabbix» when the UI sends no `limit`.
 const DEFAULT_LIST_PAGE: usize = 50;
 
@@ -131,6 +134,7 @@ pub(crate) fn routes(
         .route("/drafts/{local_id}", get(draft))
         .route("/drafts/{local_id}/rename", post(rename_draft))
         .merge(replace_host::routes())
+        .merge(catalog_import::routes())
         .layer(Extension(drafts))
         .layer(Extension(connections))
 }
@@ -174,7 +178,24 @@ fn workcopy_status(code: &str) -> StatusCode {
         "workcopy_not_found" | "not_visible_or_denied" | "import_page_not_found" => {
             StatusCode::NOT_FOUND
         }
-        "import_inconsistent" => StatusCode::CONFLICT,
+        "import_inconsistent"
+        | "clone_intent_source_changed"
+        | "clone_comparison_shape"
+        | "clone_growth_preview_required"
+        | "clone_growth_single_host_widget"
+        | "clone_growth_other_references"
+        | "clone_growth_metric_incompatible"
+        | "clone_lld_selection_required"
+        | "clone_lld_selection_stale"
+        | "clone_lld_candidate_not_visible"
+        | "clone_lld_candidate_prototype_mismatch"
+        | "clone_mapping_incomplete"
+        | "clone_pattern_decision_required"
+        | "clone_pattern_preview_stale"
+        | "clone_pattern_target_not_visible"
+        | "clone_pattern_preview_truncated"
+        | "clone_target_not_visible"
+        | "clone_target_unresolved" => StatusCode::CONFLICT,
         "connection_id_invalid"
         | "dashboard_id_invalid"
         | "page_id_invalid"
@@ -182,6 +203,11 @@ fn workcopy_status(code: &str) -> StatusCode {
         | "list_limit_invalid"
         | "search_invalid"
         | "draft_name_invalid"
+        | "clone_intent_target_name_invalid"
+        | "clone_growth_selection_invalid"
+        | "clone_pattern_invalid"
+        | "clone_pattern_decision_invalid"
+        | "clone_mapping_invalid"
         | "snapshot_too_large" => StatusCode::UNPROCESSABLE_ENTITY,
         "storage_limit_reached" => StatusCode::INSUFFICIENT_STORAGE,
         "workcopy_corrupt"
@@ -194,6 +220,7 @@ fn workcopy_status(code: &str) -> StatusCode {
         | "storage_linked_path"
         | "storage_file_too_large"
         | "storage_write_failed"
+        | "catalog_library_corrupt"
         | "random_source_unavailable" => StatusCode::INTERNAL_SERVER_ERROR,
         _ => StatusCode::BAD_GATEWAY,
     }

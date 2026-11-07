@@ -70,11 +70,15 @@ use crate::connections::ConnectionsHandle;
 use crate::security::LocalSecurity;
 use crate::session_end::{EraseFuture, SessionMemory};
 
+#[path = "drafts_clone.rs"]
+mod clone_gui;
+
 /// Upper bound of plans kept at once; the oldest is dropped beyond it.
 const MAX_PLANS: usize = 8;
 
 pub(super) fn routes() -> Router<LocalSecurity> {
     Router::new()
+        .merge(clone_gui::routes())
         .route("/publication/journal", get(journal_list))
         .route("/publication/journal/{operation_id}", get(journal_entry))
         .route(
@@ -110,6 +114,8 @@ enum HeldPlan {
         plan: Box<VerifiedCreatePlan>,
         /// User data: the new dashboard name.
         name: String,
+        clone: bool,
+        kept_digest: Option<String>,
     },
 }
 
@@ -1323,6 +1329,8 @@ async fn plan(
                             HeldPlan::Create {
                                 plan: Box::new(plan),
                                 name: preview.target_name,
+                                clone: false,
+                                kept_digest: None,
                             },
                             body,
                         )
@@ -1423,8 +1431,15 @@ async fn confirm(
                         }
                         Ok(body)
                     }
-                    HeldPlan::Create { plan, name } => {
-                        if request.kept_digest.is_some() || request.name.as_deref() != Some(&name) {
+                    HeldPlan::Create {
+                        plan,
+                        name,
+                        clone,
+                        kept_digest,
+                    } => {
+                        if request.kept_digest != kept_digest
+                            || request.name.as_deref() != Some(&name)
+                        {
                             return Err(code(StatusCode::CONFLICT, "plan_mismatch"));
                         }
                         let confirmed = plan
@@ -1433,14 +1448,25 @@ async fn confirm(
                         let stage = session
                             .begin_write(admitted)
                             .map_err(|_| plan_invalidated("session_ended"))?;
-                        let report = publish_save_as_copy_plan(
-                            &workcopies,
-                            writer,
-                            &journal,
-                            confirmed,
-                            &stage,
-                        )
-                        .await;
+                        let report = if clone {
+                            zdashstitch_application::publish_clone_dashboard_plan(
+                                &workcopies,
+                                &guard,
+                                &journal,
+                                confirmed,
+                                &stage,
+                            )
+                            .await
+                        } else {
+                            publish_save_as_copy_plan(
+                                &workcopies,
+                                writer,
+                                &journal,
+                                confirmed,
+                                &stage,
+                            )
+                            .await
+                        };
                         drop(stage);
                         let entry = journal.entry(&report.plan_id).ok();
                         Ok(OutcomeBody::create(&report, name, entry.as_ref()))

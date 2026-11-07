@@ -31,6 +31,11 @@ const TOKEN: &str = "p204f-token-secret-value";
 struct Mock {
     dashboard: Value,
     methods: Vec<String>,
+    clone_created: Option<Value>,
+    accept_clone: bool,
+    extra_clone_hosts: bool,
+    item_override: Option<Vec<Value>>,
+    item_prototypes: Vec<Value>,
     /// `dashboard.create` answers `already exists` for this name.
     taken_name: Option<String>,
 }
@@ -146,7 +151,10 @@ async fn rpc(
         .get(header::AUTHORIZATION)
         .and_then(|value| value.to_str().ok())
         == Some(format!("Bearer {TOKEN}").as_str());
-    let hosts = [("10", "syn-pg-a"), ("20", "syn-pg-b")];
+    let mut hosts = vec![("10", "syn-pg-a"), ("20", "syn-pg-b")];
+    if mock.extra_clone_hosts {
+        hosts.extend([("30", "syn-pg-c"), ("40", "syn-pg-d"), ("50", "syn-pg-e")]);
+    }
     let error = |data: String| {
         Json(json!({"jsonrpc": "2.0", "id": id, "error": {
             "code": -32602, "message": "Invalid params.", "data": data
@@ -156,17 +164,33 @@ async fn rpc(
     let result = match method.as_str() {
         "apiinfo.version" => json!("7.4.16"),
         "user.checkAuthentication" if params["token"] == TOKEN => {
-            json!({"userid": "3", "username": "synthetic"})
+            json!({"userid": "3", "username": "synthetic", "roleid": "7", "type": 2})
         }
         _ if !authorized => return error("Not authorized.".to_owned()),
+        "role.get" => {
+            assert_eq!(params["roleids"], json!(["7"]));
+            json!([{"roleid":"7","type":"2","rules":{
+                "api.access":"1","api.mode":"0","api":[],
+                "actions":[{"name":"edit_dashboards","status":"1"}]
+            }}])
+        }
         "dashboard.get" => {
             let names = ids(&params["filter"], "name");
-            let current = mock.dashboard.clone();
-            if names.is_empty() || names.iter().any(|name| current["name"] == name.as_str()) {
-                json!([current])
-            } else {
-                json!([])
-            }
+            let selected = ids(params, "dashboardids");
+            Value::Array(
+                std::iter::once(&mock.dashboard)
+                    .chain(&mock.clone_created)
+                    .filter(|dashboard| {
+                        (names.is_empty()
+                            || names.iter().any(|name| dashboard["name"] == name.as_str()))
+                            && (selected.is_empty()
+                                || selected
+                                    .iter()
+                                    .any(|id| dashboard["dashboardid"] == id.as_str()))
+                    })
+                    .cloned()
+                    .collect(),
+            )
         }
         "dashboard.update" => {
             let mut current = mock.dashboard.clone();
@@ -179,7 +203,26 @@ async fn rpc(
             if mock.taken_name.as_deref() == Some(name.as_str()) {
                 return error(format!("Dashboard \"{name}\" already exists."));
             }
-            return error("Unexpected create.".to_owned());
+            if mock.accept_clone {
+                assert!(mock.clone_created.is_none(), "a second create was sent");
+                let mut created = params.clone();
+                created["dashboardid"] = json!("602");
+                created["userid"] = json!("3");
+                created["private"] = json!("1");
+                let mut next = 6100;
+                for page in created["pages"].as_array_mut().into_iter().flatten() {
+                    next += 1;
+                    page["dashboard_pageid"] = json!(next.to_string());
+                    for widget in page["widgets"].as_array_mut().into_iter().flatten() {
+                        next += 1;
+                        widget["widgetid"] = json!(next.to_string());
+                    }
+                }
+                mock.clone_created = Some(created);
+                json!({"dashboardids": ["602"]})
+            } else {
+                return error("Unexpected create.".to_owned());
+            }
         }
         "host.get" if params.get("selectParentTemplates").is_some() => Value::Array(
             hosts
@@ -219,13 +262,31 @@ async fn rpc(
         "item.get" => {
             let itemids = ids(params, "itemids");
             let hostids = ids(params, "hostids");
+            let mut items = mock.item_override.clone().unwrap_or_else(items);
+            if mock.extra_clone_hosts {
+                items.extend([
+                    item("50001", "30", "pgsql.ping", "Ping"),
+                    item("60001", "40", "pgsql.ping", "Ping"),
+                    item("70001", "50", "pgsql.ping", "Ping"),
+                ]);
+            }
             Value::Array(
-                items()
+                items
                     .into_iter()
                     .filter(|item| {
                         itemids.iter().any(|id| item["itemid"] == id.as_str())
                             || hostids.iter().any(|id| item["hostid"] == id.as_str())
                     })
+                    .collect(),
+            )
+        }
+        "itemprototype.get" => {
+            let wanted = ids(params, "itemids");
+            Value::Array(
+                mock.item_prototypes
+                    .iter()
+                    .filter(|item| wanted.iter().any(|id| item["itemid"] == id.as_str()))
+                    .cloned()
                     .collect(),
             )
         }
@@ -263,12 +324,17 @@ struct App {
     address: String,
     mock: Shared,
     plans: Arc<PlanRegistry>,
+    connections: ConnectionsHandle,
     storage: tempfile::TempDir,
     _config: tempfile::TempDir,
 }
 
 impl App {
     async fn start() -> Self {
+        Self::start_with_ui("missing-ui").await.0
+    }
+
+    async fn start_with_ui(ui: impl AsRef<std::path::Path>) -> (Self, LocalSecurity) {
         let (address, mock) = zabbix().await;
         let config = tempfile::tempdir().unwrap_or_else(|error| panic!("temp dir: {error}"));
         let storage = tempfile::tempdir().unwrap_or_else(|error| panic!("temp dir: {error}"));
@@ -283,8 +349,8 @@ impl App {
         let drafts = DraftsHandle::at(storage.path().to_path_buf());
         let api = connections::routes(handle.clone())
             .merge(routes(handle.clone(), drafts.clone()))
-            .merge(publication_routes(handle, drafts, plans.clone()));
-        let router = build_router_with_api("missing-ui", initial.security, api);
+            .merge(publication_routes(handle.clone(), drafts, plans.clone()));
+        let router = build_router_with_api(ui, initial.security.clone(), api);
         let mut app = Self {
             router,
             cookie: String::new(),
@@ -292,6 +358,7 @@ impl App {
             address,
             mock,
             plans,
+            connections: handle,
             storage,
             _config: config,
         };
@@ -319,7 +386,7 @@ impl App {
             .as_str()
             .unwrap_or_else(|| panic!("CSRF token"))
             .to_owned();
-        app
+        (app, initial.security)
     }
 
     fn request(&self, method: &str, uri: &str, body: Option<&str>) -> Request<Body> {
@@ -487,6 +554,18 @@ async fn publication_routes_stay_behind_the_api_boundary() {
         let mut no_csrf = app.request("POST", &format!("{draft}/{action}"), Some("{}"));
         no_csrf.headers_mut().remove(CSRF_HEADER);
         assert_eq!(app.send(no_csrf).await.0, StatusCode::FORBIDDEN, "{action}");
+    }
+    let clone = "/api/drafts/wc-00000000000000000000000000000000/clone";
+    let mut no_cookie = app.request("GET", clone, None);
+    no_cookie.headers_mut().remove(header::COOKIE);
+    assert_eq!(app.send(no_cookie).await.0, StatusCode::UNAUTHORIZED);
+    for uri in [
+        clone.to_owned(),
+        format!("{clone}/wc-00000000000000000000000000000001/plan"),
+    ] {
+        let mut no_csrf = app.request("POST", &uri, Some("{}"));
+        no_csrf.headers_mut().remove(CSRF_HEADER);
+        assert_eq!(app.send(no_csrf).await.0, StatusCode::FORBIDDEN);
     }
     let journal = "/api/publication/journal/zds-0123-0123-00000001-0123456789abcdef";
     for action in ["reconcile", "close", "quarantine"] {
@@ -852,6 +931,144 @@ fn lab_env(name: &str) -> String {
     std::env::var(name).unwrap_or_else(|_| panic!("{name} is required for the lab run"))
 }
 
+/// Starts an isolated browser instance for the authorized, synthetic lab.
+/// A temporary handoff carries a one-use local bootstrap, never lab secrets.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+#[ignore = "requires laboratory credentials, a built UI and a local browser"]
+async fn lab_clone_gui_smoke_fixture() {
+    assert_eq!(lab_env("ZDASHSTITCH_LAB_PUBLISH_ACK"), "1");
+    let marker = std::path::PathBuf::from(lab_env("ZDASHSTITCH_LAB_CLONE_HANDOFF"));
+    let (app, security) = App::start_with_ui(lab_env("ZDASHSTITCH_LAB_CLONE_UI")).await;
+    let (status, profile) = app
+        .call(
+            "POST",
+            "/api/connections",
+            Some(json!({
+                "name": "Clone acceptance", "address": lab_env("ZDASHSTITCH_LAB_API_URL"),
+                "auth": {"method": "password", "username": lab_env("ZDASHSTITCH_LAB_USERNAME")},
+                "trust": {"kind": "system"}
+            })),
+        )
+        .await;
+    assert_eq!(status, StatusCode::CREATED);
+    let connection = profile["local_id"].as_str().unwrap_or_default();
+    let (status, _) = app
+        .call(
+            "POST",
+            &format!("/api/connections/{connection}/connect"),
+            Some(json!({"secret": lab_env("ZDASHSTITCH_LAB_PASSWORD")})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK);
+    let source_dashboard = lab_env("ZDASHSTITCH_LAB_SOURCE_DASHBOARD");
+    let original = async || {
+        let connections = app
+            .connections
+            .service()
+            .unwrap_or_else(|| panic!("connection service"));
+        let guard = connections.lock().await;
+        let reader = guard.reader().unwrap_or_else(|| panic!("lab reader"));
+        reader
+            .dashboard_snapshot(connection, &source_dashboard)
+            .await
+            .unwrap_or_else(|_| panic!("lab source read"))
+            .unwrap_or_else(|| panic!("lab source unavailable"))
+    };
+    let before = original().await;
+    assert_eq!(before.server_version().to_string(), "7.4.16");
+    assert!(
+        before.raw_api_document()["name"]
+            .as_str()
+            .is_some_and(|name| name.starts_with("ZDashstitch Contract Lab")),
+        "expected the synthetic contract fixture"
+    );
+    let source = lab_import(&app, connection, &source_dashboard).await;
+    let (status, setup) = app
+        .call("GET", &format!("/api/drafts/{source}/clone"), None)
+        .await;
+    assert_eq!(status, StatusCode::OK, "clone source setup");
+    let sources = setup["hosts"]
+        .as_array()
+        .unwrap_or_else(|| panic!("source hosts"));
+    let first = sources
+        .first()
+        .and_then(|host| host["hostid"].as_str())
+        .unwrap_or_else(|| panic!("source host"));
+    let (status, targets) = app
+        .call(
+            "GET",
+            &format!("/api/drafts/{source}/replace-host/hosts?source_hostid={first}"),
+            None,
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK, "clone target setup");
+    let targets = targets["hosts"]
+        .as_array()
+        .unwrap_or_else(|| panic!("target hosts"));
+    let target = targets
+        .iter()
+        .filter(|host| host["hostid"] != first)
+        .max_by_key(|host| host["source_templates_found"].as_u64().unwrap_or(0))
+        .and_then(|host| host["hostid"].as_str())
+        .unwrap_or_else(|| panic!("target host"));
+    app.enable_writes(connection).await;
+    let listener = tokio::net::TcpListener::bind(("127.0.0.1", PORT))
+        .await
+        .unwrap_or_else(|error| panic!("browser listener: {error}"));
+    let bootstrap = security
+        .issue_bootstrap(std::time::Duration::from_secs(2))
+        .await
+        .unwrap_or_else(|error| panic!("bootstrap: {error:?}"));
+    std::fs::write(
+        &marker,
+        json!({
+            "bootstrap": security.bootstrap_url(&bootstrap),
+            "draft": format!("http://127.0.0.1:{PORT}/draft/{source}/bindings"),
+            "source": first, "target": target, "source_count": sources.len()
+        })
+        .to_string(),
+    )
+    .unwrap_or_else(|error| panic!("handoff: {error}"));
+    let server = tokio::spawn(axum::serve(listener, app.router.clone()).into_future());
+    let deadline = tokio::time::Instant::now() + std::time::Duration::from_secs(240);
+    loop {
+        let stored = zdashstitch_application::PublishJournal::new(app.storage.path().to_path_buf())
+            .list()
+            .unwrap_or_else(|error| panic!("journal: {error}"));
+        if let Some(entry) = stored.entries.iter().find(|entry| {
+            entry.intent == "clone_dashboard"
+                && matches!(
+                    entry.state,
+                    zdashstitch_application::JournalState::Verified
+                        | zdashstitch_application::JournalState::ReconciledVerified
+                )
+        }) {
+            assert_eq!(entry.sends, 1);
+            assert_eq!(original().await.fingerprint(), before.fingerprint());
+            println!("clone_gui_lab: verified, one create, original fingerprint unchanged");
+            // Allow the browser to render and reload the persisted result.
+            tokio::time::sleep(std::time::Duration::from_secs(15)).await;
+            break;
+        }
+        assert!(
+            tokio::time::Instant::now() < deadline,
+            "browser did not verify Clone"
+        );
+        tokio::time::sleep(std::time::Duration::from_millis(700)).await;
+    }
+    server.abort();
+    let service = app
+        .connections
+        .service()
+        .unwrap_or_else(|| panic!("connection service"));
+    service
+        .lock()
+        .await
+        .disconnect()
+        .await
+        .unwrap_or_else(|_| panic!("lab disconnect"));
+}
+
 /// Keeps every unresolved reference on the source host and confirms the
 /// kept list; returns the preview after that.
 async fn keep_unresolved(app: &App, local_id: &str, mut preview: Value) -> Value {
@@ -901,6 +1118,513 @@ async fn lab_import(app: &App, connection: &str, dashboardid: &str) -> String {
         .await;
     assert_eq!(status, StatusCode::CREATED, "{imported}");
     imported["local_id"].as_str().unwrap_or_default().to_owned()
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn clone_routes_save_reopen_and_require_confirmation() {
+    let app = App::start().await;
+    lock(&app.mock).accept_clone = true;
+    lock(&app.mock).dashboard["pages"][0]["widgets"]
+        .as_array_mut()
+        .unwrap_or_else(|| panic!("widgets"))
+        .push(json!({
+            "widgetid":"60102", "type":"item", "name":"Shared",
+            "x":"48", "y":"0", "width":"12", "height":"3", "view_mode":"0",
+            "fields":[{"type":"4","name":"itemid.0","value":"40001"}]
+        }));
+    let connection = app.connect().await;
+    let source = lab_import(&app, &connection, "601").await;
+    let base = format!("/api/drafts/{source}/clone");
+    let (status, setup) = app.call("GET", &base, None).await;
+    assert_eq!(status, StatusCode::OK, "{setup}");
+    let (status, saved) = app
+        .call(
+            "POST",
+            &base,
+            Some(json!({
+                    "revision":setup["revision"], "source_fingerprint":setup["source_fingerprint"],
+            "name":"Synthetic clone", "hosts":{"10":"20","20":null}, "keep_patterns":true
+                })),
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK, "{saved}");
+    assert!(saved["blocked"].is_null(), "{saved}");
+    let id = saved["clone_id"].as_str().unwrap_or_default();
+    let branch = format!("{base}/{id}");
+    let (status, reopened) = app.call("GET", &branch, None).await;
+    assert_eq!(status, StatusCode::OK, "{reopened}");
+    assert_eq!(reopened, saved);
+    assert_eq!(saved["pages"], 2);
+    let comparison_uri = format!("{branch}/comparison");
+    let (status, comparison) = app.call("GET", &comparison_uri, None).await;
+    assert_eq!(status, StatusCode::OK, "{comparison}");
+    assert_eq!(comparison["observation"], "pending");
+    assert!(comparison["operation_id"].is_null());
+    assert!(comparison["access"][2].is_null());
+    let rows = comparison["rows"]
+        .as_array()
+        .unwrap_or_else(|| panic!("comparison rows"));
+    assert!(rows.iter().all(|row| row["observed"].is_null()));
+    assert!(rows.iter().any(|row| row["field"] == "itemid.0"
+        && row["change"] == "changed"
+        && row["source"]["label"] == "30001"
+        && row["expected"]["label"] == "40001"));
+    assert!(
+        rows.iter()
+            .any(|row| row["field"] == "hostids.0" && row["kept"] == true)
+    );
+    let plan_uri = format!("{branch}/plan");
+    let (status, denied) = app
+        .call(
+            "POST",
+            &plan_uri,
+            Some(json!({
+                "kept_digest":saved["kept_digest"]
+            })),
+        )
+        .await;
+    assert_eq!(status, StatusCode::CONFLICT, "{denied}");
+    app.enable_writes(&connection).await;
+    let (status, plan) = app
+        .call(
+            "POST",
+            &plan_uri,
+            Some(json!({
+                "kept_digest":saved["kept_digest"]
+            })),
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK, "{plan}");
+    assert!(plan.get("payload").is_none());
+    let (status, refusal) = app
+        .call(
+            "POST",
+            &format!("/api/drafts/{source}/publication/confirm"),
+            Some(json!({
+                "handle":plan["handle"], "plan_id":plan["plan_id"], "name":plan["name"],
+                "kept_digest":saved["kept_digest"], "confirmed":false
+            })),
+        )
+        .await;
+    assert_eq!(status, StatusCode::BAD_REQUEST, "{refusal}");
+    assert!(
+        !app.methods()
+            .iter()
+            .any(|method| method == "dashboard.create" || method == "dashboard.update")
+    );
+    let confirm_uri = format!("/api/drafts/{source}/publication/confirm");
+    let confirmation = json!({
+        "handle":plan["handle"], "plan_id":plan["plan_id"], "name":plan["name"],
+        "kept_digest":saved["kept_digest"], "confirmed":true
+    });
+    let (status, outcome) = app
+        .call("POST", &confirm_uri, Some(confirmation.clone()))
+        .await;
+    assert_eq!(status, StatusCode::OK, "{outcome}");
+    assert_eq!(outcome["state"], "verified", "{outcome}");
+    let (status, _) = app.call("POST", &confirm_uri, Some(confirmation)).await;
+    assert_eq!(status, StatusCode::NOT_FOUND);
+    let (status, reopened) = app.call("GET", &branch, None).await;
+    assert_eq!(status, StatusCode::OK, "{reopened}");
+    assert_eq!(reopened["last_outcome"]["state"], "verified");
+    assert_eq!(reopened["last_outcome"]["created_dashboardid"], "602");
+    let (status, comparison) = app.call("GET", &comparison_uri, None).await;
+    assert_eq!(status, StatusCode::OK, "{comparison}");
+    assert_eq!(comparison["observation"], "verified_read_back");
+    assert_eq!(comparison["operation_id"], outcome["operation_id"]);
+    assert_eq!(comparison["access"][2]["owner_matches"], true);
+    assert!(
+        comparison["rows"]
+            .as_array()
+            .unwrap_or_else(|| panic!("comparison rows"))
+            .iter()
+            .all(|row| row["observed_differs"] == false)
+    );
+    // Later edits are visible without rewriting the historical verdict.
+    {
+        let mut mock = lock(&app.mock);
+        let created = mock
+            .clone_created
+            .as_mut()
+            .unwrap_or_else(|| panic!("created clone"));
+        created["pages"][0]["widgets"][0]["fields"][0]["value"] = json!("40002");
+    }
+    let (status, comparison) = app.call("GET", &comparison_uri, None).await;
+    assert_eq!(status, StatusCode::OK, "{comparison}");
+    assert_eq!(comparison["observation"], "changed_since_read_back");
+    assert_eq!(comparison["verdict"], "content_differs");
+    assert!(
+        comparison["rows"]
+            .as_array()
+            .unwrap_or_else(|| panic!("comparison rows"))
+            .iter()
+            .any(|row| row["field"] == "itemid.0"
+                && row["unresolved"] == true
+                && row["observed"]["label"] == "40002")
+    );
+    let (status, reopened) = app.call("GET", &branch, None).await;
+    assert_eq!(status, StatusCode::OK, "{reopened}");
+    assert_eq!(reopened["last_outcome"]["state"], "verified");
+    let (status, _) = app
+        .call(
+            "POST",
+            &format!("/api/connections/{connection}/disconnect"),
+            Some(json!({})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK);
+    let (status, comparison) = app.call("GET", &comparison_uri, None).await;
+    assert_eq!(status, StatusCode::OK, "{comparison}");
+    assert_eq!(comparison["observation"], "unavailable");
+    assert_eq!(comparison["operation_id"], outcome["operation_id"]);
+    assert!(comparison["access"][2].is_null());
+    assert_eq!(
+        app.methods()
+            .iter()
+            .filter(|method| *method == "dashboard.create")
+            .count(),
+        1
+    );
+    assert!(
+        !app.methods()
+            .iter()
+            .any(|method| method == "dashboard.update")
+    );
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn clone_growth_reviews_and_publishes_only_the_selected_extra_series() {
+    let app = App::start().await;
+    let original = {
+        let mut mock = lock(&app.mock);
+        mock.accept_clone = true;
+        mock.extra_clone_hosts = true;
+        mock.dashboard["pages"][0]["widgets"][1]["fields"] = json!([
+            {"type": "0", "name": "ds.0.dataset_type", "value": "0"},
+            {"type": "4", "name": "ds.0.itemids.0", "value": "30001"},
+            {"type": "4", "name": "ds.0.itemids.1", "value": "40001"},
+            {"type": "1", "name": "ds.0.color.0", "value": "FF0000"},
+            {"type": "1", "name": "ds.0.color.1", "value": "00FF00"}
+        ]);
+        mock.dashboard.clone()
+    };
+    let connection = app.connect().await;
+    let source = lab_import(&app, &connection, "601").await;
+    let base = format!("/api/drafts/{source}/clone");
+    let preview_uri = format!("{base}/preview-growth");
+    let (status, setup) = app.call("GET", &base, None).await;
+    assert_eq!(status, StatusCode::OK, "{setup}");
+    let samples = setup["growth_samples"]
+        .as_array()
+        .unwrap_or_else(|| panic!("{setup}"));
+    assert_eq!(samples.len(), 2);
+    let mut request = json!({
+        "revision": setup["revision"], "source_fingerprint": setup["source_fingerprint"],
+        "name": "Synthetic clone with growth", "hosts": {"10":"30","20":"40"},
+        "keep_patterns": false,
+        "growth": {"sample": samples[0]["field"], "target_hostid":"50"}
+    });
+    let (status, blocked) = app.call("POST", &preview_uri, Some(request.clone())).await;
+    assert_eq!(status, StatusCode::CONFLICT, "{blocked}");
+    assert_eq!(blocked["code"], "clone_growth_single_host_widget");
+
+    request["growth"]["sample"] = samples[1]["field"].clone();
+    let (status, preview) = app.call("POST", &preview_uri, Some(request.clone())).await;
+    assert_eq!(status, StatusCode::OK, "{preview}");
+    assert_eq!(preview["before"].as_array().map(Vec::len), Some(2));
+    assert_eq!(preview["after"].as_array().map(Vec::len), Some(3));
+    assert_eq!(preview["after"][2]["host"], "syn-pg-e");
+    assert_eq!(preview["after"][2]["key"], "pgsql.ping");
+
+    let (status, blocked) = app.call("POST", &base, Some(request.clone())).await;
+    assert_eq!(status, StatusCode::CONFLICT, "{blocked}");
+    assert_eq!(blocked["code"], "clone_growth_preview_required");
+    request["growth_fingerprint"] = preview["fingerprint"].clone();
+    request["name"] = json!("Changed since preview");
+    let (status, blocked) = app.call("POST", &base, Some(request.clone())).await;
+    assert_eq!(status, StatusCode::CONFLICT, "{blocked}");
+    assert_eq!(blocked["code"], "clone_growth_preview_required");
+    request["name"] = json!("Synthetic clone with growth");
+    let (status, saved) = app.call("POST", &base, Some(request)).await;
+    assert_eq!(status, StatusCode::OK, "{saved}");
+    assert!(saved["blocked"].is_null(), "{saved}");
+    let id = saved["clone_id"].as_str().unwrap_or_default();
+    let branch = format!("{base}/{id}");
+    let (status, reopened) = app.call("GET", &branch, None).await;
+    assert_eq!(status, StatusCode::OK, "{reopened}");
+    assert_eq!(reopened, saved);
+    let (status, comparison) = app.call("GET", &format!("{branch}/comparison"), None).await;
+    assert_eq!(status, StatusCode::OK, "{comparison}");
+    assert!(
+        comparison["rows"]
+            .as_array()
+            .unwrap_or_else(|| panic!("comparison rows"))
+            .iter()
+            .any(|row| row["field"] == "ds.0.itemids.2"
+                && row["change"] == "added"
+                && row["source"].is_null()
+                && row["expected"]["label"] == "70001")
+    );
+    assert!(
+        !app.methods()
+            .iter()
+            .any(|method| matches!(method.as_str(), "dashboard.create" | "dashboard.update"))
+    );
+
+    app.enable_writes(&connection).await;
+    let (status, plan) = app
+        .call(
+            "POST",
+            &format!("{branch}/plan"),
+            Some(json!({"kept_digest": saved["kept_digest"]})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK, "{plan}");
+    let (status, outcome) = app
+        .call(
+            "POST",
+            &format!("/api/drafts/{source}/publication/confirm"),
+            Some(json!({
+                "handle": plan["handle"], "plan_id": plan["plan_id"], "name": plan["name"],
+                "kept_digest": saved["kept_digest"], "confirmed": true
+            })),
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK, "{outcome}");
+    assert_eq!(outcome["state"], "verified", "{outcome}");
+    let mock = lock(&app.mock);
+    assert_eq!(mock.dashboard, original);
+    assert_eq!(
+        mock.methods
+            .iter()
+            .filter(|method| *method == "dashboard.create")
+            .count(),
+        1
+    );
+    let created = mock
+        .clone_created
+        .as_ref()
+        .unwrap_or_else(|| panic!("clone missing"));
+    let graph = &created["pages"][0]["widgets"][1]["fields"];
+    let field = |name: &str| {
+        graph
+            .as_array()
+            .into_iter()
+            .flatten()
+            .find(|field| field["name"] == name)
+            .map(|field| &field["value"])
+    };
+    assert_eq!(field("ds.0.itemids.0"), Some(&json!("50001")));
+    assert_eq!(field("ds.0.itemids.1"), Some(&json!("60001")));
+    assert_eq!(field("ds.0.itemids.2"), Some(&json!("70001")));
+    let color = field("ds.0.color.2").unwrap_or_else(|| panic!("third color missing"));
+    assert_ne!(Some(color), field("ds.0.color.0"));
+    assert_ne!(Some(color), field("ds.0.color.1"));
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn clone_requires_fresh_explicit_lld_and_pattern_choices() {
+    const PROTOTYPE: &str = "pgsql.db.size[{#DBNAME}]";
+    let lld_item = |id, host, parent, key, name| {
+        let mut metric = item(id, host, key, name);
+        metric["flags"] = json!("4");
+        metric["units"] = json!("B");
+        metric["itemDiscovery"] = json!({"parent_itemid":parent, "key_":PROTOTYPE});
+        metric
+    };
+    let prototype = |id, host| {
+        json!({
+            "itemid":id, "hostid":host, "templateid":"8001", "name":"Database size",
+            "key_":PROTOTYPE, "value_type":"3", "units":"B", "discoveryRule":[]
+        })
+    };
+    let app = App::start().await;
+    let original = {
+        let mut mock = lock(&app.mock);
+        mock.accept_clone = true;
+        mock.dashboard["pages"][0]["widgets"][1]["fields"][0]["value"] = json!("syn-pg-a*");
+        mock.dashboard["pages"][0]["widgets"][1]["fields"][1]["value"] = json!("Load on source*");
+        mock.item_override = Some(vec![
+            lld_item(
+                "30001",
+                "10",
+                "31001",
+                "pgsql.db.size[prod]",
+                "Prod database",
+            ),
+            lld_item(
+                "41001",
+                "20",
+                "42001",
+                "pgsql.db.size[other]",
+                "Other database",
+            ),
+            lld_item(
+                "41002",
+                "20",
+                "42001",
+                "pgsql.db.size[pilot]",
+                "Pilot database",
+            ),
+            item("40002", "20", "system.cpu.load", "CPU load"),
+        ]);
+        mock.item_prototypes = vec![prototype("31001", "10"), prototype("42001", "20")];
+        mock.dashboard.clone()
+    };
+    let connection = app.connect().await;
+    let source = lab_import(&app, &connection, "601").await;
+    let base = format!("/api/drafts/{source}/clone");
+    let review_uri = format!("{base}/review-bindings");
+    let pattern_uri = format!("{base}/preview-pattern");
+    let (status, setup) = app.call("GET", &base, None).await;
+    assert_eq!(status, StatusCode::OK, "{setup}");
+    let mut request = json!({
+        "revision":setup["revision"], "source_fingerprint":setup["source_fingerprint"],
+        "name":"Synthetic decisions clone", "hosts":{"10":"20"}
+    });
+    let (status, review) = app.call("POST", &review_uri, Some(request.clone())).await;
+    assert_eq!(status, StatusCode::OK, "{review}");
+    let row = &review["lld_rows"][0];
+    assert_eq!(row["prototype_key"], PROTOTYPE);
+    assert_eq!(row["candidates"].as_array().map(Vec::len), Some(2));
+    assert_eq!(row["candidates"][1]["key"], "pgsql.db.size[pilot]");
+    let (status, blocked) = app.call("POST", &base, Some(request.clone())).await;
+    assert_eq!(status, StatusCode::CONFLICT, "{blocked}");
+    assert_eq!(blocked["code"], "clone_lld_selection_required");
+    request["lld_choices"] = json!([{
+        "field":row["field"], "slot_id":row["slot_id"], "fingerprint":row["fingerprint"], "itemid":"40002"
+    }]);
+    let (status, blocked) = app.call("POST", &base, Some(request.clone())).await;
+    assert_eq!(status, StatusCode::CONFLICT, "{blocked}");
+    assert_eq!(blocked["code"], "clone_lld_candidate_not_visible");
+    request["lld_choices"][0]["itemid"] = json!("41002");
+    let update_item = |index: usize, name: &str| {
+        let mut mock = lock(&app.mock);
+        let items = mock
+            .item_override
+            .as_mut()
+            .unwrap_or_else(|| panic!("test catalogue"));
+        items[index]["name"] = json!(name);
+    };
+    update_item(2, "Renamed pilot");
+    let (status, blocked) = app.call("POST", &base, Some(request.clone())).await;
+    assert_eq!(status, StatusCode::CONFLICT, "{blocked}");
+    assert_eq!(blocked["code"], "clone_lld_selection_stale");
+    let (status, review) = app.call("POST", &review_uri, Some(request.clone())).await;
+    assert_eq!(status, StatusCode::OK, "{review}");
+    request["lld_choices"][0]["fingerprint"] = review["lld_rows"][0]["fingerprint"].clone();
+    let (status, blocked) = app.call("POST", &base, Some(request.clone())).await;
+    assert_eq!(status, StatusCode::CONFLICT, "{blocked}");
+    assert_eq!(blocked["code"], "clone_pattern_decision_required");
+
+    let rows = setup["patterns"]
+        .as_array()
+        .unwrap_or_else(|| panic!("{setup}"));
+    assert_eq!(rows.len(), 2);
+    let mut decisions = Vec::new();
+    for (row, (pattern, expected)) in rows
+        .iter()
+        .zip([("SYN-PG-*", "syn-pg-b"), ("cPu*", "CPU load")])
+    {
+        let (status, preview) = app
+            .call(
+                "POST",
+                &pattern_uri,
+                Some(json!({
+                    "setup":request, "field":row["field"], "target_pattern":pattern
+                })),
+            )
+            .await;
+        assert_eq!(status, StatusCode::OK, "{preview}");
+        assert_eq!(preview["match_count"], 1, "{preview}");
+        assert_eq!(preview["matches"][0]["host"], "syn-pg-b");
+        assert_eq!(preview["matches"][0]["name"], expected);
+        decisions.push(json!({
+            "field":row["field"], "decision":{"action":"replace","target_pattern":pattern,
+                "fingerprint":preview["fingerprint"]}
+        }));
+    }
+    request["pattern_choices"] = json!(decisions);
+    update_item(3, "Memory load");
+    let (status, blocked) = app.call("POST", &base, Some(request.clone())).await;
+    assert_eq!(status, StatusCode::CONFLICT, "{blocked}");
+    assert_eq!(blocked["code"], "clone_pattern_preview_stale");
+    let (status, preview) = app
+        .call(
+            "POST",
+            &pattern_uri,
+            Some(json!({
+                "setup":request, "field":rows[1]["field"], "target_pattern":"cPu*"
+            })),
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK, "{preview}");
+    assert_eq!(preview["match_count"], 0);
+    update_item(3, "CPU load");
+    let (status, saved) = app.call("POST", &base, Some(request)).await;
+    assert_eq!(status, StatusCode::OK, "{saved}");
+    let clone_id = saved["clone_id"].as_str().unwrap_or_default();
+    let branch = format!("{base}/{clone_id}");
+    let (status, reopened) = app.call("GET", &branch, None).await;
+    assert_eq!(status, StatusCode::OK, "{reopened}");
+    assert_eq!(reopened, saved);
+    assert!(
+        !app.methods()
+            .iter()
+            .any(|method| matches!(method.as_str(), "dashboard.create" | "dashboard.update"))
+    );
+
+    app.enable_writes(&connection).await;
+    let (status, plan) = app
+        .call(
+            "POST",
+            &format!("{branch}/plan"),
+            Some(json!({
+                "kept_digest":saved["kept_digest"]
+            })),
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK, "{plan}");
+    let (status, outcome) = app
+        .call(
+            "POST",
+            &format!("/api/drafts/{source}/publication/confirm"),
+            Some(json!({
+                "handle":plan["handle"], "plan_id":plan["plan_id"], "name":plan["name"],
+                "kept_digest":saved["kept_digest"], "confirmed":true
+            })),
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK, "{outcome}");
+    assert_eq!(outcome["state"], "verified", "{outcome}");
+    let mock = lock(&app.mock);
+    assert_eq!(mock.dashboard, original);
+    assert_eq!(
+        mock.methods
+            .iter()
+            .filter(|method| *method == "dashboard.create")
+            .count(),
+        1
+    );
+    let created = mock
+        .clone_created
+        .as_ref()
+        .unwrap_or_else(|| panic!("clone missing"));
+    let widgets = &created["pages"][0]["widgets"];
+    assert_eq!(widgets[0]["fields"][0]["value"], "41002");
+    let fields = widgets[1]["fields"]
+        .as_array()
+        .unwrap_or_else(|| panic!("graph fields"));
+    assert!(
+        fields
+            .iter()
+            .any(|field| field["name"] == "ds.0.hosts.0" && field["value"] == "SYN-PG-*")
+    );
+    assert!(
+        fields
+            .iter()
+            .any(|field| field["name"] == "ds.0.items.0" && field["value"] == "cPu*")
+    );
 }
 
 async fn lab_calculate(app: &App, local_id: &str, from: &str, to: &str) -> Value {

@@ -284,6 +284,111 @@ impl MessageId {
     pub const CHECKS_SUMMARY_PUBLICATION_BLOCKED: Self = Self("checks.summary.publication_blocked");
     pub const CHECKS_SUMMARY_PUBLICATION_READY: Self = Self("checks.summary.publication_ready");
     pub const CHECKS_SUMMARY_SAVE_ALWAYS: Self = Self("checks.summary.save_always");
+    pub const CLONE_BLOCKED: Self = Self("clone.blocked");
+    pub const CLONE_CANCEL: Self = Self("clone.cancel");
+    pub const CLONE_CHOOSE: Self = Self("clone.choose");
+    pub const CLONE_COMPARE_ABSENT: Self = Self("clone.compare.absent");
+    pub const CLONE_COMPARE_ACCESS: Self = Self("clone.compare.access");
+    pub const CLONE_COMPARE_ADDED: Self = Self("clone.compare.added");
+    pub const CLONE_COMPARE_ALL: Self = Self("clone.compare.all");
+    pub const CLONE_COMPARE_CHANGED: Self = Self("clone.compare.changed");
+    pub const CLONE_COMPARE_COUNT: Self = Self("clone.compare.count");
+    pub const CLONE_COMPARE_DASHBOARD: Self = Self("clone.compare.dashboard");
+    pub const CLONE_COMPARE_DIFFERENT: Self = Self("clone.compare.different");
+    pub const CLONE_COMPARE_DRIFT: Self = Self("clone.compare.drift");
+    pub const CLONE_COMPARE_EXPECTED: Self = Self("clone.compare.expected");
+    pub const CLONE_COMPARE_FAILED: Self = Self("clone.compare.failed");
+    pub const CLONE_COMPARE_FIELD: Self = Self("clone.compare.field");
+    pub const CLONE_COMPARE_FILTER: Self = Self("clone.compare.filter");
+    pub const CLONE_COMPARE_GEOMETRY: Self = Self("clone.compare.geometry");
+    pub const CLONE_COMPARE_KEPT: Self = Self("clone.compare.kept");
+    pub const CLONE_COMPARE_MAPPING: Self = Self("clone.compare.mapping");
+    pub const CLONE_COMPARE_NO_OBSERVATION: Self = Self("clone.compare.no_observation");
+    pub const CLONE_COMPARE_OBSERVED: Self = Self("clone.compare.observed");
+    pub const CLONE_COMPARE_OWNER: Self = Self("clone.compare.owner");
+    pub const CLONE_COMPARE_OWNER_DIFFERS: Self = Self("clone.compare.owner_differs");
+    pub const CLONE_COMPARE_PAGE: Self = Self("clone.compare.page");
+    pub const CLONE_COMPARE_PAGE_GROUP: Self = Self("clone.compare.page_group");
+    pub const CLONE_COMPARE_PENDING: Self = Self("clone.compare.pending");
+    pub const CLONE_COMPARE_PRIVATE: Self = Self("clone.compare.private");
+    pub const CLONE_COMPARE_PUBLIC: Self = Self("clone.compare.public");
+    pub const CLONE_COMPARE_REFRESH: Self = Self("clone.compare.refresh");
+    pub const CLONE_COMPARE_SHARED: Self = Self("clone.compare.shared");
+    pub const CLONE_COMPARE_SOURCE: Self = Self("clone.compare.source");
+    pub const CLONE_COMPARE_TITLE: Self = Self("clone.compare.title");
+    pub const CLONE_COMPARE_UNAVAILABLE: Self = Self("clone.compare.unavailable");
+    pub const CLONE_COMPARE_UNNAMED: Self = Self("clone.compare.unnamed");
+    pub const CLONE_COMPARE_UNRESOLVED: Self = Self("clone.compare.unresolved");
+    pub const CLONE_COMPARE_UNSHARED: Self = Self("clone.compare.unshared");
+    pub const CLONE_COMPARE_UNTOUCHED: Self = Self("clone.compare.untouched");
+    pub const CLONE_COMPARE_UNVERIFIED: Self = Self("clone.compare.unverified");
+    pub const CLONE_COMPARE_VALUE_HIDDEN: Self = Self("clone.compare.value_hidden");
+    pub const CLONE_COMPARE_VERDICT: Self = Self("clone.compare.verdict");
+    pub const CLONE_COMPARE_VERIFIED: Self = Self("clone.compare.verified");
+    pub const CLONE_COMPARE_WIDGET: Self = Self("clone.compare.widget");
+    pub const CLONE_CONFIRM_KEPT: Self = Self("clone.confirm_kept");
+    pub const CLONE_CONFIRM_TITLE: Self = Self("clone.confirm_title");
+    pub const CLONE_EDIT: Self = Self("clone.edit");
+    pub const CLONE_ERROR_GROWTH_COLOR: Self = Self("clone.error.growth_color");
+    pub const CLONE_ERROR_GROWTH_METRIC: Self = Self("clone.error.growth_metric");
+    pub const CLONE_ERROR_GROWTH_OTHER_REFERENCES: Self = Self("clone.error.growth_other_references");
+    pub const CLONE_ERROR_GROWTH_PREVIEW: Self = Self("clone.error.growth_preview");
+    pub const CLONE_ERROR_GROWTH_SELECTION: Self = Self("clone.error.growth_selection");
+    pub const CLONE_ERROR_GROWTH_SINGLE_HOST: Self = Self("clone.error.growth_single_host");
+    pub const CLONE_ERROR_LLD_REQUIRED: Self = Self("clone.error.lld_required");
+    pub const CLONE_ERROR_LLD_STALE: Self = Self("clone.error.lld_stale");
+    pub const CLONE_ERROR_NAME: Self = Self("clone.error.name");
+    pub const CLONE_ERROR_PATTERN_INVALID: Self = Self("clone.error.pattern_invalid");
+    pub const CLONE_ERROR_PATTERN_REQUIRED: Self = Self("clone.error.pattern_required");
+    pub const CLONE_ERROR_PATTERN_STALE: Self = Self("clone.error.pattern_stale");
+    pub const CLONE_ERROR_PATTERN_UNVERIFIED: Self = Self("clone.error.pattern_unverified");
+    pub const CLONE_ERROR_STALE_SOURCE: Self = Self("clone.error.stale_source");
+    pub const CLONE_ERROR_TARGET_SELECTION: Self = Self("clone.error.target_selection");
+    pub const CLONE_ERROR_UNRESOLVED: Self = Self("clone.error.unresolved");
+    pub const CLONE_FIND: Self = Self("clone.find");
+    pub const CLONE_GROWTH_ADDED: Self = Self("clone.growth.added");
+    pub const CLONE_GROWTH_AFTER: Self = Self("clone.growth.after");
+    pub const CLONE_GROWTH_BEFORE: Self = Self("clone.growth.before");
+    pub const CLONE_GROWTH_HOST: Self = Self("clone.growth.host");
+    pub const CLONE_GROWTH_NONE: Self = Self("clone.growth.none");
+    pub const CLONE_GROWTH_OPTION: Self = Self("clone.growth.option");
+    pub const CLONE_GROWTH_PREVIEW: Self = Self("clone.growth.preview");
+    pub const CLONE_GROWTH_SAMPLE: Self = Self("clone.growth.sample");
+    pub const CLONE_GROWTH_TITLE: Self = Self("clone.growth.title");
+    pub const CLONE_KEEP_PATTERNS: Self = Self("clone.keep_patterns");
+    pub const CLONE_KEEP_SOURCE: Self = Self("clone.keep_source");
+    pub const CLONE_KEPT: Self = Self("clone.kept");
+    pub const CLONE_LLD_NONE_REQUIRED: Self = Self("clone.lld.none_required");
+    pub const CLONE_LLD_PROTOTYPE: Self = Self("clone.lld.prototype");
+    pub const CLONE_LLD_REVIEW: Self = Self("clone.lld.review");
+    pub const CLONE_LLD_ROW: Self = Self("clone.lld.row");
+    pub const CLONE_NAME: Self = Self("clone.name");
+    pub const CLONE_NARROW_SEARCH: Self = Self("clone.narrow_search");
+    pub const CLONE_OPEN: Self = Self("clone.open");
+    pub const CLONE_PATTERN_CHOOSE: Self = Self("clone.pattern.choose");
+    pub const CLONE_PATTERN_COUNT: Self = Self("clone.pattern.count");
+    pub const CLONE_PATTERN_DECISION: Self = Self("clone.pattern.decision");
+    pub const CLONE_PATTERN_HOST_ROW: Self = Self("clone.pattern.host_row");
+    pub const CLONE_PATTERN_ITEM_ROW: Self = Self("clone.pattern.item_row");
+    pub const CLONE_PATTERN_KEEP: Self = Self("clone.pattern.keep");
+    pub const CLONE_PATTERN_PREVIEW: Self = Self("clone.pattern.preview");
+    pub const CLONE_PATTERN_REPLACE: Self = Self("clone.pattern.replace");
+    pub const CLONE_PATTERN_SCOPE: Self = Self("clone.pattern.scope");
+    pub const CLONE_PATTERN_TITLE: Self = Self("clone.pattern.title");
+    pub const CLONE_PATTERN_TRUNCATED: Self = Self("clone.pattern.truncated");
+    pub const CLONE_PATTERN_VALUE: Self = Self("clone.pattern.value");
+    pub const CLONE_PLAN: Self = Self("clone.plan");
+    pub const CLONE_PRIVATE_COPY: Self = Self("clone.private_copy");
+    pub const CLONE_READ_ONLY: Self = Self("clone.read_only");
+    pub const CLONE_RECONCILE: Self = Self("clone.reconcile");
+    pub const CLONE_SAVE: Self = Self("clone.save");
+    pub const CLONE_SEARCH: Self = Self("clone.search");
+    pub const CLONE_SUMMARY: Self = Self("clone.summary");
+    pub const CLONE_TARGET_FOR: Self = Self("clone.target_for");
+    pub const CLONE_TARGETS: Self = Self("clone.targets");
+    pub const CLONE_TITLE: Self = Self("clone.title");
+    pub const CLONE_WORKING: Self = Self("clone.working");
+    pub const CLONE_WRITE: Self = Self("clone.write");
     pub const COMMON_ACTION_CANCEL: Self = Self("common.action.cancel");
     pub const COMMON_ACTION_COPY: Self = Self("common.action.copy");
     pub const COMMON_ACTION_DELETE: Self = Self("common.action.delete");
@@ -1316,6 +1421,25 @@ impl MessageId {
     pub const STARTUP_STATUS_WRITES_DISABLED: Self = Self("startup.status.writes_disabled");
     pub const STARTUP_STATUS_WRITES_ENABLED: Self = Self("startup.status.writes_enabled");
     pub const STARTUP_SUBTITLE: Self = Self("startup.subtitle");
+    pub const TEMPLATE_IMPORT_ACTION_FAILED: Self = Self("template_import.action_failed");
+    pub const TEMPLATE_IMPORT_BECOMES: Self = Self("template_import.becomes");
+    pub const TEMPLATE_IMPORT_CATALOGS: Self = Self("template_import.catalogs");
+    pub const TEMPLATE_IMPORT_CHOOSE: Self = Self("template_import.choose");
+    pub const TEMPLATE_IMPORT_CHOOSE_NATIVE: Self = Self("template_import.choose_native");
+    pub const TEMPLATE_IMPORT_EMPTY: Self = Self("template_import.empty");
+    pub const TEMPLATE_IMPORT_HELP: Self = Self("template_import.help");
+    pub const TEMPLATE_IMPORT_INSPECT: Self = Self("template_import.inspect");
+    pub const TEMPLATE_IMPORT_LIST_FAILED: Self = Self("template_import.list_failed");
+    pub const TEMPLATE_IMPORT_MISSING_PARENT: Self = Self("template_import.missing_parent");
+    pub const TEMPLATE_IMPORT_NEW_VERSION: Self = Self("template_import.new_version");
+    pub const TEMPLATE_IMPORT_PARTIAL: Self = Self("template_import.partial");
+    pub const TEMPLATE_IMPORT_POSITION: Self = Self("template_import.position");
+    pub const TEMPLATE_IMPORT_PREVIEW_COUNTS: Self = Self("template_import.preview_counts");
+    pub const TEMPLATE_IMPORT_REJECTED: Self = Self("template_import.rejected");
+    pub const TEMPLATE_IMPORT_SAVE: Self = Self("template_import.save");
+    pub const TEMPLATE_IMPORT_SAVED: Self = Self("template_import.saved");
+    pub const TEMPLATE_IMPORT_UNRESOLVED_MACROS: Self = Self("template_import.unresolved_macros");
+    pub const TEMPLATE_IMPORT_VERSION: Self = Self("template_import.version");
     pub const WIDGET_TYPE_ACTIONLOG: Self = Self("widget.type.actionlog");
     pub const WIDGET_TYPE_CLOCK: Self = Self("widget.type.clock");
     pub const WIDGET_TYPE_DISCOVERY: Self = Self("widget.type.discovery");
@@ -1629,6 +1753,111 @@ impl MessageId {
         Self::CHECKS_SUMMARY_PUBLICATION_BLOCKED,
         Self::CHECKS_SUMMARY_PUBLICATION_READY,
         Self::CHECKS_SUMMARY_SAVE_ALWAYS,
+        Self::CLONE_BLOCKED,
+        Self::CLONE_CANCEL,
+        Self::CLONE_CHOOSE,
+        Self::CLONE_COMPARE_ABSENT,
+        Self::CLONE_COMPARE_ACCESS,
+        Self::CLONE_COMPARE_ADDED,
+        Self::CLONE_COMPARE_ALL,
+        Self::CLONE_COMPARE_CHANGED,
+        Self::CLONE_COMPARE_COUNT,
+        Self::CLONE_COMPARE_DASHBOARD,
+        Self::CLONE_COMPARE_DIFFERENT,
+        Self::CLONE_COMPARE_DRIFT,
+        Self::CLONE_COMPARE_EXPECTED,
+        Self::CLONE_COMPARE_FAILED,
+        Self::CLONE_COMPARE_FIELD,
+        Self::CLONE_COMPARE_FILTER,
+        Self::CLONE_COMPARE_GEOMETRY,
+        Self::CLONE_COMPARE_KEPT,
+        Self::CLONE_COMPARE_MAPPING,
+        Self::CLONE_COMPARE_NO_OBSERVATION,
+        Self::CLONE_COMPARE_OBSERVED,
+        Self::CLONE_COMPARE_OWNER,
+        Self::CLONE_COMPARE_OWNER_DIFFERS,
+        Self::CLONE_COMPARE_PAGE,
+        Self::CLONE_COMPARE_PAGE_GROUP,
+        Self::CLONE_COMPARE_PENDING,
+        Self::CLONE_COMPARE_PRIVATE,
+        Self::CLONE_COMPARE_PUBLIC,
+        Self::CLONE_COMPARE_REFRESH,
+        Self::CLONE_COMPARE_SHARED,
+        Self::CLONE_COMPARE_SOURCE,
+        Self::CLONE_COMPARE_TITLE,
+        Self::CLONE_COMPARE_UNAVAILABLE,
+        Self::CLONE_COMPARE_UNNAMED,
+        Self::CLONE_COMPARE_UNRESOLVED,
+        Self::CLONE_COMPARE_UNSHARED,
+        Self::CLONE_COMPARE_UNTOUCHED,
+        Self::CLONE_COMPARE_UNVERIFIED,
+        Self::CLONE_COMPARE_VALUE_HIDDEN,
+        Self::CLONE_COMPARE_VERDICT,
+        Self::CLONE_COMPARE_VERIFIED,
+        Self::CLONE_COMPARE_WIDGET,
+        Self::CLONE_CONFIRM_KEPT,
+        Self::CLONE_CONFIRM_TITLE,
+        Self::CLONE_EDIT,
+        Self::CLONE_ERROR_GROWTH_COLOR,
+        Self::CLONE_ERROR_GROWTH_METRIC,
+        Self::CLONE_ERROR_GROWTH_OTHER_REFERENCES,
+        Self::CLONE_ERROR_GROWTH_PREVIEW,
+        Self::CLONE_ERROR_GROWTH_SELECTION,
+        Self::CLONE_ERROR_GROWTH_SINGLE_HOST,
+        Self::CLONE_ERROR_LLD_REQUIRED,
+        Self::CLONE_ERROR_LLD_STALE,
+        Self::CLONE_ERROR_NAME,
+        Self::CLONE_ERROR_PATTERN_INVALID,
+        Self::CLONE_ERROR_PATTERN_REQUIRED,
+        Self::CLONE_ERROR_PATTERN_STALE,
+        Self::CLONE_ERROR_PATTERN_UNVERIFIED,
+        Self::CLONE_ERROR_STALE_SOURCE,
+        Self::CLONE_ERROR_TARGET_SELECTION,
+        Self::CLONE_ERROR_UNRESOLVED,
+        Self::CLONE_FIND,
+        Self::CLONE_GROWTH_ADDED,
+        Self::CLONE_GROWTH_AFTER,
+        Self::CLONE_GROWTH_BEFORE,
+        Self::CLONE_GROWTH_HOST,
+        Self::CLONE_GROWTH_NONE,
+        Self::CLONE_GROWTH_OPTION,
+        Self::CLONE_GROWTH_PREVIEW,
+        Self::CLONE_GROWTH_SAMPLE,
+        Self::CLONE_GROWTH_TITLE,
+        Self::CLONE_KEEP_PATTERNS,
+        Self::CLONE_KEEP_SOURCE,
+        Self::CLONE_KEPT,
+        Self::CLONE_LLD_NONE_REQUIRED,
+        Self::CLONE_LLD_PROTOTYPE,
+        Self::CLONE_LLD_REVIEW,
+        Self::CLONE_LLD_ROW,
+        Self::CLONE_NAME,
+        Self::CLONE_NARROW_SEARCH,
+        Self::CLONE_OPEN,
+        Self::CLONE_PATTERN_CHOOSE,
+        Self::CLONE_PATTERN_COUNT,
+        Self::CLONE_PATTERN_DECISION,
+        Self::CLONE_PATTERN_HOST_ROW,
+        Self::CLONE_PATTERN_ITEM_ROW,
+        Self::CLONE_PATTERN_KEEP,
+        Self::CLONE_PATTERN_PREVIEW,
+        Self::CLONE_PATTERN_REPLACE,
+        Self::CLONE_PATTERN_SCOPE,
+        Self::CLONE_PATTERN_TITLE,
+        Self::CLONE_PATTERN_TRUNCATED,
+        Self::CLONE_PATTERN_VALUE,
+        Self::CLONE_PLAN,
+        Self::CLONE_PRIVATE_COPY,
+        Self::CLONE_READ_ONLY,
+        Self::CLONE_RECONCILE,
+        Self::CLONE_SAVE,
+        Self::CLONE_SEARCH,
+        Self::CLONE_SUMMARY,
+        Self::CLONE_TARGET_FOR,
+        Self::CLONE_TARGETS,
+        Self::CLONE_TITLE,
+        Self::CLONE_WORKING,
+        Self::CLONE_WRITE,
         Self::COMMON_ACTION_CANCEL,
         Self::COMMON_ACTION_COPY,
         Self::COMMON_ACTION_DELETE,
@@ -2661,6 +2890,25 @@ impl MessageId {
         Self::STARTUP_STATUS_WRITES_DISABLED,
         Self::STARTUP_STATUS_WRITES_ENABLED,
         Self::STARTUP_SUBTITLE,
+        Self::TEMPLATE_IMPORT_ACTION_FAILED,
+        Self::TEMPLATE_IMPORT_BECOMES,
+        Self::TEMPLATE_IMPORT_CATALOGS,
+        Self::TEMPLATE_IMPORT_CHOOSE,
+        Self::TEMPLATE_IMPORT_CHOOSE_NATIVE,
+        Self::TEMPLATE_IMPORT_EMPTY,
+        Self::TEMPLATE_IMPORT_HELP,
+        Self::TEMPLATE_IMPORT_INSPECT,
+        Self::TEMPLATE_IMPORT_LIST_FAILED,
+        Self::TEMPLATE_IMPORT_MISSING_PARENT,
+        Self::TEMPLATE_IMPORT_NEW_VERSION,
+        Self::TEMPLATE_IMPORT_PARTIAL,
+        Self::TEMPLATE_IMPORT_POSITION,
+        Self::TEMPLATE_IMPORT_PREVIEW_COUNTS,
+        Self::TEMPLATE_IMPORT_REJECTED,
+        Self::TEMPLATE_IMPORT_SAVE,
+        Self::TEMPLATE_IMPORT_SAVED,
+        Self::TEMPLATE_IMPORT_UNRESOLVED_MACROS,
+        Self::TEMPLATE_IMPORT_VERSION,
         Self::WIDGET_TYPE_ACTIONLOG,
         Self::WIDGET_TYPE_CLOCK,
         Self::WIDGET_TYPE_DISCOVERY,

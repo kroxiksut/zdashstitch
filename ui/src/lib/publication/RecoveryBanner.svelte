@@ -38,7 +38,8 @@
   }
 
   function sourceText(entry: JournalEntry): string {
-    const name = entry.source ? draftName(entry.source.local_id) : null;
+    const name = entry.source ? draftName(entry.source.local_id) ??
+      (entry.intent === 'clone_dashboard' ? entry.target?.name ?? null : null) : null;
     return entry.source && name !== null ? i18n.t('publication.journal.source_draft', { name, revision: entry.source.revision }) : i18n.t('publication.journal.source_removed');
   }
 

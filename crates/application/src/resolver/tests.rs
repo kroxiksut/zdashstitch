@@ -342,7 +342,11 @@ pub(crate) fn fixture() -> Fixture {
             graph("302", "Custom graph", None, SOURCE),
             graph("401", "PostgreSQL load", Some("701"), TARGET),
         ],
-        item_prototypes: Vec::new(),
+        item_prototypes: vec![
+            item_prototype("501", SOURCE, Some("510"), None),
+            item_prototype("601", TARGET, Some("510"), None),
+            item_prototype("510", "800", None, Some("Synthetic PostgreSQL template")),
+        ],
         graph_prototypes: Vec::new(),
         calls: Mutex::new(Vec::new()),
     }
@@ -835,6 +839,23 @@ async fn d_lld_without_any_instance_has_no_candidates() {
     let lld = row(&resolution, "2001", "ds.1.itemids.1");
     assert_eq!(lld.match_status, MatchStatus::UnresolvedLld);
     assert!(lld.candidates.is_empty());
+    assert_eq!(lld.target, None);
+}
+
+#[tokio::test]
+async fn d_lld_same_prototype_key_from_another_template_is_not_a_candidate() {
+    let mut fixture = fixture();
+    fixture
+        .item_prototypes
+        .iter_mut()
+        .find(|prototype| prototype.itemid == "601")
+        .unwrap_or_else(|| panic!("target prototype"))
+        .templateid = Some("999".to_owned());
+
+    let resolution = resolve_with(&fixture, &request(ResolveScope::Dashboard)).await;
+    let lld = row(&resolution, "2001", "ds.1.itemids.1");
+    assert_eq!(lld.match_status, MatchStatus::UnresolvedLld);
+    assert!(lld.candidates.is_empty(), "same key is not same prototype");
     assert_eq!(lld.target, None);
 }
 

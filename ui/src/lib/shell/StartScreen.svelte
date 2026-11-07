@@ -78,10 +78,8 @@
           </ComingLater>
         </section>
       </div>
-      <ComingLater {i18n} id="start-import-actions">
-        <Button {i18n} label={{ id: 'startup.action.import_files' }} disabled />
-      </ComingLater>
-      <p class="hint">{i18n.t('startup.import.help')}</p>
+      <a class="button-link" href="/library">{i18n.t('startup.action.import_files')}</a>
+      <p class="hint">{i18n.t('template_import.help')}</p>
     </section>
   </div>
 

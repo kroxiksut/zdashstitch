@@ -180,8 +180,9 @@ describe('shell screens', () => {
   it('shows unavailable start actions with a visible reason and no sample data', () => {
     const { body } = render(StartScreen, { props: { i18n: en, drafts: { status: 'unavailable' } } });
     expect(body).toContain('No local drafts yet');
-    expect(body.match(/Will be available later/g)).toHaveLength(3);
-    expect(body.match(/<button[^>]*disabled/g)).toHaveLength(5);
+    expect(body.match(/Will be available later/g)).toHaveLength(2);
+    expect(body.match(/<button[^>]*disabled/g)).toHaveLength(4);
+    expect(body).toMatch(/href="\/library"[^>]*>Import files<\/a>/);
     expect(body).toContain('href="/connections"');
   });
 

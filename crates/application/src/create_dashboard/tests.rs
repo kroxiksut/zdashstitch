@@ -880,7 +880,11 @@ impl Mock {
             content_fingerprint: plan.create.content_fingerprint().to_owned(),
             owner_userid: OWNER.to_owned(),
         };
-        PreparedCreateSend { plan, expectation }
+        PreparedCreateSend {
+            plan,
+            expectation,
+            clone_base: None,
+        }
     }
 
     async fn send(&self, prepared: PreparedCreateSend, adapter: Adapter) -> CreatePublishReport {
@@ -914,6 +918,7 @@ impl Mock {
                     outcome: Some(outcome),
                     invalidated: None,
                     record_error: None,
+                    clone_source: None,
                     journal_state: None,
                     journal_error: None,
                 }
@@ -963,6 +968,263 @@ fn unknown(reconciliation: CreateReconciliation) -> Adapter {
         outcome: DashboardCreateOutcome::UnknownOutcome { reconciliation },
         stored: Vec::new(),
     }
+}
+
+async fn pinned_clone_fixture(create_reply: CreateReply) -> (Mock, crate::SavedCloneWorkcopy) {
+    use crate::clone_dashboard::PrepareCloneIntentRequest;
+    use crate::clone_mapping::{
+        FrozenTargetSelection, SaveCloneMappingRequest, SourceHostDecision, SourceHostMapping,
+        SourceRoleId, TargetSlot, TargetSlotId,
+    };
+    use zdashstitch_zabbix::{HostDetails, HostListing};
+
+    let mut raw = source();
+    raw["pages"]
+        .as_array_mut()
+        .unwrap_or_else(|| panic!("pages"))
+        .truncate(1);
+    raw["pages"][0]["widgets"]
+        .as_array_mut()
+        .unwrap_or_else(|| panic!("widgets"))
+        .truncate(1);
+    let mock = Mock::start_with(ImportScope::Dashboard, raw, create_reply).await;
+    let (_, server_identity) = mock.authority();
+    let base = mock
+        .service
+        .base_snapshot(&mock.local_id)
+        .unwrap_or_else(|e| panic!("{e}"));
+    let host = |id: &str| HostDetails {
+        hostid: id.to_owned(),
+        host: format!("synthetic-{id}"),
+        name: format!("Synthetic {id}"),
+    };
+    let target = host("12");
+    let mapping = mock
+        .service
+        .save_clone_mapping(
+            &mock.local_id,
+            SaveCloneMappingRequest {
+                expected_workcopy_revision: 0,
+                connection_id: CONNECTION.to_owned(),
+                server_identity_fingerprint: server_identity,
+                server_version: "7.4.16".to_owned(),
+                local_fingerprint: Some(base.fingerprint().to_owned()),
+                mappings: vec![SourceHostMapping {
+                    role_id: SourceRoleId("source".to_owned()),
+                    source_host: host("11"),
+                    decision: SourceHostDecision::TargetSlots(vec![TargetSlot {
+                        slot_id: TargetSlotId("target".to_owned()),
+                        host: target.clone(),
+                    }]),
+                    references: vec![],
+                }],
+                pattern_decisions: vec![],
+            },
+        )
+        .unwrap_or_else(|e| panic!("mapping: {e}"));
+    let branch = mock
+        .service
+        .prepare_clone_intent(PrepareCloneIntentRequest {
+            source_workcopy_id: mock.local_id.clone(),
+            target_connection_id: CONNECTION.to_owned(),
+            target_name: TARGET.to_owned(),
+            expected_mapping_revision: mapping.state.mapping_revision,
+            target_selection: FrozenTargetSelection::new(vec![HostListing {
+                hostid: target.hostid,
+                host: target.host,
+                name: target.name,
+                groups: vec![],
+                templates: vec![],
+            }])
+            .unwrap_or_else(|e| panic!("selection: {e}")),
+        })
+        .and_then(|intent| mock.service.begin_clone_workcopy(intent))
+        .and_then(|draft| mock.service.save_clone_workcopy(draft, &[]))
+        .unwrap_or_else(|e| panic!("branch: {e}"));
+    (mock, branch)
+}
+
+#[tokio::test]
+async fn clone_saved_local_uses_the_common_private_create_codec() {
+    let (mock, branch) = pinned_clone_fixture(CreateReply::Accept).await;
+    let reopened = mock
+        .service
+        .open_clone_workcopy(branch.local_id())
+        .unwrap_or_else(|e| panic!("reopen: {e}"));
+    let create = verify_dashboard_create_for(
+        reopened.local(),
+        CreateScope::Dashboard,
+        &mock.gateway.publication_context(),
+        reopened.draft().intent().target_name(),
+    )
+    .unwrap_or_else(|e| panic!("create codec: {e}"));
+    assert_eq!(create.local_fingerprint(), reopened.local().fingerprint());
+    // Exercise the existing adapter on the synthetic transport. Production
+    // Clone has no send entry point while its permission proof is pending.
+    let outcome = mock
+        .gateway
+        .create_verified_dashboard(&create, || true)
+        .await;
+    assert!(
+        matches!(outcome, DashboardCreateOutcome::Verified { .. }),
+        "{outcome:?}"
+    );
+    assert_eq!(mock.creates(), 1);
+    let data = lock(&mock.data);
+    let params = &data
+        .calls
+        .iter()
+        .find(|call| call["method"] == "dashboard.create")
+        .unwrap_or_else(|| panic!("create request"))["params"];
+    assert!(params.get("dashboardid").is_none());
+    assert!(params.get("userid").is_none());
+    assert_eq!(params["private"], 1);
+    assert_eq!(params["users"], json!([]));
+    assert_eq!(params["userGroups"], json!([]));
+    let page = &params["pages"][0];
+    assert!(page.get("dashboard_pageid").is_none());
+    let widget = &page["widgets"][0];
+    assert!(widget.get("widgetid").is_none());
+    assert_eq!(widget["fields"][1]["value"], "AAAAA");
+    assert_eq!(
+        &data.dashboards[0],
+        branch.draft().base().raw_api_document()
+    );
+    assert_eq!(data.dashboards[1]["userid"], OWNER);
+    assert!(
+        data.calls
+            .iter()
+            .all(|call| call["method"] != "dashboard.update")
+    );
+}
+
+#[tokio::test]
+async fn clone_recovery_after_restart_links_only_the_verified_copy() {
+    use crate::clone_dashboard::CLONE_OPERATION;
+    use crate::publish_journal::{
+        Finish, JournalSource, JournalTarget, OperationKind, OperationRecord,
+    };
+    use zdashstitch_zabbix::dashboard_content_fingerprint;
+
+    let (mock, branch) = pinned_clone_fixture(CreateReply::Refuse).await;
+    let (endpoint_fingerprint, server_identity) = mock.authority();
+    let reader = mock.gateway.reader();
+    let mut expected = created("951", TARGET);
+    expected["pages"]
+        .as_array_mut()
+        .unwrap_or_else(|| panic!("pages"))
+        .truncate(1);
+    expected["pages"][0]["widgets"]
+        .as_array_mut()
+        .unwrap_or_else(|| panic!("widgets"))
+        .truncate(1);
+    let snapshot = VersionedDashboardSnapshot::from_adapter_raw(
+        CONNECTION.to_owned(),
+        reader.capabilities().version.clone(),
+        expected.clone(),
+    )
+    .unwrap_or_else(|e| panic!("snapshot: {e}"));
+    let id = "zds-0123456789abcdef0123456789abcdef";
+    let mut handle = mock
+        .journal
+        .begin(
+            id,
+            &OperationRecord {
+                kind: OperationKind::Create,
+                intent: CLONE_OPERATION,
+                connection_id: CONNECTION.to_owned(),
+                server_version: "7.4.16".to_owned(),
+                endpoint_fingerprint,
+                server_identity,
+                target: JournalTarget::NewDashboard {
+                    name: TARGET.to_owned(),
+                },
+                source: Some(JournalSource {
+                    local_id: branch.local_id().to_owned(),
+                    revision: branch.draft().intent().mapping_revision(),
+                }),
+                source_fingerprint: branch.local().fingerprint().to_owned(),
+                expected_fingerprint: dashboard_content_fingerprint(&snapshot)
+                    .unwrap_or_else(|| panic!("fingerprint")),
+                owner_userid: Some(OWNER.to_owned()),
+                plan_created_at_ms: 1,
+                confirmed_at_ms: 2,
+            },
+        )
+        .unwrap_or_else(|e| panic!("journal: {e}"));
+    assert!(handle.admit_send());
+    handle
+        .finish_with(Finish {
+            evidence: Some("reconcile_not_found"),
+            ..Finish::state(JournalState::UnknownOutcome)
+        })
+        .unwrap_or_else(|e| panic!("finish: {e}"));
+
+    let root = mock._dir.path().to_path_buf();
+    let service = WorkcopyService::new(root.clone());
+    let journal = PublishJournal::new(root);
+    let reconcile = || reconcile_create(&journal, &service, reader, id);
+    let missing = reconcile().await.unwrap_or_else(|e| panic!("missing: {e}"));
+    assert_eq!(missing.reconciliation, CreateReconciliation::NotFound);
+    assert_eq!(missing.entry.state, JournalState::ManualCheckRequired);
+    assert!(mock.created_ids().is_empty());
+
+    let mut original_as_copy = expected.clone();
+    original_as_copy["dashboardid"] = json!("950");
+    let original = std::mem::replace(&mut lock(&mock.data).dashboards[0], original_as_copy);
+    let same_identity = reconcile()
+        .await
+        .err()
+        .unwrap_or_else(|| panic!("source accepted"));
+    assert_eq!(same_identity.code(), "clone_read_back_unverified");
+    assert!(mock.created_ids().is_empty());
+    lock(&mock.data).dashboards[0] = original;
+
+    lock(&mock.data)
+        .dashboards
+        .extend([expected, created("952", TARGET)]);
+    let ambiguous = reconcile()
+        .await
+        .unwrap_or_else(|e| panic!("ambiguous: {e}"));
+    assert_eq!(
+        ambiguous.reconciliation,
+        CreateReconciliation::Ambiguous { candidates: 2 }
+    );
+    assert!(mock.created_ids().is_empty());
+    lock(&mock.data)
+        .dashboards
+        .retain(|dashboard| dashboard["dashboardid"] != "952");
+    lock(&mock.data).dashboards[0]["name"] = json!("Externally changed source");
+    let source_dir = mock._dir.path().join("workcopies").join(&mock.local_id);
+    let hidden_source = source_dir.with_extension("temporarily-unavailable");
+    std::fs::rename(&source_dir, &hidden_source)
+        .unwrap_or_else(|e| panic!("hide source workcopy: {e}"));
+    let confirmed = reconcile()
+        .await
+        .unwrap_or_else(|e| panic!("confirmed: {e}"));
+    assert_eq!(confirmed.entry.state, JournalState::ReconciledVerified);
+    let source_check = confirmed
+        .clone_source
+        .unwrap_or_else(|| panic!("source observation"))
+        .unwrap_or_else(|e| panic!("source read: {e}"));
+    assert_eq!(
+        source_check.invalidated,
+        Some(PlanInvalidReason::SourceChanged)
+    );
+    assert_eq!(
+        confirmed.record_error.as_ref().map(|error| error.code()),
+        Some("workcopy_not_found")
+    );
+    std::fs::rename(&hidden_source, &source_dir)
+        .unwrap_or_else(|e| panic!("restore source workcopy: {e}"));
+    assert!(mock.created_ids().is_empty());
+    let calls_before_replay = lock(&mock.data).calls.len();
+    let replay = reconcile().await.unwrap_or_else(|e| panic!("replay: {e}"));
+    assert!(replay.record_error.is_none(), "{:?}", replay.record_error);
+    assert_eq!(mock.created_ids(), ["951"]);
+    assert!(replay.clone_source.is_none());
+    assert_eq!(lock(&mock.data).calls.len(), calls_before_replay);
+    assert!(mock.reads_only());
 }
 
 fn plan_journal_code(result: Result<VerifiedCreatePlan, CreatePlanError>) -> Option<&'static str> {

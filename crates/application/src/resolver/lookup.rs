@@ -176,6 +176,10 @@ pub struct TargetFacts {
     pub source_items: Vec<ItemDetails>,
     /// All items of the target host.
     pub target_items: Vec<ItemDetails>,
+    /// Parent prototypes of discovered target items, by prototype item ID.
+    /// Missing entries stay missing/hidden; callers must fail closed rather
+    /// than matching LLD instances by a similar key alone.
+    pub target_item_prototypes: BTreeMap<String, ItemPrototypeDetails>,
     /// Classic graphs of the target host; read only when the model has
     /// graph sources.
     pub target_graphs: Vec<GraphDetails>,
@@ -202,6 +206,32 @@ pub async fn collect_source_facts<L: ResolverLookup>(
             .map_err(|error| lookup_error(&error))?
         {
             facts.items.insert(item.itemid.clone(), item);
+        }
+    }
+
+    // `selectItemDiscovery` names the parent prototype of every discovered
+    // item. Read those prototypes as evidence: a prototype key by itself is
+    // not enough to prove that two instances came from the same template.
+    let discovery_prototypeids: Vec<String> = facts
+        .items
+        .values()
+        .filter_map(|item| {
+            item.discovery
+                .as_ref()
+                .map(|link| link.parent_itemid.clone())
+        })
+        .collect::<BTreeSet<_>>()
+        .into_iter()
+        .collect();
+    if !discovery_prototypeids.is_empty() {
+        for prototype in lookup
+            .item_prototypes_by_ids(&discovery_prototypeids)
+            .await
+            .map_err(|error| lookup_error(&error))?
+        {
+            facts
+                .item_prototypes
+                .insert(prototype.itemid.clone(), prototype);
         }
     }
 
@@ -357,6 +387,28 @@ pub async fn collect_target_facts<L: ResolverLookup>(
             .await
             .map_err(|error| lookup_error(&error))?,
     )?;
+    let target_prototypeids: Vec<String> = facts
+        .target_items
+        .iter()
+        .filter_map(|item| {
+            item.discovery
+                .as_ref()
+                .map(|link| link.parent_itemid.clone())
+        })
+        .collect::<BTreeSet<_>>()
+        .into_iter()
+        .collect();
+    if !target_prototypeids.is_empty() {
+        for prototype in lookup
+            .item_prototypes_by_ids(&target_prototypeids)
+            .await
+            .map_err(|error| lookup_error(&error))?
+        {
+            facts
+                .target_item_prototypes
+                .insert(prototype.itemid.clone(), prototype);
+        }
+    }
     if model.has_item_patterns() && facts.source_host.is_some() {
         facts.source_items = complete(
             lookup

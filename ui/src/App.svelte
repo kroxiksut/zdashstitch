@@ -7,7 +7,7 @@
   import { createHttpPublicationClient, type PublicationClient } from './lib/publication/client';
   import RecoveryBanner from './lib/publication/RecoveryBanner.svelte';
   import { PublicationStore, RecoveryStore } from './lib/publication/store.svelte';
-  import { EmptyState, resolveText, type LocalizedText } from './lib/components';
+  import { resolveText, type LocalizedText } from './lib/components';
   import { applyDocumentLocale, createI18n, type Locale } from './lib/i18n';
   import { createHttpConnectionsClient, type ConnectionsClient } from './lib/connections/client';
   import ConnectionCheck from './lib/connections/ConnectionCheck.svelte';
@@ -17,6 +17,7 @@
   import SignInDialog from './lib/connections/SignInDialog.svelte';
   import { ConnectionsStore } from './lib/connections/store.svelte';
   import AppHeader from './lib/shell/AppHeader.svelte';
+  import CatalogLibrary from './lib/library/CatalogLibrary.svelte';
   import DraftsScreen from './lib/shell/DraftsScreen.svelte';
   import DraftWorkspace from './lib/shell/DraftWorkspace.svelte';
   import { AppearanceStore, createHttpAppearanceClient, documentEnvironment, type AppearanceClient } from './lib/settings/appearance.svelte';
@@ -339,10 +340,8 @@
       <StartScreen {i18n} drafts={namedList} connection={connections.header} />
     {:else if route.name === 'drafts'}
       <DraftsScreen {i18n} drafts={namedList} onrename={renameDraft} />
-    {:else}
-      <div class="screen">
-        <EmptyState {i18n} level={1} heading={{ id: 'library.title' }} reason={{ id: 'common.state.coming_later' }} />
-      </div>
+    {:else if route.name === 'library'}
+      <CatalogLibrary {i18n} />
     {/if}
   </main>
 {/if}
