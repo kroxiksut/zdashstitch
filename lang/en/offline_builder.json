@@ -1,0 +1,708 @@
+{
+  "offline_builder.title": {
+    "message": "Create a page from metric catalogs",
+    "placeholders": {}
+  },
+  "offline_builder.go_to_drafts": {
+    "message": "Create a local page",
+    "placeholders": {}
+  },
+  "offline_builder.help": {
+    "message": "Choose catalog versions and metrics, add a graph or item value, then save a local page. Server hosts are assigned later.",
+    "placeholders": {}
+  },
+  "offline_builder.error": {
+    "message": "The page operation failed. Check the selected metrics and try again.",
+    "placeholders": {}
+  },
+  "offline_builder.catalog_in_use": {
+    "message": "Remove widgets that use this catalog before changing its version or deselecting it.",
+    "placeholders": {}
+  },
+  "offline_builder.server_copies_empty": {
+    "message": "No server copies yet. Local pages are listed below.",
+    "placeholders": {}
+  },
+  "offline_builder.saved": {
+    "message": "The local page was saved.",
+    "placeholders": {}
+  },
+  "offline_builder.page_name": {
+    "message": "Page name",
+    "placeholders": {}
+  },
+  "offline_builder.choose_catalogs": {
+    "message": "Metric catalogs",
+    "placeholders": {}
+  },
+  "offline_builder.version": {
+    "message": "Version {version}",
+    "placeholders": {
+      "version": "number"
+    }
+  },
+  "offline_builder.choose_metrics": {
+    "message": "Metrics for this page",
+    "placeholders": {}
+  },
+  "offline_builder.widget_title": {
+    "message": "Widget title",
+    "placeholders": {}
+  },
+  "offline_builder.add_graph": {
+    "message": "Add graph with selected numeric metrics",
+    "placeholders": {}
+  },
+  "offline_builder.add_item": {
+    "message": "Add item value for selected metric",
+    "placeholders": {}
+  },
+  "offline_builder.widgets": {
+    "message": "Widgets to save",
+    "placeholders": {}
+  },
+  "offline_builder.remove": {
+    "message": "Remove",
+    "placeholders": {}
+  },
+  "offline_builder.save": {
+    "message": "Save local page",
+    "placeholders": {}
+  },
+  "offline_builder.saved_pages": {
+    "message": "Saved local pages",
+    "placeholders": {}
+  },
+  "offline_builder.empty": {
+    "message": "No local pages saved yet.",
+    "placeholders": {}
+  },
+  "offline_builder.opened": {
+    "message": "Catalogs: {catalogs}. Logical widgets: {widgets}.",
+    "placeholders": {
+      "catalogs": "number",
+      "widgets": "number"
+    }
+  },
+  "offline_builder.roles": {
+    "message": "Host roles and logical slots",
+    "placeholders": {}
+  },
+  "offline_builder.roles_help": {
+    "message": "Slots describe future hosts in their explicit order. Use unique IDs with 2–64 lowercase Latin letters, digits, underscores or hyphens, starting with a letter. Real hosts are assigned later.",
+    "placeholders": {}
+  },
+  "offline_builder.role_invalid": {
+    "message": "Check role and slot IDs. IDs must be unique, a single-host role needs exactly one slot, and a multiple-host role needs 1–256 slots.",
+    "placeholders": {}
+  },
+  "offline_builder.role_in_use": {
+    "message": "Remove widgets that use this role before removing the role.",
+    "placeholders": {}
+  },
+  "offline_builder.role_id": {
+    "message": "Role ID",
+    "placeholders": {}
+  },
+  "offline_builder.cardinality": {
+    "message": "Hosts in the role",
+    "placeholders": {}
+  },
+  "offline_builder.role_one": {
+    "message": "One host",
+    "placeholders": {}
+  },
+  "offline_builder.role_many": {
+    "message": "Multiple hosts",
+    "placeholders": {}
+  },
+  "offline_builder.slots": {
+    "message": "Slot IDs, one per line, in host order",
+    "placeholders": {}
+  },
+  "offline_builder.add_role": {
+    "message": "Add role",
+    "placeholders": {}
+  },
+  "offline_builder.remove_role": {
+    "message": "Remove role {role}",
+    "placeholders": {
+      "role": "text"
+    }
+  },
+  "offline_builder.metric_source": {
+    "message": "Source for {metric}",
+    "placeholders": {
+      "metric": "text"
+    }
+  },
+  "offline_builder.source_role": {
+    "message": "Host role",
+    "placeholders": {}
+  },
+  "offline_builder.selection": {
+    "message": "Use hosts",
+    "placeholders": {}
+  },
+  "offline_builder.select_one": {
+    "message": "The role's single host",
+    "placeholders": {}
+  },
+  "offline_builder.select_all": {
+    "message": "All declared slots, in order",
+    "placeholders": {}
+  },
+  "offline_builder.select_slot": {
+    "message": "One explicitly selected slot",
+    "placeholders": {}
+  },
+  "offline_builder.slot": {
+    "message": "Logical slot",
+    "placeholders": {}
+  },
+  "offline_builder.choose_slot": {
+    "message": "Choose a slot",
+    "placeholders": {}
+  },
+  "offline_builder.add_repeat": {
+    "message": "Add item value for each host",
+    "placeholders": {}
+  },
+  "offline_builder.repeated": {
+    "message": "Repeated for each host",
+    "placeholders": {}
+  },
+  "offline_builder.logical_help": {
+    "message": "Logical composition only: slots are unbound, layout and target limits must be checked after assigning real hosts.",
+    "placeholders": {}
+  },
+  "offline_builder.logical_counts": {
+    "message": "Declared composition: {widgets} widget instances, {sources} metric sources.",
+    "placeholders": {
+      "widgets": "number",
+      "sources": "number"
+    }
+  },
+  "offline_builder.logical_truncated": {
+    "message": "The list shows at most 256 instances and 512 metric sources; totals include the entire composition.",
+    "placeholders": {}
+  },
+  "offline_builder.slots_missing": {
+    "message": "This earlier page has no explicit logical slots. Edit its role to declare slots before saving changes.",
+    "placeholders": {}
+  },
+  "offline_builder.edit_title": {
+    "message": "Edit local page composition",
+    "placeholders": {}
+  },
+  "offline_builder.manual_help": {
+    "message": "This form saves manually. Autosave, undo and the visual editor are not available in this implementation yet. Apply each role or widget change before saving the page.",
+    "placeholders": {}
+  },
+  "offline_builder.leave_dirty": {
+    "message": "The form has unsaved changes. Leave and discard them?",
+    "placeholders": {}
+  },
+  "offline_builder.library_unavailable": {
+    "message": "The library could not be loaded. Saved catalog copies remain available for this page.",
+    "placeholders": {}
+  },
+  "offline_builder.conflict": {
+    "message": "Another save changed this page. Your form is preserved; reload the saved version to continue. Changes were not overwritten.",
+    "placeholders": {}
+  },
+  "offline_builder.unsaved": {
+    "message": "Unsaved changes",
+    "placeholders": {}
+  },
+  "offline_builder.saving": {
+    "message": "Saving locally…",
+    "placeholders": {}
+  },
+  "offline_builder.new_page": {
+    "message": "New local page",
+    "placeholders": {}
+  },
+  "offline_builder.edit_role": {
+    "message": "Edit role {role}",
+    "placeholders": {
+      "role": "text"
+    }
+  },
+  "offline_builder.apply_role": {
+    "message": "Apply role changes",
+    "placeholders": {}
+  },
+  "offline_builder.apply_graph": {
+    "message": "Apply graph changes",
+    "placeholders": {}
+  },
+  "offline_builder.apply_item": {
+    "message": "Apply single item value changes",
+    "placeholders": {}
+  },
+  "offline_builder.apply_repeat": {
+    "message": "Apply repeated item value changes",
+    "placeholders": {}
+  },
+  "offline_builder.edit_widget": {
+    "message": "Edit widget {widget}",
+    "placeholders": {
+      "widget": "text"
+    }
+  },
+  "offline_builder.pending_help": {
+    "message": "Apply or cancel the role or widget input before saving the page.",
+    "placeholders": {}
+  },
+  "offline_builder.reload": {
+    "message": "Reload saved version",
+    "placeholders": {}
+  },
+  "offline_builder.open_draft": {
+    "message": "Open saved page",
+    "placeholders": {}
+  },
+  "offline_builder.saved_composition": {
+    "message": "Last saved composition",
+    "placeholders": {}
+  },
+  "offline_builder.drafts_empty": {
+    "message": "No drafts yet",
+    "placeholders": {}
+  },
+  "offline_editor.scope": {
+    "message": "Local page editing: history and layout, without server publication or live values.",
+    "placeholders": {}
+  },
+  "offline_editor.history_hint": {
+    "message": "Opening loads the last successfully saved version. Undo is available for changes since opening; history is kept only in memory.",
+    "placeholders": {}
+  },
+  "offline_editor.no_history": {
+    "message": "no steps",
+    "placeholders": {}
+  },
+  "offline_editor.history_limit": {
+    "message": "Only the latest 200 steps are available; earlier steps were removed.",
+    "placeholders": {}
+  },
+  "offline_editor.autosave": {
+    "message": "Autosave for this session",
+    "placeholders": {}
+  },
+  "offline_editor.autosave_help": {
+    "message": "Applied changes save after 2 seconds of inactivity or after 30 seconds of continuous editing. Unapplied role and widget input stays in the form.",
+    "placeholders": {}
+  },
+  "offline_editor.autosave_after_create": {
+    "message": "Autosave starts after the first explicit page save.",
+    "placeholders": {}
+  },
+  "offline_editor.retry": {
+    "message": "Not saved. Retrying in {seconds} seconds. The current form is preserved.",
+    "placeholders": {
+      "seconds": "number"
+    }
+  },
+  "offline_editor.canvas": {
+    "message": "Page canvas: 72 columns × 64 rows",
+    "placeholders": {}
+  },
+  "offline_editor.canvas_help": {
+    "message": "Select a widget. Arrows move by 1 cell; Shift+arrows by 6; Ctrl+arrows resize. Delete removes a supported widget, Ctrl+D duplicates it. Placement and size also have numeric controls. Zoom changes only the view.",
+    "placeholders": {}
+  },
+  "offline_editor.zoom_out": {
+    "message": "Zoom out",
+    "placeholders": {}
+  },
+  "offline_editor.zoom_reset": {
+    "message": "100%",
+    "placeholders": {}
+  },
+  "offline_editor.zoom_in": {
+    "message": "Zoom in",
+    "placeholders": {}
+  },
+  "offline_editor.zoom_fit": {
+    "message": "Fit width",
+    "placeholders": {}
+  },
+  "offline_editor.geometry_rejected": {
+    "message": "The widget was not moved: choose whole cells within the grid without overlaps. Repeated widgets keep automatic placement.",
+    "placeholders": {}
+  },
+  "offline_editor.widget_box": {
+    "message": "{widget}: column {x}, row {y}, width {w}, height {h}",
+    "placeholders": {
+      "widget": "text",
+      "x": "number",
+      "y": "number",
+      "w": "number",
+      "h": "number"
+    }
+  },
+  "offline_editor.box": {
+    "message": "Column {x}, row {y} · {w} × {h}",
+    "placeholders": {
+      "x": "number",
+      "y": "number",
+      "w": "number",
+      "h": "number"
+    }
+  },
+  "offline_editor.geometry_for": {
+    "message": "Position and size: {widget}",
+    "placeholders": {
+      "widget": "text"
+    }
+  },
+  "offline_editor.x": {
+    "message": "Column (0–71)",
+    "placeholders": {}
+  },
+  "offline_editor.y": {
+    "message": "Row (0–63)",
+    "placeholders": {}
+  },
+  "offline_editor.w": {
+    "message": "Width in cells",
+    "placeholders": {}
+  },
+  "offline_editor.h": {
+    "message": "Height in cells",
+    "placeholders": {}
+  },
+  "offline_editor.apply_geometry": {
+    "message": "Apply position and size",
+    "placeholders": {}
+  },
+  "offline_editor.place": {
+    "message": "Place in first free space",
+    "placeholders": {}
+  },
+  "offline_editor.repeat_auto": {
+    "message": "Repeated widgets: automatic placement after host binding",
+    "placeholders": {}
+  },
+  "offline_editor.opaque": {
+    "message": "Fields are preserved as is. Only geometry can be changed in this slice; field editing, deletion and duplication are unavailable.",
+    "placeholders": {}
+  },
+  "editor.action.undo": {
+    "message": "Undo: {action}",
+    "placeholders": {
+      "action": "text"
+    }
+  },
+  "editor.action.redo": {
+    "message": "Redo: {action}",
+    "placeholders": {
+      "action": "text"
+    }
+  },
+  "editor.op.page": {
+    "message": "page change",
+    "placeholders": {}
+  },
+  "editor.op.edit_field": {
+    "message": "changing {field}",
+    "placeholders": {
+      "field": "text"
+    }
+  },
+  "editor.op.add_widget": {
+    "message": "adding a widget",
+    "placeholders": {}
+  },
+  "editor.op.remove_widget": {
+    "message": "deleting a widget",
+    "placeholders": {}
+  },
+  "editor.op.bindings": {
+    "message": "changing host roles",
+    "placeholders": {}
+  },
+  "editor.op.move": {
+    "message": "moving a widget",
+    "placeholders": {}
+  },
+  "editor.op.resize": {
+    "message": "resizing a widget",
+    "placeholders": {}
+  },
+  "offline_editor.resize": {
+    "message": "Resize",
+    "placeholders": {}
+  },
+  "offline_editor.resize_widget": {
+    "message": "Resize {widget}",
+    "placeholders": {
+      "widget": "text"
+    }
+  },
+  "offline_editor.claiming": {
+    "message": "Checking editor ownership…",
+    "placeholders": {}
+  },
+  "offline_editor.open_elsewhere": {
+    "message": "Open for editing in another tab. This tab is read-only; unsaved input remains available for copying.",
+    "placeholders": {}
+  },
+  "offline_editor.owner_unavailable": {
+    "message": "Editor ownership could not be confirmed. Saving is stopped until ownership is confirmed.",
+    "placeholders": {}
+  },
+  "offline_editor.edit_here": {
+    "message": "Edit here",
+    "placeholders": {}
+  },
+  "offline_editor.unsaved_copy": {
+    "message": "Unsaved input for copying",
+    "placeholders": {}
+  },
+  "offline_editor.recovery": {
+    "message": "Recent changes may not have been saved. The last successful version from {time} was loaded.",
+    "placeholders": {
+      "time": "datetime"
+    }
+  },
+  "offline_editor.finding_count": {
+    "message": "Findings: {count}",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "offline_editor.selected_count": {
+    "message": "Selected widgets: {count}",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "offline_editor.selection_help": {
+    "message": "Ctrl+click toggles selection; Shift+click selects a range. In the list, Space toggles a widget. Ctrl+A selects all, Esc clears selection. Copy and paste use this application window only.",
+    "placeholders": {}
+  },
+  "offline_editor.remove_selection": {
+    "message": "Remove selected widgets",
+    "placeholders": {}
+  },
+  "offline_editor.checks_help": {
+    "message": "These local composition checks also appear on the canvas and widget list. The server validates every save. Publishing requires separate source assignment and verification.",
+    "placeholders": {}
+  },
+  "offline_editor.check.name": {
+    "message": "Enter a page name.",
+    "placeholders": {}
+  },
+  "offline_editor.check.empty": {
+    "message": "The page has no widgets.",
+    "placeholders": {}
+  },
+  "offline_editor.check.ids": {
+    "message": "Widget IDs must be unique.",
+    "placeholders": {}
+  },
+  "offline_editor.check.bounds": {
+    "message": "Widget geometry must fit the 72 × 64 grid.",
+    "placeholders": {}
+  },
+  "offline_editor.check.overlap": {
+    "message": "Widgets overlap.",
+    "placeholders": {}
+  },
+  "offline_editor.check.incomplete": {
+    "message": "The widget has no metric source.",
+    "placeholders": {}
+  },
+  "offline_editor.check.catalog": {
+    "message": "Catalog {catalog} is not pinned to this page.",
+    "placeholders": {
+      "catalog": "text"
+    }
+  },
+  "offline_editor.check.metric": {
+    "message": "Metric {metric} is unavailable in the pinned catalog.",
+    "placeholders": {
+      "metric": "text"
+    }
+  },
+  "offline_editor.check.metric_type": {
+    "message": "The metric type is unsupported by this widget.",
+    "placeholders": {}
+  },
+  "offline_editor.check.role": {
+    "message": "Check role {role} and its source selector.",
+    "placeholders": {
+      "role": "text"
+    }
+  },
+  "offline_editor.check.binding": {
+    "message": "Assign and verify real sources before publishing.",
+    "placeholders": {}
+  },
+  "offline_editor.clipboard.copy": {
+    "message": "Copy",
+    "placeholders": {}
+  },
+  "offline_editor.clipboard.cut": {
+    "message": "Cut",
+    "placeholders": {}
+  },
+  "offline_editor.clipboard.paste": {
+    "message": "Paste widgets",
+    "placeholders": {}
+  },
+  "offline_editor.clipboard.cut_pending": {
+    "message": "Cut staged for {count} widgets. The source stays unchanged until a successful paste on the same page.",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "offline_editor.clipboard.copied": {
+    "message": "Copied widgets: {count}. Stored in memory until this window closes.",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "offline_editor.clipboard.resolve_help": {
+    "message": "Review placement and source compatibility. Pasting is one undoable operation and never moves existing widgets.",
+    "placeholders": {}
+  },
+  "offline_editor.clipboard.placement": {
+    "message": "Placement",
+    "placeholders": {}
+  },
+  "offline_editor.clipboard.original": {
+    "message": "Original coordinates",
+    "placeholders": {}
+  },
+  "offline_editor.clipboard.first_free": {
+    "message": "First free area, keeping relative positions",
+    "placeholders": {}
+  },
+  "offline_editor.clipboard.resolve_sources": {
+    "message": "Review explicit source choices below. Exact identities are preselected; different identities require your choice. All choices are rechecked against the current target before insertion.",
+    "placeholders": {}
+  },
+  "offline_editor.clipboard.apply": {
+    "message": "Paste",
+    "placeholders": {}
+  },
+  "offline_editor.clipboard.empty": {
+    "message": "Select widgets to copy.",
+    "placeholders": {}
+  },
+  "offline_editor.clipboard.opaque": {
+    "message": "The entire selection was rejected because it includes a preserved widget. Its opaque data stays unchanged.",
+    "placeholders": {}
+  },
+  "offline_editor.clipboard.reference": {
+    "message": "Copying widgets with additional fields or references is unsupported. The entire selection was rejected.",
+    "placeholders": {}
+  },
+  "offline_editor.clipboard.catalog": {
+    "message": "Choose an existing pinned target catalog for source catalog {value}.",
+    "placeholders": {
+      "value": "text"
+    }
+  },
+  "offline_editor.clipboard.role": {
+    "message": "Resolve role {value}: cardinality, slot count and declared order must match.",
+    "placeholders": {
+      "value": "text"
+    }
+  },
+  "offline_editor.clipboard.metric": {
+    "message": "Choose a current pinned target metric for {value}, with matching value type and units.",
+    "placeholders": {
+      "value": "text"
+    }
+  },
+  "offline_editor.clipboard.geometry": {
+    "message": "The whole group cannot fit without overlaps. Choose another placement or free space.",
+    "placeholders": {}
+  },
+  "offline_editor.clipboard.limit": {
+    "message": "Pasting would exceed the page widget limit.",
+    "placeholders": {}
+  },
+  "offline_editor.clipboard.source_changed": {
+    "message": "The cut source changed. Select and cut again.",
+    "placeholders": {}
+  },
+  "offline_editor.clipboard.cross_page_cut": {
+    "message": "Cutting between pages is not available. Copy instead; the source has not changed.",
+    "placeholders": {}
+  },
+  "offline_editor.clipboard.ids": {
+    "message": "Unique widget IDs could not be allocated. Nothing was pasted.",
+    "placeholders": {}
+  },
+  "editor.op.paste": {
+    "message": "Paste widgets",
+    "placeholders": {}
+  },
+  "offline_editor.resolve.title": {
+    "message": "Choose target sources",
+    "placeholders": {}
+  },
+  "offline_editor.resolve.help": {
+    "message": "Choose existing pinned catalogs, compatible metrics and roles. Only matching value types and units are offered. Choices change only the inserted widgets; target roles and catalogs stay unchanged.",
+    "placeholders": {}
+  },
+  "offline_editor.resolve.catalog": {
+    "message": "Source catalog {catalog}, version {version}",
+    "placeholders": {
+      "catalog": "text",
+      "version": "number"
+    }
+  },
+  "offline_editor.resolve.target_catalog": {
+    "message": "Target pinned catalog",
+    "placeholders": {}
+  },
+  "offline_editor.resolve.target_metric": {
+    "message": "Target metric",
+    "placeholders": {}
+  },
+  "offline_editor.resolve.choose": {
+    "message": "Choose explicitly",
+    "placeholders": {}
+  },
+  "offline_editor.resolve.no_metrics": {
+    "message": "This pinned catalog has no metrics with matching value type and units.",
+    "placeholders": {}
+  },
+  "offline_editor.resolve.role": {
+    "message": "Source role {role}, slots: {count}",
+    "placeholders": {
+      "role": "text",
+      "count": "number"
+    }
+  },
+  "offline_editor.resolve.target_role": {
+    "message": "Target role",
+    "placeholders": {}
+  },
+  "offline_editor.resolve.no_roles": {
+    "message": "No target role has the same cardinality and slot count. Configure the target page before retrying.",
+    "placeholders": {}
+  },
+  "offline_editor.resolve.slot_order": {
+    "message": "Map every slot once, preserving declared order. Changing the number or order of repeated sources is not available in this paste.",
+    "placeholders": {}
+  },
+  "offline_editor.resolve.slot": {
+    "message": "Source slot {slot}, position {position}",
+    "placeholders": {
+      "slot": "text",
+      "position": "number"
+    }
+  },
+  "offline_editor.resolve.go_to_object": {
+    "message": "Go to object",
+    "placeholders": {}
+  }
+}

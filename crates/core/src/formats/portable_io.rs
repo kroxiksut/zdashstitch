@@ -78,7 +78,7 @@ pub struct PortableBundle {
     pub catalogs: BTreeMap<String, MetricCatalog>,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, serde::Deserialize)]
 pub struct TypedPortableBundle {
     pub project: TypedProject,
     pub catalogs: BTreeMap<String, MetricCatalog>,

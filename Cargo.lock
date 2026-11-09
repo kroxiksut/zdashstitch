@@ -4822,6 +4822,7 @@ dependencies = [
  "tower-http 0.7.1",
  "unicode-normalization",
  "zdashstitch-application",
+ "zdashstitch-core",
 ]
 
 [[package]]

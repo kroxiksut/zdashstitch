@@ -407,6 +407,10 @@
     "message": "The settings file has errors and was not applied",
     "placeholders": {}
   },
+  "settings.file.unreadable": { "message": "The settings file cannot be read safely. Changes are unavailable.", "placeholders": {} },
+  "settings.file.unreadable.title": { "message": "Settings are unavailable", "placeholders": {} },
+  "settings.file.changed.title": { "message": "The settings file changed", "placeholders": {} },
+  "settings.file.changed.body": { "message": "Your choice is visible here but was not saved. Reload the settings before saving again.", "placeholders": {} },
   "settings.appearance.invalid_body": {
     "message": "The last valid settings are in use. Until the file is fixed, changes made here apply until restart and are not saved.",
     "placeholders": {}
@@ -426,5 +430,18 @@
   "settings.reset.section": {
     "message": "Reset section",
     "placeholders": {}
-  }
+  },
+  "settings.autosave.title": { "message": "Autosave", "placeholders": {} },
+  "settings.autosave.max_interval": { "message": "Save at least every {seconds} s", "placeholders": { "seconds": "number" } },
+  "settings.autosave.off_warning": { "message": "Unsaved changes are lost if the application or the computer fails.", "placeholders": {} },
+  "settings.editor.autosave_mode": { "message": "Autosave mode", "placeholders": {} },
+  "settings.editor.max_interval": { "message": "Maximum interval while editing", "placeholders": {} },
+  "settings.editor.on": { "message": "On", "placeholders": {} },
+  "settings.editor.off": { "message": "Off", "placeholders": {} },
+  "settings.editor.error.unavailable": { "message": "Editor settings could not be loaded.", "placeholders": {} },
+  "settings.editor.error.changed": { "message": "The settings file changed. Reload this section before saving.", "placeholders": {} },
+  "settings.editor.error.not_saved": { "message": "Editor settings were not saved.", "placeholders": {} },
+  "settings.editor.session_only": { "message": "This change applies until the application restarts. The invalid settings file was not changed.", "placeholders": {} },
+  "settings.editor.reload": { "message": "Reload settings", "placeholders": {} },
+  "settings.editor.autosave_after_create": { "message": "Autosave starts after the first explicit page save.", "placeholders": {} }
 }

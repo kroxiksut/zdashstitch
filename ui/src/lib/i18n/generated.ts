@@ -771,6 +771,16 @@ export const catalogs = {
     "drafts.state.stale": "Out of date",
     "drafts.subtitle": "Local dashboards and pages. Stored only on this computer; saving is not publishing.",
     "drafts.title": "Drafts",
+    "editor.action.redo": "Redo: {action}",
+    "editor.action.undo": "Undo: {action}",
+    "editor.op.add_widget": "adding a widget",
+    "editor.op.bindings": "changing host roles",
+    "editor.op.edit_field": "changing {field}",
+    "editor.op.move": "moving a widget",
+    "editor.op.page": "page change",
+    "editor.op.paste": "Paste widgets",
+    "editor.op.remove_widget": "deleting a widget",
+    "editor.op.resize": "resizing a widget",
     "editor.unavailable_yet": "The page editor will appear in a later version.",
     "errors.address.fragment": "Remove the fragment (#…) from the address.",
     "errors.address.host": "The address has no server name.",
@@ -915,6 +925,181 @@ export const catalogs = {
     "object.page.numbered": "{number}. {name}",
     "object.page.unnamed": "Page {number}",
     "object.page.widget_count": "{count, plural, one {# widget} other {# widgets}}",
+    "offline_builder.add_graph": "Add graph with selected numeric metrics",
+    "offline_builder.add_item": "Add item value for selected metric",
+    "offline_builder.add_repeat": "Add item value for each host",
+    "offline_builder.add_role": "Add role",
+    "offline_builder.apply_graph": "Apply graph changes",
+    "offline_builder.apply_item": "Apply single item value changes",
+    "offline_builder.apply_repeat": "Apply repeated item value changes",
+    "offline_builder.apply_role": "Apply role changes",
+    "offline_builder.cardinality": "Hosts in the role",
+    "offline_builder.catalog_in_use": "Remove widgets that use this catalog before changing its version or deselecting it.",
+    "offline_builder.choose_catalogs": "Metric catalogs",
+    "offline_builder.choose_metrics": "Metrics for this page",
+    "offline_builder.choose_slot": "Choose a slot",
+    "offline_builder.conflict": "Another save changed this page. Your form is preserved; reload the saved version to continue. Changes were not overwritten.",
+    "offline_builder.drafts_empty": "No drafts yet",
+    "offline_builder.edit_role": "Edit role {role}",
+    "offline_builder.edit_title": "Edit local page composition",
+    "offline_builder.edit_widget": "Edit widget {widget}",
+    "offline_builder.empty": "No local pages saved yet.",
+    "offline_builder.error": "The page operation failed. Check the selected metrics and try again.",
+    "offline_builder.go_to_drafts": "Create a local page",
+    "offline_builder.help": "Choose catalog versions and metrics, add a graph or item value, then save a local page. Server hosts are assigned later.",
+    "offline_builder.leave_dirty": "The form has unsaved changes. Leave and discard them?",
+    "offline_builder.library_unavailable": "The library could not be loaded. Saved catalog copies remain available for this page.",
+    "offline_builder.logical_counts": "Declared composition: {widgets} widget instances, {sources} metric sources.",
+    "offline_builder.logical_help": "Logical composition only: slots are unbound, layout and target limits must be checked after assigning real hosts.",
+    "offline_builder.logical_truncated": "The list shows at most 256 instances and 512 metric sources; totals include the entire composition.",
+    "offline_builder.manual_help": "This form saves manually. Autosave, undo and the visual editor are not available in this implementation yet. Apply each role or widget change before saving the page.",
+    "offline_builder.metric_source": "Source for {metric}",
+    "offline_builder.new_page": "New local page",
+    "offline_builder.open_draft": "Open saved page",
+    "offline_builder.opened": "Catalogs: {catalogs}. Logical widgets: {widgets}.",
+    "offline_builder.page_name": "Page name",
+    "offline_builder.pending_help": "Apply or cancel the role or widget input before saving the page.",
+    "offline_builder.reload": "Reload saved version",
+    "offline_builder.remove": "Remove",
+    "offline_builder.remove_role": "Remove role {role}",
+    "offline_builder.repeated": "Repeated for each host",
+    "offline_builder.role_id": "Role ID",
+    "offline_builder.role_in_use": "Remove widgets that use this role before removing the role.",
+    "offline_builder.role_invalid": "Check role and slot IDs. IDs must be unique, a single-host role needs exactly one slot, and a multiple-host role needs 1–256 slots.",
+    "offline_builder.role_many": "Multiple hosts",
+    "offline_builder.role_one": "One host",
+    "offline_builder.roles": "Host roles and logical slots",
+    "offline_builder.roles_help": "Slots describe future hosts in their explicit order. Use unique IDs with 2–64 lowercase Latin letters, digits, underscores or hyphens, starting with a letter. Real hosts are assigned later.",
+    "offline_builder.save": "Save local page",
+    "offline_builder.saved": "The local page was saved.",
+    "offline_builder.saved_composition": "Last saved composition",
+    "offline_builder.saved_pages": "Saved local pages",
+    "offline_builder.saving": "Saving locally…",
+    "offline_builder.select_all": "All declared slots, in order",
+    "offline_builder.select_one": "The role's single host",
+    "offline_builder.select_slot": "One explicitly selected slot",
+    "offline_builder.selection": "Use hosts",
+    "offline_builder.server_copies_empty": "No server copies yet. Local pages are listed below.",
+    "offline_builder.slot": "Logical slot",
+    "offline_builder.slots": "Slot IDs, one per line, in host order",
+    "offline_builder.slots_missing": "This earlier page has no explicit logical slots. Edit its role to declare slots before saving changes.",
+    "offline_builder.source_role": "Host role",
+    "offline_builder.title": "Create a page from metric catalogs",
+    "offline_builder.unsaved": "Unsaved changes",
+    "offline_builder.version": "Version {version}",
+    "offline_builder.widget_title": "Widget title",
+    "offline_builder.widgets": "Widgets to save",
+    "offline_dashboard.add": "Add page",
+    "offline_dashboard.add_page": "Saved local page",
+    "offline_dashboard.back": "Back to dashboard",
+    "offline_dashboard.conflict": "This dashboard changed in another tab. Reopen it before saving.",
+    "offline_dashboard.export": "Export dashboard package",
+    "offline_dashboard.export_caution": "The package may contain internal information. Check your organization's rules before sharing it externally.",
+    "offline_dashboard.export_failed": "The dashboard package could not be prepared. The saved dashboard was not changed.",
+    "offline_dashboard.failed": "The dashboard could not be saved. Check page catalogs, roles and slots for conflicts.",
+    "offline_dashboard.help": "Add saved local pages to a dashboard. Each page is copied when you save; later changes to the source page do not change this dashboard.",
+    "offline_dashboard.leave_dirty": "Leave this dashboard with unsaved changes?",
+    "offline_dashboard.move_down": "Move down",
+    "offline_dashboard.move_up": "Move up",
+    "offline_dashboard.name": "Dashboard name",
+    "offline_dashboard.no_pages": "Create and save a local page first.",
+    "offline_dashboard.page_load_failed": "This dashboard page could not be opened.",
+    "offline_dashboard.pages": "Dashboard pages",
+    "offline_dashboard.pending": "Pages to add when saving",
+    "offline_dashboard.reference_conflict": "A source page defines the same widget reference more than once. Fix that page before adding it.",
+    "offline_dashboard.reference_unresolved": "A source page has a widget link without a matching provider on that page. Fix the source page before adding it.",
+    "offline_dashboard.remove": "Remove",
+    "offline_dashboard.save": "Save dashboard",
+    "offline_dashboard.save_before_export": "Save your changes before exporting the dashboard.",
+    "offline_dashboard.saved": "The local dashboard was saved.",
+    "offline_dashboard.sources_fixed": "This page belongs to a dashboard. Its source roles and catalog versions are shared with other pages; edit widgets and layout here.",
+    "offline_dashboard.title": "Create a local dashboard",
+    "offline_dashboard.widget_count": "Widgets: {count}",
+    "offline_editor.apply_geometry": "Apply position and size",
+    "offline_editor.autosave": "Autosave for this session",
+    "offline_editor.autosave_after_create": "Autosave starts after the first explicit page save.",
+    "offline_editor.autosave_help": "Applied changes save after 2 seconds of inactivity or after 30 seconds of continuous editing. Unapplied role and widget input stays in the form.",
+    "offline_editor.box": "Column {x}, row {y} · {w} × {h}",
+    "offline_editor.canvas": "Page canvas: 72 columns × 64 rows",
+    "offline_editor.canvas_help": "Select a widget. Arrows move by 1 cell; Shift+arrows by 6; Ctrl+arrows resize. Delete removes a supported widget, Ctrl+D duplicates it. Placement and size also have numeric controls. Zoom changes only the view.",
+    "offline_editor.check.binding": "Assign and verify real sources before publishing.",
+    "offline_editor.check.bounds": "Widget geometry must fit the 72 × 64 grid.",
+    "offline_editor.check.catalog": "Catalog {catalog} is not pinned to this page.",
+    "offline_editor.check.empty": "The page has no widgets.",
+    "offline_editor.check.ids": "Widget IDs must be unique.",
+    "offline_editor.check.incomplete": "The widget has no metric source.",
+    "offline_editor.check.metric": "Metric {metric} is unavailable in the pinned catalog.",
+    "offline_editor.check.metric_type": "The metric type is unsupported by this widget.",
+    "offline_editor.check.name": "Enter a page name.",
+    "offline_editor.check.overlap": "Widgets overlap.",
+    "offline_editor.check.role": "Check role {role} and its source selector.",
+    "offline_editor.checks_help": "These local composition checks also appear on the canvas and widget list. The server validates every save. Publishing requires separate source assignment and verification.",
+    "offline_editor.claiming": "Checking editor ownership…",
+    "offline_editor.clipboard.apply": "Paste",
+    "offline_editor.clipboard.catalog": "Choose an existing pinned target catalog for source catalog {value}.",
+    "offline_editor.clipboard.copied": "Copied widgets: {count}. Stored in memory until this window closes.",
+    "offline_editor.clipboard.copy": "Copy",
+    "offline_editor.clipboard.cross_page_cut": "Cutting between pages is not available. Copy instead; the source has not changed.",
+    "offline_editor.clipboard.cut": "Cut",
+    "offline_editor.clipboard.cut_pending": "Cut staged for {count} widgets. The source stays unchanged until a successful paste on the same page.",
+    "offline_editor.clipboard.empty": "Select widgets to copy.",
+    "offline_editor.clipboard.first_free": "First free area, keeping relative positions",
+    "offline_editor.clipboard.geometry": "The whole group cannot fit without overlaps. Choose another placement or free space.",
+    "offline_editor.clipboard.ids": "Unique widget IDs could not be allocated. Nothing was pasted.",
+    "offline_editor.clipboard.limit": "Pasting would exceed the page widget limit.",
+    "offline_editor.clipboard.metric": "Choose a current pinned target metric for {value}, with matching value type and units.",
+    "offline_editor.clipboard.opaque": "The entire selection was rejected because it includes a preserved widget. Its opaque data stays unchanged.",
+    "offline_editor.clipboard.original": "Original coordinates",
+    "offline_editor.clipboard.paste": "Paste widgets",
+    "offline_editor.clipboard.placement": "Placement",
+    "offline_editor.clipboard.reference": "Copying widgets with additional fields or references is unsupported. The entire selection was rejected.",
+    "offline_editor.clipboard.resolve_help": "Review placement and source compatibility. Pasting is one undoable operation and never moves existing widgets.",
+    "offline_editor.clipboard.resolve_sources": "Review explicit source choices below. Exact identities are preselected; different identities require your choice. All choices are rechecked against the current target before insertion.",
+    "offline_editor.clipboard.role": "Resolve role {value}: cardinality, slot count and declared order must match.",
+    "offline_editor.clipboard.source_changed": "The cut source changed. Select and cut again.",
+    "offline_editor.edit_here": "Edit here",
+    "offline_editor.finding_count": "Findings: {count}",
+    "offline_editor.geometry_for": "Position and size: {widget}",
+    "offline_editor.geometry_rejected": "The widget was not moved: choose whole cells within the grid without overlaps. Repeated widgets keep automatic placement.",
+    "offline_editor.h": "Height in cells",
+    "offline_editor.history_hint": "Opening loads the last successfully saved version. Undo is available for changes since opening; history is kept only in memory.",
+    "offline_editor.history_limit": "Only the latest 200 steps are available; earlier steps were removed.",
+    "offline_editor.no_history": "no steps",
+    "offline_editor.opaque": "Fields are preserved as is. Only geometry can be changed in this slice; field editing, deletion and duplication are unavailable.",
+    "offline_editor.open_elsewhere": "Open for editing in another tab. This tab is read-only; unsaved input remains available for copying.",
+    "offline_editor.owner_unavailable": "Editor ownership could not be confirmed. Saving is stopped until ownership is confirmed.",
+    "offline_editor.place": "Place in first free space",
+    "offline_editor.recovery": "Recent changes may not have been saved. The last successful version from {time} was loaded.",
+    "offline_editor.remove_selection": "Remove selected widgets",
+    "offline_editor.repeat_auto": "Repeated widgets: automatic placement after host binding",
+    "offline_editor.resize": "Resize",
+    "offline_editor.resize_widget": "Resize {widget}",
+    "offline_editor.resolve.catalog": "Source catalog {catalog}, version {version}",
+    "offline_editor.resolve.choose": "Choose explicitly",
+    "offline_editor.resolve.go_to_object": "Go to object",
+    "offline_editor.resolve.help": "Choose existing pinned catalogs, compatible metrics and roles. Only matching value types and units are offered. Choices change only the inserted widgets; target roles and catalogs stay unchanged.",
+    "offline_editor.resolve.no_metrics": "This pinned catalog has no metrics with matching value type and units.",
+    "offline_editor.resolve.no_roles": "No target role has the same cardinality and slot count. Configure the target page before retrying.",
+    "offline_editor.resolve.role": "Source role {role}, slots: {count}",
+    "offline_editor.resolve.slot": "Source slot {slot}, position {position}",
+    "offline_editor.resolve.slot_order": "Map every slot once, preserving declared order. Changing the number or order of repeated sources is not available in this paste.",
+    "offline_editor.resolve.target_catalog": "Target pinned catalog",
+    "offline_editor.resolve.target_metric": "Target metric",
+    "offline_editor.resolve.target_role": "Target role",
+    "offline_editor.resolve.title": "Choose target sources",
+    "offline_editor.retry": "Not saved. Retrying in {seconds} seconds. The current form is preserved.",
+    "offline_editor.scope": "Local page editing: history and layout, without server publication or live values.",
+    "offline_editor.selected_count": "Selected widgets: {count}",
+    "offline_editor.selection_help": "Ctrl+click toggles selection; Shift+click selects a range. In the list, Space toggles a widget. Ctrl+A selects all, Esc clears selection. Copy and paste use this application window only.",
+    "offline_editor.unsaved_copy": "Unsaved input for copying",
+    "offline_editor.w": "Width in cells",
+    "offline_editor.widget_box": "{widget}: column {x}, row {y}, width {w}, height {h}",
+    "offline_editor.x": "Column (0–71)",
+    "offline_editor.y": "Row (0–63)",
+    "offline_editor.zoom_fit": "Fit width",
+    "offline_editor.zoom_in": "Zoom in",
+    "offline_editor.zoom_out": "Zoom out",
+    "offline_editor.zoom_reset": "100%",
     "publication.a11y.steps": "Publication steps",
     "publication.access.copy_private": "The new dashboard is private and you are its owner. Writing sharing is turned on after its laboratory check.",
     "publication.access.title": "Owner and sharing",
@@ -1310,15 +1495,32 @@ export const catalogs = {
     "settings.appearance.saved": "Saved to the settings file",
     "settings.appearance.subtitle": "Changes apply immediately and are saved to the settings file.",
     "settings.appearance.title": "Appearance",
+    "settings.autosave.max_interval": "Save at least every {seconds} s",
+    "settings.autosave.off_warning": "Unsaved changes are lost if the application or the computer fails.",
+    "settings.autosave.title": "Autosave",
     "settings.changed": "changed",
     "settings.connections.title": "Connections and certificates",
     "settings.contrast.note": "Choose the «High contrast» theme. The system contrast mode is also respected and takes priority over any theme.",
     "settings.contrast.title": "High contrast",
     "settings.data_not_translated": "Dashboard names, hosts and other Zabbix data are not translated. Terms follow the Zabbix localization.",
+    "settings.editor.autosave_after_create": "Autosave starts after the first explicit page save.",
+    "settings.editor.autosave_mode": "Autosave mode",
+    "settings.editor.error.changed": "The settings file changed. Reload this section before saving.",
+    "settings.editor.error.not_saved": "Editor settings were not saved.",
+    "settings.editor.error.unavailable": "Editor settings could not be loaded.",
+    "settings.editor.max_interval": "Maximum interval while editing",
+    "settings.editor.off": "Off",
+    "settings.editor.on": "On",
+    "settings.editor.reload": "Reload settings",
+    "settings.editor.session_only": "This change applies until the application restarts. The invalid settings file was not changed.",
     "settings.editor.title": "Editor",
+    "settings.file.changed.body": "Your choice is visible here but was not saved. Reload the settings before saving again.",
+    "settings.file.changed.title": "The settings file changed",
     "settings.file.hint": "Settings are stored in a YAML file that you can edit by hand. An invalid file is not applied.",
     "settings.file.invalid.title": "The settings file has errors and was not applied",
     "settings.file.title": "Settings file",
+    "settings.file.unreadable": "The settings file cannot be read safely. Changes are unavailable.",
+    "settings.file.unreadable.title": "Settings are unavailable",
     "settings.formats.count": "Count",
     "settings.formats.count_sample": "{widgets, plural, one {# widget} other {# widgets}} · {pages, plural, one {# page} other {# pages}} · {more, plural, one {# widget} other {# widgets}}",
     "settings.formats.datetime": "Date and time",
@@ -1418,9 +1620,9 @@ export const catalogs = {
     "startup.subtitle": "Create and maintain Zabbix dashboards locally",
     "template_import.action_failed": "The file operation failed. Inspect the files again before retrying.",
     "template_import.becomes": "Metric catalogs to save: {count}, one per template.",
+    "template_import.catalog_use_later": "Saved catalogs can be selected when creating a page in Drafts.",
     "template_import.catalogs": "Metric catalogs",
     "template_import.choose": "Upload through the browser",
-    "template_import.choose_native": "Choose files…",
     "template_import.empty": "No metric catalogs have been saved yet.",
     "template_import.help": "Choose Zabbix 7.4 template exports in YAML, JSON or XML. Review the result before saving catalogs on this computer.",
     "template_import.inspect": "Inspect files",
@@ -1433,6 +1635,9 @@ export const catalogs = {
     "template_import.rejected": "File rejected ({code}).",
     "template_import.save": "Save catalogs to the library",
     "template_import.saved": "Catalogs saved: {count}.",
+    "template_import.selected": "Selected files: {count}",
+    "template_import.server_future": "Importing templates directly from a connected Zabbix server will be available in a later step.",
+    "template_import.source_steps": "To get a file, open Zabbix 7.4 → Data collection → Templates, select the templates and click Export. Save the YAML, JSON or XML file, then choose it here.",
     "template_import.unresolved_macros": "Some macro values require additional context.",
     "template_import.version": "Catalog version {version} · Zabbix export {export_version}",
     "widget.type.actionlog": "Action log",
@@ -2239,6 +2444,16 @@ export const catalogs = {
     "drafts.state.stale": "Устарела",
     "drafts.subtitle": "Локальные панели и страницы. Хранятся только на этом компьютере; сохранение — не публикация.",
     "drafts.title": "Черновики",
+    "editor.action.redo": "Повторить: {action}",
+    "editor.action.undo": "Отменить: {action}",
+    "editor.op.add_widget": "добавление виджета",
+    "editor.op.bindings": "изменение ролей узлов сети",
+    "editor.op.edit_field": "изменение «{field}»",
+    "editor.op.move": "перемещение виджета",
+    "editor.op.page": "изменение страницы",
+    "editor.op.paste": "Вставка виджетов",
+    "editor.op.remove_widget": "удаление виджета",
+    "editor.op.resize": "изменение размера виджета",
     "editor.unavailable_yet": "Редактор страницы появится в следующей версии.",
     "errors.address.fragment": "Уберите из адреса фрагмент (#…).",
     "errors.address.host": "В адресе нет имени сервера.",
@@ -2383,6 +2598,181 @@ export const catalogs = {
     "object.page.numbered": "{number}. {name}",
     "object.page.unnamed": "Страница {number}",
     "object.page.widget_count": "{count, plural, one {# виджет} few {# виджета} many {# виджетов} other {# виджета}}",
+    "offline_builder.add_graph": "Добавить график с выбранными числовыми метриками",
+    "offline_builder.add_item": "Добавить значение выбранного элемента данных",
+    "offline_builder.add_repeat": "Добавить значение элемента данных для каждого узла сети",
+    "offline_builder.add_role": "Добавить роль",
+    "offline_builder.apply_graph": "Применить изменения графика",
+    "offline_builder.apply_item": "Применить изменения одиночного значения элемента данных",
+    "offline_builder.apply_repeat": "Применить изменения повторяемого значения элемента данных",
+    "offline_builder.apply_role": "Применить изменения роли",
+    "offline_builder.cardinality": "Узлы сети в роли",
+    "offline_builder.catalog_in_use": "Удалите виджеты этого каталога перед сменой его версии или исключением.",
+    "offline_builder.choose_catalogs": "Каталоги метрик",
+    "offline_builder.choose_metrics": "Метрики для страницы",
+    "offline_builder.choose_slot": "Выберите слот",
+    "offline_builder.conflict": "Страница изменена другим сохранением. Ваша форма сохранена на экране; загрузите сохранённую версию для продолжения. Правки не были перезаписаны.",
+    "offline_builder.drafts_empty": "Черновиков пока нет",
+    "offline_builder.edit_role": "Изменить роль {role}",
+    "offline_builder.edit_title": "Изменить состав локальной страницы",
+    "offline_builder.edit_widget": "Изменить виджет «{widget}»",
+    "offline_builder.empty": "Локальных страниц пока нет.",
+    "offline_builder.error": "Операция со страницей не выполнена. Проверьте выбранные метрики и повторите.",
+    "offline_builder.go_to_drafts": "Создать локальную страницу",
+    "offline_builder.help": "Выберите версии каталогов и метрики, добавьте график или значение элемента данных и сохраните локальную страницу. Узлы сети назначаются позже.",
+    "offline_builder.leave_dirty": "В форме есть несохранённые изменения. Уйти и отбросить их?",
+    "offline_builder.library_unavailable": "Библиотека не загрузилась. Сохранённые копии каталогов этой страницы остаются доступны.",
+    "offline_builder.logical_counts": "Объявленный состав: экземпляров виджетов — {widgets}, источников метрик — {sources}.",
+    "offline_builder.logical_help": "Показан только логический состав: слоты не привязаны, размещение и ограничения цели проверяются после назначения реальных узлов сети.",
+    "offline_builder.logical_truncated": "В списке показано не более 256 экземпляров и 512 источников метрик; итоговые числа учитывают весь состав.",
+    "offline_builder.manual_help": "Эта форма сохраняет вручную. Автосохранение, отмена шагов и визуальный редактор в текущей реализации пока недоступны. Применяйте каждую правку роли или виджета перед сохранением страницы.",
+    "offline_builder.metric_source": "Источник для «{metric}»",
+    "offline_builder.new_page": "Новая локальная страница",
+    "offline_builder.open_draft": "Открыть сохранённую страницу",
+    "offline_builder.opened": "Каталогов: {catalogs}. Логических виджетов: {widgets}.",
+    "offline_builder.page_name": "Название страницы",
+    "offline_builder.pending_help": "Примените или отмените ввод роли или виджета перед сохранением страницы.",
+    "offline_builder.reload": "Загрузить сохранённую версию",
+    "offline_builder.remove": "Удалить",
+    "offline_builder.remove_role": "Удалить роль {role}",
+    "offline_builder.repeated": "Повтор для каждого узла сети",
+    "offline_builder.role_id": "ID роли",
+    "offline_builder.role_in_use": "Удалите виджеты этой роли перед удалением роли.",
+    "offline_builder.role_invalid": "Проверьте ID роли и слотов. ID должны быть уникальны, роли одного узла нужен ровно один слот, роли нескольких узлов — от 1 до 256 слотов.",
+    "offline_builder.role_many": "Несколько узлов сети",
+    "offline_builder.role_one": "Один узел сети",
+    "offline_builder.roles": "Роли узлов сети и логические слоты",
+    "offline_builder.roles_help": "Слоты описывают будущие узлы сети в явном порядке. Используйте уникальные ID из 2–64 строчных латинских букв, цифр, подчёркиваний и дефисов, начиная с буквы. Реальные узлы сети назначаются позже.",
+    "offline_builder.save": "Сохранить локальную страницу",
+    "offline_builder.saved": "Локальная страница сохранена.",
+    "offline_builder.saved_composition": "Последний сохранённый состав",
+    "offline_builder.saved_pages": "Сохранённые локальные страницы",
+    "offline_builder.saving": "Сохранение локально…",
+    "offline_builder.select_all": "Все объявленные слоты по порядку",
+    "offline_builder.select_one": "Единственный узел сети роли",
+    "offline_builder.select_slot": "Один явно выбранный слот",
+    "offline_builder.selection": "Какие узлы сети использовать",
+    "offline_builder.server_copies_empty": "Копий с сервера пока нет. Локальные страницы перечислены ниже.",
+    "offline_builder.slot": "Логический слот",
+    "offline_builder.slots": "ID слотов, по одному в строке, в порядке узлов сети",
+    "offline_builder.slots_missing": "В этой ранее созданной странице нет явных логических слотов. Измените её роль и объявите слоты перед сохранением правок.",
+    "offline_builder.source_role": "Роль узлов сети",
+    "offline_builder.title": "Создать страницу из каталогов метрик",
+    "offline_builder.unsaved": "Есть несохранённые изменения",
+    "offline_builder.version": "Версия {version}",
+    "offline_builder.widget_title": "Название виджета",
+    "offline_builder.widgets": "Виджеты для сохранения",
+    "offline_dashboard.add": "Добавить страницу",
+    "offline_dashboard.add_page": "Сохранённая локальная страница",
+    "offline_dashboard.back": "К панели",
+    "offline_dashboard.conflict": "Панель изменилась в другой вкладке. Откройте её заново перед сохранением.",
+    "offline_dashboard.export": "Экспортировать пакет панели",
+    "offline_dashboard.export_caution": "Пакет может содержать внутренние сведения. Перед внешней передачей проверьте правила вашей организации.",
+    "offline_dashboard.export_failed": "Не удалось подготовить пакет панели. Сохранённая панель не изменилась.",
+    "offline_dashboard.failed": "Не удалось сохранить панель. Проверьте совместимость каталогов, ролей и слотов страниц.",
+    "offline_dashboard.help": "Добавьте сохранённые локальные страницы в панель. При сохранении страницы копируются; дальнейшие изменения исходной страницы не меняют эту панель.",
+    "offline_dashboard.leave_dirty": "Покинуть панель с несохранёнными изменениями?",
+    "offline_dashboard.move_down": "Ниже",
+    "offline_dashboard.move_up": "Выше",
+    "offline_dashboard.name": "Название панели",
+    "offline_dashboard.no_pages": "Сначала создайте и сохраните локальную страницу.",
+    "offline_dashboard.page_load_failed": "Не удалось открыть страницу панели.",
+    "offline_dashboard.pages": "Страницы панели",
+    "offline_dashboard.pending": "Страницы для добавления при сохранении",
+    "offline_dashboard.reference_conflict": "На исходной странице один и тот же reference задан нескольким виджетам. Исправьте страницу перед добавлением.",
+    "offline_dashboard.reference_unresolved": "На исходной странице есть ссылка на виджет без источника на этой же странице. Исправьте страницу перед добавлением.",
+    "offline_dashboard.remove": "Убрать",
+    "offline_dashboard.save": "Сохранить панель",
+    "offline_dashboard.save_before_export": "Сохраните изменения панели перед экспортом.",
+    "offline_dashboard.saved": "Локальная панель сохранена.",
+    "offline_dashboard.sources_fixed": "Эта страница входит в панель. Роли источников и версии каталогов общие с другими страницами; здесь можно редактировать виджеты и размещение.",
+    "offline_dashboard.title": "Создать локальную панель",
+    "offline_dashboard.widget_count": "Виджетов: {count}",
+    "offline_editor.apply_geometry": "Применить положение и размер",
+    "offline_editor.autosave": "Автосохранение на этот сеанс",
+    "offline_editor.autosave_after_create": "Автосохранение включается после первого явного сохранения страницы.",
+    "offline_editor.autosave_help": "Применённые правки сохраняются после 2 секунд бездействия или через 30 секунд непрерывной правки. Неприменённый ввод роли и виджета остаётся в форме.",
+    "offline_editor.box": "Столбец {x}, строка {y} · {w} × {h}",
+    "offline_editor.canvas": "Холст страницы: 72 колонки × 64 строки",
+    "offline_editor.canvas_help": "Выберите виджет. Стрелки — сдвиг на 1 ячейку, Shift+стрелки — на 6, Ctrl+стрелки — размер. Delete удаляет поддержанный виджет, Ctrl+D создаёт копию. Положение и размер также задаются числами. Масштаб меняет только вид.",
+    "offline_editor.check.binding": "Перед публикацией назначьте и проверьте реальные источники.",
+    "offline_editor.check.bounds": "Виджет должен помещаться в сетку 72 × 64.",
+    "offline_editor.check.catalog": "Каталог {catalog} не закреплён за этой страницей.",
+    "offline_editor.check.empty": "На странице нет виджетов.",
+    "offline_editor.check.ids": "Идентификаторы виджетов должны быть уникальны.",
+    "offline_editor.check.incomplete": "У виджета нет источника метрики.",
+    "offline_editor.check.metric": "Метрика {metric} недоступна в закреплённом каталоге.",
+    "offline_editor.check.metric_type": "Тип метрики не поддерживается этим виджетом.",
+    "offline_editor.check.name": "Укажите имя страницы.",
+    "offline_editor.check.overlap": "Виджеты перекрываются.",
+    "offline_editor.check.role": "Проверьте роль {role} и выбор источников.",
+    "offline_editor.checks_help": "Эти проверки локальной композиции также показаны на холсте и в списке виджетов. Сервер проверяет каждое сохранение. Для публикации отдельно требуются назначение и проверка источников.",
+    "offline_editor.claiming": "Проверка владения редактором…",
+    "offline_editor.clipboard.apply": "Вставить",
+    "offline_editor.clipboard.catalog": "Выберите существующий закреплённый каталог цели для исходного каталога {value}.",
+    "offline_editor.clipboard.copied": "Скопировано виджетов: {count}. Данные хранятся в памяти до закрытия окна.",
+    "offline_editor.clipboard.copy": "Копировать",
+    "offline_editor.clipboard.cross_page_cut": "Вырезание между страницами недоступно. Используйте копирование; источник не изменён.",
+    "offline_editor.clipboard.cut": "Вырезать",
+    "offline_editor.clipboard.cut_pending": "Подготовлено вырезание: {count} виджетов. Источник изменится только после успешной вставки на той же странице.",
+    "offline_editor.clipboard.empty": "Выберите виджеты для копирования.",
+    "offline_editor.clipboard.first_free": "Первое свободное место с сохранением взаимного расположения",
+    "offline_editor.clipboard.geometry": "Всю группу не удалось разместить без перекрытий. Выберите другое размещение или освободите место.",
+    "offline_editor.clipboard.ids": "Не удалось выделить уникальные идентификаторы виджетов. Вставка отменена.",
+    "offline_editor.clipboard.limit": "Вставка превысит ограничение числа виджетов страницы.",
+    "offline_editor.clipboard.metric": "Выберите текущую закреплённую метрику цели для {value} с совпадающими типом значения и единицами измерения.",
+    "offline_editor.clipboard.opaque": "Всё выделение отклонено: оно содержит сохранённый неподдерживаемый виджет. Его данные остаются без изменений.",
+    "offline_editor.clipboard.original": "Исходные координаты",
+    "offline_editor.clipboard.paste": "Вставить виджеты",
+    "offline_editor.clipboard.placement": "Размещение",
+    "offline_editor.clipboard.reference": "Копирование виджетов с дополнительными полями или ссылками не поддерживается. Всё выделение отклонено.",
+    "offline_editor.clipboard.resolve_help": "Проверьте размещение и совместимость источников. Вставка — одна отменяемая операция; существующие виджеты не перемещаются.",
+    "offline_editor.clipboard.resolve_sources": "Проверьте явные соответствия источников ниже. Точно совпавшие идентификаторы выбраны заранее; отличающиеся требуют вашего выбора. Перед вставкой все соответствия повторно проверяются по текущей цели.",
+    "offline_editor.clipboard.role": "Разрешите роль {value}: кратность, число слотов и объявленный порядок должны совпадать.",
+    "offline_editor.clipboard.source_changed": "Источник вырезания изменился. Выделите и вырежьте заново.",
+    "offline_editor.edit_here": "Редактировать здесь",
+    "offline_editor.finding_count": "Замечаний: {count}",
+    "offline_editor.geometry_for": "Положение и размер: {widget}",
+    "offline_editor.geometry_rejected": "Виджет не перемещён: выберите целые ячейки в пределах сетки без перекрытий. Повторяемые виджеты сохраняют автоматическую раскладку.",
+    "offline_editor.h": "Высота в ячейках",
+    "offline_editor.history_hint": "Открытие загружает последнюю успешно сохранённую версию. Отмена доступна для изменений с момента открытия; история хранится только в памяти.",
+    "offline_editor.history_limit": "Доступны последние 200 шагов; более ранние шаги удалены.",
+    "offline_editor.no_history": "нет шагов",
+    "offline_editor.opaque": "Поля сохраняются как есть. В этом срезе меняется только геометрия; правка полей, удаление и копирование недоступны.",
+    "offline_editor.open_elsewhere": "Открыт для правки в другой вкладке. Эта вкладка доступна только для чтения; несохранённый ввод можно скопировать.",
+    "offline_editor.owner_unavailable": "Не удалось подтвердить владение редактором. Сохранение остановлено до подтверждения владения.",
+    "offline_editor.place": "Разместить на первом свободном месте",
+    "offline_editor.recovery": "Последние изменения могли не сохраниться. Загружена последняя успешная версия от {time}.",
+    "offline_editor.remove_selection": "Удалить выбранные виджеты",
+    "offline_editor.repeat_auto": "Повторяемые виджеты: автоматическое размещение после привязки узлов сети",
+    "offline_editor.resize": "Размер",
+    "offline_editor.resize_widget": "Изменить размер виджета «{widget}»",
+    "offline_editor.resolve.catalog": "Исходный каталог {catalog}, версия {version}",
+    "offline_editor.resolve.choose": "Выберите явно",
+    "offline_editor.resolve.go_to_object": "Перейти к объекту",
+    "offline_editor.resolve.help": "Выберите существующие закреплённые каталоги, совместимые метрики и роли. Предлагаются только совпадающие типы значений и единицы измерения. Выбор меняет только вставляемые виджеты; роли и каталоги цели сохраняются.",
+    "offline_editor.resolve.no_metrics": "В этом закреплённом каталоге нет метрик с совпадающими типом значения и единицами измерения.",
+    "offline_editor.resolve.no_roles": "Нет целевой роли с той же кратностью и числом слотов. Настройте целевую страницу и повторите вставку.",
+    "offline_editor.resolve.role": "Исходная роль {role}, слотов: {count}",
+    "offline_editor.resolve.slot": "Исходный слот {slot}, позиция {position}",
+    "offline_editor.resolve.slot_order": "Сопоставьте каждый слот один раз, сохраняя объявленный порядок. Эта вставка не меняет число или порядок повторяемых источников.",
+    "offline_editor.resolve.target_catalog": "Закреплённый каталог цели",
+    "offline_editor.resolve.target_metric": "Целевая метрика",
+    "offline_editor.resolve.target_role": "Целевая роль",
+    "offline_editor.resolve.title": "Выберите целевые источники",
+    "offline_editor.retry": "Не сохранено. Повтор через {seconds} секунд. Текущая форма оставлена на экране.",
+    "offline_editor.scope": "Правка локальной страницы: история и размещение, без публикации на сервере и реальных значений метрик.",
+    "offline_editor.selected_count": "Выбрано виджетов: {count}",
+    "offline_editor.selection_help": "Ctrl+щелчок переключает выделение; Shift+щелчок выделяет диапазон. В списке пробел переключает виджет. Ctrl+A выделяет все, Esc снимает выделение. Копирование и вставка доступны только в этом окне приложения.",
+    "offline_editor.unsaved_copy": "Несохранённый ввод для копирования",
+    "offline_editor.w": "Ширина в ячейках",
+    "offline_editor.widget_box": "{widget}: столбец {x}, строка {y}, ширина {w}, высота {h}",
+    "offline_editor.x": "Столбец (0–71)",
+    "offline_editor.y": "Строка (0–63)",
+    "offline_editor.zoom_fit": "По ширине",
+    "offline_editor.zoom_in": "Увеличить",
+    "offline_editor.zoom_out": "Уменьшить",
+    "offline_editor.zoom_reset": "100%",
     "publication.a11y.steps": "Шаги публикации",
     "publication.access.copy_private": "Новая панель — личная, владелец — вы. Запись доступа включится после её лабораторной проверки.",
     "publication.access.title": "Владелец и доступ",
@@ -2778,15 +3168,32 @@ export const catalogs = {
     "settings.appearance.saved": "Сохранено в файл настроек",
     "settings.appearance.subtitle": "Изменения применяются сразу и сохраняются в файл настроек.",
     "settings.appearance.title": "Внешний вид",
+    "settings.autosave.max_interval": "Сохранять не реже чем раз в {seconds} с",
+    "settings.autosave.off_warning": "Несохранённые изменения пропадут при сбое приложения или компьютера.",
+    "settings.autosave.title": "Автосохранение",
     "settings.changed": "изменено",
     "settings.connections.title": "Подключения и сертификаты",
     "settings.contrast.note": "Выберите тему «Высокая контрастность». Режим контрастности системы тоже учитывается и важнее любой темы.",
     "settings.contrast.title": "Высокая контрастность",
     "settings.data_not_translated": "Имена панелей, узлов сети и другие данные из Zabbix не переводятся. Термины — как в русском Zabbix.",
+    "settings.editor.autosave_after_create": "Автосохранение начинается после первого явного сохранения страницы.",
+    "settings.editor.autosave_mode": "Режим автосохранения",
+    "settings.editor.error.changed": "Файл настроек изменился. Перезагрузите этот раздел перед сохранением.",
+    "settings.editor.error.not_saved": "Настройки редактора не сохранены.",
+    "settings.editor.error.unavailable": "Не удалось загрузить настройки редактора.",
+    "settings.editor.max_interval": "Предельный интервал при редактировании",
+    "settings.editor.off": "Выключено",
+    "settings.editor.on": "Включено",
+    "settings.editor.reload": "Перезагрузить настройки",
+    "settings.editor.session_only": "Изменение действует до перезапуска приложения. Ошибочный файл настроек не изменён.",
     "settings.editor.title": "Редактор",
+    "settings.file.changed.body": "Ваш выбор виден здесь, но не сохранён. Перечитайте настройки перед повторным сохранением.",
+    "settings.file.changed.title": "Файл настроек изменился",
     "settings.file.hint": "Настройки хранятся в YAML-файле, его можно править вручную. Ошибочный файл не применяется.",
     "settings.file.invalid.title": "Файл настроек содержит ошибки и не применён",
     "settings.file.title": "Файл настроек",
+    "settings.file.unreadable": "Невозможно безопасно прочитать файл настроек. Изменения недоступны.",
+    "settings.file.unreadable.title": "Настройки недоступны",
     "settings.formats.count": "Количество",
     "settings.formats.count_sample": "{widgets, plural, one {# виджет} few {# виджета} many {# виджетов} other {# виджета}} · {pages, plural, one {# страница} few {# страницы} many {# страниц} other {# страницы}} · {more, plural, one {# виджет} few {# виджета} many {# виджетов} other {# виджета}}",
     "settings.formats.datetime": "Дата и время",
@@ -2886,9 +3293,9 @@ export const catalogs = {
     "startup.subtitle": "Локальное создание и сопровождение панелей Zabbix",
     "template_import.action_failed": "Не удалось обработать файлы. Перед повторной попыткой проверьте их ещё раз.",
     "template_import.becomes": "Будет сохранено каталогов метрик: {count}, по одному на шаблон.",
+    "template_import.catalog_use_later": "Сохранённые каталоги можно выбрать при создании страницы в разделе «Черновики».",
     "template_import.catalogs": "Каталоги метрик",
     "template_import.choose": "Загрузить через браузер",
-    "template_import.choose_native": "Выбрать файлы…",
     "template_import.empty": "Пока нет сохранённых каталогов метрик.",
     "template_import.help": "Выберите экспорт шаблонов Zabbix 7.4 в YAML, JSON или XML. Проверьте результат перед сохранением каталогов на этом компьютере.",
     "template_import.inspect": "Проверить файлы",
@@ -2901,6 +3308,9 @@ export const catalogs = {
     "template_import.rejected": "Файл отклонён ({code}).",
     "template_import.save": "Сохранить каталоги в библиотеку",
     "template_import.saved": "Сохранено каталогов: {count}.",
+    "template_import.selected": "Выбрано файлов: {count}",
+    "template_import.server_future": "Импорт шаблонов напрямую с подключённого сервера Zabbix появится на следующем этапе.",
+    "template_import.source_steps": "Чтобы получить файл, откройте в Zabbix 7.4 раздел «Сбор данных → Шаблоны», отметьте шаблоны и нажмите «Экспорт». Сохраните YAML, JSON или XML, затем выберите файл здесь.",
     "template_import.unresolved_macros": "Для некоторых макросов нужны дополнительные данные.",
     "template_import.version": "Версия каталога {version} · экспорт Zabbix {export_version}",
     "widget.type.actionlog": "Журнал действий",
@@ -4065,6 +4475,22 @@ export const placeholderTypes = {
   "drafts.state.stale": {},
   "drafts.subtitle": {},
   "drafts.title": {},
+  "editor.action.redo": {
+    "action": "text"
+  },
+  "editor.action.undo": {
+    "action": "text"
+  },
+  "editor.op.add_widget": {},
+  "editor.op.bindings": {},
+  "editor.op.edit_field": {
+    "field": "text"
+  },
+  "editor.op.move": {},
+  "editor.op.page": {},
+  "editor.op.paste": {},
+  "editor.op.remove_widget": {},
+  "editor.op.resize": {},
   "editor.unavailable_yet": {},
   "errors.address.fragment": {},
   "errors.address.host": {},
@@ -4250,6 +4676,247 @@ export const placeholderTypes = {
   "object.page.widget_count": {
     "count": "number"
   },
+  "offline_builder.add_graph": {},
+  "offline_builder.add_item": {},
+  "offline_builder.add_repeat": {},
+  "offline_builder.add_role": {},
+  "offline_builder.apply_graph": {},
+  "offline_builder.apply_item": {},
+  "offline_builder.apply_repeat": {},
+  "offline_builder.apply_role": {},
+  "offline_builder.cardinality": {},
+  "offline_builder.catalog_in_use": {},
+  "offline_builder.choose_catalogs": {},
+  "offline_builder.choose_metrics": {},
+  "offline_builder.choose_slot": {},
+  "offline_builder.conflict": {},
+  "offline_builder.drafts_empty": {},
+  "offline_builder.edit_role": {
+    "role": "text"
+  },
+  "offline_builder.edit_title": {},
+  "offline_builder.edit_widget": {
+    "widget": "text"
+  },
+  "offline_builder.empty": {},
+  "offline_builder.error": {},
+  "offline_builder.go_to_drafts": {},
+  "offline_builder.help": {},
+  "offline_builder.leave_dirty": {},
+  "offline_builder.library_unavailable": {},
+  "offline_builder.logical_counts": {
+    "widgets": "number",
+    "sources": "number"
+  },
+  "offline_builder.logical_help": {},
+  "offline_builder.logical_truncated": {},
+  "offline_builder.manual_help": {},
+  "offline_builder.metric_source": {
+    "metric": "text"
+  },
+  "offline_builder.new_page": {},
+  "offline_builder.open_draft": {},
+  "offline_builder.opened": {
+    "catalogs": "number",
+    "widgets": "number"
+  },
+  "offline_builder.page_name": {},
+  "offline_builder.pending_help": {},
+  "offline_builder.reload": {},
+  "offline_builder.remove": {},
+  "offline_builder.remove_role": {
+    "role": "text"
+  },
+  "offline_builder.repeated": {},
+  "offline_builder.role_id": {},
+  "offline_builder.role_in_use": {},
+  "offline_builder.role_invalid": {},
+  "offline_builder.role_many": {},
+  "offline_builder.role_one": {},
+  "offline_builder.roles": {},
+  "offline_builder.roles_help": {},
+  "offline_builder.save": {},
+  "offline_builder.saved": {},
+  "offline_builder.saved_composition": {},
+  "offline_builder.saved_pages": {},
+  "offline_builder.saving": {},
+  "offline_builder.select_all": {},
+  "offline_builder.select_one": {},
+  "offline_builder.select_slot": {},
+  "offline_builder.selection": {},
+  "offline_builder.server_copies_empty": {},
+  "offline_builder.slot": {},
+  "offline_builder.slots": {},
+  "offline_builder.slots_missing": {},
+  "offline_builder.source_role": {},
+  "offline_builder.title": {},
+  "offline_builder.unsaved": {},
+  "offline_builder.version": {
+    "version": "number"
+  },
+  "offline_builder.widget_title": {},
+  "offline_builder.widgets": {},
+  "offline_dashboard.add": {},
+  "offline_dashboard.add_page": {},
+  "offline_dashboard.back": {},
+  "offline_dashboard.conflict": {},
+  "offline_dashboard.export": {},
+  "offline_dashboard.export_caution": {},
+  "offline_dashboard.export_failed": {},
+  "offline_dashboard.failed": {},
+  "offline_dashboard.help": {},
+  "offline_dashboard.leave_dirty": {},
+  "offline_dashboard.move_down": {},
+  "offline_dashboard.move_up": {},
+  "offline_dashboard.name": {},
+  "offline_dashboard.no_pages": {},
+  "offline_dashboard.page_load_failed": {},
+  "offline_dashboard.pages": {},
+  "offline_dashboard.pending": {},
+  "offline_dashboard.reference_conflict": {},
+  "offline_dashboard.reference_unresolved": {},
+  "offline_dashboard.remove": {},
+  "offline_dashboard.save": {},
+  "offline_dashboard.save_before_export": {},
+  "offline_dashboard.saved": {},
+  "offline_dashboard.sources_fixed": {},
+  "offline_dashboard.title": {},
+  "offline_dashboard.widget_count": {
+    "count": "number"
+  },
+  "offline_editor.apply_geometry": {},
+  "offline_editor.autosave": {},
+  "offline_editor.autosave_after_create": {},
+  "offline_editor.autosave_help": {},
+  "offline_editor.box": {
+    "x": "number",
+    "y": "number",
+    "w": "number",
+    "h": "number"
+  },
+  "offline_editor.canvas": {},
+  "offline_editor.canvas_help": {},
+  "offline_editor.check.binding": {},
+  "offline_editor.check.bounds": {},
+  "offline_editor.check.catalog": {
+    "catalog": "text"
+  },
+  "offline_editor.check.empty": {},
+  "offline_editor.check.ids": {},
+  "offline_editor.check.incomplete": {},
+  "offline_editor.check.metric": {
+    "metric": "text"
+  },
+  "offline_editor.check.metric_type": {},
+  "offline_editor.check.name": {},
+  "offline_editor.check.overlap": {},
+  "offline_editor.check.role": {
+    "role": "text"
+  },
+  "offline_editor.checks_help": {},
+  "offline_editor.claiming": {},
+  "offline_editor.clipboard.apply": {},
+  "offline_editor.clipboard.catalog": {
+    "value": "text"
+  },
+  "offline_editor.clipboard.copied": {
+    "count": "number"
+  },
+  "offline_editor.clipboard.copy": {},
+  "offline_editor.clipboard.cross_page_cut": {},
+  "offline_editor.clipboard.cut": {},
+  "offline_editor.clipboard.cut_pending": {
+    "count": "number"
+  },
+  "offline_editor.clipboard.empty": {},
+  "offline_editor.clipboard.first_free": {},
+  "offline_editor.clipboard.geometry": {},
+  "offline_editor.clipboard.ids": {},
+  "offline_editor.clipboard.limit": {},
+  "offline_editor.clipboard.metric": {
+    "value": "text"
+  },
+  "offline_editor.clipboard.opaque": {},
+  "offline_editor.clipboard.original": {},
+  "offline_editor.clipboard.paste": {},
+  "offline_editor.clipboard.placement": {},
+  "offline_editor.clipboard.reference": {},
+  "offline_editor.clipboard.resolve_help": {},
+  "offline_editor.clipboard.resolve_sources": {},
+  "offline_editor.clipboard.role": {
+    "value": "text"
+  },
+  "offline_editor.clipboard.source_changed": {},
+  "offline_editor.edit_here": {},
+  "offline_editor.finding_count": {
+    "count": "number"
+  },
+  "offline_editor.geometry_for": {
+    "widget": "text"
+  },
+  "offline_editor.geometry_rejected": {},
+  "offline_editor.h": {},
+  "offline_editor.history_hint": {},
+  "offline_editor.history_limit": {},
+  "offline_editor.no_history": {},
+  "offline_editor.opaque": {},
+  "offline_editor.open_elsewhere": {},
+  "offline_editor.owner_unavailable": {},
+  "offline_editor.place": {},
+  "offline_editor.recovery": {
+    "time": "datetime"
+  },
+  "offline_editor.remove_selection": {},
+  "offline_editor.repeat_auto": {},
+  "offline_editor.resize": {},
+  "offline_editor.resize_widget": {
+    "widget": "text"
+  },
+  "offline_editor.resolve.catalog": {
+    "catalog": "text",
+    "version": "number"
+  },
+  "offline_editor.resolve.choose": {},
+  "offline_editor.resolve.go_to_object": {},
+  "offline_editor.resolve.help": {},
+  "offline_editor.resolve.no_metrics": {},
+  "offline_editor.resolve.no_roles": {},
+  "offline_editor.resolve.role": {
+    "role": "text",
+    "count": "number"
+  },
+  "offline_editor.resolve.slot": {
+    "slot": "text",
+    "position": "number"
+  },
+  "offline_editor.resolve.slot_order": {},
+  "offline_editor.resolve.target_catalog": {},
+  "offline_editor.resolve.target_metric": {},
+  "offline_editor.resolve.target_role": {},
+  "offline_editor.resolve.title": {},
+  "offline_editor.retry": {
+    "seconds": "number"
+  },
+  "offline_editor.scope": {},
+  "offline_editor.selected_count": {
+    "count": "number"
+  },
+  "offline_editor.selection_help": {},
+  "offline_editor.unsaved_copy": {},
+  "offline_editor.w": {},
+  "offline_editor.widget_box": {
+    "widget": "text",
+    "x": "number",
+    "y": "number",
+    "w": "number",
+    "h": "number"
+  },
+  "offline_editor.x": {},
+  "offline_editor.y": {},
+  "offline_editor.zoom_fit": {},
+  "offline_editor.zoom_in": {},
+  "offline_editor.zoom_out": {},
+  "offline_editor.zoom_reset": {},
   "publication.a11y.steps": {},
   "publication.access.copy_private": {},
   "publication.access.title": {},
@@ -4800,15 +5467,34 @@ export const placeholderTypes = {
   "settings.appearance.saved": {},
   "settings.appearance.subtitle": {},
   "settings.appearance.title": {},
+  "settings.autosave.max_interval": {
+    "seconds": "number"
+  },
+  "settings.autosave.off_warning": {},
+  "settings.autosave.title": {},
   "settings.changed": {},
   "settings.connections.title": {},
   "settings.contrast.note": {},
   "settings.contrast.title": {},
   "settings.data_not_translated": {},
+  "settings.editor.autosave_after_create": {},
+  "settings.editor.autosave_mode": {},
+  "settings.editor.error.changed": {},
+  "settings.editor.error.not_saved": {},
+  "settings.editor.error.unavailable": {},
+  "settings.editor.max_interval": {},
+  "settings.editor.off": {},
+  "settings.editor.on": {},
+  "settings.editor.reload": {},
+  "settings.editor.session_only": {},
   "settings.editor.title": {},
+  "settings.file.changed.body": {},
+  "settings.file.changed.title": {},
   "settings.file.hint": {},
   "settings.file.invalid.title": {},
   "settings.file.title": {},
+  "settings.file.unreadable": {},
+  "settings.file.unreadable.title": {},
   "settings.formats.count": {},
   "settings.formats.count_sample": {
     "widgets": "number",
@@ -4952,9 +5638,9 @@ export const placeholderTypes = {
   "template_import.becomes": {
     "count": "number"
   },
+  "template_import.catalog_use_later": {},
   "template_import.catalogs": {},
   "template_import.choose": {},
-  "template_import.choose_native": {},
   "template_import.empty": {},
   "template_import.help": {},
   "template_import.inspect": {},
@@ -4978,6 +5664,11 @@ export const placeholderTypes = {
   "template_import.saved": {
     "count": "number"
   },
+  "template_import.selected": {
+    "count": "number"
+  },
+  "template_import.server_future": {},
+  "template_import.source_steps": {},
   "template_import.unresolved_macros": {},
   "template_import.version": {
     "version": "number",
@@ -7389,6 +8080,36 @@ export interface MessageParamsById {
   "drafts.title": {
 
   };
+  "editor.action.redo": {
+    "action": string;
+  };
+  "editor.action.undo": {
+    "action": string;
+  };
+  "editor.op.add_widget": {
+
+  };
+  "editor.op.bindings": {
+
+  };
+  "editor.op.edit_field": {
+    "field": string;
+  };
+  "editor.op.move": {
+
+  };
+  "editor.op.page": {
+
+  };
+  "editor.op.paste": {
+
+  };
+  "editor.op.remove_widget": {
+
+  };
+  "editor.op.resize": {
+
+  };
   "editor.unavailable_yet": {
 
   };
@@ -7821,6 +8542,543 @@ export interface MessageParamsById {
   };
   "object.page.widget_count": {
     "count": number;
+  };
+  "offline_builder.add_graph": {
+
+  };
+  "offline_builder.add_item": {
+
+  };
+  "offline_builder.add_repeat": {
+
+  };
+  "offline_builder.add_role": {
+
+  };
+  "offline_builder.apply_graph": {
+
+  };
+  "offline_builder.apply_item": {
+
+  };
+  "offline_builder.apply_repeat": {
+
+  };
+  "offline_builder.apply_role": {
+
+  };
+  "offline_builder.cardinality": {
+
+  };
+  "offline_builder.catalog_in_use": {
+
+  };
+  "offline_builder.choose_catalogs": {
+
+  };
+  "offline_builder.choose_metrics": {
+
+  };
+  "offline_builder.choose_slot": {
+
+  };
+  "offline_builder.conflict": {
+
+  };
+  "offline_builder.drafts_empty": {
+
+  };
+  "offline_builder.edit_role": {
+    "role": string;
+  };
+  "offline_builder.edit_title": {
+
+  };
+  "offline_builder.edit_widget": {
+    "widget": string;
+  };
+  "offline_builder.empty": {
+
+  };
+  "offline_builder.error": {
+
+  };
+  "offline_builder.go_to_drafts": {
+
+  };
+  "offline_builder.help": {
+
+  };
+  "offline_builder.leave_dirty": {
+
+  };
+  "offline_builder.library_unavailable": {
+
+  };
+  "offline_builder.logical_counts": {
+    "widgets": number;
+    "sources": number;
+  };
+  "offline_builder.logical_help": {
+
+  };
+  "offline_builder.logical_truncated": {
+
+  };
+  "offline_builder.manual_help": {
+
+  };
+  "offline_builder.metric_source": {
+    "metric": string;
+  };
+  "offline_builder.new_page": {
+
+  };
+  "offline_builder.open_draft": {
+
+  };
+  "offline_builder.opened": {
+    "catalogs": number;
+    "widgets": number;
+  };
+  "offline_builder.page_name": {
+
+  };
+  "offline_builder.pending_help": {
+
+  };
+  "offline_builder.reload": {
+
+  };
+  "offline_builder.remove": {
+
+  };
+  "offline_builder.remove_role": {
+    "role": string;
+  };
+  "offline_builder.repeated": {
+
+  };
+  "offline_builder.role_id": {
+
+  };
+  "offline_builder.role_in_use": {
+
+  };
+  "offline_builder.role_invalid": {
+
+  };
+  "offline_builder.role_many": {
+
+  };
+  "offline_builder.role_one": {
+
+  };
+  "offline_builder.roles": {
+
+  };
+  "offline_builder.roles_help": {
+
+  };
+  "offline_builder.save": {
+
+  };
+  "offline_builder.saved": {
+
+  };
+  "offline_builder.saved_composition": {
+
+  };
+  "offline_builder.saved_pages": {
+
+  };
+  "offline_builder.saving": {
+
+  };
+  "offline_builder.select_all": {
+
+  };
+  "offline_builder.select_one": {
+
+  };
+  "offline_builder.select_slot": {
+
+  };
+  "offline_builder.selection": {
+
+  };
+  "offline_builder.server_copies_empty": {
+
+  };
+  "offline_builder.slot": {
+
+  };
+  "offline_builder.slots": {
+
+  };
+  "offline_builder.slots_missing": {
+
+  };
+  "offline_builder.source_role": {
+
+  };
+  "offline_builder.title": {
+
+  };
+  "offline_builder.unsaved": {
+
+  };
+  "offline_builder.version": {
+    "version": number;
+  };
+  "offline_builder.widget_title": {
+
+  };
+  "offline_builder.widgets": {
+
+  };
+  "offline_dashboard.add": {
+
+  };
+  "offline_dashboard.add_page": {
+
+  };
+  "offline_dashboard.back": {
+
+  };
+  "offline_dashboard.conflict": {
+
+  };
+  "offline_dashboard.export": {
+
+  };
+  "offline_dashboard.export_caution": {
+
+  };
+  "offline_dashboard.export_failed": {
+
+  };
+  "offline_dashboard.failed": {
+
+  };
+  "offline_dashboard.help": {
+
+  };
+  "offline_dashboard.leave_dirty": {
+
+  };
+  "offline_dashboard.move_down": {
+
+  };
+  "offline_dashboard.move_up": {
+
+  };
+  "offline_dashboard.name": {
+
+  };
+  "offline_dashboard.no_pages": {
+
+  };
+  "offline_dashboard.page_load_failed": {
+
+  };
+  "offline_dashboard.pages": {
+
+  };
+  "offline_dashboard.pending": {
+
+  };
+  "offline_dashboard.reference_conflict": {
+
+  };
+  "offline_dashboard.reference_unresolved": {
+
+  };
+  "offline_dashboard.remove": {
+
+  };
+  "offline_dashboard.save": {
+
+  };
+  "offline_dashboard.save_before_export": {
+
+  };
+  "offline_dashboard.saved": {
+
+  };
+  "offline_dashboard.sources_fixed": {
+
+  };
+  "offline_dashboard.title": {
+
+  };
+  "offline_dashboard.widget_count": {
+    "count": number;
+  };
+  "offline_editor.apply_geometry": {
+
+  };
+  "offline_editor.autosave": {
+
+  };
+  "offline_editor.autosave_after_create": {
+
+  };
+  "offline_editor.autosave_help": {
+
+  };
+  "offline_editor.box": {
+    "x": number;
+    "y": number;
+    "w": number;
+    "h": number;
+  };
+  "offline_editor.canvas": {
+
+  };
+  "offline_editor.canvas_help": {
+
+  };
+  "offline_editor.check.binding": {
+
+  };
+  "offline_editor.check.bounds": {
+
+  };
+  "offline_editor.check.catalog": {
+    "catalog": string;
+  };
+  "offline_editor.check.empty": {
+
+  };
+  "offline_editor.check.ids": {
+
+  };
+  "offline_editor.check.incomplete": {
+
+  };
+  "offline_editor.check.metric": {
+    "metric": string;
+  };
+  "offline_editor.check.metric_type": {
+
+  };
+  "offline_editor.check.name": {
+
+  };
+  "offline_editor.check.overlap": {
+
+  };
+  "offline_editor.check.role": {
+    "role": string;
+  };
+  "offline_editor.checks_help": {
+
+  };
+  "offline_editor.claiming": {
+
+  };
+  "offline_editor.clipboard.apply": {
+
+  };
+  "offline_editor.clipboard.catalog": {
+    "value": string;
+  };
+  "offline_editor.clipboard.copied": {
+    "count": number;
+  };
+  "offline_editor.clipboard.copy": {
+
+  };
+  "offline_editor.clipboard.cross_page_cut": {
+
+  };
+  "offline_editor.clipboard.cut": {
+
+  };
+  "offline_editor.clipboard.cut_pending": {
+    "count": number;
+  };
+  "offline_editor.clipboard.empty": {
+
+  };
+  "offline_editor.clipboard.first_free": {
+
+  };
+  "offline_editor.clipboard.geometry": {
+
+  };
+  "offline_editor.clipboard.ids": {
+
+  };
+  "offline_editor.clipboard.limit": {
+
+  };
+  "offline_editor.clipboard.metric": {
+    "value": string;
+  };
+  "offline_editor.clipboard.opaque": {
+
+  };
+  "offline_editor.clipboard.original": {
+
+  };
+  "offline_editor.clipboard.paste": {
+
+  };
+  "offline_editor.clipboard.placement": {
+
+  };
+  "offline_editor.clipboard.reference": {
+
+  };
+  "offline_editor.clipboard.resolve_help": {
+
+  };
+  "offline_editor.clipboard.resolve_sources": {
+
+  };
+  "offline_editor.clipboard.role": {
+    "value": string;
+  };
+  "offline_editor.clipboard.source_changed": {
+
+  };
+  "offline_editor.edit_here": {
+
+  };
+  "offline_editor.finding_count": {
+    "count": number;
+  };
+  "offline_editor.geometry_for": {
+    "widget": string;
+  };
+  "offline_editor.geometry_rejected": {
+
+  };
+  "offline_editor.h": {
+
+  };
+  "offline_editor.history_hint": {
+
+  };
+  "offline_editor.history_limit": {
+
+  };
+  "offline_editor.no_history": {
+
+  };
+  "offline_editor.opaque": {
+
+  };
+  "offline_editor.open_elsewhere": {
+
+  };
+  "offline_editor.owner_unavailable": {
+
+  };
+  "offline_editor.place": {
+
+  };
+  "offline_editor.recovery": {
+    "time": Date | number;
+  };
+  "offline_editor.remove_selection": {
+
+  };
+  "offline_editor.repeat_auto": {
+
+  };
+  "offline_editor.resize": {
+
+  };
+  "offline_editor.resize_widget": {
+    "widget": string;
+  };
+  "offline_editor.resolve.catalog": {
+    "catalog": string;
+    "version": number;
+  };
+  "offline_editor.resolve.choose": {
+
+  };
+  "offline_editor.resolve.go_to_object": {
+
+  };
+  "offline_editor.resolve.help": {
+
+  };
+  "offline_editor.resolve.no_metrics": {
+
+  };
+  "offline_editor.resolve.no_roles": {
+
+  };
+  "offline_editor.resolve.role": {
+    "role": string;
+    "count": number;
+  };
+  "offline_editor.resolve.slot": {
+    "slot": string;
+    "position": number;
+  };
+  "offline_editor.resolve.slot_order": {
+
+  };
+  "offline_editor.resolve.target_catalog": {
+
+  };
+  "offline_editor.resolve.target_metric": {
+
+  };
+  "offline_editor.resolve.target_role": {
+
+  };
+  "offline_editor.resolve.title": {
+
+  };
+  "offline_editor.retry": {
+    "seconds": number;
+  };
+  "offline_editor.scope": {
+
+  };
+  "offline_editor.selected_count": {
+    "count": number;
+  };
+  "offline_editor.selection_help": {
+
+  };
+  "offline_editor.unsaved_copy": {
+
+  };
+  "offline_editor.w": {
+
+  };
+  "offline_editor.widget_box": {
+    "widget": string;
+    "x": number;
+    "y": number;
+    "w": number;
+    "h": number;
+  };
+  "offline_editor.x": {
+
+  };
+  "offline_editor.y": {
+
+  };
+  "offline_editor.zoom_fit": {
+
+  };
+  "offline_editor.zoom_in": {
+
+  };
+  "offline_editor.zoom_out": {
+
+  };
+  "offline_editor.zoom_reset": {
+
   };
   "publication.a11y.steps": {
 
@@ -9026,6 +10284,15 @@ export interface MessageParamsById {
   "settings.appearance.title": {
 
   };
+  "settings.autosave.max_interval": {
+    "seconds": number;
+  };
+  "settings.autosave.off_warning": {
+
+  };
+  "settings.autosave.title": {
+
+  };
   "settings.changed": {
 
   };
@@ -9041,7 +10308,43 @@ export interface MessageParamsById {
   "settings.data_not_translated": {
 
   };
+  "settings.editor.autosave_after_create": {
+
+  };
+  "settings.editor.autosave_mode": {
+
+  };
+  "settings.editor.error.changed": {
+
+  };
+  "settings.editor.error.not_saved": {
+
+  };
+  "settings.editor.error.unavailable": {
+
+  };
+  "settings.editor.max_interval": {
+
+  };
+  "settings.editor.off": {
+
+  };
+  "settings.editor.on": {
+
+  };
+  "settings.editor.reload": {
+
+  };
+  "settings.editor.session_only": {
+
+  };
   "settings.editor.title": {
+
+  };
+  "settings.file.changed.body": {
+
+  };
+  "settings.file.changed.title": {
 
   };
   "settings.file.hint": {
@@ -9051,6 +10354,12 @@ export interface MessageParamsById {
 
   };
   "settings.file.title": {
+
+  };
+  "settings.file.unreadable": {
+
+  };
+  "settings.file.unreadable.title": {
 
   };
   "settings.formats.count": {
@@ -9362,13 +10671,13 @@ export interface MessageParamsById {
   "template_import.becomes": {
     "count": number;
   };
+  "template_import.catalog_use_later": {
+
+  };
   "template_import.catalogs": {
 
   };
   "template_import.choose": {
-
-  };
-  "template_import.choose_native": {
 
   };
   "template_import.empty": {
@@ -9409,6 +10718,15 @@ export interface MessageParamsById {
   };
   "template_import.saved": {
     "count": number;
+  };
+  "template_import.selected": {
+    "count": number;
+  };
+  "template_import.server_future": {
+
+  };
+  "template_import.source_steps": {
+
   };
   "template_import.unresolved_macros": {
 

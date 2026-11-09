@@ -1,17 +1,15 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-//! «Settings → Appearance» (P2-00G, P1-09C, O-038) behind the `/api`
+//! «Settings → Appearance / Editor» behind the `/api`
 //! boundary: session cookie, Origin/Host, CSRF, content type and body limits
 //! are enforced by `security::protect_api` before any handler runs.
 //!
-//! Only the language, the theme and reduced motion are read and changed
-//! here; the storage root and the rest of the settings file stay as they
-//! are. Responses carry values and stable codes, never prose. The settings
+//! Appearance and editor values are changed independently; the storage root
+//! and other sections stay as they are. Responses carry values and stable codes, never prose. The settings
 //! file is the only source of truth: the browser keeps nothing.
 //!
-//! An invalid settings file is never overwritten (P1-09B, decision 3): a
-//! change then fails with `settings_file_invalid` and the UI applies it
-//! until restart only.
+//! An invalid settings file is never overwritten (P1-09B, decision 3).
+//! Appearance and editor changes then live in process memory until restart.
 
 use std::{collections::BTreeMap, sync::Arc};
 
@@ -25,7 +23,8 @@ use axum::{
 use serde::{Deserialize, Serialize};
 use tokio::sync::Mutex;
 use zdashstitch_application::{
-    AppSettings, LocalePreference, ReducedMotionPreference, SettingsStore, ThemePreference,
+    AppSettings, EditorSettings, LocalePreference, ReducedMotionPreference, SettingsError,
+    SettingsStore, ThemePreference,
 };
 
 use crate::security::LocalSecurity;
@@ -35,7 +34,13 @@ use crate::security::LocalSecurity;
 #[derive(Clone, Debug)]
 pub(crate) struct SettingsHandle {
     location: Arc<Location>,
-    lock: Arc<Mutex<()>>,
+    lock: Arc<Mutex<SessionOverrides>>,
+}
+
+#[derive(Debug, Default)]
+struct SessionOverrides {
+    appearance: Option<Appearance>,
+    editor: Option<EditorSettings>,
 }
 
 #[derive(Debug)]
@@ -66,7 +71,7 @@ impl SettingsHandle {
     fn with(location: Location) -> Self {
         Self {
             location: Arc::new(location),
-            lock: Arc::new(Mutex::new(())),
+            lock: Arc::new(Mutex::new(SessionOverrides::default())),
         }
     }
 
@@ -86,6 +91,7 @@ pub(crate) fn routes(settings: SettingsHandle) -> Router<LocalSecurity> {
             "/settings/appearance",
             get(read_appearance).put(write_appearance),
         )
+        .route("/settings/editor", get(read_editor).put(write_editor))
         .layer(Extension(settings))
 }
 
@@ -100,6 +106,8 @@ enum FileState {
     /// The file has errors: the last valid copy (or defaults) applies and
     /// the file is not overwritten.
     Invalid,
+    /// The file could not be safely read; session changes are unavailable.
+    Unreadable,
 }
 
 #[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
@@ -125,6 +133,32 @@ struct AppearanceResponse {
     #[serde(flatten)]
     values: Appearance,
     file_state: FileState,
+    fingerprint: String,
+    session_only: bool,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct AppearanceWrite {
+    locale: LocalePreference,
+    theme: ThemePreference,
+    reduced_motion: ReducedMotionPreference,
+    fingerprint: String,
+}
+
+#[derive(Debug, Serialize)]
+struct EditorResponse {
+    values: EditorSettings,
+    file_state: FileState,
+    fingerprint: String,
+    session_only: bool,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct EditorWrite {
+    values: EditorSettings,
+    fingerprint: String,
 }
 
 #[derive(Debug)]
@@ -133,10 +167,9 @@ enum Failure {
     Unavailable,
     /// The body is not a complete, known appearance value set.
     InvalidValue,
-    /// The settings file has errors and is not overwritten.
-    FileInvalid,
     /// The file could not be written.
     WriteFailed,
+    Changed,
 }
 
 #[derive(Serialize)]
@@ -150,8 +183,8 @@ impl IntoResponse for Failure {
         let (status, code) = match self {
             Self::Unavailable => (StatusCode::SERVICE_UNAVAILABLE, "settings_unavailable"),
             Self::InvalidValue => (StatusCode::UNPROCESSABLE_ENTITY, "settings_invalid_value"),
-            Self::FileInvalid => (StatusCode::CONFLICT, "settings_file_invalid"),
             Self::WriteFailed => (StatusCode::INTERNAL_SERVER_ERROR, "settings_write_failed"),
+            Self::Changed => (StatusCode::CONFLICT, "settings_changed"),
         };
         (
             status,
@@ -169,7 +202,20 @@ fn current(store: &SettingsStore, defaults: AppSettings) -> (AppSettings, FileSt
     match store.load() {
         Ok(Some(settings)) => (settings, FileState::Valid),
         Ok(None) => (defaults, FileState::Missing),
-        Err(error) => (error.last_valid.unwrap_or(defaults), FileState::Invalid),
+        Err(error) => {
+            let state = match error.error.as_ref() {
+                SettingsError::InvalidFormat
+                | SettingsError::StorageRootNotAbsolute
+                | SettingsError::StorageRootDevicePath
+                | SettingsError::FileTooLarge
+                | SettingsError::InvalidYaml { .. }
+                | SettingsError::InterruptedSave => FileState::Invalid,
+                SettingsError::PathUnavailable
+                | SettingsError::LinkedPath
+                | SettingsError::Io(_) => FileState::Unreadable,
+            };
+            (error.last_valid.unwrap_or(defaults), state)
+        }
     }
 }
 
@@ -187,48 +233,179 @@ async fn read_appearance(Extension(settings): Extension<SettingsHandle>) -> Resp
         Ok(found) => found,
         Err(failure) => return failure.into_response(),
     };
-    let _guard = settings.lock.lock().await;
+    let mut guard = settings.lock.lock().await;
+    let session_appearance = guard.appearance;
     let result = blocking(move || {
+        let first = store.fingerprint().map_err(|_| Failure::Unavailable)?;
         let (settings, file_state) = current(&store, defaults);
+        let fingerprint = store.fingerprint().map_err(|_| Failure::Unavailable)?;
+        if first != fingerprint {
+            return Err(Failure::Changed);
+        }
+        let session_only = file_state == FileState::Invalid && session_appearance.is_some();
         Ok(AppearanceResponse {
-            values: Appearance::of(&settings),
+            values: if session_only {
+                session_appearance.unwrap_or_else(|| Appearance::of(&settings))
+            } else {
+                Appearance::of(&settings)
+            },
             file_state,
+            fingerprint,
+            session_only,
         })
     })
     .await;
     match result {
-        Ok(response) => Json(response).into_response(),
+        Ok(response) => {
+            if response.file_state != FileState::Invalid {
+                guard.appearance = None;
+            }
+            Json(response).into_response()
+        }
         Err(failure) => failure.into_response(),
     }
 }
 
-/// `PUT /api/settings/appearance`: all three values, nothing else.
+/// `PUT /api/settings/appearance`: all three values and the read fingerprint.
 async fn write_appearance(Extension(settings): Extension<SettingsHandle>, body: Bytes) -> Response {
-    let Ok(values) = serde_json::from_slice::<Appearance>(&body) else {
+    let Ok(request) = serde_json::from_slice::<AppearanceWrite>(&body) else {
         return Failure::InvalidValue.into_response();
     };
     let (store, defaults) = match settings.store() {
         Ok(found) => found,
         Err(failure) => return failure.into_response(),
     };
-    let _guard = settings.lock.lock().await;
+    let mut guard = settings.lock.lock().await;
     let result = blocking(move || {
-        let (mut current, file_state) = current(&store, defaults);
-        if file_state == FileState::Invalid {
-            return Err(Failure::FileInvalid);
+        let before = store.fingerprint().map_err(|_| Failure::Unavailable)?;
+        if before != request.fingerprint {
+            return Err(Failure::Changed);
         }
-        current.locale = values.locale;
-        current.theme = values.theme;
-        current.reduced_motion = values.reduced_motion;
+        let (mut current, file_state) = current(&store, defaults);
+        if file_state == FileState::Unreadable {
+            return Err(Failure::Unavailable);
+        }
+        if store.fingerprint().map_err(|_| Failure::Unavailable)? != before {
+            return Err(Failure::Changed);
+        }
+        current.locale = request.locale;
+        current.theme = request.theme;
+        current.reduced_motion = request.reduced_motion;
+        if file_state == FileState::Invalid {
+            return Ok(AppearanceResponse {
+                values: Appearance::of(&current),
+                file_state,
+                fingerprint: before,
+                session_only: true,
+            });
+        }
         store.save(&current).map_err(|_| Failure::WriteFailed)?;
+        let fingerprint = store.fingerprint().map_err(|_| Failure::Unavailable)?;
         Ok(AppearanceResponse {
             values: Appearance::of(&current),
             file_state: FileState::Valid,
+            fingerprint,
+            session_only: false,
         })
     })
     .await;
     match result {
-        Ok(response) => Json(response).into_response(),
+        Ok(response) => {
+            guard.appearance = response.session_only.then_some(response.values);
+            Json(response).into_response()
+        }
+        Err(failure) => failure.into_response(),
+    }
+}
+
+/// Editor preferences are global; the returned fingerprint must accompany a write.
+async fn read_editor(Extension(settings): Extension<SettingsHandle>) -> Response {
+    let (store, defaults) = match settings.store() {
+        Ok(found) => found,
+        Err(failure) => return failure.into_response(),
+    };
+    let mut guard = settings.lock.lock().await;
+    let session_editor = guard.editor.clone();
+    match blocking(move || {
+        let first = store.fingerprint().map_err(|_| Failure::Unavailable)?;
+        let (settings, file_state) = current(&store, defaults);
+        let fingerprint = store.fingerprint().map_err(|_| Failure::Unavailable)?;
+        if first != fingerprint {
+            return Err(Failure::Changed);
+        }
+        let session_only = file_state == FileState::Invalid && session_editor.is_some();
+        Ok(EditorResponse {
+            values: if session_only {
+                session_editor.unwrap_or(settings.editor)
+            } else {
+                settings.editor
+            },
+            file_state,
+            fingerprint,
+            session_only,
+        })
+    })
+    .await
+    {
+        Ok(response) => {
+            if response.file_state != FileState::Invalid {
+                guard.editor = None;
+            }
+            Json(response).into_response()
+        }
+        Err(failure) => failure.into_response(),
+    }
+}
+
+async fn write_editor(Extension(settings): Extension<SettingsHandle>, body: Bytes) -> Response {
+    let Ok(request) = serde_json::from_slice::<EditorWrite>(&body) else {
+        return Failure::InvalidValue.into_response();
+    };
+    let (store, defaults) = match settings.store() {
+        Ok(found) => found,
+        Err(failure) => return failure.into_response(),
+    };
+    let mut guard = settings.lock.lock().await;
+    match blocking(move || {
+        let before = store.fingerprint().map_err(|_| Failure::Unavailable)?;
+        if before != request.fingerprint {
+            return Err(Failure::Changed);
+        }
+        let (mut current, file_state) = current(&store, defaults);
+        if file_state == FileState::Unreadable {
+            return Err(Failure::Unavailable);
+        }
+        if store.fingerprint().map_err(|_| Failure::Unavailable)? != before {
+            return Err(Failure::Changed);
+        }
+        current.editor = request.values;
+        // Validation occurs before any disk mutation.
+        if ![30, 60, 120].contains(&current.editor.autosave_max_interval_s) {
+            return Err(Failure::InvalidValue);
+        }
+        if file_state == FileState::Invalid {
+            return Ok(EditorResponse {
+                values: current.editor,
+                file_state,
+                fingerprint: before,
+                session_only: true,
+            });
+        }
+        store.save(&current).map_err(|_| Failure::WriteFailed)?;
+        let fingerprint = store.fingerprint().map_err(|_| Failure::Unavailable)?;
+        Ok(EditorResponse {
+            values: current.editor,
+            file_state: FileState::Valid,
+            fingerprint,
+            session_only: false,
+        })
+    })
+    .await
+    {
+        Ok(response) => {
+            guard.editor = response.session_only.then(|| response.values.clone());
+            Json(response).into_response()
+        }
         Err(failure) => failure.into_response(),
     }
 }

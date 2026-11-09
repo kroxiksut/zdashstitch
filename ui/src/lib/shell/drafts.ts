@@ -5,6 +5,7 @@
 // converts them with `parseTimestamp`.
 
 import type { LocalizedText } from '../components';
+import type { OfflinePage, OfflineDashboard } from '../library/client';
 
 export type DraftKind = 'dashboard' | 'page';
 export type DraftOrigin = 'local' | 'server_copy';
@@ -61,6 +62,7 @@ export interface CreatedDashboard {
 }
 
 export interface DraftSummary {
+  readonly storage_kind?: 'workcopy' | 'offline_page' | 'offline_dashboard';
   readonly local_id: string;
   readonly kind: DraftKind;
   readonly origin: DraftOrigin;
@@ -163,6 +165,8 @@ export type DraftListResult =
   | { readonly status: 'ready'; readonly drafts: ReadonlyArray<DraftSummary>; readonly damaged?: ReadonlyArray<DamagedDraft> };
 
 export type DraftLoadResult =
+  | { readonly status: 'offline_page'; readonly page: OfflinePage }
+  | { readonly status: 'offline_dashboard'; readonly dashboard: OfflineDashboard }
   | { readonly status: 'unavailable' }
   | { readonly status: 'missing' }
   | { readonly status: 'failed'; readonly failure: DraftsFailure }

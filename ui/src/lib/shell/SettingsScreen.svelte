@@ -3,12 +3,13 @@
   import AboutScreen from '../about/AboutScreen.svelte';
   import { EmptyState, resolveText } from '../components';
   import AppearanceSection from '../settings/AppearanceSection.svelte';
+  import EditorSection from '../settings/EditorSection.svelte';
   import { AppearanceStore, offlineAppearanceClient } from '../settings/appearance.svelte';
   import { SETTINGS_ENTRIES } from './labels';
   import { settingsPath, type SettingsSection } from './router';
 
-  // «Settings» navigation (P1-09, mockup 06-01). «Appearance» works (P2-00G); other section
-  // screens arrive with P4-06;
+  // «Settings» navigation (P1-09, mockup 06-01). Appearance and the editor's
+  // autosave controls work; other section screens arrive with P4-06.
   // G1b sections are visible but unavailable (P1-01H §6).
   // «About and licenses» (P1-12) is the last navigation entry; it opens `/settings/about`.
   // TODO(O-032): End session — goes to «Security and export» (P1-12); the command is
@@ -46,6 +47,8 @@
       <AboutScreen {i18n} />
     {:else if section === 'appearance'}
       <AppearanceSection {i18n} store={appearanceStore} />
+    {:else if section === 'editor'}
+      <EditorSection {i18n} />
     {:else}
       <header class="screen-head">
         <h1>{i18n.t('settings.title')}</h1>

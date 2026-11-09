@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import { Banner, Button, resolveText, type LocalizedText } from '../components';
   import { DATE_TIME_FORMAT, type I18n } from '../i18n';
   import { THEME_PREFERENCES, type ThemePreference } from '../theme';
@@ -8,6 +9,13 @@
   // Language and theme are radio groups (arrow keys move and choose); every change applies at once
   // and is saved to the settings file through the local server.
   let { i18n, store }: { i18n: I18n; store: AppearanceStore } = $props();
+  onMount(() => {
+    const focused = (): void => {
+      if (!store.saving && store.sessionOnly !== 'changed' && store.sessionOnly !== 'failed') void store.load();
+    };
+    window.addEventListener('focus', focused);
+    return () => window.removeEventListener('focus', focused);
+  });
 
   const LOCALE_LABEL: Readonly<Record<LocalePreference, LocalizedText>> = {
     system: { id: 'settings.language.system' },
@@ -46,11 +54,16 @@
     />
   </header>
 
-  {#if store.sessionOnly === 'file_invalid' || store.fileState === 'invalid'}
+  {#if store.sessionOnly === 'changed'}
+    <Banner {i18n} tone="warning" heading={{ id: 'settings.file.changed.title' }} body={{ id: 'settings.file.changed.body' }} />
+  {:else if store.sessionOnly === 'file_invalid' || store.fileState === 'invalid'}
     <Banner {i18n} tone="warning" heading={{ id: 'settings.file.invalid.title' }} body={{ id: 'settings.appearance.invalid_body' }} />
+  {:else if store.fileState === 'unreadable'}
+    <Banner {i18n} tone="warning" heading={{ id: 'settings.file.unreadable.title' }} body={{ id: 'settings.file.unreadable' }} />
   {:else if store.sessionOnly === 'failed'}
     <Banner {i18n} tone="warning" heading={{ id: 'settings.appearance.not_saved.title' }} body={{ id: 'settings.appearance.not_saved.body' }} />
   {/if}
+  {#if store.sessionOnly === 'changed'}<Button {i18n} label={{ id: 'settings.editor.reload' }} onclick={() => void store.load()} />{/if}
 
   <div class="appearance-grid">
     <section class="card appearance-group" aria-labelledby="appearance-locale-title">
@@ -64,6 +77,7 @@
               name="appearance-locale"
               value={option}
               checked={store.preferences.locale === option}
+              disabled={store.fileState === 'unreadable'}
               aria-describedby={option === 'system' ? 'appearance-locale-system-description' : undefined}
               onchange={() => void store.change({ locale: option })}
             />
@@ -103,6 +117,7 @@
                 name="appearance-theme"
                 value={option}
                 checked={store.preferences.theme === option}
+                disabled={store.fileState === 'unreadable'}
                 aria-describedby={option === 'high_contrast' ? 'appearance-theme-high-contrast-description' : undefined}
                 onchange={() => void store.change({ theme: option })}
               />
@@ -122,6 +137,7 @@
           id="appearance-reduce-motion"
           type="checkbox"
           checked={store.reducedMotion}
+          disabled={store.fileState === 'unreadable'}
           aria-describedby="appearance-reduce-motion-description"
           onchange={(event) => void store.change({ reduced_motion: event.currentTarget.checked ? 'reduce' : 'no-preference' })}
         />
@@ -154,7 +170,7 @@
         <h2 id="appearance-file-title" class="eyebrow">{i18n.t('settings.file.title')}</h2>
         <p class="hint">{i18n.t('settings.file.hint')}</p>
       </div>
-      <Button {i18n} label={{ id: 'settings.reset.section' }} busy={store.saving} onclick={() => void store.reset()} />
+      <Button {i18n} label={{ id: 'settings.reset.section' }} busy={store.saving} disabled={store.fileState === 'unreadable'} onclick={() => void store.reset()} />
     </section>
   </div>
 

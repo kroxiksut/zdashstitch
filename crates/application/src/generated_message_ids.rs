@@ -776,6 +776,16 @@ impl MessageId {
     pub const DRAFTS_STATE_STALE: Self = Self("drafts.state.stale");
     pub const DRAFTS_SUBTITLE: Self = Self("drafts.subtitle");
     pub const DRAFTS_TITLE: Self = Self("drafts.title");
+    pub const EDITOR_ACTION_REDO: Self = Self("editor.action.redo");
+    pub const EDITOR_ACTION_UNDO: Self = Self("editor.action.undo");
+    pub const EDITOR_OP_ADD_WIDGET: Self = Self("editor.op.add_widget");
+    pub const EDITOR_OP_BINDINGS: Self = Self("editor.op.bindings");
+    pub const EDITOR_OP_EDIT_FIELD: Self = Self("editor.op.edit_field");
+    pub const EDITOR_OP_MOVE: Self = Self("editor.op.move");
+    pub const EDITOR_OP_PAGE: Self = Self("editor.op.page");
+    pub const EDITOR_OP_PASTE: Self = Self("editor.op.paste");
+    pub const EDITOR_OP_REMOVE_WIDGET: Self = Self("editor.op.remove_widget");
+    pub const EDITOR_OP_RESIZE: Self = Self("editor.op.resize");
     pub const EDITOR_UNAVAILABLE_YET: Self = Self("editor.unavailable_yet");
     pub const ERRORS_ADDRESS_FRAGMENT: Self = Self("errors.address.fragment");
     pub const ERRORS_ADDRESS_HOST: Self = Self("errors.address.host");
@@ -920,6 +930,181 @@ impl MessageId {
     pub const OBJECT_PAGE_NUMBERED: Self = Self("object.page.numbered");
     pub const OBJECT_PAGE_UNNAMED: Self = Self("object.page.unnamed");
     pub const OBJECT_PAGE_WIDGET_COUNT: Self = Self("object.page.widget_count");
+    pub const OFFLINE_BUILDER_ADD_GRAPH: Self = Self("offline_builder.add_graph");
+    pub const OFFLINE_BUILDER_ADD_ITEM: Self = Self("offline_builder.add_item");
+    pub const OFFLINE_BUILDER_ADD_REPEAT: Self = Self("offline_builder.add_repeat");
+    pub const OFFLINE_BUILDER_ADD_ROLE: Self = Self("offline_builder.add_role");
+    pub const OFFLINE_BUILDER_APPLY_GRAPH: Self = Self("offline_builder.apply_graph");
+    pub const OFFLINE_BUILDER_APPLY_ITEM: Self = Self("offline_builder.apply_item");
+    pub const OFFLINE_BUILDER_APPLY_REPEAT: Self = Self("offline_builder.apply_repeat");
+    pub const OFFLINE_BUILDER_APPLY_ROLE: Self = Self("offline_builder.apply_role");
+    pub const OFFLINE_BUILDER_CARDINALITY: Self = Self("offline_builder.cardinality");
+    pub const OFFLINE_BUILDER_CATALOG_IN_USE: Self = Self("offline_builder.catalog_in_use");
+    pub const OFFLINE_BUILDER_CHOOSE_CATALOGS: Self = Self("offline_builder.choose_catalogs");
+    pub const OFFLINE_BUILDER_CHOOSE_METRICS: Self = Self("offline_builder.choose_metrics");
+    pub const OFFLINE_BUILDER_CHOOSE_SLOT: Self = Self("offline_builder.choose_slot");
+    pub const OFFLINE_BUILDER_CONFLICT: Self = Self("offline_builder.conflict");
+    pub const OFFLINE_BUILDER_DRAFTS_EMPTY: Self = Self("offline_builder.drafts_empty");
+    pub const OFFLINE_BUILDER_EDIT_ROLE: Self = Self("offline_builder.edit_role");
+    pub const OFFLINE_BUILDER_EDIT_TITLE: Self = Self("offline_builder.edit_title");
+    pub const OFFLINE_BUILDER_EDIT_WIDGET: Self = Self("offline_builder.edit_widget");
+    pub const OFFLINE_BUILDER_EMPTY: Self = Self("offline_builder.empty");
+    pub const OFFLINE_BUILDER_ERROR: Self = Self("offline_builder.error");
+    pub const OFFLINE_BUILDER_GO_TO_DRAFTS: Self = Self("offline_builder.go_to_drafts");
+    pub const OFFLINE_BUILDER_HELP: Self = Self("offline_builder.help");
+    pub const OFFLINE_BUILDER_LEAVE_DIRTY: Self = Self("offline_builder.leave_dirty");
+    pub const OFFLINE_BUILDER_LIBRARY_UNAVAILABLE: Self = Self("offline_builder.library_unavailable");
+    pub const OFFLINE_BUILDER_LOGICAL_COUNTS: Self = Self("offline_builder.logical_counts");
+    pub const OFFLINE_BUILDER_LOGICAL_HELP: Self = Self("offline_builder.logical_help");
+    pub const OFFLINE_BUILDER_LOGICAL_TRUNCATED: Self = Self("offline_builder.logical_truncated");
+    pub const OFFLINE_BUILDER_MANUAL_HELP: Self = Self("offline_builder.manual_help");
+    pub const OFFLINE_BUILDER_METRIC_SOURCE: Self = Self("offline_builder.metric_source");
+    pub const OFFLINE_BUILDER_NEW_PAGE: Self = Self("offline_builder.new_page");
+    pub const OFFLINE_BUILDER_OPEN_DRAFT: Self = Self("offline_builder.open_draft");
+    pub const OFFLINE_BUILDER_OPENED: Self = Self("offline_builder.opened");
+    pub const OFFLINE_BUILDER_PAGE_NAME: Self = Self("offline_builder.page_name");
+    pub const OFFLINE_BUILDER_PENDING_HELP: Self = Self("offline_builder.pending_help");
+    pub const OFFLINE_BUILDER_RELOAD: Self = Self("offline_builder.reload");
+    pub const OFFLINE_BUILDER_REMOVE: Self = Self("offline_builder.remove");
+    pub const OFFLINE_BUILDER_REMOVE_ROLE: Self = Self("offline_builder.remove_role");
+    pub const OFFLINE_BUILDER_REPEATED: Self = Self("offline_builder.repeated");
+    pub const OFFLINE_BUILDER_ROLE_ID: Self = Self("offline_builder.role_id");
+    pub const OFFLINE_BUILDER_ROLE_IN_USE: Self = Self("offline_builder.role_in_use");
+    pub const OFFLINE_BUILDER_ROLE_INVALID: Self = Self("offline_builder.role_invalid");
+    pub const OFFLINE_BUILDER_ROLE_MANY: Self = Self("offline_builder.role_many");
+    pub const OFFLINE_BUILDER_ROLE_ONE: Self = Self("offline_builder.role_one");
+    pub const OFFLINE_BUILDER_ROLES: Self = Self("offline_builder.roles");
+    pub const OFFLINE_BUILDER_ROLES_HELP: Self = Self("offline_builder.roles_help");
+    pub const OFFLINE_BUILDER_SAVE: Self = Self("offline_builder.save");
+    pub const OFFLINE_BUILDER_SAVED: Self = Self("offline_builder.saved");
+    pub const OFFLINE_BUILDER_SAVED_COMPOSITION: Self = Self("offline_builder.saved_composition");
+    pub const OFFLINE_BUILDER_SAVED_PAGES: Self = Self("offline_builder.saved_pages");
+    pub const OFFLINE_BUILDER_SAVING: Self = Self("offline_builder.saving");
+    pub const OFFLINE_BUILDER_SELECT_ALL: Self = Self("offline_builder.select_all");
+    pub const OFFLINE_BUILDER_SELECT_ONE: Self = Self("offline_builder.select_one");
+    pub const OFFLINE_BUILDER_SELECT_SLOT: Self = Self("offline_builder.select_slot");
+    pub const OFFLINE_BUILDER_SELECTION: Self = Self("offline_builder.selection");
+    pub const OFFLINE_BUILDER_SERVER_COPIES_EMPTY: Self = Self("offline_builder.server_copies_empty");
+    pub const OFFLINE_BUILDER_SLOT: Self = Self("offline_builder.slot");
+    pub const OFFLINE_BUILDER_SLOTS: Self = Self("offline_builder.slots");
+    pub const OFFLINE_BUILDER_SLOTS_MISSING: Self = Self("offline_builder.slots_missing");
+    pub const OFFLINE_BUILDER_SOURCE_ROLE: Self = Self("offline_builder.source_role");
+    pub const OFFLINE_BUILDER_TITLE: Self = Self("offline_builder.title");
+    pub const OFFLINE_BUILDER_UNSAVED: Self = Self("offline_builder.unsaved");
+    pub const OFFLINE_BUILDER_VERSION: Self = Self("offline_builder.version");
+    pub const OFFLINE_BUILDER_WIDGET_TITLE: Self = Self("offline_builder.widget_title");
+    pub const OFFLINE_BUILDER_WIDGETS: Self = Self("offline_builder.widgets");
+    pub const OFFLINE_DASHBOARD_ADD: Self = Self("offline_dashboard.add");
+    pub const OFFLINE_DASHBOARD_ADD_PAGE: Self = Self("offline_dashboard.add_page");
+    pub const OFFLINE_DASHBOARD_BACK: Self = Self("offline_dashboard.back");
+    pub const OFFLINE_DASHBOARD_CONFLICT: Self = Self("offline_dashboard.conflict");
+    pub const OFFLINE_DASHBOARD_EXPORT: Self = Self("offline_dashboard.export");
+    pub const OFFLINE_DASHBOARD_EXPORT_CAUTION: Self = Self("offline_dashboard.export_caution");
+    pub const OFFLINE_DASHBOARD_EXPORT_FAILED: Self = Self("offline_dashboard.export_failed");
+    pub const OFFLINE_DASHBOARD_FAILED: Self = Self("offline_dashboard.failed");
+    pub const OFFLINE_DASHBOARD_HELP: Self = Self("offline_dashboard.help");
+    pub const OFFLINE_DASHBOARD_LEAVE_DIRTY: Self = Self("offline_dashboard.leave_dirty");
+    pub const OFFLINE_DASHBOARD_MOVE_DOWN: Self = Self("offline_dashboard.move_down");
+    pub const OFFLINE_DASHBOARD_MOVE_UP: Self = Self("offline_dashboard.move_up");
+    pub const OFFLINE_DASHBOARD_NAME: Self = Self("offline_dashboard.name");
+    pub const OFFLINE_DASHBOARD_NO_PAGES: Self = Self("offline_dashboard.no_pages");
+    pub const OFFLINE_DASHBOARD_PAGE_LOAD_FAILED: Self = Self("offline_dashboard.page_load_failed");
+    pub const OFFLINE_DASHBOARD_PAGES: Self = Self("offline_dashboard.pages");
+    pub const OFFLINE_DASHBOARD_PENDING: Self = Self("offline_dashboard.pending");
+    pub const OFFLINE_DASHBOARD_REFERENCE_CONFLICT: Self = Self("offline_dashboard.reference_conflict");
+    pub const OFFLINE_DASHBOARD_REFERENCE_UNRESOLVED: Self = Self("offline_dashboard.reference_unresolved");
+    pub const OFFLINE_DASHBOARD_REMOVE: Self = Self("offline_dashboard.remove");
+    pub const OFFLINE_DASHBOARD_SAVE: Self = Self("offline_dashboard.save");
+    pub const OFFLINE_DASHBOARD_SAVE_BEFORE_EXPORT: Self = Self("offline_dashboard.save_before_export");
+    pub const OFFLINE_DASHBOARD_SAVED: Self = Self("offline_dashboard.saved");
+    pub const OFFLINE_DASHBOARD_SOURCES_FIXED: Self = Self("offline_dashboard.sources_fixed");
+    pub const OFFLINE_DASHBOARD_TITLE: Self = Self("offline_dashboard.title");
+    pub const OFFLINE_DASHBOARD_WIDGET_COUNT: Self = Self("offline_dashboard.widget_count");
+    pub const OFFLINE_EDITOR_APPLY_GEOMETRY: Self = Self("offline_editor.apply_geometry");
+    pub const OFFLINE_EDITOR_AUTOSAVE: Self = Self("offline_editor.autosave");
+    pub const OFFLINE_EDITOR_AUTOSAVE_AFTER_CREATE: Self = Self("offline_editor.autosave_after_create");
+    pub const OFFLINE_EDITOR_AUTOSAVE_HELP: Self = Self("offline_editor.autosave_help");
+    pub const OFFLINE_EDITOR_BOX: Self = Self("offline_editor.box");
+    pub const OFFLINE_EDITOR_CANVAS: Self = Self("offline_editor.canvas");
+    pub const OFFLINE_EDITOR_CANVAS_HELP: Self = Self("offline_editor.canvas_help");
+    pub const OFFLINE_EDITOR_CHECK_BINDING: Self = Self("offline_editor.check.binding");
+    pub const OFFLINE_EDITOR_CHECK_BOUNDS: Self = Self("offline_editor.check.bounds");
+    pub const OFFLINE_EDITOR_CHECK_CATALOG: Self = Self("offline_editor.check.catalog");
+    pub const OFFLINE_EDITOR_CHECK_EMPTY: Self = Self("offline_editor.check.empty");
+    pub const OFFLINE_EDITOR_CHECK_IDS: Self = Self("offline_editor.check.ids");
+    pub const OFFLINE_EDITOR_CHECK_INCOMPLETE: Self = Self("offline_editor.check.incomplete");
+    pub const OFFLINE_EDITOR_CHECK_METRIC: Self = Self("offline_editor.check.metric");
+    pub const OFFLINE_EDITOR_CHECK_METRIC_TYPE: Self = Self("offline_editor.check.metric_type");
+    pub const OFFLINE_EDITOR_CHECK_NAME: Self = Self("offline_editor.check.name");
+    pub const OFFLINE_EDITOR_CHECK_OVERLAP: Self = Self("offline_editor.check.overlap");
+    pub const OFFLINE_EDITOR_CHECK_ROLE: Self = Self("offline_editor.check.role");
+    pub const OFFLINE_EDITOR_CHECKS_HELP: Self = Self("offline_editor.checks_help");
+    pub const OFFLINE_EDITOR_CLAIMING: Self = Self("offline_editor.claiming");
+    pub const OFFLINE_EDITOR_CLIPBOARD_APPLY: Self = Self("offline_editor.clipboard.apply");
+    pub const OFFLINE_EDITOR_CLIPBOARD_CATALOG: Self = Self("offline_editor.clipboard.catalog");
+    pub const OFFLINE_EDITOR_CLIPBOARD_COPIED: Self = Self("offline_editor.clipboard.copied");
+    pub const OFFLINE_EDITOR_CLIPBOARD_COPY: Self = Self("offline_editor.clipboard.copy");
+    pub const OFFLINE_EDITOR_CLIPBOARD_CROSS_PAGE_CUT: Self = Self("offline_editor.clipboard.cross_page_cut");
+    pub const OFFLINE_EDITOR_CLIPBOARD_CUT: Self = Self("offline_editor.clipboard.cut");
+    pub const OFFLINE_EDITOR_CLIPBOARD_CUT_PENDING: Self = Self("offline_editor.clipboard.cut_pending");
+    pub const OFFLINE_EDITOR_CLIPBOARD_EMPTY: Self = Self("offline_editor.clipboard.empty");
+    pub const OFFLINE_EDITOR_CLIPBOARD_FIRST_FREE: Self = Self("offline_editor.clipboard.first_free");
+    pub const OFFLINE_EDITOR_CLIPBOARD_GEOMETRY: Self = Self("offline_editor.clipboard.geometry");
+    pub const OFFLINE_EDITOR_CLIPBOARD_IDS: Self = Self("offline_editor.clipboard.ids");
+    pub const OFFLINE_EDITOR_CLIPBOARD_LIMIT: Self = Self("offline_editor.clipboard.limit");
+    pub const OFFLINE_EDITOR_CLIPBOARD_METRIC: Self = Self("offline_editor.clipboard.metric");
+    pub const OFFLINE_EDITOR_CLIPBOARD_OPAQUE: Self = Self("offline_editor.clipboard.opaque");
+    pub const OFFLINE_EDITOR_CLIPBOARD_ORIGINAL: Self = Self("offline_editor.clipboard.original");
+    pub const OFFLINE_EDITOR_CLIPBOARD_PASTE: Self = Self("offline_editor.clipboard.paste");
+    pub const OFFLINE_EDITOR_CLIPBOARD_PLACEMENT: Self = Self("offline_editor.clipboard.placement");
+    pub const OFFLINE_EDITOR_CLIPBOARD_REFERENCE: Self = Self("offline_editor.clipboard.reference");
+    pub const OFFLINE_EDITOR_CLIPBOARD_RESOLVE_HELP: Self = Self("offline_editor.clipboard.resolve_help");
+    pub const OFFLINE_EDITOR_CLIPBOARD_RESOLVE_SOURCES: Self = Self("offline_editor.clipboard.resolve_sources");
+    pub const OFFLINE_EDITOR_CLIPBOARD_ROLE: Self = Self("offline_editor.clipboard.role");
+    pub const OFFLINE_EDITOR_CLIPBOARD_SOURCE_CHANGED: Self = Self("offline_editor.clipboard.source_changed");
+    pub const OFFLINE_EDITOR_EDIT_HERE: Self = Self("offline_editor.edit_here");
+    pub const OFFLINE_EDITOR_FINDING_COUNT: Self = Self("offline_editor.finding_count");
+    pub const OFFLINE_EDITOR_GEOMETRY_FOR: Self = Self("offline_editor.geometry_for");
+    pub const OFFLINE_EDITOR_GEOMETRY_REJECTED: Self = Self("offline_editor.geometry_rejected");
+    pub const OFFLINE_EDITOR_H: Self = Self("offline_editor.h");
+    pub const OFFLINE_EDITOR_HISTORY_HINT: Self = Self("offline_editor.history_hint");
+    pub const OFFLINE_EDITOR_HISTORY_LIMIT: Self = Self("offline_editor.history_limit");
+    pub const OFFLINE_EDITOR_NO_HISTORY: Self = Self("offline_editor.no_history");
+    pub const OFFLINE_EDITOR_OPAQUE: Self = Self("offline_editor.opaque");
+    pub const OFFLINE_EDITOR_OPEN_ELSEWHERE: Self = Self("offline_editor.open_elsewhere");
+    pub const OFFLINE_EDITOR_OWNER_UNAVAILABLE: Self = Self("offline_editor.owner_unavailable");
+    pub const OFFLINE_EDITOR_PLACE: Self = Self("offline_editor.place");
+    pub const OFFLINE_EDITOR_RECOVERY: Self = Self("offline_editor.recovery");
+    pub const OFFLINE_EDITOR_REMOVE_SELECTION: Self = Self("offline_editor.remove_selection");
+    pub const OFFLINE_EDITOR_REPEAT_AUTO: Self = Self("offline_editor.repeat_auto");
+    pub const OFFLINE_EDITOR_RESIZE: Self = Self("offline_editor.resize");
+    pub const OFFLINE_EDITOR_RESIZE_WIDGET: Self = Self("offline_editor.resize_widget");
+    pub const OFFLINE_EDITOR_RESOLVE_CATALOG: Self = Self("offline_editor.resolve.catalog");
+    pub const OFFLINE_EDITOR_RESOLVE_CHOOSE: Self = Self("offline_editor.resolve.choose");
+    pub const OFFLINE_EDITOR_RESOLVE_GO_TO_OBJECT: Self = Self("offline_editor.resolve.go_to_object");
+    pub const OFFLINE_EDITOR_RESOLVE_HELP: Self = Self("offline_editor.resolve.help");
+    pub const OFFLINE_EDITOR_RESOLVE_NO_METRICS: Self = Self("offline_editor.resolve.no_metrics");
+    pub const OFFLINE_EDITOR_RESOLVE_NO_ROLES: Self = Self("offline_editor.resolve.no_roles");
+    pub const OFFLINE_EDITOR_RESOLVE_ROLE: Self = Self("offline_editor.resolve.role");
+    pub const OFFLINE_EDITOR_RESOLVE_SLOT: Self = Self("offline_editor.resolve.slot");
+    pub const OFFLINE_EDITOR_RESOLVE_SLOT_ORDER: Self = Self("offline_editor.resolve.slot_order");
+    pub const OFFLINE_EDITOR_RESOLVE_TARGET_CATALOG: Self = Self("offline_editor.resolve.target_catalog");
+    pub const OFFLINE_EDITOR_RESOLVE_TARGET_METRIC: Self = Self("offline_editor.resolve.target_metric");
+    pub const OFFLINE_EDITOR_RESOLVE_TARGET_ROLE: Self = Self("offline_editor.resolve.target_role");
+    pub const OFFLINE_EDITOR_RESOLVE_TITLE: Self = Self("offline_editor.resolve.title");
+    pub const OFFLINE_EDITOR_RETRY: Self = Self("offline_editor.retry");
+    pub const OFFLINE_EDITOR_SCOPE: Self = Self("offline_editor.scope");
+    pub const OFFLINE_EDITOR_SELECTED_COUNT: Self = Self("offline_editor.selected_count");
+    pub const OFFLINE_EDITOR_SELECTION_HELP: Self = Self("offline_editor.selection_help");
+    pub const OFFLINE_EDITOR_UNSAVED_COPY: Self = Self("offline_editor.unsaved_copy");
+    pub const OFFLINE_EDITOR_W: Self = Self("offline_editor.w");
+    pub const OFFLINE_EDITOR_WIDGET_BOX: Self = Self("offline_editor.widget_box");
+    pub const OFFLINE_EDITOR_X: Self = Self("offline_editor.x");
+    pub const OFFLINE_EDITOR_Y: Self = Self("offline_editor.y");
+    pub const OFFLINE_EDITOR_ZOOM_FIT: Self = Self("offline_editor.zoom_fit");
+    pub const OFFLINE_EDITOR_ZOOM_IN: Self = Self("offline_editor.zoom_in");
+    pub const OFFLINE_EDITOR_ZOOM_OUT: Self = Self("offline_editor.zoom_out");
+    pub const OFFLINE_EDITOR_ZOOM_RESET: Self = Self("offline_editor.zoom_reset");
     pub const PUBLICATION_A11Y_STEPS: Self = Self("publication.a11y.steps");
     pub const PUBLICATION_ACCESS_COPY_PRIVATE: Self = Self("publication.access.copy_private");
     pub const PUBLICATION_ACCESS_TITLE: Self = Self("publication.access.title");
@@ -1315,15 +1500,32 @@ impl MessageId {
     pub const SETTINGS_APPEARANCE_SAVED: Self = Self("settings.appearance.saved");
     pub const SETTINGS_APPEARANCE_SUBTITLE: Self = Self("settings.appearance.subtitle");
     pub const SETTINGS_APPEARANCE_TITLE: Self = Self("settings.appearance.title");
+    pub const SETTINGS_AUTOSAVE_MAX_INTERVAL: Self = Self("settings.autosave.max_interval");
+    pub const SETTINGS_AUTOSAVE_OFF_WARNING: Self = Self("settings.autosave.off_warning");
+    pub const SETTINGS_AUTOSAVE_TITLE: Self = Self("settings.autosave.title");
     pub const SETTINGS_CHANGED: Self = Self("settings.changed");
     pub const SETTINGS_CONNECTIONS_TITLE: Self = Self("settings.connections.title");
     pub const SETTINGS_CONTRAST_NOTE: Self = Self("settings.contrast.note");
     pub const SETTINGS_CONTRAST_TITLE: Self = Self("settings.contrast.title");
     pub const SETTINGS_DATA_NOT_TRANSLATED: Self = Self("settings.data_not_translated");
+    pub const SETTINGS_EDITOR_AUTOSAVE_AFTER_CREATE: Self = Self("settings.editor.autosave_after_create");
+    pub const SETTINGS_EDITOR_AUTOSAVE_MODE: Self = Self("settings.editor.autosave_mode");
+    pub const SETTINGS_EDITOR_ERROR_CHANGED: Self = Self("settings.editor.error.changed");
+    pub const SETTINGS_EDITOR_ERROR_NOT_SAVED: Self = Self("settings.editor.error.not_saved");
+    pub const SETTINGS_EDITOR_ERROR_UNAVAILABLE: Self = Self("settings.editor.error.unavailable");
+    pub const SETTINGS_EDITOR_MAX_INTERVAL: Self = Self("settings.editor.max_interval");
+    pub const SETTINGS_EDITOR_OFF: Self = Self("settings.editor.off");
+    pub const SETTINGS_EDITOR_ON: Self = Self("settings.editor.on");
+    pub const SETTINGS_EDITOR_RELOAD: Self = Self("settings.editor.reload");
+    pub const SETTINGS_EDITOR_SESSION_ONLY: Self = Self("settings.editor.session_only");
     pub const SETTINGS_EDITOR_TITLE: Self = Self("settings.editor.title");
+    pub const SETTINGS_FILE_CHANGED_BODY: Self = Self("settings.file.changed.body");
+    pub const SETTINGS_FILE_CHANGED_TITLE: Self = Self("settings.file.changed.title");
     pub const SETTINGS_FILE_HINT: Self = Self("settings.file.hint");
     pub const SETTINGS_FILE_INVALID_TITLE: Self = Self("settings.file.invalid.title");
     pub const SETTINGS_FILE_TITLE: Self = Self("settings.file.title");
+    pub const SETTINGS_FILE_UNREADABLE: Self = Self("settings.file.unreadable");
+    pub const SETTINGS_FILE_UNREADABLE_TITLE: Self = Self("settings.file.unreadable.title");
     pub const SETTINGS_FORMATS_COUNT: Self = Self("settings.formats.count");
     pub const SETTINGS_FORMATS_COUNT_SAMPLE: Self = Self("settings.formats.count_sample");
     pub const SETTINGS_FORMATS_DATETIME: Self = Self("settings.formats.datetime");
@@ -1423,9 +1625,9 @@ impl MessageId {
     pub const STARTUP_SUBTITLE: Self = Self("startup.subtitle");
     pub const TEMPLATE_IMPORT_ACTION_FAILED: Self = Self("template_import.action_failed");
     pub const TEMPLATE_IMPORT_BECOMES: Self = Self("template_import.becomes");
+    pub const TEMPLATE_IMPORT_CATALOG_USE_LATER: Self = Self("template_import.catalog_use_later");
     pub const TEMPLATE_IMPORT_CATALOGS: Self = Self("template_import.catalogs");
     pub const TEMPLATE_IMPORT_CHOOSE: Self = Self("template_import.choose");
-    pub const TEMPLATE_IMPORT_CHOOSE_NATIVE: Self = Self("template_import.choose_native");
     pub const TEMPLATE_IMPORT_EMPTY: Self = Self("template_import.empty");
     pub const TEMPLATE_IMPORT_HELP: Self = Self("template_import.help");
     pub const TEMPLATE_IMPORT_INSPECT: Self = Self("template_import.inspect");
@@ -1438,6 +1640,9 @@ impl MessageId {
     pub const TEMPLATE_IMPORT_REJECTED: Self = Self("template_import.rejected");
     pub const TEMPLATE_IMPORT_SAVE: Self = Self("template_import.save");
     pub const TEMPLATE_IMPORT_SAVED: Self = Self("template_import.saved");
+    pub const TEMPLATE_IMPORT_SELECTED: Self = Self("template_import.selected");
+    pub const TEMPLATE_IMPORT_SERVER_FUTURE: Self = Self("template_import.server_future");
+    pub const TEMPLATE_IMPORT_SOURCE_STEPS: Self = Self("template_import.source_steps");
     pub const TEMPLATE_IMPORT_UNRESOLVED_MACROS: Self = Self("template_import.unresolved_macros");
     pub const TEMPLATE_IMPORT_VERSION: Self = Self("template_import.version");
     pub const WIDGET_TYPE_ACTIONLOG: Self = Self("widget.type.actionlog");
@@ -2245,6 +2450,16 @@ impl MessageId {
         Self::DRAFTS_STATE_STALE,
         Self::DRAFTS_SUBTITLE,
         Self::DRAFTS_TITLE,
+        Self::EDITOR_ACTION_REDO,
+        Self::EDITOR_ACTION_UNDO,
+        Self::EDITOR_OP_ADD_WIDGET,
+        Self::EDITOR_OP_BINDINGS,
+        Self::EDITOR_OP_EDIT_FIELD,
+        Self::EDITOR_OP_MOVE,
+        Self::EDITOR_OP_PAGE,
+        Self::EDITOR_OP_PASTE,
+        Self::EDITOR_OP_REMOVE_WIDGET,
+        Self::EDITOR_OP_RESIZE,
         Self::EDITOR_UNAVAILABLE_YET,
         Self::ERRORS_ADDRESS_FRAGMENT,
         Self::ERRORS_ADDRESS_HOST,
@@ -2389,6 +2604,181 @@ impl MessageId {
         Self::OBJECT_PAGE_NUMBERED,
         Self::OBJECT_PAGE_UNNAMED,
         Self::OBJECT_PAGE_WIDGET_COUNT,
+        Self::OFFLINE_BUILDER_ADD_GRAPH,
+        Self::OFFLINE_BUILDER_ADD_ITEM,
+        Self::OFFLINE_BUILDER_ADD_REPEAT,
+        Self::OFFLINE_BUILDER_ADD_ROLE,
+        Self::OFFLINE_BUILDER_APPLY_GRAPH,
+        Self::OFFLINE_BUILDER_APPLY_ITEM,
+        Self::OFFLINE_BUILDER_APPLY_REPEAT,
+        Self::OFFLINE_BUILDER_APPLY_ROLE,
+        Self::OFFLINE_BUILDER_CARDINALITY,
+        Self::OFFLINE_BUILDER_CATALOG_IN_USE,
+        Self::OFFLINE_BUILDER_CHOOSE_CATALOGS,
+        Self::OFFLINE_BUILDER_CHOOSE_METRICS,
+        Self::OFFLINE_BUILDER_CHOOSE_SLOT,
+        Self::OFFLINE_BUILDER_CONFLICT,
+        Self::OFFLINE_BUILDER_DRAFTS_EMPTY,
+        Self::OFFLINE_BUILDER_EDIT_ROLE,
+        Self::OFFLINE_BUILDER_EDIT_TITLE,
+        Self::OFFLINE_BUILDER_EDIT_WIDGET,
+        Self::OFFLINE_BUILDER_EMPTY,
+        Self::OFFLINE_BUILDER_ERROR,
+        Self::OFFLINE_BUILDER_GO_TO_DRAFTS,
+        Self::OFFLINE_BUILDER_HELP,
+        Self::OFFLINE_BUILDER_LEAVE_DIRTY,
+        Self::OFFLINE_BUILDER_LIBRARY_UNAVAILABLE,
+        Self::OFFLINE_BUILDER_LOGICAL_COUNTS,
+        Self::OFFLINE_BUILDER_LOGICAL_HELP,
+        Self::OFFLINE_BUILDER_LOGICAL_TRUNCATED,
+        Self::OFFLINE_BUILDER_MANUAL_HELP,
+        Self::OFFLINE_BUILDER_METRIC_SOURCE,
+        Self::OFFLINE_BUILDER_NEW_PAGE,
+        Self::OFFLINE_BUILDER_OPEN_DRAFT,
+        Self::OFFLINE_BUILDER_OPENED,
+        Self::OFFLINE_BUILDER_PAGE_NAME,
+        Self::OFFLINE_BUILDER_PENDING_HELP,
+        Self::OFFLINE_BUILDER_RELOAD,
+        Self::OFFLINE_BUILDER_REMOVE,
+        Self::OFFLINE_BUILDER_REMOVE_ROLE,
+        Self::OFFLINE_BUILDER_REPEATED,
+        Self::OFFLINE_BUILDER_ROLE_ID,
+        Self::OFFLINE_BUILDER_ROLE_IN_USE,
+        Self::OFFLINE_BUILDER_ROLE_INVALID,
+        Self::OFFLINE_BUILDER_ROLE_MANY,
+        Self::OFFLINE_BUILDER_ROLE_ONE,
+        Self::OFFLINE_BUILDER_ROLES,
+        Self::OFFLINE_BUILDER_ROLES_HELP,
+        Self::OFFLINE_BUILDER_SAVE,
+        Self::OFFLINE_BUILDER_SAVED,
+        Self::OFFLINE_BUILDER_SAVED_COMPOSITION,
+        Self::OFFLINE_BUILDER_SAVED_PAGES,
+        Self::OFFLINE_BUILDER_SAVING,
+        Self::OFFLINE_BUILDER_SELECT_ALL,
+        Self::OFFLINE_BUILDER_SELECT_ONE,
+        Self::OFFLINE_BUILDER_SELECT_SLOT,
+        Self::OFFLINE_BUILDER_SELECTION,
+        Self::OFFLINE_BUILDER_SERVER_COPIES_EMPTY,
+        Self::OFFLINE_BUILDER_SLOT,
+        Self::OFFLINE_BUILDER_SLOTS,
+        Self::OFFLINE_BUILDER_SLOTS_MISSING,
+        Self::OFFLINE_BUILDER_SOURCE_ROLE,
+        Self::OFFLINE_BUILDER_TITLE,
+        Self::OFFLINE_BUILDER_UNSAVED,
+        Self::OFFLINE_BUILDER_VERSION,
+        Self::OFFLINE_BUILDER_WIDGET_TITLE,
+        Self::OFFLINE_BUILDER_WIDGETS,
+        Self::OFFLINE_DASHBOARD_ADD,
+        Self::OFFLINE_DASHBOARD_ADD_PAGE,
+        Self::OFFLINE_DASHBOARD_BACK,
+        Self::OFFLINE_DASHBOARD_CONFLICT,
+        Self::OFFLINE_DASHBOARD_EXPORT,
+        Self::OFFLINE_DASHBOARD_EXPORT_CAUTION,
+        Self::OFFLINE_DASHBOARD_EXPORT_FAILED,
+        Self::OFFLINE_DASHBOARD_FAILED,
+        Self::OFFLINE_DASHBOARD_HELP,
+        Self::OFFLINE_DASHBOARD_LEAVE_DIRTY,
+        Self::OFFLINE_DASHBOARD_MOVE_DOWN,
+        Self::OFFLINE_DASHBOARD_MOVE_UP,
+        Self::OFFLINE_DASHBOARD_NAME,
+        Self::OFFLINE_DASHBOARD_NO_PAGES,
+        Self::OFFLINE_DASHBOARD_PAGE_LOAD_FAILED,
+        Self::OFFLINE_DASHBOARD_PAGES,
+        Self::OFFLINE_DASHBOARD_PENDING,
+        Self::OFFLINE_DASHBOARD_REFERENCE_CONFLICT,
+        Self::OFFLINE_DASHBOARD_REFERENCE_UNRESOLVED,
+        Self::OFFLINE_DASHBOARD_REMOVE,
+        Self::OFFLINE_DASHBOARD_SAVE,
+        Self::OFFLINE_DASHBOARD_SAVE_BEFORE_EXPORT,
+        Self::OFFLINE_DASHBOARD_SAVED,
+        Self::OFFLINE_DASHBOARD_SOURCES_FIXED,
+        Self::OFFLINE_DASHBOARD_TITLE,
+        Self::OFFLINE_DASHBOARD_WIDGET_COUNT,
+        Self::OFFLINE_EDITOR_APPLY_GEOMETRY,
+        Self::OFFLINE_EDITOR_AUTOSAVE,
+        Self::OFFLINE_EDITOR_AUTOSAVE_AFTER_CREATE,
+        Self::OFFLINE_EDITOR_AUTOSAVE_HELP,
+        Self::OFFLINE_EDITOR_BOX,
+        Self::OFFLINE_EDITOR_CANVAS,
+        Self::OFFLINE_EDITOR_CANVAS_HELP,
+        Self::OFFLINE_EDITOR_CHECK_BINDING,
+        Self::OFFLINE_EDITOR_CHECK_BOUNDS,
+        Self::OFFLINE_EDITOR_CHECK_CATALOG,
+        Self::OFFLINE_EDITOR_CHECK_EMPTY,
+        Self::OFFLINE_EDITOR_CHECK_IDS,
+        Self::OFFLINE_EDITOR_CHECK_INCOMPLETE,
+        Self::OFFLINE_EDITOR_CHECK_METRIC,
+        Self::OFFLINE_EDITOR_CHECK_METRIC_TYPE,
+        Self::OFFLINE_EDITOR_CHECK_NAME,
+        Self::OFFLINE_EDITOR_CHECK_OVERLAP,
+        Self::OFFLINE_EDITOR_CHECK_ROLE,
+        Self::OFFLINE_EDITOR_CHECKS_HELP,
+        Self::OFFLINE_EDITOR_CLAIMING,
+        Self::OFFLINE_EDITOR_CLIPBOARD_APPLY,
+        Self::OFFLINE_EDITOR_CLIPBOARD_CATALOG,
+        Self::OFFLINE_EDITOR_CLIPBOARD_COPIED,
+        Self::OFFLINE_EDITOR_CLIPBOARD_COPY,
+        Self::OFFLINE_EDITOR_CLIPBOARD_CROSS_PAGE_CUT,
+        Self::OFFLINE_EDITOR_CLIPBOARD_CUT,
+        Self::OFFLINE_EDITOR_CLIPBOARD_CUT_PENDING,
+        Self::OFFLINE_EDITOR_CLIPBOARD_EMPTY,
+        Self::OFFLINE_EDITOR_CLIPBOARD_FIRST_FREE,
+        Self::OFFLINE_EDITOR_CLIPBOARD_GEOMETRY,
+        Self::OFFLINE_EDITOR_CLIPBOARD_IDS,
+        Self::OFFLINE_EDITOR_CLIPBOARD_LIMIT,
+        Self::OFFLINE_EDITOR_CLIPBOARD_METRIC,
+        Self::OFFLINE_EDITOR_CLIPBOARD_OPAQUE,
+        Self::OFFLINE_EDITOR_CLIPBOARD_ORIGINAL,
+        Self::OFFLINE_EDITOR_CLIPBOARD_PASTE,
+        Self::OFFLINE_EDITOR_CLIPBOARD_PLACEMENT,
+        Self::OFFLINE_EDITOR_CLIPBOARD_REFERENCE,
+        Self::OFFLINE_EDITOR_CLIPBOARD_RESOLVE_HELP,
+        Self::OFFLINE_EDITOR_CLIPBOARD_RESOLVE_SOURCES,
+        Self::OFFLINE_EDITOR_CLIPBOARD_ROLE,
+        Self::OFFLINE_EDITOR_CLIPBOARD_SOURCE_CHANGED,
+        Self::OFFLINE_EDITOR_EDIT_HERE,
+        Self::OFFLINE_EDITOR_FINDING_COUNT,
+        Self::OFFLINE_EDITOR_GEOMETRY_FOR,
+        Self::OFFLINE_EDITOR_GEOMETRY_REJECTED,
+        Self::OFFLINE_EDITOR_H,
+        Self::OFFLINE_EDITOR_HISTORY_HINT,
+        Self::OFFLINE_EDITOR_HISTORY_LIMIT,
+        Self::OFFLINE_EDITOR_NO_HISTORY,
+        Self::OFFLINE_EDITOR_OPAQUE,
+        Self::OFFLINE_EDITOR_OPEN_ELSEWHERE,
+        Self::OFFLINE_EDITOR_OWNER_UNAVAILABLE,
+        Self::OFFLINE_EDITOR_PLACE,
+        Self::OFFLINE_EDITOR_RECOVERY,
+        Self::OFFLINE_EDITOR_REMOVE_SELECTION,
+        Self::OFFLINE_EDITOR_REPEAT_AUTO,
+        Self::OFFLINE_EDITOR_RESIZE,
+        Self::OFFLINE_EDITOR_RESIZE_WIDGET,
+        Self::OFFLINE_EDITOR_RESOLVE_CATALOG,
+        Self::OFFLINE_EDITOR_RESOLVE_CHOOSE,
+        Self::OFFLINE_EDITOR_RESOLVE_GO_TO_OBJECT,
+        Self::OFFLINE_EDITOR_RESOLVE_HELP,
+        Self::OFFLINE_EDITOR_RESOLVE_NO_METRICS,
+        Self::OFFLINE_EDITOR_RESOLVE_NO_ROLES,
+        Self::OFFLINE_EDITOR_RESOLVE_ROLE,
+        Self::OFFLINE_EDITOR_RESOLVE_SLOT,
+        Self::OFFLINE_EDITOR_RESOLVE_SLOT_ORDER,
+        Self::OFFLINE_EDITOR_RESOLVE_TARGET_CATALOG,
+        Self::OFFLINE_EDITOR_RESOLVE_TARGET_METRIC,
+        Self::OFFLINE_EDITOR_RESOLVE_TARGET_ROLE,
+        Self::OFFLINE_EDITOR_RESOLVE_TITLE,
+        Self::OFFLINE_EDITOR_RETRY,
+        Self::OFFLINE_EDITOR_SCOPE,
+        Self::OFFLINE_EDITOR_SELECTED_COUNT,
+        Self::OFFLINE_EDITOR_SELECTION_HELP,
+        Self::OFFLINE_EDITOR_UNSAVED_COPY,
+        Self::OFFLINE_EDITOR_W,
+        Self::OFFLINE_EDITOR_WIDGET_BOX,
+        Self::OFFLINE_EDITOR_X,
+        Self::OFFLINE_EDITOR_Y,
+        Self::OFFLINE_EDITOR_ZOOM_FIT,
+        Self::OFFLINE_EDITOR_ZOOM_IN,
+        Self::OFFLINE_EDITOR_ZOOM_OUT,
+        Self::OFFLINE_EDITOR_ZOOM_RESET,
         Self::PUBLICATION_A11Y_STEPS,
         Self::PUBLICATION_ACCESS_COPY_PRIVATE,
         Self::PUBLICATION_ACCESS_TITLE,
@@ -2784,15 +3174,32 @@ impl MessageId {
         Self::SETTINGS_APPEARANCE_SAVED,
         Self::SETTINGS_APPEARANCE_SUBTITLE,
         Self::SETTINGS_APPEARANCE_TITLE,
+        Self::SETTINGS_AUTOSAVE_MAX_INTERVAL,
+        Self::SETTINGS_AUTOSAVE_OFF_WARNING,
+        Self::SETTINGS_AUTOSAVE_TITLE,
         Self::SETTINGS_CHANGED,
         Self::SETTINGS_CONNECTIONS_TITLE,
         Self::SETTINGS_CONTRAST_NOTE,
         Self::SETTINGS_CONTRAST_TITLE,
         Self::SETTINGS_DATA_NOT_TRANSLATED,
+        Self::SETTINGS_EDITOR_AUTOSAVE_AFTER_CREATE,
+        Self::SETTINGS_EDITOR_AUTOSAVE_MODE,
+        Self::SETTINGS_EDITOR_ERROR_CHANGED,
+        Self::SETTINGS_EDITOR_ERROR_NOT_SAVED,
+        Self::SETTINGS_EDITOR_ERROR_UNAVAILABLE,
+        Self::SETTINGS_EDITOR_MAX_INTERVAL,
+        Self::SETTINGS_EDITOR_OFF,
+        Self::SETTINGS_EDITOR_ON,
+        Self::SETTINGS_EDITOR_RELOAD,
+        Self::SETTINGS_EDITOR_SESSION_ONLY,
         Self::SETTINGS_EDITOR_TITLE,
+        Self::SETTINGS_FILE_CHANGED_BODY,
+        Self::SETTINGS_FILE_CHANGED_TITLE,
         Self::SETTINGS_FILE_HINT,
         Self::SETTINGS_FILE_INVALID_TITLE,
         Self::SETTINGS_FILE_TITLE,
+        Self::SETTINGS_FILE_UNREADABLE,
+        Self::SETTINGS_FILE_UNREADABLE_TITLE,
         Self::SETTINGS_FORMATS_COUNT,
         Self::SETTINGS_FORMATS_COUNT_SAMPLE,
         Self::SETTINGS_FORMATS_DATETIME,
@@ -2892,9 +3299,9 @@ impl MessageId {
         Self::STARTUP_SUBTITLE,
         Self::TEMPLATE_IMPORT_ACTION_FAILED,
         Self::TEMPLATE_IMPORT_BECOMES,
+        Self::TEMPLATE_IMPORT_CATALOG_USE_LATER,
         Self::TEMPLATE_IMPORT_CATALOGS,
         Self::TEMPLATE_IMPORT_CHOOSE,
-        Self::TEMPLATE_IMPORT_CHOOSE_NATIVE,
         Self::TEMPLATE_IMPORT_EMPTY,
         Self::TEMPLATE_IMPORT_HELP,
         Self::TEMPLATE_IMPORT_INSPECT,
@@ -2907,6 +3314,9 @@ impl MessageId {
         Self::TEMPLATE_IMPORT_REJECTED,
         Self::TEMPLATE_IMPORT_SAVE,
         Self::TEMPLATE_IMPORT_SAVED,
+        Self::TEMPLATE_IMPORT_SELECTED,
+        Self::TEMPLATE_IMPORT_SERVER_FUTURE,
+        Self::TEMPLATE_IMPORT_SOURCE_STEPS,
         Self::TEMPLATE_IMPORT_UNRESOLVED_MACROS,
         Self::TEMPLATE_IMPORT_VERSION,
         Self::WIDGET_TYPE_ACTIONLOG,

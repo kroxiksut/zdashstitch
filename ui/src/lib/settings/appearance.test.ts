@@ -107,6 +107,15 @@ describe('appearance store', () => {
     expect(store.justSaved).toBe(false);
   });
 
+  it('shows a server-held session value without claiming it was saved', async () => {
+    const env = environment();
+    const store = new AppearanceStore(memoryClient({ status: 'ready', preferences: { ...DEFAULT_APPEARANCE, theme: 'dark' }, file_state: 'invalid', session_only: true }).client, env);
+    await store.load();
+    expect(store.preferences.theme).toBe('dark');
+    expect(store.sessionOnly).toBe('file_invalid');
+    expect(store.justSaved).toBe(false);
+  });
+
   it('sends saves one after another so the file ends with the last choice', async () => {
     const order: string[] = [];
     let releaseFirst: () => void = () => {};
@@ -160,11 +169,11 @@ describe('appearance HTTP client', () => {
       const url = String(input);
       if (url === '/api/session') return Response.json({ csrf_token: 'csrf-1' });
       if (url === APPEARANCE_ENDPOINT && init?.method === 'GET') {
-        return Response.json({ locale: 'ru', theme: 'high_contrast', reduced_motion: 'system', file_state: 'valid' });
+        return Response.json({ locale: 'ru', theme: 'high_contrast', reduced_motion: 'system', file_state: 'valid', fingerprint: 'first', session_only: false });
       }
       if (url === APPEARANCE_ENDPOINT && init?.method === 'PUT') {
         const body = JSON.parse(String(init.body)) as Record<string, string>;
-        return Response.json({ ...body, file_state: 'valid' });
+        return Response.json({ locale: body.locale, theme: body.theme, reduced_motion: body.reduced_motion, file_state: 'valid', fingerprint: 'next', session_only: false });
       }
       return new Response(null, { status: 404 });
     });
@@ -172,21 +181,22 @@ describe('appearance HTTP client', () => {
     expect(await client.load()).toEqual({
       status: 'ready',
       preferences: { locale: 'ru', theme: 'high_contrast', reduced_motion: 'system' },
-      file_state: 'valid'
+      file_state: 'valid', fingerprint: 'first', session_only: false
     });
     const saved = await client.save({ locale: 'en', theme: 'dark', reduced_motion: 'reduce' });
     expect(saved.status).toBe('ready');
     const put = fetcher.mock.calls.find(([, init]) => init?.method === 'PUT');
     expect((put?.[1]?.headers as Record<string, string>)[CSRF_HEADER]).toBe('csrf-1');
-    expect(JSON.parse(String(put?.[1]?.body))).toEqual({ locale: 'en', theme: 'dark', reduced_motion: 'reduce' });
+    expect(JSON.parse(String(put?.[1]?.body))).toEqual({ locale: 'en', theme: 'dark', reduced_motion: 'reduce', fingerprint: 'first' });
   });
 
   it('maps an invalid settings file, failures and unknown values to data-only results', async () => {
     const answers: Response[] = [
+      Response.json({ locale: 'en', theme: 'light', reduced_motion: 'system', file_state: 'valid', fingerprint: 'first', session_only: false }),
       Response.json({ csrf_token: 'csrf-1' }),
       Response.json({ code: 'settings_file_invalid', params: {} }, { status: 409 }),
       Response.json({ code: 'settings_write_failed', params: {} }, { status: 500 }),
-      Response.json({ locale: 'en', theme: 'sepia', reduced_motion: 'system', file_state: 'valid' })
+      Response.json({ locale: 'en', theme: 'sepia', reduced_motion: 'system', file_state: 'valid', fingerprint: 'second', session_only: false })
     ];
     const client = createHttpAppearanceClient((() => Promise.resolve(answers.shift() ?? new Response(null, { status: 500 }))) as typeof fetch);
     expect(await client.save(DEFAULT_APPEARANCE)).toEqual({ status: 'file_invalid' });
@@ -194,6 +204,21 @@ describe('appearance HTTP client', () => {
     expect(await client.load()).toEqual({ status: 'failed' });
     const offline = createHttpAppearanceClient((() => Promise.reject(new TypeError('offline'))) as typeof fetch);
     expect(await offline.load()).toEqual({ status: 'failed' });
+  });
+
+  it('reports an external edit and refuses to reuse its old fingerprint', async () => {
+    const calls: string[] = [];
+    const fetcher = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url === '/api/session') return Response.json({ csrf_token: 'csrf-1' });
+      if (init?.method === 'GET') { calls.push('read'); return Response.json({ locale: 'en', theme: 'light', reduced_motion: 'system', file_state: 'valid', fingerprint: 'new', session_only: false }); }
+      calls.push('write'); return Response.json({ code: 'settings_changed', params: {} }, { status: 409 });
+    });
+    const client = createHttpAppearanceClient(fetcher as typeof fetch);
+    await client.load();
+    expect(await client.save(DEFAULT_APPEARANCE)).toEqual({ status: 'changed' });
+    expect(await client.save(DEFAULT_APPEARANCE)).toEqual({ status: 'changed' });
+    expect(calls).toEqual(['read', 'write']);
   });
 });
 

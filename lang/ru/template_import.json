@@ -1,5 +1,8 @@
 {
-  "template_import.choose_native": {"message":"Выбрать файлы…","placeholders":{}},
+  "template_import.source_steps": {"message":"Чтобы получить файл, откройте в Zabbix 7.4 раздел «Сбор данных → Шаблоны», отметьте шаблоны и нажмите «Экспорт». Сохраните YAML, JSON или XML, затем выберите файл здесь.","placeholders":{}},
+  "template_import.server_future": {"message":"Импорт шаблонов напрямую с подключённого сервера Zabbix появится на следующем этапе.","placeholders":{}},
+  "template_import.selected": {"message":"Выбрано файлов: {count}","placeholders":{"count":"number"}},
+  "template_import.catalog_use_later": {"message":"Сохранённые каталоги можно выбрать при создании страницы в разделе «Черновики».","placeholders":{}},
   "template_import.help": {"message":"Выберите экспорт шаблонов Zabbix 7.4 в YAML, JSON или XML. Проверьте результат перед сохранением каталогов на этом компьютере.","placeholders":{}},
   "template_import.choose": {"message":"Загрузить через браузер","placeholders":{}},
   "template_import.inspect": {"message":"Проверить файлы","placeholders":{}},

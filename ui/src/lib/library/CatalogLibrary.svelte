@@ -35,23 +35,14 @@
     savedCount = null;
   }
 
-  async function inspect(native = false): Promise<void> {
-    if (busy || (!native && files.length === 0)) return;
+  async function inspect(): Promise<void> {
+    if (busy || files.length === 0) return;
     busy = true;
     preview = null;
     savedCount = null;
     importError = false;
     try {
-      if (native) {
-        const selection = await client.choose();
-        if (selection.files.length > 0) {
-          files = [];
-          input.value = '';
-          preview = selection;
-        }
-      } else {
-        preview = await client.inspect(files);
-      }
+      preview = await client.inspect(files);
     } catch {
       importError = true;
     } finally {
@@ -81,21 +72,24 @@
   }
 </script>
 
-<div class="screen">
-  <h1>{i18n.t('library.title')}</h1>
-  <section aria-labelledby="catalog-import-title" id="template-import">
+<div class="screen library-screen">
+  <header class="screen-head">
+    <h1>{i18n.t('library.title')}</h1>
+  </header>
+  <section class="card import-card" aria-labelledby="catalog-import-title" id="template-import">
     <h2 id="catalog-import-title">{i18n.t('startup.action.import_files')}</h2>
     <p id="catalog-import-help">{i18n.t('template_import.help')}</p>
+    <p class="muted">{i18n.t('template_import.source_steps')}</p>
+    <p class="muted">{i18n.t('template_import.server_future')}</p>
     <div class="actions">
-      <Button {i18n} label={{ id: 'template_import.choose_native' }} disabled={busy} onclick={() => void inspect(true)} />
-      <div>
-        <label for="template-import-file">{i18n.t('template_import.choose')}</label>
-        <input id="template-import-file" type="file" multiple accept=".yaml,.yml,.json,.xml"
-          aria-describedby="catalog-import-help" disabled={busy} bind:this={input}
-          onchange={(event) => select(event.currentTarget.files)}
-          ondragover={(event) => event.preventDefault()}
-          ondrop={(event) => { event.preventDefault(); select(event.dataTransfer?.files ?? null); }} />
-      </div>
+      <label class="button-link browser-select" for="template-import-file"
+        ondragover={(event) => event.preventDefault()}
+        ondrop={(event) => { event.preventDefault(); select(event.dataTransfer?.files ?? null); }}
+      >{i18n.t('template_import.choose')}</label>
+      <input class="file-input" id="template-import-file" type="file" multiple accept=".yaml,.yml,.json,.xml"
+        aria-describedby="catalog-import-help" disabled={busy} bind:this={input}
+        onchange={(event) => select(event.currentTarget.files)} />
+      {#if files.length > 0}<span class="muted">{i18n.t('template_import.selected', { count: files.length })}</span>{/if}
       <Button {i18n} label={{ id: 'template_import.inspect' }} disabled={busy || files.length === 0}
         onclick={() => void inspect()} />
     </div>
@@ -146,8 +140,10 @@
       {/if}
     </div>
   </section>
-  <section aria-labelledby="catalog-list-title">
+  <section class="card catalog-card" aria-labelledby="catalog-list-title">
     <h2 id="catalog-list-title">{i18n.t('template_import.catalogs')}</h2>
+    <p class="muted">{i18n.t('template_import.catalog_use_later')}</p>
+    {#if catalogs && catalogs.length > 0}<p><a href="/drafts">{i18n.t('offline_builder.go_to_drafts')}</a></p>{/if}
     {#if listError}
       <p role="alert">{i18n.t('template_import.list_failed')}</p>
     {:else if catalogs === null}
@@ -171,9 +167,15 @@
 </div>
 
 <style>
-  section { margin-block: var(--space-5); }
-  .actions { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-3); }
-  label { display: block; margin-block-end: var(--space-1); }
-  input { max-inline-size: 100%; }
+  .library-screen { display: grid; gap: var(--space-6); }
+  .card { align-content: start; }
+  .card h2, .card p { margin: 0; }
+  .import-card { max-inline-size: 52rem; }
+  .catalog-card { max-inline-size: 52rem; }
+  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); margin-block: var(--space-3); }
+  .browser-select { cursor: pointer; }
+  .file-input { position: absolute; inline-size: 1px; block-size: 1px; padding: 0; border: 0; clip-path: inset(50%); overflow: hidden; }
+  .browser-select:has(+ .file-input:focus-visible) { outline: 2px solid currentColor; outline-offset: 2px; }
+  .preview, .catalogs { margin-block: var(--space-3); }
   li { overflow-wrap: anywhere; }
 </style>

@@ -3,6 +3,23 @@ import { CSRF_HEADER } from '../session';
 import { createCatalogClient } from './client';
 
 describe('template library client', () => {
+  it('routes an embedded page editor through its dashboard and keeps the lease token in headers', async () => {
+    const calls: string[] = [];
+    const fetcher: typeof fetch = async (input, init) => {
+      const path = String(input); calls.push(path);
+      if (path === '/api/session') return Response.json({ csrf_token: 'test-csrf' });
+      if (path.endsWith('/edit-session')) return Response.json({ state: 'editing', token: 'editor-token' });
+      if (init?.method === 'POST') expect(new Headers(init.headers).get('X-ZDashstitch-Editor')).toBe('editor-token');
+      return Response.json({ revision: 2 });
+    };
+    const client = createCatalogClient(fetcher, 'db-local');
+    const pagePath = '/api/library/offline-dashboards/db-local/pages/pg-local';
+    await client.page('pg-local');
+    expect(await client.acquirePage('pg-local')).toBe('editing');
+    await client.updatePage('pg-local', 1, { name: 'Local page', catalogs: [], roles: {}, widgets: [] });
+    expect(calls).toEqual([pagePath, '/api/session', `${pagePath}/edit-session`, pagePath]);
+  });
+
   it('previews with protected upload handles and saves only on confirmation', async () => {
     const calls: string[] = [];
     const fetcher: typeof fetch = async (input, init) => {

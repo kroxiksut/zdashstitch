@@ -2,6 +2,9 @@
   import type { I18n } from '../i18n';
   import { Button, EmptyState, Icon, RadioGroup, Skeleton, nextRovingIndex, resolveText } from '../components';
   import { workcopyCodeText } from '../workcopy/messages';
+  import OfflinePageBuilder from '../library/OfflinePageBuilder.svelte';
+  import OfflineDashboardBuilder from '../library/OfflineDashboardBuilder.svelte';
+  import type { PageClipboard } from '../library/editor-clipboard';
   import ComingLater from './ComingLater.svelte';
   import DraftDetails from './DraftDetails.svelte';
   import {
@@ -24,10 +27,12 @@
   // `drafts` is null while the list is loading. The name is a link that opens the draft (P2-08A);
   // a click elsewhere in the row selects it and shows the details. Selecting is separate from
   // focus (P1-03H): arrows move focus between the name links, Enter opens, Space selects.
-  let { i18n, drafts, onrename }: {
+  let { i18n, drafts, onrename, onchanged, clipboard }: {
     i18n: I18n;
     drafts: DraftListResult | null;
     onrename?: (localId: string, name: string) => Promise<DraftRenameResult>;
+    onchanged?: () => void;
+    clipboard?: PageClipboard;
   } = $props();
 
   // RadioGroup binds plain strings; only known filter values are offered.
@@ -100,7 +105,7 @@
     {#if damaged.length > 0}
       <p class="details-note"><Icon name="alert-triangle" size={18} /><span>{i18n.t('drafts.damaged', { count: damaged.length })}</span></p>
     {/if}
-    <EmptyState {i18n} heading={{ id: 'startup.recent.empty' }} reason={{ id: 'startup.local.help' }} />
+    <EmptyState {i18n} heading={{ id: 'offline_builder.drafts_empty' }} reason={{ id: 'startup.local.help' }} />
   {:else}
     <div class="filters">
       <RadioGroup {i18n} name="drafts-kind" legend={{ id: 'drafts.column.kind' }} options={kindOptions} bind:value={kind} />
@@ -181,10 +186,12 @@
           <p class="hint">{i18n.t('drafts.sort_hint')}</p>
         </div>
         <aside id="drafts-details" class="card drafts-details" aria-labelledby="drafts-details-title">
-          <DraftDetails {i18n} draft={selected} {onrename} />
+          <DraftDetails {i18n} draft={selected} onrename={selected.storage_kind === 'offline_page' || selected.storage_kind === 'offline_dashboard' ? undefined : onrename} />
         </aside>
       </div>
     {/if}
     <p class="visually-hidden" role="status">{resolveText(i18n, { id: 'common.filter.with_count', params: { label: i18n.t('drafts.title'), count: visible.length } })}</p>
   {/if}
 </div>
+<div class="screen"><OfflinePageBuilder {i18n} {clipboard} onchanged={() => onchanged?.()} /></div>
+<div class="screen"><OfflineDashboardBuilder {i18n} onchanged={() => onchanged?.()} /></div>

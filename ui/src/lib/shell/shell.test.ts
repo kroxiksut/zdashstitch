@@ -18,7 +18,7 @@ import {
 import { assembledText, durationText, numberedPageName, pageName, widgetGeometry, widgetTypeName } from './format';
 import { findingLevelLabel, widgetTypeLabel } from './labels';
 import { periodUnit, previewAspectRatio, rowsUsed, widgetBox } from './preview';
-import { draftPath, internalLinkPath, parseRoute, topSection } from './router';
+import { dashboardPagePath, draftPath, internalLinkPath, parseRoute, topSection } from './router';
 
 // Test fixtures only: neutral names, no real infrastructure. Never used by the production build.
 const pageCopy: DraftDetail = {
@@ -87,6 +87,7 @@ describe('shell routes (P1-01B §3, P1-01H §2)', () => {
     expect(parseRoute('/server/conn-1/dashboards').route).toEqual({ name: 'server', connectionLocalId: 'conn-1' });
     expect(parseRoute('/settings/about').route).toEqual({ name: 'settings', section: 'about' });
     expect(parseRoute('/draft/abc_1/checks').route).toEqual({ name: 'draft', localId: 'abc_1', section: 'checks' });
+    expect(parseRoute(dashboardPagePath('db-one', 'pg-two')).route).toEqual({ name: 'draft', localId: 'db-one', section: 'structure', pageId: 'pg-two' });
     expect(parseRoute('/draft/abc/structure/page/2/edit')).toEqual({
       route: { name: 'draft', localId: 'abc', section: 'structure' }
     });

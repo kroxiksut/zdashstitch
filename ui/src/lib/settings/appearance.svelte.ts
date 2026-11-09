@@ -14,7 +14,7 @@ export type LocalePreference = 'system' | Locale;
 export const LOCALE_PREFERENCES: ReadonlyArray<LocalePreference> = ['system', 'en', 'ru'];
 
 /** State of the settings file: `invalid` means the last valid values apply and the file is kept. */
-export type SettingsFileState = 'valid' | 'missing' | 'invalid';
+export type SettingsFileState = 'valid' | 'missing' | 'invalid' | 'unreadable';
 
 export interface AppearancePreferences {
   readonly locale: LocalePreference;
@@ -26,9 +26,10 @@ export interface AppearancePreferences {
 export const DEFAULT_APPEARANCE: AppearancePreferences = { locale: 'system', theme: 'system', reduced_motion: 'system' };
 
 export type AppearanceResult =
-  | { readonly status: 'ready'; readonly preferences: AppearancePreferences; readonly file_state: SettingsFileState }
+  | { readonly status: 'ready'; readonly preferences: AppearancePreferences; readonly file_state: SettingsFileState; readonly session_only?: boolean; readonly fingerprint?: string }
   /** The settings file has errors; it is not overwritten. */
   | { readonly status: 'file_invalid' }
+  | { readonly status: 'changed' }
   /** No answer, or the server could not read or write the file. */
   | { readonly status: 'failed' };
 
@@ -40,18 +41,21 @@ export interface AppearanceClient {
 const LOCALES = new Set<string>(LOCALE_PREFERENCES);
 const THEMES = new Set<string>(['system', 'light', 'dark', 'high_contrast']);
 const MOTIONS = new Set<string>(['system', 'reduce', 'no-preference']);
-const FILE_STATES = new Set<string>(['valid', 'missing', 'invalid']);
+const FILE_STATES = new Set<string>(['valid', 'missing', 'invalid', 'unreadable']);
 
 interface WireAppearance {
   locale: string;
   theme: string;
   reduced_motion: string;
   file_state: string;
+  fingerprint: string;
+  session_only: boolean;
 }
 
 /** Values from the server outside the closed sets are a failed answer, not a guess. */
 function fromWire(wire: WireAppearance): AppearanceResult {
-  if (!LOCALES.has(wire.locale) || !THEMES.has(wire.theme) || !MOTIONS.has(wire.reduced_motion) || !FILE_STATES.has(wire.file_state)) {
+  if (!LOCALES.has(wire.locale) || !THEMES.has(wire.theme) || !MOTIONS.has(wire.reduced_motion) || !FILE_STATES.has(wire.file_state)
+    || typeof wire.fingerprint !== 'string' || typeof wire.session_only !== 'boolean') {
     return { status: 'failed' };
   }
   return {
@@ -61,13 +65,17 @@ function fromWire(wire: WireAppearance): AppearanceResult {
       theme: wire.theme as ThemePreference,
       reduced_motion: wire.reduced_motion as MotionPreference
     },
-    file_state: wire.file_state as SettingsFileState
+    file_state: wire.file_state as SettingsFileState,
+    fingerprint: wire.fingerprint,
+    session_only: wire.session_only
   };
 }
 
 /** Client over the local server. The CSRF token is read from `/api/session` and kept in memory only. */
 export function createHttpAppearanceClient(fetcher: typeof fetch = (...args) => fetch(...args)): AppearanceClient {
   let csrf: Promise<string> | null = null;
+  let fingerprint: string | null = null;
+  let stale = false;
   const ensureCsrf = (): Promise<string> => {
     csrf ??= loadCsrfToken(fetcher).catch((error: unknown) => {
       csrf = null;
@@ -80,9 +88,12 @@ export function createHttpAppearanceClient(fetcher: typeof fetch = (...args) => 
     try {
       const response = await fetcher(APPEARANCE_ENDPOINT, { credentials: 'same-origin', ...init });
       if (!response.ok) throw await apiFailure(response);
-      return fromWire((await response.json()) as WireAppearance);
+      const result = fromWire((await response.json()) as WireAppearance);
+      if (result.status === 'ready') { fingerprint = result.fingerprint ?? null; stale = false; }
+      return result;
     } catch (error) {
       if (error instanceof ApiFailure && error.response?.code === 'settings_file_invalid') return { status: 'file_invalid' };
+      if (error instanceof ApiFailure && error.response?.code === 'settings_changed') { fingerprint = null; stale = true; return { status: 'changed' }; }
       return { status: 'failed' };
     }
   }
@@ -90,6 +101,11 @@ export function createHttpAppearanceClient(fetcher: typeof fetch = (...args) => 
   return {
     load: () => send({ method: 'GET', headers: { Accept: 'application/json' } }),
     async save(preferences) {
+      if (stale) return { status: 'changed' };
+      if (fingerprint === null) {
+        const read = await send({ method: 'GET', headers: { Accept: 'application/json' } });
+        if (read.status !== 'ready') return read;
+      }
       let token: string;
       try {
         token = await ensureCsrf();
@@ -99,7 +115,7 @@ export function createHttpAppearanceClient(fetcher: typeof fetch = (...args) => 
       return send({
         method: 'PUT',
         headers: { Accept: 'application/json', 'Content-Type': 'application/json', [CSRF_HEADER]: token },
-        body: JSON.stringify({ locale: preferences.locale, theme: preferences.theme, reduced_motion: preferences.reduced_motion })
+        body: JSON.stringify({ locale: preferences.locale, theme: preferences.theme, reduced_motion: preferences.reduced_motion, fingerprint })
       });
     }
   };
@@ -136,7 +152,7 @@ export function documentEnvironment(): AppearanceEnvironment | null {
  * Why the last change is not in the settings file: it applies until restart only.
  * `file_invalid` — the file has errors and is kept; `failed` — the server did not save it.
  */
-export type SessionOnlyReason = 'file_invalid' | 'failed';
+export type SessionOnlyReason = 'file_invalid' | 'failed' | 'changed';
 
 export class AppearanceStore {
   preferences = $state<AppearancePreferences>(DEFAULT_APPEARANCE);
@@ -191,11 +207,13 @@ export class AppearanceStore {
     if (result.status === 'ready') {
       this.fileState = result.file_state;
       this.#apply(result.preferences);
+      this.sessionOnly = result.session_only ? 'file_invalid' : null;
     }
   }
 
   /** Applies a change at once, then saves it; a refused or failed save keeps it until restart. */
   async change(patch: Partial<AppearancePreferences>): Promise<void> {
+    if (this.fileState === 'unreadable') return;
     const next: AppearancePreferences = { ...this.preferences, ...patch };
     this.#apply(next);
     const request = ++this.#request;
@@ -210,8 +228,8 @@ export class AppearanceStore {
     this.loaded = true;
     if (result.status === 'ready') {
       this.fileState = result.file_state;
-      this.sessionOnly = null;
-      this.justSaved = true;
+      this.sessionOnly = result.session_only ? 'file_invalid' : null;
+      this.justSaved = !result.session_only;
     } else {
       if (result.status === 'file_invalid') this.fileState = 'invalid';
       this.sessionOnly = result.status;

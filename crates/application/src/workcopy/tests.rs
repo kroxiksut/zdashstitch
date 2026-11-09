@@ -11,8 +11,8 @@ use serde_json::{Value, json};
 use zdashstitch_zabbix::{VersionedDashboardSnapshot, ZabbixVersion};
 
 use super::formats::{
-    BaseReference, DraftKind, ItemMetadataState, LOCAL_ONLY, LocalMetadata, SNAPSHOT_FORMAT,
-    SnapshotFile, SnapshotScope, WORKCOPY_FORMAT, WorkcopyFile, WorkcopySource,
+    BaseReference, DraftKind, ItemMetadataState, LOCAL_ONLY, LocalMetadata, PageSelector,
+    SNAPSHOT_FORMAT, SnapshotFile, SnapshotScope, WORKCOPY_FORMAT, WorkcopyFile, WorkcopySource,
 };
 use super::store::{CrashPoint, LocalStore, fail};
 use super::{WorkcopyService, is_workcopy_id};
@@ -126,6 +126,59 @@ fn read(path: &Path) -> Vec<u8> {
 
 fn write(path: &Path, raw: &[u8]) {
     std::fs::write(path, raw).unwrap_or_else(|error| panic!("write {}: {error}", path.display()));
+}
+
+#[test]
+fn portable_inventory_reads_local_workcopy_without_mutating_base() {
+    let directory = temp_root();
+    let store = LocalStore::at(directory.path().to_path_buf());
+    let file = snapshot_file(raw_dashboard("Private source"));
+    store
+        .put_snapshot(&file)
+        .unwrap_or_else(|error| panic!("snapshot: {error}"));
+    store
+        .create_workcopy(&workcopy_file(&file, WORKCOPY))
+        .unwrap_or_else(|error| panic!("workcopy: {error}"));
+    let saved_snapshot = read(&snapshot_path(directory.path(), &file));
+    let saved_workcopy = read(&workcopy_path(directory.path(), WORKCOPY));
+    let inventory = WorkcopyService::new(directory.path().to_path_buf())
+        .portable_conversion_inventory(WORKCOPY)
+        .unwrap_or_else(|error| panic!("inventory: {error}"));
+    assert_eq!(inventory.kind, DraftKind::Dashboard);
+    assert_eq!(inventory.pages, 1);
+    assert_eq!(inventory.widgets, 1);
+    assert_eq!(inventory.unclassified_widgets, 1);
+    assert_eq!(inventory.item_fields, 0);
+    assert_eq!(
+        read(&snapshot_path(directory.path(), &file)),
+        saved_snapshot
+    );
+    assert_eq!(
+        read(&workcopy_path(directory.path(), WORKCOPY)),
+        saved_workcopy
+    );
+
+    let page_id = "wc-00112233445566778899aabbccddeefe";
+    let mut page_workcopy = workcopy_file(&file, page_id);
+    page_workcopy.kind = DraftKind::Page;
+    page_workcopy.source.page = Some(PageSelector {
+        dashboard_pageid: "420".to_owned(),
+        page_name: "Main".to_owned(),
+        page_number: 1,
+    });
+    store
+        .create_workcopy(&page_workcopy)
+        .unwrap_or_else(|error| panic!("page workcopy: {error}"));
+    let page = WorkcopyService::new(directory.path().to_path_buf())
+        .portable_conversion_inventory(page_id)
+        .unwrap_or_else(|error| panic!("page inventory: {error}"));
+    assert_eq!(page.kind, DraftKind::Page);
+    assert_eq!(page.pages, 1);
+    assert_eq!(page.widgets, 1);
+    assert_eq!(
+        read(&snapshot_path(directory.path(), &file)),
+        saved_snapshot
+    );
 }
 
 struct CrashGuard;

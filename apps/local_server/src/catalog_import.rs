@@ -2,22 +2,27 @@
 
 //! Protected file import. Both selectors use the same quota-bound upload set.
 
-use std::{collections::BTreeMap, time::Duration};
+use std::{collections::BTreeMap, sync::Arc, time::Duration};
 
 use axum::{
     Extension, Json, Router,
     body::Bytes,
     extract::Path,
-    http::StatusCode,
+    http::{HeaderMap, StatusCode},
     response::{IntoResponse, Response},
     routing::{get, post},
 };
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use zdashstitch_application::catalog_library::{
     CatalogLibrary, CatalogSummary, MAX_TEMPLATE_FILE_BYTES, inspect_template_file,
 };
+use zdashstitch_application::offline_dashboards::{
+    CreateDashboard, OfflineDashboardStore, UpdateDashboard,
+};
+use zdashstitch_application::offline_page_sessions::PageEditSessions;
+use zdashstitch_application::offline_pages::{CreatePage, OfflinePageStore, UpdatePage};
 
-use super::{DraftsHandle, Failure, blocking};
+use super::{DraftsHandle, Failure, blocking, respond};
 use crate::{
     BrowserTransferService, DialogCancellation, FileDialogService, SelectionError, SelectionKind,
     SelectionRegistry, SelectionRegistryLimits,
@@ -28,10 +33,57 @@ use crate::{
 pub(super) fn routes() -> Router<LocalSecurity> {
     Router::new()
         .route("/library/catalogs", get(list))
+        .route("/library/catalogs/{id}/{version}", get(catalog))
+        .route("/library/offline-pages", get(list_pages).post(create_page))
+        .route(
+            "/library/offline-dashboards",
+            get(list_dashboards).post(create_dashboard),
+        )
+        .route(
+            "/library/offline-dashboards/{id}",
+            get(open_dashboard).post(update_dashboard),
+        )
+        .route(
+            "/library/offline-dashboards/{id}/export",
+            post(export_dashboard),
+        )
+        .route(
+            "/library/offline-dashboards/{id}/pages/{page_id}",
+            get(open_dashboard_page).post(update_dashboard_page),
+        )
+        .route(
+            "/library/offline-dashboards/{id}/pages/{page_id}/edit-session",
+            post(dashboard_page_session),
+        )
+        .route(
+            "/library/offline-dashboards/{id}/pages/{page_id}/edit-session/renew",
+            post(renew_dashboard_page_session),
+        )
+        .route(
+            "/library/offline-dashboards/{id}/pages/{page_id}/edit-session/release",
+            post(release_dashboard_page_session),
+        )
+        .route(
+            "/library/offline-pages/{id}",
+            get(open_page).post(update_page),
+        )
+        .route(
+            "/library/offline-pages/{id}/edit-session",
+            post(edit_session),
+        )
+        .route(
+            "/library/offline-pages/{id}/edit-session/renew",
+            post(renew_session),
+        )
+        .route(
+            "/library/offline-pages/{id}/edit-session/release",
+            post(release_session),
+        )
         .route("/library/template-import/choose", post(choose))
         .route("/library/template-import/{id}/inspect", post(inspect))
         .route("/library/template-import/{id}/run", post(run))
         .layer(Extension(FileDialogService::default()))
+        .layer(Extension(Arc::new(PageEditSessions::default())))
 }
 
 #[derive(Serialize)]
@@ -77,6 +129,329 @@ async fn list(
     Extension(handle): Extension<DraftsHandle>,
 ) -> Result<Json<Vec<CatalogSummary>>, Failure> {
     blocking(move || Ok(Json(CatalogLibrary::new(handle.root()?).list()?))).await
+}
+
+async fn catalog(
+    Extension(handle): Extension<DraftsHandle>,
+    Path((id, version)): Path<(String, u32)>,
+) -> Response {
+    let result = blocking(move || {
+        CatalogLibrary::new(handle.root()?)
+            .get(&id, version)?
+            .map(|template| template.catalog)
+            .ok_or(Failure::Code(StatusCode::NOT_FOUND, "catalog_not_found"))
+    })
+    .await;
+    respond(StatusCode::OK, result)
+}
+
+async fn list_pages(Extension(handle): Extension<DraftsHandle>) -> Response {
+    let result = blocking(move || Ok(OfflinePageStore::new(handle.root()?).summaries()?)).await;
+    respond(StatusCode::OK, result)
+}
+
+async fn list_dashboards(Extension(handle): Extension<DraftsHandle>) -> Response {
+    let result =
+        blocking(move || Ok(OfflineDashboardStore::new(handle.root()?).summaries()?)).await;
+    respond(StatusCode::OK, result)
+}
+
+async fn open_dashboard(
+    Extension(handle): Extension<DraftsHandle>,
+    Path(id): Path<String>,
+) -> Response {
+    let result = blocking(move || {
+        OfflineDashboardStore::new(handle.root()?)
+            .get(&id)?
+            .ok_or(Failure::Code(
+                StatusCode::NOT_FOUND,
+                "offline_dashboard_not_found",
+            ))
+    })
+    .await;
+    respond(StatusCode::OK, result)
+}
+
+async fn create_dashboard(Extension(handle): Extension<DraftsHandle>, body: Bytes) -> Response {
+    let Some(request) = CreateDashboard::parse_json(&body) else {
+        return super::request_invalid().into_response();
+    };
+    let result =
+        blocking(move || Ok(OfflineDashboardStore::new(handle.root()?).create(request)?)).await;
+    respond(StatusCode::CREATED, result)
+}
+
+async fn update_dashboard(
+    Extension(handle): Extension<DraftsHandle>,
+    Path(id): Path<String>,
+    body: Bytes,
+) -> Response {
+    let Some(request) = UpdateDashboard::parse_json(&body) else {
+        return super::request_invalid().into_response();
+    };
+    let result =
+        blocking(move || Ok(OfflineDashboardStore::new(handle.root()?).update(&id, request)?))
+            .await;
+    respond(StatusCode::OK, result)
+}
+
+/// Registers a one-time, locally authenticated download of the validated project/v2
+/// package. Preparing the export never writes to the saved dashboard.
+async fn export_dashboard(
+    Extension(handle): Extension<DraftsHandle>,
+    Extension(transfers): Extension<BrowserTransferService>,
+    Path(id): Path<String>,
+) -> Response {
+    let display_name = format!("{id}.zip");
+    let result = blocking(move || {
+        OfflineDashboardStore::new(handle.root()?)
+            .export_package(&id)?
+            .ok_or(Failure::Code(
+                StatusCode::NOT_FOUND,
+                "offline_dashboard_not_found",
+            ))
+    })
+    .await;
+    let bytes = match result {
+        Ok(bytes) => bytes,
+        Err(error) => return error.into_response(),
+    };
+    match transfers.register_download(&display_name, bytes) {
+        Ok(download) => (StatusCode::CREATED, Json(download)).into_response(),
+        Err(error) => transfer_error(error),
+    }
+}
+
+fn dashboard_page_key(id: &str, page_id: &str) -> String {
+    format!("dashboard:{id}:page:{page_id}")
+}
+
+async fn open_dashboard_page(
+    Extension(handle): Extension<DraftsHandle>,
+    Path((id, page_id)): Path<(String, String)>,
+) -> Response {
+    let result = blocking(move || {
+        OfflineDashboardStore::new(handle.root()?)
+            .page(&id, &page_id)?
+            .ok_or(Failure::Code(
+                StatusCode::NOT_FOUND,
+                "offline_page_not_found",
+            ))
+    })
+    .await;
+    respond(StatusCode::OK, result)
+}
+
+async fn update_dashboard_page(
+    Extension(handle): Extension<DraftsHandle>,
+    Path((id, page_id)): Path<(String, String)>,
+    Extension(sessions): Extension<Arc<PageEditSessions>>,
+    headers: HeaderMap,
+    body: Bytes,
+) -> Response {
+    let Some(request) = UpdatePage::parse_json(&body) else {
+        return super::request_invalid().into_response();
+    };
+    let token = editor_token(&headers);
+    let result = blocking(move || {
+        let root = handle.root()?;
+        Ok(sessions.with_owner(
+            root.clone(),
+            dashboard_page_key(&id, &page_id),
+            token.as_deref(),
+            || OfflineDashboardStore::new(root).update_page(&id, &page_id, request),
+        )?)
+    })
+    .await;
+    respond(StatusCode::OK, result)
+}
+
+async fn dashboard_page_session(
+    Extension(handle): Extension<DraftsHandle>,
+    Extension(sessions): Extension<Arc<PageEditSessions>>,
+    Path((id, page_id)): Path<(String, String)>,
+    body: Bytes,
+) -> Response {
+    let request: AcquireEditor = match super::parse(&body) {
+        Ok(request) => request,
+        Err(failure) => return failure.into_response(),
+    };
+    let result = blocking(move || {
+        let root = handle.root()?;
+        if OfflineDashboardStore::new(root.clone())
+            .page(&id, &page_id)?
+            .is_none()
+        {
+            return Err(Failure::Code(
+                StatusCode::NOT_FOUND,
+                "offline_page_not_found",
+            ));
+        }
+        Ok(sessions.acquire(root, dashboard_page_key(&id, &page_id), request.take_over)?)
+    })
+    .await;
+    respond(StatusCode::OK, result)
+}
+
+async fn renew_dashboard_page_session(
+    Extension(handle): Extension<DraftsHandle>,
+    Extension(sessions): Extension<Arc<PageEditSessions>>,
+    Path((id, page_id)): Path<(String, String)>,
+    headers: HeaderMap,
+) -> Response {
+    let token = editor_token(&headers);
+    let result = blocking(move || {
+        let token = token.ok_or(Failure::Code(
+            StatusCode::CONFLICT,
+            "offline_page_edit_lost",
+        ))?;
+        sessions.renew(handle.root()?, dashboard_page_key(&id, &page_id), &token)?;
+        Ok(serde_json::json!({"state":"editing"}))
+    })
+    .await;
+    respond(StatusCode::OK, result)
+}
+
+async fn release_dashboard_page_session(
+    Extension(handle): Extension<DraftsHandle>,
+    Extension(sessions): Extension<Arc<PageEditSessions>>,
+    Path((id, page_id)): Path<(String, String)>,
+    headers: HeaderMap,
+) -> Response {
+    let token = editor_token(&headers);
+    let result = blocking(move || {
+        if let Some(token) = token {
+            sessions.release(handle.root()?, dashboard_page_key(&id, &page_id), &token)?;
+        }
+        Ok(serde_json::json!({}))
+    })
+    .await;
+    respond(StatusCode::OK, result)
+}
+
+async fn open_page(Extension(handle): Extension<DraftsHandle>, Path(id): Path<String>) -> Response {
+    let result = blocking(move || {
+        OfflinePageStore::new(handle.root()?)
+            .open(&id)?
+            .ok_or(Failure::Code(
+                StatusCode::NOT_FOUND,
+                "offline_page_not_found",
+            ))
+    })
+    .await;
+    respond(StatusCode::OK, result)
+}
+
+async fn create_page(Extension(handle): Extension<DraftsHandle>, body: Bytes) -> Response {
+    let request = match CreatePage::parse_json(&body) {
+        Some(request) => request,
+        None => return super::request_invalid().into_response(),
+    };
+    let result = blocking(move || {
+        Ok(OfflinePageStore::new(handle.root()?)
+            .create(request)?
+            .view()?)
+    })
+    .await;
+    respond(StatusCode::CREATED, result)
+}
+
+async fn update_page(
+    Extension(handle): Extension<DraftsHandle>,
+    Path(id): Path<String>,
+    Extension(sessions): Extension<Arc<PageEditSessions>>,
+    headers: HeaderMap,
+    body: Bytes,
+) -> Response {
+    let Some(request) = UpdatePage::parse_json(&body) else {
+        return super::request_invalid().into_response();
+    };
+    let token = editor_token(&headers);
+    let result = blocking(move || {
+        let root = handle.root()?;
+        Ok(sessions
+            .with_owner(root.clone(), id.clone(), token.as_deref(), || {
+                OfflinePageStore::new(root).update(&id, request)
+            })?
+            .view()?)
+    })
+    .await;
+    respond(StatusCode::OK, result)
+}
+
+const EDITOR_HEADER: &str = "x-zdashstitch-editor";
+fn editor_token(headers: &HeaderMap) -> Option<String> {
+    headers
+        .get(EDITOR_HEADER)
+        .and_then(|value| value.to_str().ok())
+        .filter(|token| token.len() == 64)
+        .map(str::to_owned)
+}
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct AcquireEditor {
+    take_over: bool,
+}
+
+async fn edit_session(
+    Extension(handle): Extension<DraftsHandle>,
+    Extension(sessions): Extension<Arc<PageEditSessions>>,
+    Path(id): Path<String>,
+    body: Bytes,
+) -> Response {
+    let request: AcquireEditor = match super::parse(&body) {
+        Ok(request) => request,
+        Err(failure) => return failure.into_response(),
+    };
+    let result = blocking(move || {
+        let root = handle.root()?;
+        if OfflinePageStore::new(root.clone()).get(&id)?.is_none() {
+            return Err(Failure::Code(
+                StatusCode::NOT_FOUND,
+                "offline_page_not_found",
+            ));
+        }
+        Ok(sessions.acquire(root, id, request.take_over)?)
+    })
+    .await;
+    respond(StatusCode::OK, result)
+}
+
+async fn renew_session(
+    Extension(handle): Extension<DraftsHandle>,
+    Extension(sessions): Extension<Arc<PageEditSessions>>,
+    Path(id): Path<String>,
+    headers: HeaderMap,
+) -> Response {
+    let token = editor_token(&headers);
+    let result = blocking(move || {
+        let token = token.ok_or(Failure::Code(
+            StatusCode::CONFLICT,
+            "offline_page_edit_lost",
+        ))?;
+        sessions.renew(handle.root()?, id, &token)?;
+        Ok(serde_json::json!({"state":"editing"}))
+    })
+    .await;
+    respond(StatusCode::OK, result)
+}
+
+async fn release_session(
+    Extension(handle): Extension<DraftsHandle>,
+    Extension(sessions): Extension<Arc<PageEditSessions>>,
+    Path(id): Path<String>,
+    headers: HeaderMap,
+) -> Response {
+    let token = editor_token(&headers);
+    let result = blocking(move || {
+        if let Some(token) = token {
+            sessions.release(handle.root()?, id, &token)?;
+        }
+        Ok(serde_json::json!({}))
+    })
+    .await;
+    respond(StatusCode::OK, result)
 }
 
 async fn inspect(

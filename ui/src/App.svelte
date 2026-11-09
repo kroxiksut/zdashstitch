@@ -18,6 +18,10 @@
   import { ConnectionsStore } from './lib/connections/store.svelte';
   import AppHeader from './lib/shell/AppHeader.svelte';
   import CatalogLibrary from './lib/library/CatalogLibrary.svelte';
+  import OfflinePageBuilder from './lib/library/OfflinePageBuilder.svelte';
+  import OfflineDashboardBuilder from './lib/library/OfflineDashboardBuilder.svelte';
+  import OfflineDashboardPage from './lib/library/OfflineDashboardPage.svelte';
+  import { PageClipboard } from './lib/library/editor-clipboard';
   import DraftsScreen from './lib/shell/DraftsScreen.svelte';
   import DraftWorkspace from './lib/shell/DraftWorkspace.svelte';
   import { AppearanceStore, createHttpAppearanceClient, documentEnvironment, type AppearanceClient } from './lib/settings/appearance.svelte';
@@ -63,6 +67,7 @@
 
   const initial = parseRoute(untrack(() => initialPath) ?? globalThis.location?.pathname ?? '/');
   const http = createHttpWorkcopyClients();
+  const pageClipboard = new PageClipboard();
   const drafts: DraftsClient = untrack(() => draftsClient) ?? http.drafts;
   const connections = new ConnectionsStore(untrack(() => connectionsClient) ?? createHttpConnectionsClient());
   const server = new ServerDashboardsStore(untrack(() => serverClient) ?? http.server, drafts);
@@ -158,7 +163,7 @@
     if (route.name !== 'draft') return;
     const localId = route.localId;
     untrack(() => {
-      if (draftLoad?.localId !== localId || draftLoad.result?.status !== 'ready') void loadDraft(localId);
+      if (draftLoad?.localId !== localId || (draftLoad.result?.status !== 'ready' && draftLoad.result?.status !== 'offline_page' && draftLoad.result?.status !== 'offline_dashboard')) void loadDraft(localId);
     });
   });
 
@@ -269,6 +274,29 @@
 </div>
 
 {#if route.name === 'draft'}
+  {#if namedLoad?.status === 'offline_dashboard' && draftLoad?.localId === route.localId}
+    <main id="main-content" tabindex="-1">
+      {#if route.pageId}
+        {#key `${route.localId}/${route.pageId}`}<OfflineDashboardPage {i18n} dashboardId={route.localId} pageId={route.pageId} clipboard={pageClipboard} onchanged={(dashboard) => { draftLoad = { localId: dashboard.local_id, result: { status: 'offline_dashboard', dashboard } }; }} />{/key}
+      {:else}<div class="screen">
+        <a href="/drafts">{i18n.t('drafts.title')}</a>
+        <p>{i18n.t('object.kind.dashboard')} · {i18n.t('object.origin.local')}</p>
+        {#key route.localId}<OfflineDashboardBuilder {i18n} initialDashboard={namedLoad.dashboard} onchanged={(dashboard) => { draftLoad = { localId: dashboard.local_id, result: { status: 'offline_dashboard', dashboard } }; }} />{/key}
+      </div>{/if}
+    </main>
+  {:else if namedLoad?.status === 'offline_page' && draftLoad?.localId === route.localId}
+    <main id="main-content" tabindex="-1">
+      <div class="screen">
+        <a href="/drafts">{i18n.t('drafts.title')}</a>
+        <p>{i18n.t('object.kind.page')} · {i18n.t('object.origin.local')}</p>
+        <nav aria-label={i18n.t('object.kind.page')}>
+          <a href={draftPath(route.localId, 'structure')}>{i18n.t('draft.nav.structure')}</a>
+          <a href={draftPath(route.localId, 'checks')}>{i18n.t('draft.nav.checks')}</a>
+        </nav>
+        {#key route.localId}<OfflinePageBuilder {i18n} clipboard={pageClipboard} view={route.section === 'checks' ? 'checks' : 'edit'} initialPage={namedLoad.page} onchanged={(page) => { draftLoad = { localId: page.local_id, result: { status: 'offline_page', page } }; }} />{/key}
+      </div>
+    </main>
+  {:else}
   <DraftWorkspace
     {i18n}
     localId={route.localId}
@@ -293,6 +321,7 @@
       : null}
     {demo}
   />
+  {/if}
 {:else if route.name === 'settings'}
   <SettingsScreen {i18n} section={route.section} {appearance} />
 {:else if route.name === 'connections'}
@@ -339,7 +368,7 @@
     {#if route.name === 'start'}
       <StartScreen {i18n} drafts={namedList} connection={connections.header} />
     {:else if route.name === 'drafts'}
-      <DraftsScreen {i18n} drafts={namedList} onrename={renameDraft} />
+      <DraftsScreen {i18n} clipboard={pageClipboard} drafts={namedList} onrename={renameDraft} onchanged={() => void refreshList()} />
     {:else if route.name === 'library'}
       <CatalogLibrary {i18n} />
     {/if}

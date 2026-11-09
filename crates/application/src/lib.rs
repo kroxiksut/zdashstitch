@@ -15,6 +15,10 @@ mod compatibility;
 pub mod connections;
 mod create_dashboard;
 mod generated_message_ids;
+pub mod offline_dashboards;
+pub mod offline_page_sessions;
+pub mod offline_pages;
+pub mod portable_conversion;
 pub mod publication;
 pub mod publish_journal;
 mod publisher;
@@ -70,8 +74,10 @@ pub use session::{
     EndSessionRequest, LocalSession, SessionEndError, SessionEnded, SessionGeneration, WriteStage,
 };
 pub use settings::{
-    AppSettings, LocalePreference, ReducedMotionPreference, SettingsError, SettingsLoadError,
-    SettingsStore, SettingsWarning, ThemePreference, check_storage_root,
+    AppSettings, AutosavePreference, DiagnosticsLevel, DiagnosticsSettings, EditorSettings,
+    ExistingFilePreference, ExportSettings, LocalePreference, ReducedMotionPreference,
+    SettingsError, SettingsLoadError, SettingsStore, SettingsWarning, ThemePreference,
+    WorkspaceSettings, ZoomPreference, check_storage_root,
 };
 pub use source_check::{ReplaceHostRecheck, SourceCheck, recheck_replace_host};
 

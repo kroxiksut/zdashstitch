@@ -37,7 +37,7 @@ export type Route =
   | { readonly name: 'connection_edit'; readonly localId: string }
   | { readonly name: 'connection_check'; readonly localId: string }
   | { readonly name: 'settings'; readonly section: SettingsSection }
-  | { readonly name: 'draft'; readonly localId: string; readonly section: DraftSection };
+  | { readonly name: 'draft'; readonly localId: string; readonly section: DraftSection; readonly pageId?: string };
 
 export interface ParsedRoute {
   readonly route: Route;
@@ -106,6 +106,9 @@ export function parseRoute(pathname: string): ParsedRoute {
       };
     case 'draft': {
       if (second === undefined || !isLocalId(second)) return start;
+      if (third === 'structure' && rest.length === 2 && rest[0] === 'local-page' && isLocalId(rest[1])) {
+        return { route: { name: 'draft', localId: second, section: 'structure', pageId: rest[1] } };
+      }
       if (third === undefined) {
         return { route: { name: 'draft', localId: second, section: 'overview' }, canonical: draftPath(second, 'overview') };
       }
@@ -125,6 +128,10 @@ export function parseRoute(pathname: string): ParsedRoute {
 
 export function draftPath(localId: string, section: DraftSection = 'overview'): string {
   return `/draft/${encodeURIComponent(localId)}/${section}`;
+}
+
+export function dashboardPagePath(dashboardId: string, pageId: string): string {
+  return `${draftPath(dashboardId, 'structure')}/local-page/${encodeURIComponent(pageId)}`;
 }
 
 export function settingsPath(section: SettingsSection): string {

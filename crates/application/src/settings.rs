@@ -14,6 +14,7 @@ use cap_std::{
     fs::{Dir, OpenOptions},
 };
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 use thiserror::Error;
 use zdashstitch_core::formats::strict::{self, ParseError};
 
@@ -26,7 +27,8 @@ const BACKUP_FILE: &str = "settings.yaml.bak";
 const BACKUP_FILES: [&str; 3] = [BACKUP_FILE, "settings.yaml.bak.2", "settings.yaml.bak.3"];
 const TEMP_PREFIX: &str = ".settings-";
 const TEMP_SUFFIX: &str = ".tmp";
-const SETTINGS_FORMAT: &str = "zdashstitch-settings/v0";
+const SETTINGS_FORMAT_V0: &str = "zdashstitch-settings/v0";
+const SETTINGS_FORMAT: &str = "zdashstitch-settings/v1";
 const MAX_SETTINGS_BYTES: usize = 64 * 1024;
 static TEMP_COUNTER: AtomicU64 = AtomicU64::new(0);
 
@@ -69,6 +71,122 @@ pub struct AppSettings {
     pub theme: ThemePreference,
     pub reduced_motion: ReducedMotionPreference,
     pub storage_root: PathBuf,
+    #[serde(default = "default_true")]
+    pub show_mascot: bool,
+    #[serde(default)]
+    pub workspace: WorkspaceSettings,
+    #[serde(default)]
+    pub editor: EditorSettings,
+    #[serde(default)]
+    pub export: ExportSettings,
+    #[serde(default)]
+    pub diagnostics: DiagnosticsSettings,
+}
+
+const fn default_true() -> bool {
+    true
+}
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct LegacySettings {
+    format: String,
+    locale: LocalePreference,
+    theme: ThemePreference,
+    reduced_motion: ReducedMotionPreference,
+    storage_root: PathBuf,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct WorkspaceSettings {
+    pub journal_retention_days: u16,
+}
+impl Default for WorkspaceSettings {
+    fn default() -> Self {
+        Self {
+            journal_retention_days: 90,
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "lowercase")]
+pub enum AutosavePreference {
+    #[default]
+    On,
+    Off,
+}
+
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ZoomPreference {
+    #[default]
+    FitWidth,
+    ActualSize,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct EditorSettings {
+    pub autosave: AutosavePreference,
+    pub autosave_max_interval_s: u16,
+    pub default_zoom: ZoomPreference,
+    pub show_grid: bool,
+    pub show_rulers: bool,
+    pub confirm_delete_widget: bool,
+    pub confirm_delete_page: bool,
+    pub confirm_bulk_apply: bool,
+}
+impl Default for EditorSettings {
+    fn default() -> Self {
+        Self {
+            autosave: AutosavePreference::On,
+            autosave_max_interval_s: 30,
+            default_zoom: ZoomPreference::FitWidth,
+            show_grid: true,
+            show_rulers: true,
+            confirm_delete_widget: false,
+            confirm_delete_page: true,
+            confirm_bulk_apply: true,
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ExistingFilePreference {
+    #[default]
+    Ask,
+    NewName,
+}
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct ExportSettings {
+    pub default_directory: String,
+    pub on_existing_file: ExistingFilePreference,
+}
+
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "lowercase")]
+pub enum DiagnosticsLevel {
+    #[default]
+    Normal,
+    Detailed,
+}
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct DiagnosticsSettings {
+    pub level: DiagnosticsLevel,
+    pub retention_days: u16,
+}
+impl Default for DiagnosticsSettings {
+    fn default() -> Self {
+        Self {
+            level: DiagnosticsLevel::Normal,
+            retention_days: 7,
+        }
+    }
 }
 
 impl AppSettings {
@@ -80,11 +198,22 @@ impl AppSettings {
             theme: ThemePreference::default(),
             reduced_motion: ReducedMotionPreference::default(),
             storage_root,
+            show_mascot: true,
+            workspace: WorkspaceSettings::default(),
+            editor: EditorSettings::default(),
+            export: ExportSettings::default(),
+            diagnostics: DiagnosticsSettings::default(),
         }
     }
 
     fn validate(&self) -> Result<(), SettingsError> {
-        if self.format != SETTINGS_FORMAT {
+        if self.format != SETTINGS_FORMAT && self.format != SETTINGS_FORMAT_V0 {
+            return Err(SettingsError::InvalidFormat);
+        }
+        if !(30..=365).contains(&self.workspace.journal_retention_days)
+            || ![30, 60, 120].contains(&self.editor.autosave_max_interval_s)
+            || !(1..=30).contains(&self.diagnostics.retention_days)
+        {
             return Err(SettingsError::InvalidFormat);
         }
         validate_storage_root_syntax(&self.storage_root)
@@ -277,6 +406,38 @@ impl SettingsStore {
         }
     }
 
+    /// Opaque fingerprint for optimistic settings writes. No path or contents
+    /// are exposed to the UI.
+    pub fn fingerprint(&self) -> Result<String, SettingsError> {
+        let Some(directory) = self.open_existing_directory()? else {
+            return Ok("missing".to_owned());
+        };
+        let mut options = OpenOptions::new();
+        options.read(true).follow(FollowSymlinks::No);
+        let file = match directory.open_with(SETTINGS_FILE, &options) {
+            Ok(file) => file,
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
+                return Ok("missing".to_owned());
+            }
+            Err(error) => return Err(SettingsError::Io(error)),
+        };
+        let metadata = file.metadata().map_err(SettingsError::Io)?;
+        if !metadata.is_file() || cap_metadata_is_reparse(&metadata) {
+            return Err(SettingsError::LinkedPath);
+        }
+        if metadata.len() > MAX_SETTINGS_BYTES as u64 {
+            return Err(SettingsError::FileTooLarge);
+        }
+        let mut raw = Vec::new();
+        file.take(MAX_SETTINGS_BYTES as u64 + 1)
+            .read_to_end(&mut raw)
+            .map_err(SettingsError::Io)?;
+        if raw.len() > MAX_SETTINGS_BYTES {
+            return Err(SettingsError::FileTooLarge);
+        }
+        Ok(format!("{:x}", Sha256::digest(&raw)))
+    }
+
     /// Commits the settings by atomically replacing the primary file, then refreshes
     /// the last-known-good copies. The rename of the temporary file is the only commit
     /// point: an interrupted save leaves either the previous or the new primary, never
@@ -294,7 +455,28 @@ impl SettingsStore {
         }
         remove_stale_temporaries(&directory);
 
-        let raw = strict::yaml_to_string(settings)
+        // Preserve the exact v0 file before the first v1 commit. If this copy
+        // fails, the old primary remains authoritative and the save stops.
+        let old = load_settings_file(&directory, SETTINGS_FILE)?;
+        if old
+            .as_ref()
+            .is_some_and(|value| value.format == SETTINGS_FORMAT_V0)
+        {
+            let mut options = OpenOptions::new();
+            options.read(true).follow(FollowSymlinks::No);
+            let mut original = Vec::new();
+            directory
+                .open_with(SETTINGS_FILE, &options)
+                .map_err(SettingsError::Io)?
+                .read_to_end(&mut original)
+                .map_err(SettingsError::Io)?;
+            replace_file(&directory, BACKUP_FILES[1], &original)?;
+        }
+
+        let mut upgraded = settings.clone();
+        upgraded.format = SETTINGS_FORMAT.to_owned();
+
+        let raw = strict::yaml_to_string(&upgraded)
             .map_err(|source| SettingsError::InvalidYaml {
                 source,
                 line: None,
@@ -308,8 +490,15 @@ impl SettingsStore {
         replace_file(&directory, SETTINGS_FILE, &raw)?;
         sync_directory(&self.directory)?;
 
-        if rotate_backups(&directory).is_ok() && replace_file(&directory, BACKUP_FILE, &raw).is_ok()
+        let rotated = if old
+            .as_ref()
+            .is_some_and(|value| value.format == SETTINGS_FORMAT_V0)
         {
+            Ok(())
+        } else {
+            rotate_backups(&directory)
+        };
+        if rotated.is_ok() && replace_file(&directory, BACKUP_FILE, &raw).is_ok() {
             let _ = sync_directory(&self.directory);
         }
         Ok(())
@@ -437,6 +626,62 @@ fn load_settings_file(directory: &Dir, name: &str) -> Result<Option<AppSettings>
     // deep nesting are rejected like in portable project files (P0-11).
     let settings: AppSettings =
         strict::yaml_from_slice(&raw).map_err(|source| invalid_yaml_error(source, &raw))?;
+    if settings.format == SETTINGS_FORMAT_V0 {
+        let legacy: LegacySettings =
+            strict::yaml_from_slice(&raw).map_err(|source| invalid_yaml_error(source, &raw))?;
+        if legacy.format != SETTINGS_FORMAT_V0 {
+            return Err(SettingsError::InvalidFormat);
+        }
+        let mut migrated = AppSettings::new(legacy.storage_root);
+        migrated.format = SETTINGS_FORMAT_V0.to_owned();
+        migrated.locale = legacy.locale;
+        migrated.theme = legacy.theme;
+        migrated.reduced_motion = legacy.reduced_motion;
+        migrated.validate()?;
+        return Ok(Some(migrated));
+    }
+    if settings.format == SETTINGS_FORMAT {
+        let value: serde_json::Value =
+            strict::yaml_from_slice(&raw).map_err(|source| invalid_yaml_error(source, &raw))?;
+        let required = [
+            (
+                "",
+                &[
+                    "show_mascot",
+                    "workspace",
+                    "editor",
+                    "export",
+                    "diagnostics",
+                ][..],
+            ),
+            ("workspace", &["journal_retention_days"][..]),
+            (
+                "editor",
+                &[
+                    "autosave",
+                    "autosave_max_interval_s",
+                    "default_zoom",
+                    "show_grid",
+                    "show_rulers",
+                    "confirm_delete_widget",
+                    "confirm_delete_page",
+                    "confirm_bulk_apply",
+                ][..],
+            ),
+            ("export", &["default_directory", "on_existing_file"][..]),
+            ("diagnostics", &["level", "retention_days"][..]),
+        ];
+        for (section, fields) in required {
+            let object = if section.is_empty() {
+                &value
+            } else {
+                &value[section]
+            };
+            if fields.iter().any(|field| object.get(*field).is_none()) {
+                return Err(SettingsError::InvalidFormat);
+            }
+        }
+    }
     settings.validate()?;
     Ok(Some(settings))
 }
@@ -649,6 +894,75 @@ mod tests {
                 OsString::from(BACKUP_FILES[1]),
             ]
         );
+    }
+
+    #[test]
+    fn legacy_v0_is_read_with_defaults_and_preserved_on_first_v1_save() {
+        let temporary = tempdir().unwrap_or_else(|error| panic!("temp directory: {error}"));
+        let directory = temporary.path().join("config");
+        fs::create_dir(&directory).unwrap_or_else(|error| panic!("create directory: {error}"));
+        let old = format!(
+            "format: zdashstitch-settings/v0\nlocale: ru\ntheme: dark\nreduced_motion: system\nstorage_root: {}\n",
+            temporary.path().join("data").display()
+        );
+        fs::write(directory.join(SETTINGS_FILE), &old)
+            .unwrap_or_else(|error| panic!("write v0 fixture: {error}"));
+        let store = SettingsStore::at(directory.clone());
+        let mut loaded = store
+            .load()
+            .unwrap_or_else(|error| panic!("load v0: {error}"))
+            .unwrap_or_else(|| panic!("v0 settings missing"));
+        assert_eq!(loaded.format, SETTINGS_FORMAT_V0);
+        assert!(loaded.show_mascot);
+        assert_eq!(loaded.editor, EditorSettings::default());
+        assert_eq!(
+            fs::read_to_string(directory.join(SETTINGS_FILE))
+                .unwrap_or_else(|error| panic!("read v0: {error}")),
+            old
+        );
+        loaded.editor.autosave = AutosavePreference::Off;
+        store
+            .save(&loaded)
+            .unwrap_or_else(|error| panic!("save v1: {error}"));
+        let migrated = store
+            .load()
+            .unwrap_or_else(|error| panic!("load v1: {error}"))
+            .unwrap_or_else(|| panic!("v1 settings missing"));
+        assert_eq!(migrated.format, SETTINGS_FORMAT);
+        assert_eq!(migrated.locale, LocalePreference::Ru);
+        assert_eq!(migrated.editor.autosave, AutosavePreference::Off);
+        assert_eq!(
+            fs::read_to_string(directory.join(BACKUP_FILES[1]))
+                .unwrap_or_else(|error| panic!("read v0 backup: {error}")),
+            old
+        );
+    }
+
+    #[test]
+    fn v1_rejects_missing_sections_and_invalid_editor_interval() {
+        let temporary = tempdir().unwrap_or_else(|error| panic!("temp directory: {error}"));
+        let directory = temporary.path().join("config");
+        let store = SettingsStore::at(directory.clone());
+        let settings = AppSettings::new(temporary.path().join("data"));
+        store
+            .save(&settings)
+            .unwrap_or_else(|error| panic!("save v1: {error}"));
+        let valid = fs::read_to_string(directory.join(SETTINGS_FILE))
+            .unwrap_or_else(|error| panic!("read v1: {error}"));
+        let missing = valid
+            .lines()
+            .filter(|line| !line.starts_with("show_mascot:"))
+            .collect::<Vec<_>>()
+            .join("\n");
+        fs::write(directory.join(SETTINGS_FILE), missing)
+            .unwrap_or_else(|error| panic!("write missing field: {error}"));
+        assert!(store.load().is_err());
+        fs::write(
+            directory.join(SETTINGS_FILE),
+            valid.replace("autosave_max_interval_s: 30", "autosave_max_interval_s: 31"),
+        )
+        .unwrap_or_else(|error| panic!("write invalid interval: {error}"));
+        assert!(store.load().is_err());
     }
 
     #[test]

@@ -21,6 +21,7 @@ use crate::{CSRF_HEADER, LocalSecurity, build_router_with_api};
 
 const PORT: u16 = 43179;
 const ROUTE: &str = "/api/settings/appearance";
+const EDITOR_ROUTE: &str = "/api/settings/editor";
 
 struct App {
     router: Router,
@@ -123,23 +124,139 @@ async fn missing_file_reads_as_system_defaults() {
     let app = App::start().await;
     let (status, body) = app.call("GET", ROUTE, None, true).await;
     assert_eq!(status, StatusCode::OK);
-    assert_eq!(
-        body,
-        json!({"locale": "system", "theme": "system", "reduced_motion": "system", "file_state": "missing"})
-    );
+    assert_eq!(body["locale"], "system");
+    assert_eq!(body["theme"], "system");
+    assert_eq!(body["reduced_motion"], "system");
+    assert_eq!(body["file_state"], "missing");
+    assert_eq!(body["fingerprint"], "missing");
+    assert_eq!(body["session_only"], false);
     assert_eq!(app.file(), None, "reading never creates the file");
+}
+
+#[tokio::test]
+async fn editor_settings_use_fingerprint_and_preserve_appearance() {
+    let app = App::start().await;
+    let (_, initial) = app.call("GET", EDITOR_ROUTE, None, true).await;
+    assert_eq!(initial["file_state"], "missing");
+    assert_eq!(initial["session_only"], false);
+    assert_eq!(initial["values"]["autosave"], "on");
+    assert_eq!(initial["values"]["autosave_max_interval_s"], 30);
+    let mut change = initial["values"].clone();
+    change["autosave"] = json!("off");
+    change["autosave_max_interval_s"] = json!(60);
+    let request = json!({"values": change, "fingerprint": initial["fingerprint"]});
+    let (status, updated) = app
+        .call("PUT", EDITOR_ROUTE, Some(request.clone()), true)
+        .await;
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(updated["values"]["autosave"], "off");
+    assert_eq!(updated["session_only"], false);
+    assert_eq!(updated["values"]["autosave_max_interval_s"], 60);
+    assert!(
+        app.file()
+            .unwrap_or_else(|| panic!("settings file missing"))
+            .contains("format: zdashstitch-settings/v1")
+    );
+    let (status, conflict) = app.call("PUT", EDITOR_ROUTE, Some(request), true).await;
+    assert_eq!(status, StatusCode::CONFLICT);
+    assert_eq!(conflict["code"], "settings_changed");
+    let (status, appearance) = app.call("GET", ROUTE, None, true).await;
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(appearance["theme"], "system");
+}
+
+#[tokio::test]
+async fn editor_settings_reject_bad_values_and_keep_corrupt_file() {
+    let app = App::start().await;
+    let (_, initial) = app.call("GET", EDITOR_ROUTE, None, true).await;
+    let mut bad = initial["values"].clone();
+    bad["autosave_max_interval_s"] = json!(31);
+    let (status, _) = app
+        .call(
+            "PUT",
+            EDITOR_ROUTE,
+            Some(json!({"values": bad, "fingerprint": initial["fingerprint"]})),
+            true,
+        )
+        .await;
+    assert_eq!(status, StatusCode::UNPROCESSABLE_ENTITY);
+    assert_eq!(app.file(), None);
+    let mut valid = initial["values"].clone();
+    valid["autosave_max_interval_s"] = json!(120);
+    let (status, _) = app
+        .call(
+            "PUT",
+            EDITOR_ROUTE,
+            Some(json!({"values": valid, "fingerprint": initial["fingerprint"]})),
+            true,
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK);
+    let good = app
+        .file()
+        .unwrap_or_else(|| panic!("settings file missing"));
+    let broken = good.replace(
+        "autosave_max_interval_s: 120",
+        "autosave_max_interval_s: 31",
+    );
+    std::fs::write(app.config.join("settings.yaml"), &broken)
+        .unwrap_or_else(|error| panic!("write invalid settings: {error}"));
+    let (_, snapshot) = app.call("GET", EDITOR_ROUTE, None, true).await;
+    assert_eq!(snapshot["file_state"], "invalid");
+    let (status, response) = app
+        .call(
+            "PUT",
+            EDITOR_ROUTE,
+            Some(json!({"values": initial["values"], "fingerprint": snapshot["fingerprint"]})),
+            true,
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(response["file_state"], "invalid");
+    assert_eq!(response["session_only"], true);
+    assert_eq!(response["values"]["autosave_max_interval_s"], 30);
+    assert_eq!(app.file().as_deref(), Some(broken.as_str()));
+    let (_, shared) = app.call("GET", EDITOR_ROUTE, None, true).await;
+    assert_eq!(shared["values"]["autosave_max_interval_s"], 30);
+    assert_eq!(shared["session_only"], true);
+    let fresh = super::read_editor(axum::Extension(SettingsHandle::at(
+        app.config.clone(),
+        app.storage.clone(),
+    )))
+    .await;
+    let bytes = fresh
+        .into_body()
+        .collect()
+        .await
+        .unwrap_or_else(|error| panic!("fresh response: {error}"))
+        .to_bytes();
+    let restarted: Value =
+        serde_json::from_slice(&bytes).unwrap_or_else(|error| panic!("fresh JSON: {error}"));
+    assert_eq!(restarted["values"]["autosave_max_interval_s"], 120);
+    assert_eq!(restarted["session_only"], false);
+    assert_eq!(app.file().as_deref(), Some(broken.as_str()));
+    std::fs::write(app.config.join("settings.yaml"), &good)
+        .unwrap_or_else(|error| panic!("repair settings: {error}"));
+    let (_, repaired) = app.call("GET", EDITOR_ROUTE, None, true).await;
+    assert_eq!(repaired["file_state"], "valid");
+    assert_eq!(repaired["session_only"], false);
+    assert_eq!(repaired["values"]["autosave_max_interval_s"], 120);
 }
 
 #[tokio::test]
 async fn change_is_saved_to_the_settings_file_and_read_back() {
     let app = App::start().await;
-    let change = json!({"locale": "ru", "theme": "high_contrast", "reduced_motion": "reduce"});
-    let (status, body) = app.call("PUT", ROUTE, Some(change), true).await;
+    let (_, initial) = app.call("GET", ROUTE, None, true).await;
+    let change = json!({"locale": "ru", "theme": "high_contrast", "reduced_motion": "reduce", "fingerprint": initial["fingerprint"]});
+    let (status, body) = app.call("PUT", ROUTE, Some(change.clone()), true).await;
     assert_eq!(status, StatusCode::OK);
-    assert_eq!(
-        body,
-        json!({"locale": "ru", "theme": "high_contrast", "reduced_motion": "reduce", "file_state": "valid"})
-    );
+    assert_eq!(body["locale"], "ru");
+    assert_eq!(body["theme"], "high_contrast");
+    assert_eq!(body["file_state"], "valid");
+    assert_eq!(body["session_only"], false);
+    let (status, stale) = app.call("PUT", ROUTE, Some(change), true).await;
+    assert_eq!(status, StatusCode::CONFLICT);
+    assert_eq!(stale["code"], "settings_changed");
     let file = app.file().unwrap_or_else(|| panic!("settings file"));
     assert!(file.contains("theme: high_contrast\n"), "{file}");
     assert!(file.contains("locale: ru\n"), "{file}");
@@ -157,7 +274,7 @@ async fn change_is_saved_to_the_settings_file_and_read_back() {
     assert_eq!(body["theme"], "high_contrast");
     assert_eq!(body["file_state"], "valid");
 
-    let back = json!({"locale": "system", "theme": "dark", "reduced_motion": "no-preference"});
+    let back = json!({"locale": "system", "theme": "dark", "reduced_motion": "no-preference", "fingerprint": body["fingerprint"]});
     let (status, body) = app.call("PUT", ROUTE, Some(back), true).await;
     assert_eq!(status, StatusCode::OK);
     assert_eq!(body["theme"], "dark");
@@ -167,7 +284,7 @@ async fn change_is_saved_to_the_settings_file_and_read_back() {
 #[tokio::test]
 async fn unknown_values_and_fields_are_refused_without_writing() {
     let app = App::start().await;
-    for body in [
+    for mut body in [
         json!({"locale": "en", "theme": "sepia", "reduced_motion": "system"}),
         json!({"locale": "en", "theme": "high-contrast", "reduced_motion": "system"}),
         json!({"locale": "de", "theme": "light", "reduced_motion": "system"}),
@@ -175,6 +292,9 @@ async fn unknown_values_and_fields_are_refused_without_writing() {
         json!({"locale": "en", "theme": "light", "reduced_motion": "system", "storage_root": "/tmp"}),
         json!("light"),
     ] {
+        if body.is_object() {
+            body["fingerprint"] = json!("missing");
+        }
         let (status, response) = app.call("PUT", ROUTE, Some(body.clone()), true).await;
         assert_eq!(status, StatusCode::UNPROCESSABLE_ENTITY, "{body}");
         assert_eq!(
@@ -191,13 +311,24 @@ async fn change_without_csrf_is_refused_by_the_api_boundary() {
     let change = json!({"locale": "en", "theme": "dark", "reduced_motion": "system"});
     let (status, _) = app.call("PUT", ROUTE, Some(change), false).await;
     assert_eq!(status, StatusCode::FORBIDDEN);
+    let (_, editor) = app.call("GET", EDITOR_ROUTE, None, true).await;
+    let (status, _) = app
+        .call(
+            "PUT",
+            EDITOR_ROUTE,
+            Some(json!({"values": editor["values"], "fingerprint": editor["fingerprint"]})),
+            false,
+        )
+        .await;
+    assert_eq!(status, StatusCode::FORBIDDEN);
     assert_eq!(app.file(), None);
 }
 
 #[tokio::test]
 async fn invalid_file_is_reported_and_never_overwritten() {
     let app = App::start().await;
-    let change = json!({"locale": "en", "theme": "dark", "reduced_motion": "system"});
+    let (_, initial) = app.call("GET", ROUTE, None, true).await;
+    let change = json!({"locale": "en", "theme": "dark", "reduced_motion": "system", "fingerprint": initial["fingerprint"]});
     let (status, _) = app.call("PUT", ROUTE, Some(change), true).await;
     assert_eq!(status, StatusCode::OK);
     let valid = app.file().unwrap_or_else(|| panic!("settings file"));
@@ -210,10 +341,35 @@ async fn invalid_file_is_reported_and_never_overwritten() {
     assert_eq!(status, StatusCode::OK);
     assert_eq!(body["theme"], "dark");
     assert_eq!(body["file_state"], "invalid");
+    assert_eq!(body["session_only"], false);
 
-    let change = json!({"locale": "en", "theme": "high_contrast", "reduced_motion": "system"});
+    let change = json!({"locale": "en", "theme": "high_contrast", "reduced_motion": "system", "fingerprint": body["fingerprint"]});
     let (status, body) = app.call("PUT", ROUTE, Some(change), true).await;
-    assert_eq!(status, StatusCode::CONFLICT);
-    assert_eq!(body, json!({"code": "settings_file_invalid", "params": {}}));
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(body["theme"], "high_contrast");
+    assert_eq!(body["session_only"], true);
+    let (_, shared) = app.call("GET", ROUTE, None, true).await;
+    assert_eq!(shared["theme"], "high_contrast");
+    assert_eq!(shared["session_only"], true);
     assert_eq!(app.file().as_deref(), Some(broken.as_str()));
+    let fresh = super::read_appearance(axum::Extension(SettingsHandle::at(
+        app.config.clone(),
+        app.storage.clone(),
+    )))
+    .await;
+    let bytes = fresh
+        .into_body()
+        .collect()
+        .await
+        .unwrap_or_else(|error| panic!("fresh appearance: {error}"))
+        .to_bytes();
+    let restarted: Value =
+        serde_json::from_slice(&bytes).unwrap_or_else(|error| panic!("fresh JSON: {error}"));
+    assert_eq!(restarted["theme"], "dark");
+    assert_eq!(restarted["session_only"], false);
+    std::fs::write(app.config.join("settings.yaml"), &valid)
+        .unwrap_or_else(|error| panic!("repair settings: {error}"));
+    let (_, repaired) = app.call("GET", ROUTE, None, true).await;
+    assert_eq!(repaired["theme"], "dark");
+    assert_eq!(repaired["session_only"], false);
 }

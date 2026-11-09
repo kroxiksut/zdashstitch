@@ -89,7 +89,7 @@ export const SETTINGS_ENTRIES: ReadonlyArray<SettingsEntry> = [
   { section: 'general', label: { id: 'settings.general.title' }, available: true },
   { section: 'appearance', label: { id: 'settings.appearance.title' }, available: true },
   { section: 'workspace', label: { id: 'settings.workspace.title' }, available: false },
-  { section: 'editor', label: { id: 'settings.editor.title' }, available: false },
+  { section: 'editor', label: { id: 'settings.editor.title' }, available: true },
   { section: 'connections', label: { id: 'settings.connections.title' }, available: false },
   // TODO(O-032): End session — the button lives in «Security and export» (P1-12) and calls
   // `endLocalSession` from `../session` after the `session.end.confirm.*` dialog (P2-SEC-01E).

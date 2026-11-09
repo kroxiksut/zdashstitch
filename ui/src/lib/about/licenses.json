@@ -1557,6 +1557,13 @@
     },
     {
       "kind": "rust",
+      "license": "MIT OR Apache-2.0",
+      "name": "roxmltree",
+      "source": "crates.io",
+      "version": "0.21.1"
+    },
+    {
+      "kind": "rust",
       "license": "Apache-2.0 OR MIT",
       "name": "rustc-hash",
       "source": "crates.io",

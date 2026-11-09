@@ -407,6 +407,10 @@
     "message": "Файл настроек содержит ошибки и не применён",
     "placeholders": {}
   },
+  "settings.file.unreadable": { "message": "Невозможно безопасно прочитать файл настроек. Изменения недоступны.", "placeholders": {} },
+  "settings.file.unreadable.title": { "message": "Настройки недоступны", "placeholders": {} },
+  "settings.file.changed.title": { "message": "Файл настроек изменился", "placeholders": {} },
+  "settings.file.changed.body": { "message": "Ваш выбор виден здесь, но не сохранён. Перечитайте настройки перед повторным сохранением.", "placeholders": {} },
   "settings.appearance.invalid_body": {
     "message": "Работают последние верные настройки. Пока файл не исправлен, изменения здесь действуют до перезапуска и не сохраняются.",
     "placeholders": {}
@@ -426,5 +430,18 @@
   "settings.reset.section": {
     "message": "Сбросить раздел",
     "placeholders": {}
-  }
+  },
+  "settings.autosave.title": { "message": "Автосохранение", "placeholders": {} },
+  "settings.autosave.max_interval": { "message": "Сохранять не реже чем раз в {seconds} с", "placeholders": { "seconds": "number" } },
+  "settings.autosave.off_warning": { "message": "Несохранённые изменения пропадут при сбое приложения или компьютера.", "placeholders": {} },
+  "settings.editor.autosave_mode": { "message": "Режим автосохранения", "placeholders": {} },
+  "settings.editor.max_interval": { "message": "Предельный интервал при редактировании", "placeholders": {} },
+  "settings.editor.on": { "message": "Включено", "placeholders": {} },
+  "settings.editor.off": { "message": "Выключено", "placeholders": {} },
+  "settings.editor.error.unavailable": { "message": "Не удалось загрузить настройки редактора.", "placeholders": {} },
+  "settings.editor.error.changed": { "message": "Файл настроек изменился. Перезагрузите этот раздел перед сохранением.", "placeholders": {} },
+  "settings.editor.error.not_saved": { "message": "Настройки редактора не сохранены.", "placeholders": {} },
+  "settings.editor.session_only": { "message": "Изменение действует до перезапуска приложения. Ошибочный файл настроек не изменён.", "placeholders": {} },
+  "settings.editor.reload": { "message": "Перезагрузить настройки", "placeholders": {} },
+  "settings.editor.autosave_after_create": { "message": "Автосохранение начинается после первого явного сохранения страницы.", "placeholders": {} }
 }

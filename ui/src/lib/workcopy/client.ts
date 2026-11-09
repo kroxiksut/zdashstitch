@@ -7,6 +7,7 @@
 import { ApiFailure, apiFailure } from '../api';
 import { failureOf, type CommandFailure } from '../connections/client';
 import { CSRF_HEADER, loadCsrfToken } from '../session';
+import type { OfflineDashboard, OfflinePage } from '../library/client';
 import type {
   CreatedDashboard,
   DamagedDraft,
@@ -46,6 +47,24 @@ interface WireSummary {
     readonly name: string;
     readonly created_at: string | null;
   }>;
+}
+
+interface WireOfflineSummary {
+  readonly storage_kind: 'offline_page' | 'offline_dashboard';
+  readonly local_id: string;
+  readonly kind: 'page';
+  readonly origin: 'local';
+  readonly name: string;
+  readonly local_state: 'saved';
+  readonly updated_at: string | null;
+  readonly counts: { pages: number; widgets: number };
+}
+
+function draftSummaryFromWire(wire: WireSummary | WireOfflineSummary): DraftSummary {
+  if ('storage_kind' in wire && (wire.storage_kind === 'offline_page' || wire.storage_kind === 'offline_dashboard')) {
+    return { ...wire, updated_at: parseTimestamp(wire.updated_at), provenance: { kind: 'created_here' } };
+  }
+  return summaryFromWire(wire as WireSummary);
 }
 
 interface WireDetail extends WireSummary {
@@ -314,19 +333,20 @@ export function createHttpWorkcopyClients(fetcher: typeof fetch = (...args) => f
   const drafts: DraftsClient = {
     async list() {
       try {
-        const wire = await send<{ drafts: WireSummary[]; damaged: DamagedDraft[] }>('GET', '/api/drafts');
-        return { status: 'ready', drafts: wire.drafts.map(summaryFromWire), damaged: wire.damaged };
+        const wire = await send<{ drafts: Array<WireSummary | WireOfflineSummary>; damaged: DamagedDraft[] }>('GET', '/api/drafts');
+        return { status: 'ready', drafts: wire.drafts.map(draftSummaryFromWire), damaged: wire.damaged };
       } catch (error) {
         return unreachable(error) ? { status: 'unavailable' } : { status: 'failed', failure: failure(error) };
       }
     },
     async load(localId) {
       try {
-        return { status: 'ready', draft: detailFromWire(await send<WireDetail>('GET', draftPath(localId))) };
+        const wire = await send<WireDetail | { storage_kind: 'offline_page'; page: OfflinePage } | { storage_kind: 'offline_dashboard'; dashboard: OfflineDashboard }>('GET', draftPath(localId));
+        return 'storage_kind' in wire ? wire.storage_kind === 'offline_page' ? { status: 'offline_page', page: wire.page } : { status: 'offline_dashboard', dashboard: wire.dashboard } : { status: 'ready', draft: detailFromWire(wire) };
       } catch (error) {
         if (unreachable(error)) return { status: 'unavailable' };
         const result = failure(error);
-        return result.code === 'workcopy_not_found' ? { status: 'missing' } : { status: 'failed', failure: result };
+        return result.code === 'workcopy_not_found' || result.code === 'offline_page_not_found' || result.code === 'offline_dashboard_not_found' ? { status: 'missing' } : { status: 'failed', failure: result };
       }
     },
     async rename(localId, name) {

@@ -175,10 +175,18 @@ fn workcopy_status(code: &str) -> StatusCode {
         return status;
     }
     match code {
-        "workcopy_not_found" | "not_visible_or_denied" | "import_page_not_found" => {
-            StatusCode::NOT_FOUND
-        }
-        "import_inconsistent"
+        "workcopy_not_found"
+        | "offline_page_not_found"
+        | "offline_dashboard_not_found"
+        | "not_visible_or_denied"
+        | "import_page_not_found" => StatusCode::NOT_FOUND,
+        "offline_page_edit_lost"
+        | "offline_page_conflict"
+        | "offline_dashboard_conflict"
+        | "offline_dashboard_sources_conflict"
+        | "offline_dashboard_reference_conflict"
+        | "offline_dashboard_reference_unresolved"
+        | "import_inconsistent"
         | "clone_intent_source_changed"
         | "clone_comparison_shape"
         | "clone_growth_preview_required"
@@ -203,6 +211,8 @@ fn workcopy_status(code: &str) -> StatusCode {
         | "list_limit_invalid"
         | "search_invalid"
         | "draft_name_invalid"
+        | "offline_page_invalid"
+        | "offline_dashboard_invalid"
         | "clone_intent_target_name_invalid"
         | "clone_growth_selection_invalid"
         | "clone_pattern_invalid"
@@ -221,6 +231,10 @@ fn workcopy_status(code: &str) -> StatusCode {
         | "storage_file_too_large"
         | "storage_write_failed"
         | "catalog_library_corrupt"
+        | "offline_pages_corrupt"
+        | "offline_dashboards_corrupt"
+        | "offline_dashboard_export_failed"
+        | "offline_page_recovery_corrupt"
         | "random_source_unavailable" => StatusCode::INTERNAL_SERVER_ERROR,
         _ => StatusCode::BAD_GATEWAY,
     }
@@ -722,14 +736,18 @@ struct DamagedBody {
 
 #[derive(Serialize)]
 struct DraftListBody {
-    drafts: Vec<SummaryBody>,
+    drafts: Vec<DraftRowBody>,
     damaged: Vec<DamagedBody>,
 }
 
 impl From<&DraftList> for DraftListBody {
     fn from(list: &DraftList) -> Self {
         Self {
-            drafts: list.drafts.iter().map(SummaryBody::from).collect(),
+            drafts: list
+                .drafts
+                .iter()
+                .map(|summary| DraftRowBody::Workcopy(SummaryBody::from(summary)))
+                .collect(),
             damaged: list
                 .damaged
                 .iter()
@@ -738,6 +756,64 @@ impl From<&DraftList> for DraftListBody {
                     code: damaged.code,
                 })
                 .collect(),
+        }
+    }
+}
+
+#[derive(Serialize)]
+#[serde(untagged)]
+enum DraftRowBody {
+    Workcopy(SummaryBody),
+    OfflinePage(OfflineSummaryBody),
+    OfflineDashboard(OfflineSummaryBody),
+}
+
+#[derive(Serialize)]
+struct OfflineSummaryBody {
+    storage_kind: &'static str,
+    local_id: String,
+    kind: &'static str,
+    origin: &'static str,
+    name: String,
+    local_state: &'static str,
+    updated_at: Option<String>,
+    counts: WidgetCountsBody,
+}
+
+impl From<zdashstitch_application::offline_pages::OfflinePageSummary> for OfflineSummaryBody {
+    fn from(summary: zdashstitch_application::offline_pages::OfflinePageSummary) -> Self {
+        Self {
+            storage_kind: "offline_page",
+            local_id: summary.local_id,
+            kind: "page",
+            origin: "local",
+            name: summary.name,
+            local_state: "saved",
+            updated_at: rfc3339_utc_ms(summary.updated_at_ms),
+            counts: WidgetCountsBody {
+                pages: 1,
+                widgets: u32::try_from(summary.widgets).unwrap_or(u32::MAX),
+            },
+        }
+    }
+}
+
+impl From<zdashstitch_application::offline_dashboards::OfflineDashboardSummary>
+    for OfflineSummaryBody
+{
+    fn from(summary: zdashstitch_application::offline_dashboards::OfflineDashboardSummary) -> Self {
+        Self {
+            storage_kind: "offline_dashboard",
+            local_id: summary.local_id,
+            kind: "dashboard",
+            origin: "local",
+            name: summary.name,
+            local_state: "saved",
+            updated_at: rfc3339_utc_ms(summary.updated_at_ms),
+            counts: WidgetCountsBody {
+                pages: u32::try_from(summary.pages).unwrap_or(u32::MAX),
+                widgets: u32::try_from(summary.widgets).unwrap_or(u32::MAX),
+            },
         }
     }
 }
@@ -921,7 +997,36 @@ async fn import_dashboard(
 async fn list_drafts(Extension(drafts): Extension<DraftsHandle>) -> Response {
     let result = blocking(move || {
         let list = drafts.service()?.list_drafts()?;
-        Ok(DraftListBody::from(&list))
+        let mut result = DraftListBody::from(&list);
+        match zdashstitch_application::offline_pages::OfflinePageStore::new(drafts.root()?)
+            .summaries()
+        {
+            Ok(pages) => result.drafts.extend(
+                pages
+                    .into_iter()
+                    .map(|page| DraftRowBody::OfflinePage(OfflineSummaryBody::from(page))),
+            ),
+            Err(error) => result.damaged.push(DamagedBody {
+                local_id: "offline-pages".to_owned(),
+                code: error.code(),
+            }),
+        }
+        match zdashstitch_application::offline_dashboards::OfflineDashboardStore::new(
+            drafts.root()?,
+        )
+        .summaries()
+        {
+            Ok(dashboards) => result
+                .drafts
+                .extend(dashboards.into_iter().map(|dashboard| {
+                    DraftRowBody::OfflineDashboard(OfflineSummaryBody::from(dashboard))
+                })),
+            Err(error) => result.damaged.push(DamagedBody {
+                local_id: "offline-dashboards".to_owned(),
+                code: error.code(),
+            }),
+        }
+        Ok(result)
     })
     .await;
     respond(StatusCode::OK, result)
@@ -931,12 +1036,60 @@ async fn draft(
     Extension(drafts): Extension<DraftsHandle>,
     PathParams(local_id): PathParams<String>,
 ) -> Response {
+    if local_id.starts_with("db-") {
+        let result = blocking(move || {
+            let dashboard =
+                zdashstitch_application::offline_dashboards::OfflineDashboardStore::new(
+                    drafts.root()?,
+                )
+                .get(&local_id)?
+                .ok_or(Failure::Code(
+                    StatusCode::NOT_FOUND,
+                    "offline_dashboard_not_found",
+                ))?;
+            Ok(OfflineDashboardDetailBody {
+                storage_kind: "offline_dashboard",
+                dashboard,
+            })
+        })
+        .await;
+        return respond(StatusCode::OK, result);
+    }
+    if local_id.starts_with("pg-") {
+        let result = blocking(move || {
+            let page =
+                zdashstitch_application::offline_pages::OfflinePageStore::new(drafts.root()?)
+                    .open(&local_id)?
+                    .ok_or(Failure::Code(
+                        StatusCode::NOT_FOUND,
+                        "offline_page_not_found",
+                    ))?;
+            Ok(OfflineDetailBody {
+                storage_kind: "offline_page",
+                page,
+            })
+        })
+        .await;
+        return respond(StatusCode::OK, result);
+    }
     let result = blocking(move || {
         let detail = drafts.service()?.draft(&local_id)?;
         Ok(DraftDetailBody::from(&detail))
     })
     .await;
     respond(StatusCode::OK, result)
+}
+
+#[derive(Serialize)]
+struct OfflineDetailBody {
+    storage_kind: &'static str,
+    page: zdashstitch_application::offline_pages::OfflinePageView,
+}
+
+#[derive(Serialize)]
+struct OfflineDashboardDetailBody {
+    storage_kind: &'static str,
+    dashboard: zdashstitch_application::offline_dashboards::OfflineDashboard,
 }
 
 /// «Переименовать» (P1-03F): the local name only; the server is not touched.

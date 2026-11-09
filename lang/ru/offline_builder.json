@@ -1,0 +1,708 @@
+{
+  "offline_builder.title": {
+    "message": "Создать страницу из каталогов метрик",
+    "placeholders": {}
+  },
+  "offline_builder.go_to_drafts": {
+    "message": "Создать локальную страницу",
+    "placeholders": {}
+  },
+  "offline_builder.help": {
+    "message": "Выберите версии каталогов и метрики, добавьте график или значение элемента данных и сохраните локальную страницу. Узлы сети назначаются позже.",
+    "placeholders": {}
+  },
+  "offline_builder.error": {
+    "message": "Операция со страницей не выполнена. Проверьте выбранные метрики и повторите.",
+    "placeholders": {}
+  },
+  "offline_builder.catalog_in_use": {
+    "message": "Удалите виджеты этого каталога перед сменой его версии или исключением.",
+    "placeholders": {}
+  },
+  "offline_builder.server_copies_empty": {
+    "message": "Копий с сервера пока нет. Локальные страницы перечислены ниже.",
+    "placeholders": {}
+  },
+  "offline_builder.saved": {
+    "message": "Локальная страница сохранена.",
+    "placeholders": {}
+  },
+  "offline_builder.page_name": {
+    "message": "Название страницы",
+    "placeholders": {}
+  },
+  "offline_builder.choose_catalogs": {
+    "message": "Каталоги метрик",
+    "placeholders": {}
+  },
+  "offline_builder.version": {
+    "message": "Версия {version}",
+    "placeholders": {
+      "version": "number"
+    }
+  },
+  "offline_builder.choose_metrics": {
+    "message": "Метрики для страницы",
+    "placeholders": {}
+  },
+  "offline_builder.widget_title": {
+    "message": "Название виджета",
+    "placeholders": {}
+  },
+  "offline_builder.add_graph": {
+    "message": "Добавить график с выбранными числовыми метриками",
+    "placeholders": {}
+  },
+  "offline_builder.add_item": {
+    "message": "Добавить значение выбранного элемента данных",
+    "placeholders": {}
+  },
+  "offline_builder.widgets": {
+    "message": "Виджеты для сохранения",
+    "placeholders": {}
+  },
+  "offline_builder.remove": {
+    "message": "Удалить",
+    "placeholders": {}
+  },
+  "offline_builder.save": {
+    "message": "Сохранить локальную страницу",
+    "placeholders": {}
+  },
+  "offline_builder.saved_pages": {
+    "message": "Сохранённые локальные страницы",
+    "placeholders": {}
+  },
+  "offline_builder.empty": {
+    "message": "Локальных страниц пока нет.",
+    "placeholders": {}
+  },
+  "offline_builder.opened": {
+    "message": "Каталогов: {catalogs}. Логических виджетов: {widgets}.",
+    "placeholders": {
+      "catalogs": "number",
+      "widgets": "number"
+    }
+  },
+  "offline_builder.roles": {
+    "message": "Роли узлов сети и логические слоты",
+    "placeholders": {}
+  },
+  "offline_builder.roles_help": {
+    "message": "Слоты описывают будущие узлы сети в явном порядке. Используйте уникальные ID из 2–64 строчных латинских букв, цифр, подчёркиваний и дефисов, начиная с буквы. Реальные узлы сети назначаются позже.",
+    "placeholders": {}
+  },
+  "offline_builder.role_invalid": {
+    "message": "Проверьте ID роли и слотов. ID должны быть уникальны, роли одного узла нужен ровно один слот, роли нескольких узлов — от 1 до 256 слотов.",
+    "placeholders": {}
+  },
+  "offline_builder.role_in_use": {
+    "message": "Удалите виджеты этой роли перед удалением роли.",
+    "placeholders": {}
+  },
+  "offline_builder.role_id": {
+    "message": "ID роли",
+    "placeholders": {}
+  },
+  "offline_builder.cardinality": {
+    "message": "Узлы сети в роли",
+    "placeholders": {}
+  },
+  "offline_builder.role_one": {
+    "message": "Один узел сети",
+    "placeholders": {}
+  },
+  "offline_builder.role_many": {
+    "message": "Несколько узлов сети",
+    "placeholders": {}
+  },
+  "offline_builder.slots": {
+    "message": "ID слотов, по одному в строке, в порядке узлов сети",
+    "placeholders": {}
+  },
+  "offline_builder.add_role": {
+    "message": "Добавить роль",
+    "placeholders": {}
+  },
+  "offline_builder.remove_role": {
+    "message": "Удалить роль {role}",
+    "placeholders": {
+      "role": "text"
+    }
+  },
+  "offline_builder.metric_source": {
+    "message": "Источник для «{metric}»",
+    "placeholders": {
+      "metric": "text"
+    }
+  },
+  "offline_builder.source_role": {
+    "message": "Роль узлов сети",
+    "placeholders": {}
+  },
+  "offline_builder.selection": {
+    "message": "Какие узлы сети использовать",
+    "placeholders": {}
+  },
+  "offline_builder.select_one": {
+    "message": "Единственный узел сети роли",
+    "placeholders": {}
+  },
+  "offline_builder.select_all": {
+    "message": "Все объявленные слоты по порядку",
+    "placeholders": {}
+  },
+  "offline_builder.select_slot": {
+    "message": "Один явно выбранный слот",
+    "placeholders": {}
+  },
+  "offline_builder.slot": {
+    "message": "Логический слот",
+    "placeholders": {}
+  },
+  "offline_builder.choose_slot": {
+    "message": "Выберите слот",
+    "placeholders": {}
+  },
+  "offline_builder.add_repeat": {
+    "message": "Добавить значение элемента данных для каждого узла сети",
+    "placeholders": {}
+  },
+  "offline_builder.repeated": {
+    "message": "Повтор для каждого узла сети",
+    "placeholders": {}
+  },
+  "offline_builder.logical_help": {
+    "message": "Показан только логический состав: слоты не привязаны, размещение и ограничения цели проверяются после назначения реальных узлов сети.",
+    "placeholders": {}
+  },
+  "offline_builder.logical_counts": {
+    "message": "Объявленный состав: экземпляров виджетов — {widgets}, источников метрик — {sources}.",
+    "placeholders": {
+      "widgets": "number",
+      "sources": "number"
+    }
+  },
+  "offline_builder.logical_truncated": {
+    "message": "В списке показано не более 256 экземпляров и 512 источников метрик; итоговые числа учитывают весь состав.",
+    "placeholders": {}
+  },
+  "offline_builder.slots_missing": {
+    "message": "В этой ранее созданной странице нет явных логических слотов. Измените её роль и объявите слоты перед сохранением правок.",
+    "placeholders": {}
+  },
+  "offline_builder.edit_title": {
+    "message": "Изменить состав локальной страницы",
+    "placeholders": {}
+  },
+  "offline_builder.manual_help": {
+    "message": "Эта форма сохраняет вручную. Автосохранение, отмена шагов и визуальный редактор в текущей реализации пока недоступны. Применяйте каждую правку роли или виджета перед сохранением страницы.",
+    "placeholders": {}
+  },
+  "offline_builder.leave_dirty": {
+    "message": "В форме есть несохранённые изменения. Уйти и отбросить их?",
+    "placeholders": {}
+  },
+  "offline_builder.library_unavailable": {
+    "message": "Библиотека не загрузилась. Сохранённые копии каталогов этой страницы остаются доступны.",
+    "placeholders": {}
+  },
+  "offline_builder.conflict": {
+    "message": "Страница изменена другим сохранением. Ваша форма сохранена на экране; загрузите сохранённую версию для продолжения. Правки не были перезаписаны.",
+    "placeholders": {}
+  },
+  "offline_builder.unsaved": {
+    "message": "Есть несохранённые изменения",
+    "placeholders": {}
+  },
+  "offline_builder.saving": {
+    "message": "Сохранение локально…",
+    "placeholders": {}
+  },
+  "offline_builder.new_page": {
+    "message": "Новая локальная страница",
+    "placeholders": {}
+  },
+  "offline_builder.edit_role": {
+    "message": "Изменить роль {role}",
+    "placeholders": {
+      "role": "text"
+    }
+  },
+  "offline_builder.apply_role": {
+    "message": "Применить изменения роли",
+    "placeholders": {}
+  },
+  "offline_builder.apply_graph": {
+    "message": "Применить изменения графика",
+    "placeholders": {}
+  },
+  "offline_builder.apply_item": {
+    "message": "Применить изменения одиночного значения элемента данных",
+    "placeholders": {}
+  },
+  "offline_builder.apply_repeat": {
+    "message": "Применить изменения повторяемого значения элемента данных",
+    "placeholders": {}
+  },
+  "offline_builder.edit_widget": {
+    "message": "Изменить виджет «{widget}»",
+    "placeholders": {
+      "widget": "text"
+    }
+  },
+  "offline_builder.pending_help": {
+    "message": "Примените или отмените ввод роли или виджета перед сохранением страницы.",
+    "placeholders": {}
+  },
+  "offline_builder.reload": {
+    "message": "Загрузить сохранённую версию",
+    "placeholders": {}
+  },
+  "offline_builder.open_draft": {
+    "message": "Открыть сохранённую страницу",
+    "placeholders": {}
+  },
+  "offline_builder.saved_composition": {
+    "message": "Последний сохранённый состав",
+    "placeholders": {}
+  },
+  "offline_builder.drafts_empty": {
+    "message": "Черновиков пока нет",
+    "placeholders": {}
+  },
+  "offline_editor.scope": {
+    "message": "Правка локальной страницы: история и размещение, без публикации на сервере и реальных значений метрик.",
+    "placeholders": {}
+  },
+  "offline_editor.history_hint": {
+    "message": "Открытие загружает последнюю успешно сохранённую версию. Отмена доступна для изменений с момента открытия; история хранится только в памяти.",
+    "placeholders": {}
+  },
+  "offline_editor.no_history": {
+    "message": "нет шагов",
+    "placeholders": {}
+  },
+  "offline_editor.history_limit": {
+    "message": "Доступны последние 200 шагов; более ранние шаги удалены.",
+    "placeholders": {}
+  },
+  "offline_editor.autosave": {
+    "message": "Автосохранение на этот сеанс",
+    "placeholders": {}
+  },
+  "offline_editor.autosave_help": {
+    "message": "Применённые правки сохраняются после 2 секунд бездействия или через 30 секунд непрерывной правки. Неприменённый ввод роли и виджета остаётся в форме.",
+    "placeholders": {}
+  },
+  "offline_editor.autosave_after_create": {
+    "message": "Автосохранение включается после первого явного сохранения страницы.",
+    "placeholders": {}
+  },
+  "offline_editor.retry": {
+    "message": "Не сохранено. Повтор через {seconds} секунд. Текущая форма оставлена на экране.",
+    "placeholders": {
+      "seconds": "number"
+    }
+  },
+  "offline_editor.canvas": {
+    "message": "Холст страницы: 72 колонки × 64 строки",
+    "placeholders": {}
+  },
+  "offline_editor.canvas_help": {
+    "message": "Выберите виджет. Стрелки — сдвиг на 1 ячейку, Shift+стрелки — на 6, Ctrl+стрелки — размер. Delete удаляет поддержанный виджет, Ctrl+D создаёт копию. Положение и размер также задаются числами. Масштаб меняет только вид.",
+    "placeholders": {}
+  },
+  "offline_editor.zoom_out": {
+    "message": "Уменьшить",
+    "placeholders": {}
+  },
+  "offline_editor.zoom_reset": {
+    "message": "100%",
+    "placeholders": {}
+  },
+  "offline_editor.zoom_in": {
+    "message": "Увеличить",
+    "placeholders": {}
+  },
+  "offline_editor.zoom_fit": {
+    "message": "По ширине",
+    "placeholders": {}
+  },
+  "offline_editor.geometry_rejected": {
+    "message": "Виджет не перемещён: выберите целые ячейки в пределах сетки без перекрытий. Повторяемые виджеты сохраняют автоматическую раскладку.",
+    "placeholders": {}
+  },
+  "offline_editor.widget_box": {
+    "message": "{widget}: столбец {x}, строка {y}, ширина {w}, высота {h}",
+    "placeholders": {
+      "widget": "text",
+      "x": "number",
+      "y": "number",
+      "w": "number",
+      "h": "number"
+    }
+  },
+  "offline_editor.box": {
+    "message": "Столбец {x}, строка {y} · {w} × {h}",
+    "placeholders": {
+      "x": "number",
+      "y": "number",
+      "w": "number",
+      "h": "number"
+    }
+  },
+  "offline_editor.geometry_for": {
+    "message": "Положение и размер: {widget}",
+    "placeholders": {
+      "widget": "text"
+    }
+  },
+  "offline_editor.x": {
+    "message": "Столбец (0–71)",
+    "placeholders": {}
+  },
+  "offline_editor.y": {
+    "message": "Строка (0–63)",
+    "placeholders": {}
+  },
+  "offline_editor.w": {
+    "message": "Ширина в ячейках",
+    "placeholders": {}
+  },
+  "offline_editor.h": {
+    "message": "Высота в ячейках",
+    "placeholders": {}
+  },
+  "offline_editor.apply_geometry": {
+    "message": "Применить положение и размер",
+    "placeholders": {}
+  },
+  "offline_editor.place": {
+    "message": "Разместить на первом свободном месте",
+    "placeholders": {}
+  },
+  "offline_editor.repeat_auto": {
+    "message": "Повторяемые виджеты: автоматическое размещение после привязки узлов сети",
+    "placeholders": {}
+  },
+  "offline_editor.opaque": {
+    "message": "Поля сохраняются как есть. В этом срезе меняется только геометрия; правка полей, удаление и копирование недоступны.",
+    "placeholders": {}
+  },
+  "editor.action.undo": {
+    "message": "Отменить: {action}",
+    "placeholders": {
+      "action": "text"
+    }
+  },
+  "editor.action.redo": {
+    "message": "Повторить: {action}",
+    "placeholders": {
+      "action": "text"
+    }
+  },
+  "editor.op.page": {
+    "message": "изменение страницы",
+    "placeholders": {}
+  },
+  "editor.op.edit_field": {
+    "message": "изменение «{field}»",
+    "placeholders": {
+      "field": "text"
+    }
+  },
+  "editor.op.add_widget": {
+    "message": "добавление виджета",
+    "placeholders": {}
+  },
+  "editor.op.remove_widget": {
+    "message": "удаление виджета",
+    "placeholders": {}
+  },
+  "editor.op.bindings": {
+    "message": "изменение ролей узлов сети",
+    "placeholders": {}
+  },
+  "editor.op.move": {
+    "message": "перемещение виджета",
+    "placeholders": {}
+  },
+  "editor.op.resize": {
+    "message": "изменение размера виджета",
+    "placeholders": {}
+  },
+  "offline_editor.resize": {
+    "message": "Размер",
+    "placeholders": {}
+  },
+  "offline_editor.resize_widget": {
+    "message": "Изменить размер виджета «{widget}»",
+    "placeholders": {
+      "widget": "text"
+    }
+  },
+  "offline_editor.claiming": {
+    "message": "Проверка владения редактором…",
+    "placeholders": {}
+  },
+  "offline_editor.open_elsewhere": {
+    "message": "Открыт для правки в другой вкладке. Эта вкладка доступна только для чтения; несохранённый ввод можно скопировать.",
+    "placeholders": {}
+  },
+  "offline_editor.owner_unavailable": {
+    "message": "Не удалось подтвердить владение редактором. Сохранение остановлено до подтверждения владения.",
+    "placeholders": {}
+  },
+  "offline_editor.edit_here": {
+    "message": "Редактировать здесь",
+    "placeholders": {}
+  },
+  "offline_editor.unsaved_copy": {
+    "message": "Несохранённый ввод для копирования",
+    "placeholders": {}
+  },
+  "offline_editor.recovery": {
+    "message": "Последние изменения могли не сохраниться. Загружена последняя успешная версия от {time}.",
+    "placeholders": {
+      "time": "datetime"
+    }
+  },
+  "offline_editor.finding_count": {
+    "message": "Замечаний: {count}",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "offline_editor.selected_count": {
+    "message": "Выбрано виджетов: {count}",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "offline_editor.selection_help": {
+    "message": "Ctrl+щелчок переключает выделение; Shift+щелчок выделяет диапазон. В списке пробел переключает виджет. Ctrl+A выделяет все, Esc снимает выделение. Копирование и вставка доступны только в этом окне приложения.",
+    "placeholders": {}
+  },
+  "offline_editor.remove_selection": {
+    "message": "Удалить выбранные виджеты",
+    "placeholders": {}
+  },
+  "offline_editor.checks_help": {
+    "message": "Эти проверки локальной композиции также показаны на холсте и в списке виджетов. Сервер проверяет каждое сохранение. Для публикации отдельно требуются назначение и проверка источников.",
+    "placeholders": {}
+  },
+  "offline_editor.check.name": {
+    "message": "Укажите имя страницы.",
+    "placeholders": {}
+  },
+  "offline_editor.check.empty": {
+    "message": "На странице нет виджетов.",
+    "placeholders": {}
+  },
+  "offline_editor.check.ids": {
+    "message": "Идентификаторы виджетов должны быть уникальны.",
+    "placeholders": {}
+  },
+  "offline_editor.check.bounds": {
+    "message": "Виджет должен помещаться в сетку 72 × 64.",
+    "placeholders": {}
+  },
+  "offline_editor.check.overlap": {
+    "message": "Виджеты перекрываются.",
+    "placeholders": {}
+  },
+  "offline_editor.check.incomplete": {
+    "message": "У виджета нет источника метрики.",
+    "placeholders": {}
+  },
+  "offline_editor.check.catalog": {
+    "message": "Каталог {catalog} не закреплён за этой страницей.",
+    "placeholders": {
+      "catalog": "text"
+    }
+  },
+  "offline_editor.check.metric": {
+    "message": "Метрика {metric} недоступна в закреплённом каталоге.",
+    "placeholders": {
+      "metric": "text"
+    }
+  },
+  "offline_editor.check.metric_type": {
+    "message": "Тип метрики не поддерживается этим виджетом.",
+    "placeholders": {}
+  },
+  "offline_editor.check.role": {
+    "message": "Проверьте роль {role} и выбор источников.",
+    "placeholders": {
+      "role": "text"
+    }
+  },
+  "offline_editor.check.binding": {
+    "message": "Перед публикацией назначьте и проверьте реальные источники.",
+    "placeholders": {}
+  },
+  "offline_editor.clipboard.copy": {
+    "message": "Копировать",
+    "placeholders": {}
+  },
+  "offline_editor.clipboard.cut": {
+    "message": "Вырезать",
+    "placeholders": {}
+  },
+  "offline_editor.clipboard.paste": {
+    "message": "Вставить виджеты",
+    "placeholders": {}
+  },
+  "offline_editor.clipboard.cut_pending": {
+    "message": "Подготовлено вырезание: {count} виджетов. Источник изменится только после успешной вставки на той же странице.",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "offline_editor.clipboard.copied": {
+    "message": "Скопировано виджетов: {count}. Данные хранятся в памяти до закрытия окна.",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "offline_editor.clipboard.resolve_help": {
+    "message": "Проверьте размещение и совместимость источников. Вставка — одна отменяемая операция; существующие виджеты не перемещаются.",
+    "placeholders": {}
+  },
+  "offline_editor.clipboard.placement": {
+    "message": "Размещение",
+    "placeholders": {}
+  },
+  "offline_editor.clipboard.original": {
+    "message": "Исходные координаты",
+    "placeholders": {}
+  },
+  "offline_editor.clipboard.first_free": {
+    "message": "Первое свободное место с сохранением взаимного расположения",
+    "placeholders": {}
+  },
+  "offline_editor.clipboard.resolve_sources": {
+    "message": "Проверьте явные соответствия источников ниже. Точно совпавшие идентификаторы выбраны заранее; отличающиеся требуют вашего выбора. Перед вставкой все соответствия повторно проверяются по текущей цели.",
+    "placeholders": {}
+  },
+  "offline_editor.clipboard.apply": {
+    "message": "Вставить",
+    "placeholders": {}
+  },
+  "offline_editor.clipboard.empty": {
+    "message": "Выберите виджеты для копирования.",
+    "placeholders": {}
+  },
+  "offline_editor.clipboard.opaque": {
+    "message": "Всё выделение отклонено: оно содержит сохранённый неподдерживаемый виджет. Его данные остаются без изменений.",
+    "placeholders": {}
+  },
+  "offline_editor.clipboard.reference": {
+    "message": "Копирование виджетов с дополнительными полями или ссылками не поддерживается. Всё выделение отклонено.",
+    "placeholders": {}
+  },
+  "offline_editor.clipboard.catalog": {
+    "message": "Выберите существующий закреплённый каталог цели для исходного каталога {value}.",
+    "placeholders": {
+      "value": "text"
+    }
+  },
+  "offline_editor.clipboard.role": {
+    "message": "Разрешите роль {value}: кратность, число слотов и объявленный порядок должны совпадать.",
+    "placeholders": {
+      "value": "text"
+    }
+  },
+  "offline_editor.clipboard.metric": {
+    "message": "Выберите текущую закреплённую метрику цели для {value} с совпадающими типом значения и единицами измерения.",
+    "placeholders": {
+      "value": "text"
+    }
+  },
+  "offline_editor.clipboard.geometry": {
+    "message": "Всю группу не удалось разместить без перекрытий. Выберите другое размещение или освободите место.",
+    "placeholders": {}
+  },
+  "offline_editor.clipboard.limit": {
+    "message": "Вставка превысит ограничение числа виджетов страницы.",
+    "placeholders": {}
+  },
+  "offline_editor.clipboard.source_changed": {
+    "message": "Источник вырезания изменился. Выделите и вырежьте заново.",
+    "placeholders": {}
+  },
+  "offline_editor.clipboard.cross_page_cut": {
+    "message": "Вырезание между страницами недоступно. Используйте копирование; источник не изменён.",
+    "placeholders": {}
+  },
+  "offline_editor.clipboard.ids": {
+    "message": "Не удалось выделить уникальные идентификаторы виджетов. Вставка отменена.",
+    "placeholders": {}
+  },
+  "editor.op.paste": {
+    "message": "Вставка виджетов",
+    "placeholders": {}
+  },
+  "offline_editor.resolve.title": {
+    "message": "Выберите целевые источники",
+    "placeholders": {}
+  },
+  "offline_editor.resolve.help": {
+    "message": "Выберите существующие закреплённые каталоги, совместимые метрики и роли. Предлагаются только совпадающие типы значений и единицы измерения. Выбор меняет только вставляемые виджеты; роли и каталоги цели сохраняются.",
+    "placeholders": {}
+  },
+  "offline_editor.resolve.catalog": {
+    "message": "Исходный каталог {catalog}, версия {version}",
+    "placeholders": {
+      "catalog": "text",
+      "version": "number"
+    }
+  },
+  "offline_editor.resolve.target_catalog": {
+    "message": "Закреплённый каталог цели",
+    "placeholders": {}
+  },
+  "offline_editor.resolve.target_metric": {
+    "message": "Целевая метрика",
+    "placeholders": {}
+  },
+  "offline_editor.resolve.choose": {
+    "message": "Выберите явно",
+    "placeholders": {}
+  },
+  "offline_editor.resolve.no_metrics": {
+    "message": "В этом закреплённом каталоге нет метрик с совпадающими типом значения и единицами измерения.",
+    "placeholders": {}
+  },
+  "offline_editor.resolve.role": {
+    "message": "Исходная роль {role}, слотов: {count}",
+    "placeholders": {
+      "role": "text",
+      "count": "number"
+    }
+  },
+  "offline_editor.resolve.target_role": {
+    "message": "Целевая роль",
+    "placeholders": {}
+  },
+  "offline_editor.resolve.no_roles": {
+    "message": "Нет целевой роли с той же кратностью и числом слотов. Настройте целевую страницу и повторите вставку.",
+    "placeholders": {}
+  },
+  "offline_editor.resolve.slot_order": {
+    "message": "Сопоставьте каждый слот один раз, сохраняя объявленный порядок. Эта вставка не меняет число или порядок повторяемых источников.",
+    "placeholders": {}
+  },
+  "offline_editor.resolve.slot": {
+    "message": "Исходный слот {slot}, позиция {position}",
+    "placeholders": {
+      "slot": "text",
+      "position": "number"
+    }
+  },
+  "offline_editor.resolve.go_to_object": {
+    "message": "Перейти к объекту",
+    "placeholders": {}
+  }
+}
