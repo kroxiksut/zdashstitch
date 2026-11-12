@@ -8,6 +8,9 @@ use std::collections::BTreeMap;
 use std::path::Path;
 
 use serde_json::{Value, json};
+use zdashstitch_core::formats::{
+    ProjectKind, ProjectRoot, build_typed_package_bytes, read_typed_package_bytes,
+};
 use zdashstitch_zabbix::{VersionedDashboardSnapshot, ZabbixVersion};
 
 use super::formats::{
@@ -178,6 +181,138 @@ fn portable_inventory_reads_local_workcopy_without_mutating_base() {
     assert_eq!(
         read(&snapshot_path(directory.path(), &file)),
         saved_snapshot
+    );
+}
+
+#[test]
+fn stored_workcopies_convert_without_changing_source_files() {
+    let directory = temp_root();
+    let store = LocalStore::at(directory.path().to_path_buf());
+    let file = snapshot_file(json!({
+        "dashboardid": "42", "name": "Server dashboard", "pages": [
+            {"dashboard_pageid": "420", "name": "Server page", "sortorder": "0",
+             "widgets": [{"widgetid": "4200", "type": "clock", "name": "Clock",
+                "x": "0", "y": "0", "width": "12", "height": "4", "fields": []}]}
+        ]
+    }));
+    store
+        .put_snapshot(&file)
+        .unwrap_or_else(|error| panic!("snapshot: {error}"));
+    let mut dashboard = workcopy_file(&file, WORKCOPY);
+    dashboard.revision = 1;
+    dashboard.operations = vec![json!({
+        "seq": 1, "op": "clone_mapping_set", "op_version": 1,
+        "recorded_at_ms": 11,
+        "state": {
+            "mapping_revision": 1, "connection_id": CONNECTION,
+            "server_identity_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "server_version": "7.4.16", "base_fingerprint": file.fingerprint,
+            "mappings": [{"role_id": "source-1",
+                "source_host": {"hostid": "10", "host": "source", "name": "Source"},
+                "decision": "keep_source", "references": []}]
+        }
+    })];
+    store
+        .create_workcopy(&dashboard)
+        .unwrap_or_else(|error| panic!("dashboard: {error}"));
+    let page_id = "wc-00112233445566778899aabbccddeefe";
+    let mut page = workcopy_file(&file, page_id);
+    page.kind = DraftKind::Page;
+    page.name = "Local page".to_owned();
+    page.source.page = Some(PageSelector {
+        dashboard_pageid: "420".to_owned(),
+        page_name: "Server page".to_owned(),
+        page_number: 1,
+    });
+    store
+        .create_workcopy(&page)
+        .unwrap_or_else(|error| panic!("page: {error}"));
+    let saved_base = read(&snapshot_path(directory.path(), &file));
+    let saved_dashboard = read(&workcopy_path(directory.path(), WORKCOPY));
+    let saved_page = read(&workcopy_path(directory.path(), page_id));
+    let service = WorkcopyService::new(directory.path().to_path_buf());
+    let preview = service
+        .preview_portable_conversion(WORKCOPY)
+        .unwrap_or_else(|error| panic!("preview: {error}"));
+    assert!(preview.ready);
+    assert_eq!(preview.blocker, None);
+    for (id, kind, name) in [
+        (WORKCOPY, ProjectKind::Dashboard, "Synthetic"),
+        (page_id, ProjectKind::Page, "Local page"),
+    ] {
+        let bundle = if kind == ProjectKind::Dashboard {
+            service.convert_dependency_free_dashboard(id)
+        } else {
+            service.convert_dependency_free_page(id)
+        }
+        .unwrap_or_else(|error| panic!("convert: {error}"));
+        assert_eq!(bundle.project.kind, kind);
+        let root_name = match &bundle.project.root {
+            ProjectRoot::Dashboard(root) => &root.name,
+            ProjectRoot::Page(root) => &root.name,
+        };
+        assert_eq!(root_name, name);
+        let package =
+            build_typed_package_bytes(&bundle).unwrap_or_else(|error| panic!("package: {error}"));
+        assert_eq!(
+            read_typed_package_bytes(&package).unwrap_or_else(|error| panic!("reopen: {error}")),
+            bundle
+        );
+    }
+    assert_eq!(read(&snapshot_path(directory.path(), &file)), saved_base);
+    assert_eq!(
+        read(&workcopy_path(directory.path(), WORKCOPY)),
+        saved_dashboard
+    );
+    assert_eq!(read(&workcopy_path(directory.path(), page_id)), saved_page);
+}
+
+#[test]
+fn stored_workcopy_conversion_refuses_unportable_data_without_writes() {
+    let directory = temp_root();
+    let store = LocalStore::at(directory.path().to_path_buf());
+    let file = snapshot_file(raw_dashboard("Private source"));
+    store
+        .put_snapshot(&file)
+        .unwrap_or_else(|error| panic!("snapshot: {error}"));
+    store
+        .create_workcopy(&workcopy_file(&file, WORKCOPY))
+        .unwrap_or_else(|error| panic!("workcopy: {error}"));
+    let before_base = read(&snapshot_path(directory.path(), &file));
+    let before_workcopy = read(&workcopy_path(directory.path(), WORKCOPY));
+    let service = WorkcopyService::new(directory.path().to_path_buf());
+    let preview = service
+        .preview_portable_conversion(WORKCOPY)
+        .unwrap_or_else(|error| panic!("preview: {error}"));
+    assert!(!preview.ready);
+    assert_eq!(
+        preview.blocker,
+        Some("portable_conversion_unsupported_data")
+    );
+    assert!(
+        preview
+            .blockers
+            .contains(&"portable_conversion_unknown_data")
+    );
+    assert!(
+        preview
+            .blockers
+            .contains(&"portable_conversion_unsupported_data")
+    );
+    let serialized =
+        serde_json::to_string(&preview).unwrap_or_else(|error| panic!("serialize: {error}"));
+    for private in ["Private source", "4200", "x_vendor"] {
+        assert!(!serialized.contains(private));
+    }
+    let error = service
+        .convert_dependency_free_dashboard(WORKCOPY)
+        .err()
+        .map(|error| error.code());
+    assert_eq!(error, Some("portable_conversion_unsupported_data"));
+    assert_eq!(read(&snapshot_path(directory.path(), &file)), before_base);
+    assert_eq!(
+        read(&workcopy_path(directory.path(), WORKCOPY)),
+        before_workcopy
     );
 }
 

@@ -132,6 +132,7 @@ pub(crate) fn routes(
         )
         .route("/drafts", get(list_drafts))
         .route("/drafts/{local_id}", get(draft))
+        .route("/drafts/{local_id}/portable-preview", get(portable_preview))
         .route("/drafts/{local_id}/rename", post(rename_draft))
         .merge(replace_host::routes())
         .merge(catalog_import::routes())
@@ -1077,6 +1078,16 @@ async fn draft(
         Ok(DraftDetailBody::from(&detail))
     })
     .await;
+    respond(StatusCode::OK, result)
+}
+
+/// Local-only conversion preflight. It performs no Zabbix request or write.
+async fn portable_preview(
+    Extension(drafts): Extension<DraftsHandle>,
+    PathParams(local_id): PathParams<String>,
+) -> Response {
+    let result =
+        blocking(move || Ok(drafts.service()?.preview_portable_conversion(&local_id)?)).await;
     respond(StatusCode::OK, result)
 }
 

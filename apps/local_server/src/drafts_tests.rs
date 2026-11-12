@@ -1553,6 +1553,23 @@ async fn list_preview_import_and_drafts_round_trip() {
     assert_rfc3339_utc(&summary["freshness"]["checked_at"]);
     assert!(summary.get("dashboardid").is_none());
     assert!(summary["source"].get("dashboardid").is_none());
+    let before_preview_methods = app.methods();
+    let (status, portable) = app
+        .call(
+            "GET",
+            &format!("/api/drafts/{local_id}/portable-preview"),
+            None,
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK, "{portable}");
+    assert_eq!(portable["ready"], false);
+    assert!(portable["blocker"].is_string());
+    assert_eq!(portable["inventory"]["kind"], "dashboard");
+    assert_eq!(
+        app.methods(),
+        before_preview_methods,
+        "preview is local-only"
+    );
     let page_summary = summaries
         .iter()
         .find(|draft| draft["kind"] == "page")
