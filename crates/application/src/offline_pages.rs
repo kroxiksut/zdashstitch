@@ -135,7 +135,29 @@ pub struct OfflinePage {
     #[serde(default)]
     pub revision: u64,
     pub catalog_versions: Vec<CatalogChoice>,
+    #[serde(default)]
+    pub embedded_catalogs: Vec<String>,
     pub bundle: TypedPortableBundle,
+}
+
+pub(crate) fn catalog_sources_valid(
+    pins: &[CatalogChoice],
+    embedded: &[String],
+    bundle: &TypedPortableBundle,
+) -> bool {
+    let pinned: BTreeSet<_> = pins.iter().map(|item| item.catalog_id.as_str()).collect();
+    let independent: BTreeSet<_> = embedded.iter().map(String::as_str).collect();
+    let referenced: BTreeSet<_> = bundle
+        .project
+        .catalogs
+        .iter()
+        .map(|item| item.id.as_str())
+        .collect();
+    pinned.len() == pins.len()
+        && independent.len() == embedded.len()
+        && pinned.is_disjoint(&independent)
+        && pinned.union(&independent).copied().collect::<BTreeSet<_>>() == referenced
+        && pins.iter().all(|item| item.version != 0)
 }
 
 #[derive(Clone, Debug, Serialize)]
@@ -247,6 +269,147 @@ pub struct OfflinePageStore {
 }
 
 impl OfflinePageStore {
+    pub(crate) fn save_converted(
+        &self,
+        bundle: TypedPortableBundle,
+    ) -> Result<OfflinePage, WorkcopyError> {
+        if bundle.project.provenance != ProjectProvenance::Local {
+            return Err(WorkcopyError::new("portable_conversion_unsupported_data"));
+        }
+        self.save_imported(bundle)
+    }
+
+    pub fn save_imported(
+        &self,
+        mut bundle: TypedPortableBundle,
+    ) -> Result<OfflinePage, WorkcopyError> {
+        let _pin_lock = crate::catalog_pin_lock::lock()?;
+        let _lock = WRITE_LOCK
+            .lock()
+            .map_err(|_| WorkcopyError::new("storage_write_failed"))?;
+        let mut file = self.load()?;
+        if file.pages.len() >= MAX_PAGES {
+            return Err(WorkcopyError::new("storage_limit_reached"));
+        }
+        if !matches!(bundle.project.root, ProjectRoot::Page(_)) || bundle.validate().is_err() {
+            return Err(WorkcopyError::new("portable_conversion_unsupported_data"));
+        }
+        let mut bytes = [0u8; 16];
+        getrandom::fill(&mut bytes).map_err(|_| WorkcopyError::new("random_source_unavailable"))?;
+        let id = format!(
+            "pg-{}",
+            bytes
+                .iter()
+                .map(|byte| format!("{byte:02x}"))
+                .collect::<String>()
+        );
+        if file.pages.iter().any(|page| page.local_id == id) {
+            return Err(WorkcopyError::new("storage_write_failed"));
+        }
+        bundle.project.project_id.clone_from(&id);
+        let ProjectRoot::Page(root) = &mut bundle.project.root else {
+            return Err(WorkcopyError::new("portable_conversion_unsupported_data"));
+        };
+        root.id.clone_from(&id);
+        bundle
+            .validate()
+            .map_err(|_| WorkcopyError::new("portable_conversion_unsupported_data"))?;
+        let now = now_ms();
+        let embedded_catalogs = bundle.catalogs.keys().cloned().collect();
+        let page = OfflinePage {
+            local_id: id,
+            created_at_ms: now,
+            updated_at_ms: now,
+            revision: 1,
+            catalog_versions: Vec::new(),
+            embedded_catalogs,
+            bundle,
+        };
+        file.pages.push(page.clone());
+        self.write(&file)?;
+        Ok(page)
+    }
+    /// Fork a validated library snapshot while preserving pinned versions.
+    pub(crate) fn save_library_snapshot(
+        &self,
+        mut bundle: TypedPortableBundle,
+        catalog_versions: Vec<CatalogChoice>,
+        embedded_catalogs: Vec<String>,
+    ) -> Result<OfflinePage, WorkcopyError> {
+        let _pin_lock = crate::catalog_pin_lock::lock()?;
+        let _lock = WRITE_LOCK
+            .lock()
+            .map_err(|_| WorkcopyError::new("storage_write_failed"))?;
+        let mut file = self.load()?;
+        if file.pages.len() >= MAX_PAGES {
+            return Err(WorkcopyError::new("storage_limit_reached"));
+        }
+        let pin_ids: BTreeSet<_> = catalog_versions.iter().map(|pin| &pin.catalog_id).collect();
+        let reference_ids: BTreeSet<_> = bundle
+            .project
+            .catalogs
+            .iter()
+            .map(|item| &item.id)
+            .collect();
+        if !matches!(bundle.project.root, ProjectRoot::Page(_))
+            || pin_ids.len() != catalog_versions.len()
+            || (!embedded_catalogs.is_empty()
+                && !catalog_sources_valid(&catalog_versions, &embedded_catalogs, &bundle))
+            || (embedded_catalogs.is_empty() && pin_ids != reference_ids)
+            || catalog_versions.iter().any(|pin| pin.version == 0)
+            || bundle.validate().is_err()
+        {
+            return Err(corrupt());
+        }
+        let library = CatalogLibrary::new(self.root.clone());
+        for pin in &catalog_versions {
+            if library.get(&pin.catalog_id, pin.version)?.is_none() {
+                return Err(WorkcopyError::new("catalog_not_found"));
+            }
+        }
+        let id = loop {
+            let mut bytes = [0u8; 16];
+            getrandom::fill(&mut bytes)
+                .map_err(|_| WorkcopyError::new("random_source_unavailable"))?;
+            let candidate = format!(
+                "pg-{}",
+                bytes
+                    .iter()
+                    .map(|byte| format!("{byte:02x}"))
+                    .collect::<String>()
+            );
+            if !file.pages.iter().any(|page| page.local_id == candidate) {
+                break candidate;
+            }
+        };
+        bundle.project.project_id.clone_from(&id);
+        let ProjectRoot::Page(page_root) = &mut bundle.project.root else {
+            return Err(corrupt());
+        };
+        page_root.id.clone_from(&id);
+        for widget in &mut page_root.widgets {
+            let new_id = new_widget_id()?;
+            match widget {
+                Widget::Graph { id, .. }
+                | Widget::ItemValue { id, .. }
+                | Widget::Zabbix { id, .. } => *id = new_id,
+            }
+        }
+        bundle.validate().map_err(|_| corrupt())?;
+        let now = now_ms();
+        let page = OfflinePage {
+            local_id: id,
+            created_at_ms: now,
+            updated_at_ms: now,
+            revision: 1,
+            catalog_versions,
+            embedded_catalogs,
+            bundle,
+        };
+        file.pages.push(page.clone());
+        self.write(&file)?;
+        Ok(page)
+    }
     #[must_use]
     pub fn new(root: PathBuf) -> Self {
         Self { root }
@@ -271,30 +434,27 @@ impl OfflinePageStore {
                 .iter()
                 .map(|choice| &choice.catalog_id)
                 .collect();
-            let reference_ids: BTreeSet<_> = page
-                .bundle
-                .project
-                .catalogs
-                .iter()
-                .map(|reference| &reference.id)
-                .collect();
             if !ids.insert(&page.local_id)
                 || page.local_id != page.bundle.project.project_id
                 || !matches!(page.bundle.project.root, ProjectRoot::Page(_))
-                || page.bundle.project.provenance != ProjectProvenance::Local
                 || version_ids.len() != page.catalog_versions.len()
-                || version_ids != reference_ids
+                || !catalog_sources_valid(
+                    &page.catalog_versions,
+                    &page.embedded_catalogs,
+                    &page.bundle,
+                )
                 || page
                     .catalog_versions
                     .iter()
                     .any(|choice| choice.version == 0)
                 || page.bundle.validate().is_err()
-                || (page
-                    .bundle
-                    .project
-                    .roles
-                    .values()
-                    .any(|role| role.slots.is_some())
+                || (!page.bundle.project.roles.is_empty()
+                    && page
+                        .bundle
+                        .project
+                        .roles
+                        .values()
+                        .all(|role| role.slots.is_some())
                     && validate_explicit_roles(&page.bundle.project.roles).is_err())
             {
                 return Err(corrupt());
@@ -321,6 +481,24 @@ impl OfflinePageStore {
             .pages
             .into_iter()
             .find(|page| page.local_id == local_id))
+    }
+
+    pub fn export_package(&self, local_id: &str) -> Result<Option<Vec<u8>>, WorkcopyError> {
+        self.get(local_id)?
+            .map(|page| {
+                zdashstitch_core::formats::build_typed_package_bytes(&page.bundle)
+                    .map_err(|_| WorkcopyError::new("offline_page_export_failed"))
+            })
+            .transpose()
+    }
+
+    pub fn export_yaml(&self, local_id: &str) -> Result<Option<Vec<u8>>, WorkcopyError> {
+        self.get(local_id)?
+            .map(|page| {
+                zdashstitch_core::formats::build_typed_yaml_bytes(&page.bundle)
+                    .map_err(|_| WorkcopyError::new("offline_page_export_failed"))
+            })
+            .transpose()
     }
 
     pub fn open(&self, local_id: &str) -> Result<Option<OfflinePageView>, WorkcopyError> {
@@ -370,6 +548,7 @@ impl OfflinePageStore {
     }
 
     pub fn create(&self, request: CreatePage) -> Result<OfflinePage, WorkcopyError> {
+        let _pin_lock = crate::catalog_pin_lock::lock()?;
         let _lock = WRITE_LOCK
             .lock()
             .map_err(|_| WorkcopyError::new("storage_write_failed"))?;
@@ -395,6 +574,7 @@ impl OfflinePageStore {
             updated_at_ms: created_at_ms,
             revision: 1,
             catalog_versions,
+            embedded_catalogs: Vec::new(),
             bundle,
         };
         file.pages.push(page.clone());
@@ -407,6 +587,7 @@ impl OfflinePageStore {
         local_id: &str,
         request: UpdatePage,
     ) -> Result<OfflinePage, WorkcopyError> {
+        let _pin_lock = crate::catalog_pin_lock::lock()?;
         let _lock = WRITE_LOCK
             .lock()
             .map_err(|_| WorkcopyError::new("storage_write_failed"))?;
@@ -470,6 +651,12 @@ pub(crate) fn compose(
         return Err(invalid());
     }
     let mut catalogs = BTreeMap::<String, MetricCatalog>::new();
+    if let Some(page) = existing {
+        for id in &page.embedded_catalogs {
+            let catalog = page.bundle.catalogs.get(id).ok_or_else(corrupt)?;
+            catalogs.insert(id.clone(), catalog.clone());
+        }
+    }
     let library = CatalogLibrary::new(root.to_path_buf());
     for choice in request.catalogs {
         if choice.version == 0 || catalogs.contains_key(&choice.catalog_id) {
@@ -495,7 +682,9 @@ pub(crate) fn compose(
             file: format!("metrics/{key}.yaml"),
         })
         .collect();
-    if !request.roles.is_empty() {
+    if !request.roles.is_empty()
+        && !existing.is_some_and(|page| page.bundle.project.roles == request.roles)
+    {
         validate_explicit_roles(&request.roles)?;
     }
     let mut widgets = Vec::new();
@@ -626,6 +815,7 @@ pub(crate) fn compose(
     };
     if let Some(existing) = existing {
         project.declared_compatibility = existing.bundle.project.declared_compatibility.clone();
+        project.provenance = existing.bundle.project.provenance.clone();
         let ProjectRoot::Page(old_root) = &existing.bundle.project.root else {
             return Err(corrupt());
         };
@@ -856,6 +1046,20 @@ mod tests {
         let reopened = OfflinePageStore::new(root.path().to_owned())
             .get(&created.local_id)
             .unwrap_or_else(|error| panic!("{error}"));
+        let package = store
+            .export_package(&created.local_id)
+            .unwrap_or_else(|error| panic!("{error}"))
+            .unwrap_or_else(|| panic!("existing page exports"));
+        let imported = zdashstitch_core::formats::read_typed_package_bytes(&package)
+            .unwrap_or_else(|error| panic!("{error}"));
+        assert_eq!(imported, created.bundle);
+        assert!(matches!(imported.project.root, ProjectRoot::Page(_)));
+        assert!(
+            store
+                .export_package("missing")
+                .unwrap_or_else(|error| panic!("{error}"))
+                .is_none()
+        );
         assert_eq!(reopened, Some(created));
 
         let rejected = store.create(CreatePage {
@@ -1314,6 +1518,86 @@ mod tests {
                 })
                 .collect(),
         }
+    }
+
+    #[test]
+    fn one_graph_keeps_fixed_geometry_when_logical_hosts_change_after_reopen() {
+        let (root, mut request) = fixture();
+        with_many(&mut request);
+        let expected_layout = Layout::Fixed {
+            x: 5,
+            y: 7,
+            w: 30,
+            h: 9,
+        };
+        if let WidgetChoice::Graph {
+            metrics, layout, ..
+        } = &mut request.widgets[0]
+        {
+            metrics[0].hosts = many_source(Selection::All, None);
+            *layout = Some(expected_layout.clone());
+        } else {
+            panic!("graph fixture");
+        }
+        let store = OfflinePageStore::new(root.path().to_owned());
+        let created = store
+            .create(request)
+            .unwrap_or_else(|error| panic!("{error}"));
+        let reopened = store
+            .get(&created.local_id)
+            .unwrap_or_else(|error| panic!("{error}"))
+            .unwrap_or_else(|| panic!("missing page"));
+        let first_view = reopened
+            .clone()
+            .view()
+            .unwrap_or_else(|error| panic!("{error}"));
+        assert_eq!(first_view.composition.instance_count, 1);
+        assert_eq!(first_view.composition.source_count, 2);
+        let mut edit = request_for(&reopened);
+        edit.roles
+            .get_mut("workers")
+            .unwrap_or_else(|| panic!("missing role"))
+            .slots
+            .as_mut()
+            .unwrap_or_else(|| panic!("missing slots"))
+            .push("worker-c".to_owned());
+        let updated = store
+            .update(
+                &reopened.local_id,
+                UpdatePage {
+                    expected_revision: reopened.revision,
+                    page: edit,
+                },
+            )
+            .unwrap_or_else(|error| panic!("{error}"));
+        let reopened_again = store
+            .get(&created.local_id)
+            .unwrap_or_else(|error| panic!("{error}"))
+            .unwrap_or_else(|| panic!("missing page"));
+        let view = reopened_again
+            .clone()
+            .view()
+            .unwrap_or_else(|error| panic!("{error}"));
+        assert_eq!(updated.revision, reopened.revision + 1);
+        assert_eq!(view.composition.instance_count, 1);
+        assert_eq!(view.composition.source_count, 3);
+        assert_eq!(
+            view.composition.instances[0]
+                .sources
+                .iter()
+                .map(|source| source.slot_id.as_str())
+                .collect::<Vec<_>>(),
+            ["worker-b", "worker-a", "worker-c"]
+        );
+        let ProjectRoot::Page(page) = &reopened_again.bundle.project.root else {
+            panic!("page");
+        };
+        assert_eq!(page.widgets.len(), 1);
+        assert_eq!(page.widgets[0].layout(), &expected_layout);
+        assert_eq!(
+            page.widgets[0].id(),
+            first_view.composition.instances[0].widget_id
+        );
     }
 
     #[test]

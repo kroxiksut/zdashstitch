@@ -23,6 +23,7 @@ tokio = { workspace = true, features = ["io-util"] }
 tower-http.workspace = true
 unicode-normalization.workspace = true
 zdashstitch-application = { path = "../../crates/application" }
+zdashstitch-core = { path = "../../crates/core" }
 
 [target.'cfg(target_os = "windows")'.dependencies]
 rfd.workspace = true
@@ -34,7 +35,6 @@ rfd = { workspace = true, features = ["xdg-portal"] }
 http-body-util.workspace = true
 tempfile.workspace = true
 tower.workspace = true
-zdashstitch-core = { path = "../../crates/core" }
 
 [lints]
 workspace = true

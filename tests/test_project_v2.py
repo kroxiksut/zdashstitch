@@ -50,6 +50,32 @@ def test_unknown_widget_and_field_type_are_preserved_with_markers(tmp_path):
     assert validate_package(build_package(source, tmp_path / 'unknown.zip')) == project
 
 
+def test_dynamic_patterns_round_trip_and_require_a_declared_role(tmp_path):
+    source = ROOT / 'fixtures/formats/v2/positive/dynamic-pattern.yaml'
+    project = validate_project(source)
+    assert validate_package(build_package(source, tmp_path / 'pattern.zip')) == project
+    invalid = load(source)
+    invalid['roles'] = {}
+    broken = tmp_path / 'missing-role.yaml'
+    import yaml
+    broken.write_text(yaml.safe_dump(invalid), encoding='utf8')
+    with pytest.raises(ProjectValidationError) as failure:
+        validate_project(broken)
+    assert failure.value.code == 'unknown_role'
+    invalid = load(source)
+    invalid['root']['widgets'][0]['fields'][0]['field_type'] = 0
+    broken.write_text(yaml.safe_dump(invalid), encoding='utf8')
+    with pytest.raises(ProjectValidationError) as failure:
+        validate_project(broken)
+    assert failure.value.code == 'widget_field_value_kind'
+    invalid = load(source)
+    invalid['root']['widgets'][0]['fields'][0]['name'] = 'reference'
+    broken.write_text(yaml.safe_dump(invalid), encoding='utf8')
+    with pytest.raises(ProjectValidationError) as failure:
+        validate_project(broken)
+    assert failure.value.code == 'widget_pattern_field'
+
+
 def test_page_source_provenance_is_not_target_intent():
     page = validate_project(ROOT / 'examples/page-v2.yaml')
     assert page['provenance']['source_dashboard_id'] == 'db-pilot'

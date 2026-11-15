@@ -32,7 +32,7 @@
   </header>
 
   <div class="start-cards">
-    <section class="card" aria-labelledby="start-server-title">
+    <section class="card start-server" aria-labelledby="start-server-title">
       <h2 id="start-server-title">{i18n.t('startup.server.title')}</h2>
       <p>{i18n.t('startup.server.help')}</p>
       {#if active}
@@ -56,7 +56,7 @@
       {/if}
     </section>
 
-    <section class="card" aria-labelledby="start-local-title">
+    <section class="card start-local" aria-labelledby="start-local-title">
       <h2 id="start-local-title">{i18n.t('startup.local.title')}</h2>
       <p><StatusBadge {i18n} label={{ id: 'startup.local.badge' }} tone="success" /></p>
       <p>{i18n.t('startup.local.help')}</p>
@@ -81,8 +81,6 @@
       <a class="button-link" href="/library">{i18n.t('startup.action.import_files')}</a>
       <p class="hint">{i18n.t('template_import.help')}</p>
     </section>
-  </div>
-
   <section class="card recent" aria-labelledby="start-recent-title">
     <div class="section-head">
       <h2 id="start-recent-title">{i18n.t('startup.recent.title')}</h2>
@@ -113,4 +111,5 @@
       </ul>
     {/if}
   </section>
+  </div>
 </div>

@@ -196,6 +196,15 @@ describe('details column (mockup 02-01)', () => {
     expect(body).toContain('class="not-found"');
   });
 
+  it('enables the explicit portability check only when the portable client is connected', () => {
+    const { body } = render(DraftDetails, {
+      props: { i18n: ru, draft: dashboardCopy, portable: { preview: async () => ({ status: 'unavailable' as const }), pages: async () => ({ status: 'unavailable' as const }), previewPage: async () => ({ status: 'unavailable' as const }), saveDashboardPageToLibrary: async () => ({ status: 'unavailable' as const }), create: async () => ({ status: 'unavailable' as const }), savePageToLibrary: async () => ({ status: 'unavailable' as const }) }, onportablecreated: () => {} }
+    });
+    expect(body).toContain('Сделать переносимой для экспорта…');
+    expect(html(body)).not.toMatch(disabledButton('Сделать переносимой для экспорта…'));
+    expect(body).toContain('Выбрать страницу из копии панели');
+  });
+
   it('offers export to file for a local draft instead of making it portable', () => {
     const { body } = render(DraftDetails, { props: { i18n: en, draft: { ...assembled, created_dashboards: dashboardCopy.created_dashboards } } });
     expect(body).toContain('Export to file…');

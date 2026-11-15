@@ -9,9 +9,10 @@ use std::{
 use serde::Deserialize;
 use tempfile::tempdir;
 use zdashstitch_core::formats::{
-    MAX_ARCHIVE_ENTRIES, MAX_FILE_BYTES, build_package_bytes, build_typed_package_bytes,
-    load_project_file, load_typed_project_file, read_package, read_package_bytes,
-    read_typed_package, read_typed_package_bytes, write_package, write_typed_package,
+    LegacyRootSelection, MAX_ARCHIVE_ENTRIES, MAX_FILE_BYTES, ProjectRoot, build_package_bytes,
+    build_typed_package_bytes, build_typed_yaml_bytes, load_project_file, load_typed_project_file,
+    package_entry_hashes, read_package, read_package_bytes, read_typed_package,
+    read_typed_package_bytes, write_package, write_typed_package,
 };
 use zip::{CompressionMethod, ZipWriter, write::SimpleFileOptions};
 
@@ -21,6 +22,47 @@ fn root() -> PathBuf {
         .nth(2)
         .unwrap_or_else(|| panic!("core crate must be nested under the workspace root"))
         .to_path_buf()
+}
+
+#[test]
+fn legacy_package_migration_keeps_explicit_root_and_catalogs() {
+    let source = read_package(&root().join("examples/db-pilot-package.zip"))
+        .unwrap_or_else(|error| panic!("legacy package: {error}"));
+    for selection in [
+        LegacyRootSelection::Dashboard {
+            dashboard_id: "db-pilot".to_owned(),
+        },
+        LegacyRootSelection::Page {
+            dashboard_id: "db-pilot".to_owned(),
+            page_id: "clickhouse".to_owned(),
+        },
+    ] {
+        let migrated = source
+            .migrate(&selection)
+            .unwrap_or_else(|error| panic!("migration: {error}"));
+        match selection {
+            LegacyRootSelection::Dashboard { .. } => {
+                assert!(matches!(migrated.project.root, ProjectRoot::Dashboard(_)))
+            }
+            LegacyRootSelection::Page { .. } => {
+                assert!(matches!(migrated.project.root, ProjectRoot::Page(_)))
+            }
+        }
+        assert_eq!(migrated.catalogs, source.catalogs);
+        let bytes =
+            build_typed_package_bytes(&migrated).unwrap_or_else(|error| panic!("export: {error}"));
+        assert_eq!(
+            read_typed_package_bytes(&bytes).unwrap_or_else(|error| panic!("reopen: {error}")),
+            migrated
+        );
+    }
+    let error = source
+        .migrate(&LegacyRootSelection::Dashboard {
+            dashboard_id: "missing".to_owned(),
+        })
+        .err()
+        .unwrap_or_else(|| panic!("missing root must fail"));
+    assert_eq!(error.code(), "legacy_root_not_found");
 }
 
 fn project_path() -> PathBuf {
@@ -42,6 +84,55 @@ fn make_zip(entries: &[(&str, &[u8])], compression: CompressionMethod) -> Vec<u8
         .finish()
         .unwrap_or_else(|error| panic!("cannot finish test ZIP: {error}"))
         .into_inner()
+}
+
+#[test]
+fn entry_hashes_cover_uncompressed_bytes_and_reject_unsafe_names() {
+    use sha2::{Digest, Sha256};
+    let raw = make_zip(
+        &[
+            ("project.yaml", b"example"),
+            ("metrics/test.yaml", b"metric"),
+        ],
+        CompressionMethod::Deflated,
+    );
+    let hashes = package_entry_hashes(&raw).unwrap_or_else(|error| panic!("hashes: {error}"));
+    assert_eq!(
+        hashes.get("project.yaml"),
+        Some(&format!("{:x}", Sha256::digest(b"example")))
+    );
+    assert_eq!(
+        hashes.get("metrics/test.yaml"),
+        Some(&format!("{:x}", Sha256::digest(b"metric")))
+    );
+    let unsafe_zip = make_zip(&[("../secret", b"private")], CompressionMethod::Stored);
+    assert_eq!(
+        package_entry_hashes(&unsafe_zip)
+            .err()
+            .map(|error| error.code()),
+        Some("archive_name")
+    );
+}
+
+#[test]
+fn standalone_yaml_round_trips_only_without_catalogs() {
+    let bundle = load_typed_project_file(&root().join("examples/clock-page-v2.yaml"))
+        .unwrap_or_else(|error| panic!("fixture: {error}"));
+    let raw = build_typed_yaml_bytes(&bundle).unwrap_or_else(|error| panic!("yaml: {error}"));
+    let project: zdashstitch_core::formats::TypedProject =
+        zdashstitch_core::formats::from_yaml_str(
+            std::str::from_utf8(&raw).unwrap_or_else(|error| panic!("utf8: {error}")),
+        )
+        .unwrap_or_else(|error| panic!("parse: {error}"));
+    assert_eq!(project, bundle.project);
+    let with_catalog = load_typed_project_file(&root().join("examples/page-v2.yaml"))
+        .unwrap_or_else(|error| panic!("catalog fixture: {error}"));
+    assert_eq!(
+        build_typed_yaml_bytes(&with_catalog)
+            .err()
+            .map(|error| error.code()),
+        Some("standalone_catalogs")
+    );
 }
 
 fn make_symlink_zip() -> Vec<u8> {
@@ -120,6 +211,50 @@ fn typed_dashboard_and_page_packages_keep_root_kind() {
         assert_eq!(reopened.project.root, project_root);
         assert_eq!(reopened, bundle);
     }
+}
+
+#[test]
+fn dynamic_patterns_round_trip_and_require_declared_roles() {
+    let mut bundle =
+        load_typed_project_file(&root().join("fixtures/formats/v2/positive/dynamic-pattern.yaml"))
+            .unwrap_or_else(|error| panic!("load: {error}"));
+    let bytes =
+        build_typed_package_bytes(&bundle).unwrap_or_else(|error| panic!("package: {error}"));
+    assert_eq!(
+        read_typed_package_bytes(&bytes).unwrap_or_else(|error| panic!("reopen: {error}")),
+        bundle
+    );
+    bundle.project.roles.clear();
+    assert_eq!(
+        bundle.validate().err().map(|error| error.code()),
+        Some("unknown_role")
+    );
+    let mut bundle =
+        load_typed_project_file(&root().join("fixtures/formats/v2/positive/dynamic-pattern.yaml"))
+            .unwrap_or_else(|error| panic!("load: {error}"));
+    let zdashstitch_core::formats::ProjectRoot::Page(page) = &mut bundle.project.root else {
+        panic!("page")
+    };
+    let zdashstitch_core::formats::Widget::Zabbix { fields, .. } = &mut page.widgets[0] else {
+        panic!("widget")
+    };
+    fields[0].field_type = 0;
+    assert_eq!(
+        bundle.validate().err().map(|error| error.code()),
+        Some("widget_field_value_kind")
+    );
+    let zdashstitch_core::formats::ProjectRoot::Page(page) = &mut bundle.project.root else {
+        panic!("page")
+    };
+    let zdashstitch_core::formats::Widget::Zabbix { fields, .. } = &mut page.widgets[0] else {
+        panic!("widget")
+    };
+    fields[0].field_type = 1;
+    fields[0].name = "reference".into();
+    assert_eq!(
+        bundle.validate().err().map(|error| error.code()),
+        Some("widget_pattern_field")
+    );
 }
 
 #[test]

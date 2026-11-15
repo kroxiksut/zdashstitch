@@ -12,6 +12,14 @@ use super::*;
 pub(super) fn routes() -> Router<LocalSecurity> {
     Router::new()
         .route("/drafts/{local_id}/clone", get(setup).post(save))
+        .route(
+            "/drafts/{local_id}/portable-bindings",
+            get(portable_bindings_setup).post(save_portable_bindings),
+        )
+        .route(
+            "/drafts/{local_id}/portable-pattern-review",
+            post(review_portable_pattern),
+        )
         .route("/drafts/{local_id}/clone/hosts", get(hosts))
         .route(
             "/drafts/{local_id}/clone/review-bindings",
@@ -31,6 +39,115 @@ pub(super) fn routes() -> Router<LocalSecurity> {
             get(comparison),
         )
         .route("/drafts/{local_id}/clone/{clone_id}/plan", post(plan_clone))
+}
+
+async fn review_portable_pattern(
+    Extension(connections): Extension<ConnectionsHandle>,
+    Extension(drafts): Extension<DraftsHandle>,
+    PathParams(local_id): PathParams<String>,
+    body: Bytes,
+) -> Response {
+    let request: zdashstitch_application::portable_pattern_review::PortablePatternReviewRequest =
+        match parse(&body) {
+            Ok(request) => request,
+            Err(error) => return error.into_response(),
+        };
+    respond(
+        run(
+            connections,
+            drafts,
+            move |service, _, connections| async move {
+                let connections = connections.ok_or_else(|| failure(not_connected()))?;
+                let guard = connections.lock().await;
+                let reader = guard.reader().ok_or_else(|| failure(not_connected()))?;
+                service
+                    .preview_saved_portable_pattern(reader, &local_id, &request)
+                    .await
+                    .map_err(workcopy_failure)
+            },
+        )
+        .await,
+    )
+}
+
+async fn portable_bindings_setup(
+    Extension(connections): Extension<ConnectionsHandle>,
+    Extension(drafts): Extension<DraftsHandle>,
+    PathParams(local_id): PathParams<String>,
+) -> Response {
+    respond(
+        run(
+            connections,
+            drafts,
+            move |service, _, connections| async move {
+                let connection_id = service
+                    .draft_connection_id(&local_id)
+                    .map_err(workcopy_failure)?;
+                let connections = connections.ok_or_else(|| failure(not_connected()))?;
+                let guard = connections.lock().await;
+                ensure_draft_connection(&guard, &connection_id).map_err(failure)?;
+                let reader = guard.reader().ok_or_else(|| failure(not_connected()))?;
+                service
+                    .portable_binding_setup(reader, &connection_id, &local_id)
+                    .await
+                    .map_err(workcopy_failure)
+            },
+        )
+        .await,
+    )
+}
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct PortableBindingsRequest {
+    revision: u64,
+    catalogs: BTreeMap<String, zdashstitch_core::formats::MetricCatalog>,
+    choices: Vec<zdashstitch_application::PortableItemChoice>,
+    #[serde(default)]
+    hosts: Vec<zdashstitch_application::PortableHostChoice>,
+    #[serde(default)]
+    patterns: Vec<zdashstitch_application::PortablePatternChoice>,
+}
+
+async fn save_portable_bindings(
+    Extension(connections): Extension<ConnectionsHandle>,
+    Extension(drafts): Extension<DraftsHandle>,
+    PathParams(local_id): PathParams<String>,
+    body: Bytes,
+) -> Response {
+    let request: PortableBindingsRequest = match parse(&body) {
+        Ok(request) => request,
+        Err(error) => return error.into_response(),
+    };
+    respond(
+        run(
+            connections,
+            drafts,
+            move |service, _, connections| async move {
+                let connection_id = service
+                    .draft_connection_id(&local_id)
+                    .map_err(workcopy_failure)?;
+                let connections = connections.ok_or_else(|| failure(not_connected()))?;
+                let guard = connections.lock().await;
+                ensure_draft_connection(&guard, &connection_id).map_err(failure)?;
+                let reader = guard.reader().ok_or_else(|| failure(not_connected()))?;
+                service
+                    .make_portable_with_choices(
+                        reader,
+                        &connection_id,
+                        &local_id,
+                        request.revision,
+                        &request.catalogs,
+                        &request.choices,
+                        &request.hosts,
+                        &request.patterns,
+                    )
+                    .await
+                    .map_err(workcopy_failure)
+            },
+        )
+        .await,
+    )
 }
 
 #[derive(Serialize)]

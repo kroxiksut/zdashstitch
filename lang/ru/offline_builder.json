@@ -1,4 +1,306 @@
 {
+  "redaction.title": {
+    "message": "Подготовить копию с заменами",
+    "placeholders": {}
+  },
+  "redaction.help": {
+    "message": "Измените выбранные сведения в экспортируемой копии. Исходный черновик не меняется. Ключи метрик меняются только при явной замене псевдонимами.",
+    "placeholders": {}
+  },
+  "redaction.target": {
+    "message": "Объект",
+    "placeholders": {}
+  },
+  "redaction.dashboard": {
+    "message": "Название панели",
+    "placeholders": {}
+  },
+  "redaction.page": {
+    "message": "Страница {page}",
+    "placeholders": {
+      "page": "number"
+    }
+  },
+  "redaction.widget": {
+    "message": "Страница {page}, виджет {widget}",
+    "placeholders": {
+      "page": "number",
+      "widget": "number"
+    }
+  },
+  "redaction.host_mask": {
+    "message": "Страница {page}, виджет {widget}, маска узлов {field}",
+    "placeholders": {
+      "page": "number",
+      "widget": "number",
+      "field": "number"
+    }
+  },
+  "redaction.mask_caution": {
+    "message": "Заменённая маска узлов не привязывается к реальным узлам автоматически. Проверьте её перед публикацией.",
+    "placeholders": {}
+  },
+  "redaction.replacement": {
+    "message": "Новое значение",
+    "placeholders": {}
+  },
+  "redaction.add": {
+    "message": "Добавить замену",
+    "placeholders": {}
+  },
+  "redaction.matching": {
+    "message": "Применить к точным совпадениям в поддерживаемых названиях и масках узлов",
+    "placeholders": {}
+  },
+  "redaction.limit": {
+    "message": "До 128 объектов в одной копии; при большем числе совпадений операция отклоняется без изменений.",
+    "placeholders": {}
+  },
+  "redaction.remove": {
+    "message": "Убрать замену",
+    "placeholders": {}
+  },
+  "redaction.preview": {
+    "message": "Проверить копию",
+    "placeholders": {}
+  },
+  "redaction.length": {
+    "message": "Исходное значение: {before} символов; замена: {after} символов.",
+    "placeholders": {
+      "before": "number",
+      "after": "number"
+    }
+  },
+  "redaction.remaining": {
+    "message": "Осталось кандидатов: {count}. Проверка ограничена и не гарантирует обезличивание.",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "redaction.acknowledge": {
+    "message": "Я понимаю, что проверка неполная, и должен убедиться, что учётные данные не передаются.",
+    "placeholders": {}
+  },
+  "redaction.export": {
+    "message": "Экспортировать проверенную копию",
+    "placeholders": {}
+  },
+  "redaction.failed": {
+    "message": "Не удалось подготовить копию. Проверьте замены и заново откройте изменённый черновик.",
+    "placeholders": {}
+  },
+  "redaction.credentials_block": {
+    "message": "Экспорт заблокирован: ограниченная проверка нашла возможные учётные данные. Удалите их из черновика и повторите проверку.",
+    "placeholders": {}
+  },
+  "package_scan.action": {
+    "message": "Найти возможные чувствительные значения",
+    "placeholders": {}
+  },
+  "package_scan.filter": {
+    "message": "Фильтр кандидатов",
+    "placeholders": {}
+  },
+  "package_scan.warning": {
+    "message": "Эта ограниченная локальная проверка не гарантирует обезличивание и не находит все чувствительные значения. Перед передачей проверьте содержимое.",
+    "placeholders": {}
+  },
+  "package_scan.none": {
+    "message": "Ограниченная проверка не нашла кандидатов.",
+    "placeholders": {}
+  },
+  "package_scan.truncated": {
+    "message": "Показаны только первые 256 кандидатов.",
+    "placeholders": {}
+  },
+  "package_scan.failed": {
+    "message": "Не удалось выполнить проверку.",
+    "placeholders": {}
+  },
+  "package_scan.url": {
+    "message": "Возможный URL",
+    "placeholders": {}
+  },
+  "package_scan.email": {
+    "message": "Возможный адрес электронной почты",
+    "placeholders": {}
+  },
+  "package_scan.ip": {
+    "message": "Возможный IP-адрес",
+    "placeholders": {}
+  },
+  "package_scan.macro": {
+    "message": "Макрос",
+    "placeholders": {}
+  },
+  "package_scan.unknown": {
+    "message": "Неизвестное поле или виджет; проверка неполная",
+    "placeholders": {}
+  },
+  "package_scan.credential": {
+    "message": "Возможные учётные данные; проверьте перед передачей",
+    "placeholders": {}
+  },
+  "package_scan.credential_count": {
+    "message": "Возможных учётных данных: {count}; проверьте перед передачей.",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "package_scan.unknown_count": {
+    "message": "Неизвестных полей или виджетов: {count}; их содержимое проверено не полностью.",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "package_scan.metric_key": {
+    "message": "Ключ элемента данных",
+    "placeholders": {}
+  },
+  "package_scan.mask": {
+    "message": "Возможная маска",
+    "placeholders": {}
+  },
+  "package_scan.path": {
+    "message": "Возможный путь к файлу",
+    "placeholders": {}
+  },
+  "package_scan.fqdn": {
+    "message": "Возможное доменное имя",
+    "placeholders": {}
+  },
+  "package_import.sha256": {
+    "message": "SHA-256",
+    "placeholders": {}
+  },
+  "package_import.file_hashes": {
+    "message": "Отпечатки файлов",
+    "placeholders": {}
+  },
+  "package_import.size": {
+    "message": "Размер файла: {bytes} байт",
+    "placeholders": {
+      "bytes": "number"
+    }
+  },
+  "package_import.compatibility_min": {
+    "message": "Заявленная автором совместимость: {version} и новее",
+    "placeholders": {
+      "version": "technical"
+    }
+  },
+  "package_import.compatibility_range": {
+    "message": "Заявленная автором совместимость: от {minimum} до {maximum}, не включая верхнюю границу",
+    "placeholders": {
+      "minimum": "technical",
+      "maximum": "technical"
+    }
+  },
+  "package_import.registry_known": {
+    "message": "Локальный реестр 7.4 распознаёт указанные виджеты и поля. Поддержку сервером ещё нужно проверить.",
+    "placeholders": {}
+  },
+  "package_import.registry_unknown": {
+    "message": "Локальный реестр 7.4 не может оценить все виджеты или поля. Поддержка сервером не подтверждена.",
+    "placeholders": {}
+  },
+  "package_import.registry_incompatible": {
+    "message": "Локальный реестр не нашёл общей поддерживаемой версии для этих виджетов.",
+    "placeholders": {}
+  },
+  "package_import.registry_mismatch": {
+    "message": "Диапазон автора шире диапазона, рассчитанного по локальному реестру.",
+    "placeholders": {}
+  },
+  "package_import.registry_min": {
+    "message": "Оценка по реестру: {version} и новее",
+    "placeholders": {
+      "version": "technical"
+    }
+  },
+  "package_import.registry_range": {
+    "message": "Оценка по реестру: от {minimum} до {maximum}, не включая верхнюю границу",
+    "placeholders": {
+      "minimum": "technical",
+      "maximum": "technical"
+    }
+  },
+  "package_import.hash_hint": {
+    "message": "Сравните отпечаток с доверенным значением. Сам по себе он не подтверждает автора файла.",
+    "placeholders": {}
+  },
+  "package_import.export_hash": {
+    "message": "SHA-256 подготовленного пакета",
+    "placeholders": {}
+  },
+  "package_import.export_yaml": {
+    "message": "Экспортировать YAML",
+    "placeholders": {}
+  },
+  "package_import.summary": {
+    "message": "Страниц: {pages}; виджетов: {widgets}; каталогов: {catalogs}.",
+    "placeholders": {
+      "pages": "number",
+      "widgets": "number",
+      "catalogs": "number"
+    }
+  },
+  "offline_builder.embedded_catalog": {
+    "message": "Хранится в этом черновике",
+    "placeholders": {}
+  },
+  "package_import.title": {
+    "message": "Импорт пакетов панелей и страниц",
+    "placeholders": {}
+  },
+  "package_import.help": {
+    "message": "Выберите ZIP-пакеты DATA-ONLY или YAML-файлы без каталогов. Каталоги сохраняются внутри каждого импортированного черновика.",
+    "placeholders": {}
+  },
+  "package_import.limits": {
+    "message": "До 32 файлов: ZIP — до 16 МиБ, YAML — до 2 МиБ, весь набор — до 32 МиБ.",
+    "placeholders": {}
+  },
+  "package_import.preview": {
+    "message": "Проверить файлы",
+    "placeholders": {}
+  },
+  "package_import.choose": {
+    "message": "Выберите панель или страницу",
+    "placeholders": {}
+  },
+  "package_import.dashboard": {
+    "message": "Панель",
+    "placeholders": {}
+  },
+  "package_import.page": {
+    "message": "Страница",
+    "placeholders": {}
+  },
+  "package_import.import": {
+    "message": "Импортировать выбранные файлы",
+    "placeholders": {}
+  },
+  "package_import.invalid": {
+    "message": "Не удалось проверить пакет.",
+    "placeholders": {}
+  },
+  "package_import.failed": {
+    "message": "Импорт не выполнен. Проверьте файлы и повторите попытку.",
+    "placeholders": {}
+  },
+  "package_import.saved": {
+    "message": "Импортировано",
+    "placeholders": {}
+  },
+  "offline_builder.export": {
+    "message": "Экспортировать пакет страницы",
+    "placeholders": {}
+  },
+  "offline_builder.export_failed": {
+    "message": "Не удалось подготовить пакет страницы. Сохранённая страница не изменилась.",
+    "placeholders": {}
+  },
   "offline_builder.title": {
     "message": "Создать страницу из каталогов метрик",
     "placeholders": {}
@@ -181,6 +483,12 @@
     "placeholders": {
       "widgets": "number",
       "sources": "number"
+    }
+  },
+  "offline_builder.graph_rows": {
+    "message": "Логических рядов в этом графике: {count} (один виджет).",
+    "placeholders": {
+      "count": "number"
     }
   },
   "offline_builder.logical_truncated": {
@@ -542,6 +850,10 @@
     "message": "Перед публикацией назначьте и проверьте реальные источники.",
     "placeholders": {}
   },
+  "offline_editor.check.mixed_units": {
+    "message": "В графике смешаны единицы измерения. После назначения реальных источников проверьте настройку осей; публикация может быть заблокирована.",
+    "placeholders": {}
+  },
   "offline_editor.clipboard.copy": {
     "message": "Копировать",
     "placeholders": {}
@@ -703,6 +1015,281 @@
   },
   "offline_editor.resolve.go_to_object": {
     "message": "Перейти к объекту",
+    "placeholders": {}
+  },
+  "redaction.role": {
+    "message": "Роль {role}",
+    "placeholders": {
+      "role": "number"
+    }
+  },
+  "redaction.slot": {
+    "message": "Роль {role}, слот {slot}",
+    "placeholders": {
+      "role": "number",
+      "slot": "number"
+    }
+  },
+  "redaction.role_description": {
+    "message": "Описание роли {role}",
+    "placeholders": {
+      "role": "number"
+    }
+  },
+  "redaction.remove_widget": {
+    "message": "Исключить виджет {widget} на странице {page}",
+    "placeholders": {
+      "page": "number",
+      "widget": "number"
+    }
+  },
+  "redaction.unresolved_name": {
+    "message": "Имя непривязанного объекта {field} в виджете {widget}, страница {page}",
+    "placeholders": {
+      "page": "number",
+      "widget": "number",
+      "field": "number"
+    }
+  },
+  "redaction.save_as": {
+    "message": "Сохранить копию как…",
+    "placeholders": {}
+  },
+  "redaction.save_as_hint": {
+    "message": "Выберите новый файл .zip. Существующие файлы не перезаписываются.",
+    "placeholders": {}
+  },
+  "redaction.saved": {
+    "message": "Сохранено",
+    "placeholders": {}
+  },
+  "redaction.widget_text": {
+    "message": "Текстовое поле {field} виджета {widget}, страница {page}",
+    "placeholders": {
+      "field": "number",
+      "widget": "number",
+      "page": "number"
+    }
+  },
+  "redaction.remove_caution": {
+    "message": "Исключение блокируется, если оставшийся виджет может потерять источник данных или неизвестные поля в сохраняемых виджетах мешают проверке.",
+    "placeholders": {}
+  },
+  "redaction.catalog_template": {
+    "message": "Имя шаблона в каталоге {catalog}",
+    "placeholders": {
+      "catalog": "number"
+    }
+  },
+  "redaction.catalog_metric": {
+    "message": "Имя метрики {metric} в каталоге {catalog}",
+    "placeholders": {
+      "catalog": "number",
+      "metric": "number"
+    }
+  },
+  "redaction.save_zip_as": {
+    "message": "Сохранить ZIP как…",
+    "placeholders": {}
+  },
+  "redaction.save_yaml_as": {
+    "message": "Сохранить YAML как…",
+    "placeholders": {}
+  },
+  "redaction.save_no_overwrite": {
+    "message": "Выберите новый файл: существующие файлы не перезаписываются.",
+    "placeholders": {}
+  },
+  "redaction.clear_provenance": {
+    "message": "Убрать сведения об исходном объекте",
+    "placeholders": {}
+  },
+  "redaction.selector_aliases": {
+    "message": "Заменить ключи метрик псевдонимами в каталоге {catalog}",
+    "placeholders": {
+      "catalog": "number"
+    }
+  },
+  "redaction.clear_uuids": {
+    "message": "Удалить UUID шаблона и метрик в каталоге {catalog}",
+    "placeholders": {
+      "catalog": "number"
+    }
+  },
+  "redaction.alias_caution": {
+    "message": "Псевдонимы заменят ключи метрик в этой копии. Перед публикацией метрики потребуется сопоставить заново.",
+    "placeholders": {}
+  },
+  "package_scan.identifier": {
+    "message": "Идентификатор источника",
+    "placeholders": {}
+  },
+  "export_progress.created": {
+    "message": "Подготовка экспорта…",
+    "placeholders": {}
+  },
+  "export_progress.choosing": {
+    "message": "Выберите место сохранения…",
+    "placeholders": {}
+  },
+  "export_progress.preparing": {
+    "message": "Проверка и упаковка…",
+    "placeholders": {}
+  },
+  "export_progress.writing": {
+    "message": "Запись временного файла…",
+    "placeholders": {}
+  },
+  "export_progress.committing": {
+    "message": "Завершение сохранения…",
+    "placeholders": {}
+  },
+  "export_progress.done": {
+    "message": "Сохранено.",
+    "placeholders": {}
+  },
+  "export_progress.failed": {
+    "message": "Не удалось сохранить.",
+    "placeholders": {}
+  },
+  "export_progress.cancelled": {
+    "message": "Сохранение отменено.",
+    "placeholders": {}
+  },
+  "export_progress.cancel": {
+    "message": "Отменить",
+    "placeholders": {}
+  },
+  "export_progress.too_late": {
+    "message": "Сохранение уже перешло к завершающему шагу и не может быть отменено.",
+    "placeholders": {}
+  },
+  "package_scan.free_text": {
+    "message": "Имя или текст для проверки",
+    "placeholders": {}
+  },
+  "redaction.project_id": {
+    "message": "Идентификатор пакета",
+    "placeholders": {}
+  },
+  "redaction.dashboard_id": {
+    "message": "Идентификатор панели",
+    "placeholders": {}
+  },
+  "redaction.page_id": {
+    "message": "Идентификатор страницы {page}",
+    "placeholders": {
+      "page": "number"
+    }
+  },
+  "redaction.widget_id": {
+    "message": "Идентификатор виджета {widget} на странице {page}",
+    "placeholders": {
+      "page": "number",
+      "widget": "number"
+    }
+  },
+  "redaction.id_caution": {
+    "message": "Идентификаторы должны соответствовать переносимому формату. Неизвестные объекты блокируют их замену.",
+    "placeholders": {}
+  },
+  "redaction.with_value": {
+    "message": "{target}: {value}",
+    "placeholders": {
+      "target": "text",
+      "value": "text"
+    }
+  },
+  "redaction.catalog_metric_id": {
+    "message": "Идентификатор метрики {metric} в каталоге {catalog}",
+    "placeholders": {
+      "metric": "number",
+      "catalog": "number"
+    }
+  },
+  "redaction.catalog_id": {
+    "message": "Идентификатор каталога {catalog}",
+    "placeholders": {
+      "catalog": "number"
+    }
+  },
+  "redaction.protected": {
+    "message": "Безопасность изменения нельзя проверить: проверьте связи оставшихся виджетов и неизвестные поля. Измените выбор объектов и повторите предпросмотр.",
+    "placeholders": {}
+  },
+  "redaction.item_pattern": {
+    "message": "Маска элементов данных {field} виджета {widget}, страница {page}",
+    "placeholders": {
+      "field": "number",
+      "widget": "number",
+      "page": "number"
+    }
+  },
+  "redaction.item_pattern_caution": {
+    "message": "Замена маски может изменить набор отображаемых метрик. Перед публикацией проверьте целевой сервер.",
+    "placeholders": {}
+  },
+  "redaction.clear_catalog_source": {
+    "message": "Убрать сведения об источнике каталога {catalog}",
+    "placeholders": {
+      "catalog": "number"
+    }
+  },
+  "redaction.clear_catalog_source_caution": {
+    "message": "В копии больше не будут указаны исходный шаблон и версия его экспорта.",
+    "placeholders": {}
+  },
+  "redaction.remove_page": {
+    "message": "Исключить страницу {page} вместе с виджетами",
+    "placeholders": {
+      "page": "number"
+    }
+  },
+  "redaction.catalog_metric_units": {
+    "message": "Единицы метрики {metric} в каталоге {catalog}",
+    "placeholders": {
+      "metric": "number",
+      "catalog": "number"
+    }
+  },
+  "redaction.units_caution": {
+    "message": "Замена или очистка единиц меняет интерпретацию метрики и её сопоставление. Пустое значение удаляет единицы.",
+    "placeholders": {}
+  },
+  "export_progress.scanning": {
+    "message": "Проверка содержимого…",
+    "placeholders": {}
+  },
+  "export_progress.transforming": {
+    "message": "Изменение копии…",
+    "placeholders": {}
+  },
+  "export_progress.validating": {
+    "message": "Проверка данных…",
+    "placeholders": {}
+  },
+  "export_progress.packaging": {
+    "message": "Упаковка…",
+    "placeholders": {}
+  },
+  "export_progress.verifying": {
+    "message": "Проверка пакета…",
+    "placeholders": {}
+  },
+  "package_scan.evidence_structural": {
+    "message": "поле или синтаксис определены",
+    "placeholders": {}
+  },
+  "package_scan.evidence_heuristic": {
+    "message": "эвристический кандидат",
+    "placeholders": {}
+  },
+  "package_scan.evidence_unanalysed": {
+    "message": "не проанализировано",
+    "placeholders": {}
+  },
+  "package_scan.prepare_copy": {
+    "message": "Подготовить копию",
     "placeholders": {}
   }
 }

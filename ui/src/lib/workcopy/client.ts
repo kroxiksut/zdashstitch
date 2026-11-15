@@ -213,6 +213,62 @@ export interface ImportOutcome {
   readonly item_metadata: 'not_needed' | 'complete' | 'partial' | 'unavailable';
 }
 
+/** Content-free local conversion inventory. Values contain counters and stable codes only. */
+export interface PortableConversionInventory {
+  readonly kind: DraftKind;
+  readonly pages: number;
+  readonly widgets: number;
+  readonly unclassified_widgets: number;
+  readonly item_fields: number;
+  readonly host_fields: number;
+  readonly graph_fields: number;
+  readonly host_pattern_fields: number;
+  readonly item_pattern_fields: number;
+  readonly unknown_fields: number;
+  readonly reference_definitions: number;
+  readonly reference_consumers: number;
+}
+
+export interface PortableConversionPreview {
+  readonly inventory: PortableConversionInventory;
+  readonly ready: boolean;
+  readonly blocker: string | null;
+  readonly blockers: ReadonlyArray<string>;
+}
+
+export interface PortableConversionOutcome {
+  readonly local_id: string;
+  readonly kind: DraftKind;
+}
+
+export interface PortableBindingSetup {
+  revision: number;
+  catalogs: Record<string, unknown>;
+  items: Array<{ itemid: string; name: string | null; host: string | null; hostid: string | null; candidates: Array<{ catalog: string; catalog_name: string; metric: string; metric_name: string; lld_prototype?: boolean }> }>;
+  hosts?: Array<{ hostid: string; name: string | null }>;
+  unresolved_graphs?: number;
+  patterns?: Array<{ page_index: number; widget_index: number; field_name: string; value: string }>;
+}
+export interface PortableBindingChoice { itemid: string; catalog: string; metric: string; role: string; slot: string }
+export interface PortableHostChoice { hostid: string; role: string; slot: string }
+export interface PortablePatternChoice { page_index: number; widget_index: number; field_name: string; role: string }
+
+export type PortableRequestResult<T> =
+  | { readonly status: 'ready'; readonly value: T }
+  | { readonly status: 'unavailable' }
+  | { readonly status: 'failed'; readonly failure: CommandFailure };
+
+export interface PortableClient {
+  bindingSetup?(localId: string): Promise<PortableRequestResult<PortableBindingSetup>>;
+  createWithBindings?(localId: string, setup: PortableBindingSetup, choices: PortableBindingChoice[], hosts?: PortableHostChoice[], patterns?: PortablePatternChoice[]): Promise<PortableRequestResult<PortableConversionOutcome>>;
+  preview(localId: string): Promise<PortableRequestResult<PortableConversionPreview>>;
+  pages(localId: string): Promise<PortableRequestResult<ReadonlyArray<{ readonly id: string; readonly name: string }>>>;
+  previewPage(localId: string, pageId: string): Promise<PortableRequestResult<PortableConversionPreview>>;
+  saveDashboardPageToLibrary(localId: string, pageId: string): Promise<PortableRequestResult<void>>;
+  create(localId: string): Promise<PortableRequestResult<PortableConversionOutcome>>;
+  savePageToLibrary(localId: string): Promise<PortableRequestResult<void>>;
+}
+
 export interface ServerQuery {
   /** Name substring; empty means all. */
   readonly search: string;
@@ -297,6 +353,7 @@ function unreachable(error: unknown): boolean {
 export function createHttpWorkcopyClients(fetcher: typeof fetch = (...args) => fetch(...args)): {
   drafts: DraftsClient;
   server: ServerClient;
+  portable: PortableClient;
 } {
   let csrf: Promise<string> | null = null;
 
@@ -377,5 +434,64 @@ export function createHttpWorkcopyClients(fetcher: typeof fetch = (...args) => f
     }
   };
 
-  return { drafts, server };
+  const portable: PortableClient = {
+    async bindingSetup(localId) {
+      try { return { status: 'ready', value: await send<PortableBindingSetup>('GET', draftPath(localId, 'portable-bindings')) }; }
+      catch (error) { return unreachable(error) ? { status: 'unavailable' } : { status: 'failed', failure: failure(error) }; }
+    },
+    async createWithBindings(localId, setup, choices, hosts, patterns) {
+      try { return { status: 'ready', value: await send<PortableConversionOutcome>('POST', draftPath(localId, 'portable-bindings'), { revision: setup.revision, catalogs: setup.catalogs, choices, ...(hosts ? { hosts } : {}), ...(patterns ? { patterns } : {}) }) }; }
+      catch (error) { return unreachable(error) ? { status: 'unavailable' } : { status: 'failed', failure: failure(error) }; }
+    },
+    async pages(localId) {
+      try {
+        const wire = await send<WireDetail>('GET', draftPath(localId));
+        return { status: 'ready', value: wire.pages.map(({ id, name }) => ({ id, name })) };
+      } catch (error) {
+        return unreachable(error) ? { status: 'unavailable' } : { status: 'failed', failure: failure(error) };
+      }
+    },
+    async previewPage(localId, pageId) {
+      try {
+        const wire = await send<PortableConversionPreview>('GET', `${draftPath(localId)}/pages/${encodeURIComponent(pageId)}/portable-preview`);
+        return { status: 'ready', value: wire };
+      } catch (error) {
+        return unreachable(error) ? { status: 'unavailable' } : { status: 'failed', failure: failure(error) };
+      }
+    },
+    async saveDashboardPageToLibrary(localId, pageId) {
+      try {
+        await send('POST', `/api/library/pages/from-workcopy/${encodeURIComponent(localId)}/pages/${encodeURIComponent(pageId)}`);
+        return { status: 'ready', value: undefined };
+      } catch (error) {
+        return unreachable(error) ? { status: 'unavailable' } : { status: 'failed', failure: failure(error) };
+      }
+    },
+    async savePageToLibrary(localId) {
+      try {
+        await send('POST', `/api/library/pages/from-workcopy/${encodeURIComponent(localId)}`);
+        return { status: 'ready', value: undefined };
+      } catch (error) {
+        return unreachable(error) ? { status: 'unavailable' } : { status: 'failed', failure: failure(error) };
+      }
+    },
+    async preview(localId) {
+      try {
+        const wire = await send<PortableConversionPreview>('GET', `${draftPath(localId, 'portable-preview')}`);
+        return { status: 'ready', value: wire };
+      } catch (error) {
+        return unreachable(error) ? { status: 'unavailable' } : { status: 'failed', failure: failure(error) };
+      }
+    },
+    async create(localId) {
+      try {
+        const wire = await send<PortableConversionOutcome>('POST', draftPath(localId, 'make-portable'));
+        return { status: 'ready', value: wire };
+      } catch (error) {
+        return unreachable(error) ? { status: 'unavailable' } : { status: 'failed', failure: failure(error) };
+      }
+    }
+  };
+
+  return { drafts, server, portable };
 }

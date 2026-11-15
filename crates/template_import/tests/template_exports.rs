@@ -153,6 +153,74 @@ fn reject(input: &[u8], syntax: ExportSyntax, code: &str) -> ImportError {
 }
 
 #[test]
+fn unfamiliar_fields_report_incomplete_catalogs_in_all_formats() {
+    let samples = [
+        (
+            ExportSyntax::Yaml,
+            "zabbix_export:\n  version: '7.4'\n  templates:\n    - template: first\n      items:\n        - name: A\n          key: a\n          vendor_extension: ignored\n    - template: second\n      items:\n        - name: B\n          key: b\n",
+        ),
+        (
+            ExportSyntax::Json,
+            r#"{"zabbix_export":{"version":"7.4","templates":[{"template":"first","items":[{"name":"A","key":"a","vendor_extension":"ignored"}]},{"template":"second","items":[{"name":"B","key":"b"}]}]}}"#,
+        ),
+        (
+            ExportSyntax::Xml,
+            "<zabbix_export><version>7.4</version><templates><template><template>first</template><items><item><name>A</name><key>a</key><vendor_extension/></item></items></template><template><template>second</template><items><item><name>B</name><key>b</key></item></items></template></templates></zabbix_export>",
+        ),
+    ];
+    for (syntax, input) in samples {
+        let catalogs = parse(input, syntax);
+        assert!(
+            catalogs[0]
+                .catalog
+                .diagnostics
+                .contains(&Diagnostic::SourcePartial),
+            "{syntax:?}"
+        );
+        assert!(
+            catalogs[0].catalog.metrics[0]
+                .diagnostics
+                .as_ref()
+                .is_some_and(|codes| codes.contains(&Diagnostic::SourcePartial)),
+            "{syntax:?}"
+        );
+        assert!(
+            !catalogs[1]
+                .catalog
+                .diagnostics
+                .contains(&Diagnostic::SourcePartial),
+            "{syntax:?}"
+        );
+    }
+}
+
+#[test]
+fn unfamiliar_fields_at_each_import_level_are_visible() {
+    let cases = [
+        r#"{"zabbix_export":{"version":"7.4","vendor_extension":{},"templates":[{"template":"first"}]}}"#,
+        r#"{"zabbix_export":{"version":"7.4","templates":[{"template":"first","vendor_extension":null}]}}"#,
+        r#"{"zabbix_export":{"version":"7.4","templates":[{"template":"first","templates":[{"name":"parent","vendor_extension":false}]}]}}"#,
+        r#"{"zabbix_export":{"version":"7.4","templates":[{"template":"first","discovery_rules":[{"key":"discovery","vendor_extension":""}]}]}}"#,
+    ];
+    for input in cases {
+        let catalogs = parse(input, ExportSyntax::Json);
+        assert!(
+            catalogs[0]
+                .catalog
+                .diagnostics
+                .contains(&Diagnostic::SourcePartial)
+        );
+    }
+    let xml = "<zabbix_export><version>7.4</version><templates><template><template>first</template><vendor_extension/></template></templates></zabbix_export>";
+    assert!(
+        parse(xml, ExportSyntax::Xml)[0]
+            .catalog
+            .diagnostics
+            .contains(&Diagnostic::SourcePartial)
+    );
+}
+
+#[test]
 fn formats_agree_and_each_template_gets_its_own_catalog() {
     let yaml = parse(YAML, ExportSyntax::Yaml);
     assert_eq!(yaml, parse(JSON, ExportSyntax::Json));

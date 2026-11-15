@@ -687,6 +687,8 @@ impl PublishJournal {
         operation_id: &str,
         record: &OperationRecord,
     ) -> Result<JournalHandle, JournalError> {
+        let _snapshot_guard =
+            crate::snapshot_guard::lock().map_err(|_| JournalError::new("storage_unavailable"))?;
         if !is_operation_id(operation_id) {
             return Err(JournalError::new("operation_id_invalid"));
         }
@@ -738,6 +740,8 @@ impl PublishJournal {
         C: FnOnce(&JournalEntry) -> Result<(), JournalError>,
         F: FnOnce(&mut LineFile),
     {
+        let _snapshot_guard =
+            crate::snapshot_guard::lock().map_err(|_| JournalError::new("storage_unavailable"))?;
         if !is_operation_id(operation_id) {
             return Err(JournalError::new("operation_id_invalid"));
         }
@@ -989,6 +993,8 @@ impl JournalHandle {
         state: JournalState,
         fill: F,
     ) -> Result<(), JournalError> {
+        let _snapshot_guard =
+            crate::snapshot_guard::lock().map_err(|_| JournalError::new("storage_unavailable"))?;
         let expected = self.state;
         let operation_id = self.operation_id.clone();
         let directory = file::directory(&self.journal.store, false)?

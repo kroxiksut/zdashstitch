@@ -208,6 +208,7 @@ pub enum PortableWidgetCreateError {
     UnknownWidgetType,
     UnknownWidgetField,
     UnresolvedWidgetField,
+    PatternVerificationRequired,
     RequiredFieldsMissing,
     Incomplete,
 }
@@ -219,6 +220,7 @@ impl PortableWidgetCreateError {
             Self::UnknownWidgetType => "portable_widget_unknown_type",
             Self::UnknownWidgetField => "portable_widget_unknown_field",
             Self::UnresolvedWidgetField => "portable_widget_unresolved_field",
+            Self::PatternVerificationRequired => "portable_widget_pattern_verification_required",
             Self::RequiredFieldsMissing => "portable_widget_required_fields_missing",
             Self::Incomplete => "portable_widget_incomplete",
         }
@@ -264,6 +266,9 @@ pub fn validate_portable_widget_for_create(
         {
             return Err(PortableWidgetCreateError::UnknownWidgetField);
         }
+        if matches!(field.value, ZabbixWidgetFieldValue::DynamicPattern { .. }) {
+            return Err(PortableWidgetCreateError::PatternVerificationRequired);
+        }
         if matches!(field.value, ZabbixWidgetFieldValue::Unresolved { .. }) {
             return Err(PortableWidgetCreateError::UnresolvedWidgetField);
         }
@@ -276,6 +281,26 @@ pub fn validate_portable_widget_for_create(
         "clock" | "problems" => Ok(()),
         _ if fields.is_empty() => Err(PortableWidgetCreateError::Incomplete),
         _ => Ok(()),
+    }?;
+    if widget_type == "svggraph"
+        && fields.iter().any(|field| {
+            field.field_type == 1
+                && matches!(field.value, ZabbixWidgetFieldValue::String { .. })
+                && is_svggraph_pattern_field(&field.name)
+        })
+    {
+        return Err(PortableWidgetCreateError::PatternVerificationRequired);
+    }
+    Ok(())
+}
+
+pub(crate) fn is_svggraph_pattern_field(name: &str) -> bool {
+    let parts: Vec<_> = name.split('.').collect();
+    let index = |s: &str| !s.is_empty() && s.bytes().all(|b| b.is_ascii_digit());
+    match parts.as_slice() {
+        ["ds" | "or", set, "hosts" | "items", position] => index(set) && index(position),
+        ["problemhosts", position] => index(position),
+        _ => false,
     }
 }
 
@@ -567,7 +592,7 @@ mod tests {
                     field("ds.0.items.0", 1, text("CPU*")),
                 ]
             )),
-            Ok(())
+            Err(PortableWidgetCreateError::PatternVerificationRequired)
         );
         assert_eq!(
             check(&zabbix_widget(
@@ -580,6 +605,38 @@ mod tests {
             PortableWidgetCreateError::RequiredFieldsMissing.code(),
             "portable_widget_required_fields_missing"
         );
+    }
+
+    #[test]
+    fn legacy_graph_masks_are_not_treated_as_verified() {
+        for name in [
+            "ds.0.hosts.0",
+            "ds.1.items.2",
+            "or.0.hosts.0",
+            "or.0.items.0",
+            "problemhosts.0",
+        ] {
+            let widget = zabbix_widget(
+                "svggraph",
+                vec![
+                    field("ds.0.itemids.0", 4, item_reference()),
+                    field(name, 1, text("*")),
+                ],
+            );
+            assert_eq!(
+                check(&widget),
+                Err(PortableWidgetCreateError::PatternVerificationRequired),
+                "{name}"
+            );
+        }
+        let widget = zabbix_widget(
+            "svggraph",
+            vec![
+                field("ds.0.itemids.0", 4, item_reference()),
+                field("reference", 1, text("ABCDE")),
+            ],
+        );
+        assert_eq!(check(&widget), Ok(()));
     }
 
     #[test]

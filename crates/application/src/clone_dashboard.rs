@@ -343,6 +343,13 @@ impl WorkcopyService {
             .map_err(|_| WorkcopyError::new("clone_workcopy_corrupt"))?;
         let local_raw = serde_json::to_vec(local.raw_api_document())
             .map_err(|_| WorkcopyError::new("clone_workcopy_corrupt"))?;
+        let _snapshot_guard =
+            crate::snapshot_guard::lock().map_err(|_| WorkcopyError::new("storage_unavailable"))?;
+        self.store.load_snapshot(
+            &record.source.connection_id,
+            &record.source.dashboardid,
+            &record.base_storage_fingerprint,
+        )?;
         self.store
             .create_local_draft(CLONE_DRAFTS, &local_id, &raw, Some(&local_raw))?;
         Ok(SavedCloneWorkcopy {

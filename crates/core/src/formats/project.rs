@@ -232,6 +232,12 @@ pub enum ZabbixWidgetFieldValue {
     String {
         value: String,
     },
+    /// A dynamic server pattern bound to a logical role. Target evidence is
+    /// deliberately not serialised and must be revalidated before publication.
+    DynamicPattern {
+        value: String,
+        role: String,
+    },
     Host {
         role: String,
         selection: Selection,
@@ -711,7 +717,8 @@ impl Validate for ZabbixWidgetField {
         )?;
         match (&self.value, self.field_type) {
             (ZabbixWidgetFieldValue::Integer { .. }, 0)
-            | (ZabbixWidgetFieldValue::String { .. }, 1) => {}
+            | (ZabbixWidgetFieldValue::String { .. }, 1)
+            | (ZabbixWidgetFieldValue::DynamicPattern { .. }, 1) => {}
             (ZabbixWidgetFieldValue::Host { .. }, 2 | 3) => {}
             (ZabbixWidgetFieldValue::Metric { .. }, 4 | 5) => {}
             (ZabbixWidgetFieldValue::Unresolved { object_kind, .. }, 2..=13) => ensure(
@@ -741,6 +748,15 @@ impl Validate for ZabbixWidgetField {
                 "widget_field_value",
                 "widget field string value",
             ),
+            ZabbixWidgetFieldValue::DynamicPattern { value, role } => {
+                ensure_len(value, 1, 255, "widget_pattern", "widget pattern")?;
+                ensure(
+                    !value.chars().any(char::is_control),
+                    "widget_pattern",
+                    "widget pattern cannot contain control characters",
+                )?;
+                ensure_slug(role, "pattern role")
+            }
             ZabbixWidgetFieldValue::Host {
                 role,
                 selection,

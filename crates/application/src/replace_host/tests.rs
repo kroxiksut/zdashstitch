@@ -663,6 +663,25 @@ async fn a_decisions_are_operations_and_undo_restores_the_previous_state() {
         widget_value(local.raw_api_document(), 0, 1, "ds.1.itemids.1"),
         "203"
     );
+    let saved_after_decision = setup.workcopy_bytes(LOCAL);
+    let conversion = ok(setup.service.preview_portable_conversion(LOCAL));
+    let selected_conversion = ok(setup
+        .service
+        .preview_dashboard_page_conversion(LOCAL, "1000"));
+    assert!(!selected_conversion.ready);
+    assert!(selected_conversion.inventory.item_fields > 0);
+    assert!(!conversion.ready);
+    assert!(conversion.inventory.item_fields > 0);
+    assert!(
+        conversion
+            .blockers
+            .contains(&"portable_conversion_item_binding_required")
+    );
+    assert_eq!(
+        setup.workcopy_bytes(LOCAL),
+        saved_after_decision,
+        "conversion preview must not append or rewrite operations"
+    );
 
     // Keep on source: a missing row and an unverified reference.
     let missing = row_key(&preview, "2002", "itemid.0");

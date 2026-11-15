@@ -22,6 +22,7 @@ use crate::{
     offline_pages::{
         self, CatalogChoice, OfflinePage, OfflinePageStore, OfflinePageView, UpdatePage,
     },
+    page_library::PageLibrary,
     workcopy::{
         WorkcopyError,
         store::{LocalStore, read_bounded, write_atomic},
@@ -72,6 +73,8 @@ pub struct OfflineDashboard {
     pub updated_at_ms: u64,
     pub revision: u64,
     pub catalog_versions: Vec<CatalogChoice>,
+    #[serde(default)]
+    pub embedded_catalogs: Vec<String>,
     pub bundle: TypedPortableBundle,
 }
 
@@ -113,6 +116,62 @@ pub struct OfflineDashboardStore {
 }
 
 impl OfflineDashboardStore {
+    pub(crate) fn save_converted(
+        &self,
+        bundle: TypedPortableBundle,
+    ) -> Result<OfflineDashboard, WorkcopyError> {
+        if bundle.project.provenance != ProjectProvenance::Local {
+            return Err(WorkcopyError::new("portable_conversion_unsupported_data"));
+        }
+        self.save_imported(bundle)
+    }
+
+    pub fn save_imported(
+        &self,
+        mut bundle: TypedPortableBundle,
+    ) -> Result<OfflineDashboard, WorkcopyError> {
+        let _pin_lock = crate::catalog_pin_lock::lock()?;
+        let _lock = WRITE_LOCK
+            .lock()
+            .map_err(|_| WorkcopyError::new("storage_write_failed"))?;
+        let mut file = self.load()?;
+        if file.dashboards.len() >= MAX_DASHBOARDS {
+            return Err(WorkcopyError::new("storage_limit_reached"));
+        }
+        if !matches!(bundle.project.root, ProjectRoot::Dashboard(_)) || bundle.validate().is_err() {
+            return Err(WorkcopyError::new("portable_conversion_unsupported_data"));
+        }
+        let id = random_id()?;
+        if file
+            .dashboards
+            .iter()
+            .any(|dashboard| dashboard.local_id == id)
+        {
+            return Err(WorkcopyError::new("storage_write_failed"));
+        }
+        bundle.project.project_id.clone_from(&id);
+        let ProjectRoot::Dashboard(root) = &mut bundle.project.root else {
+            return Err(corrupt());
+        };
+        root.id.clone_from(&id);
+        bundle
+            .validate()
+            .map_err(|_| WorkcopyError::new("portable_conversion_unsupported_data"))?;
+        let now = now_ms();
+        let embedded_catalogs = bundle.catalogs.keys().cloned().collect();
+        let dashboard = OfflineDashboard {
+            local_id: id,
+            created_at_ms: now,
+            updated_at_ms: now,
+            revision: 1,
+            catalog_versions: Vec::new(),
+            embedded_catalogs,
+            bundle,
+        };
+        file.dashboards.push(dashboard.clone());
+        self.write(&file)?;
+        Ok(dashboard)
+    }
     #[must_use]
     pub fn new(root: PathBuf) -> Self {
         Self { root }
@@ -138,23 +197,19 @@ impl OfflineDashboardStore {
                 .iter()
                 .map(|pin| &pin.catalog_id)
                 .collect();
-            let catalog_ids: BTreeSet<_> = dashboard
-                .bundle
-                .project
-                .catalogs
-                .iter()
-                .map(|catalog| &catalog.id)
-                .collect();
             if !ids.insert(&dashboard.local_id)
                 || !dashboard.local_id.starts_with("db-")
                 || dashboard.revision == 0
                 || dashboard.local_id != dashboard.bundle.project.project_id
                 || dashboard.bundle.project.kind != ProjectKind::Dashboard
-                || dashboard.bundle.project.provenance != ProjectProvenance::Local
                 || !matches!(&dashboard.bundle.project.root, ProjectRoot::Dashboard(root) if root.id == dashboard.local_id)
                 || dashboard.bundle.validate().is_err()
                 || pin_ids.len() != dashboard.catalog_versions.len()
-                || pin_ids != catalog_ids
+                || !offline_pages::catalog_sources_valid(
+                    &dashboard.catalog_versions,
+                    &dashboard.embedded_catalogs,
+                    &dashboard.bundle,
+                )
                 || dashboard
                     .catalog_versions
                     .iter()
@@ -174,6 +229,10 @@ impl OfflineDashboardStore {
             .collect()
     }
 
+    pub(crate) fn entries(&self) -> Result<Vec<OfflineDashboard>, WorkcopyError> {
+        Ok(self.load()?.dashboards)
+    }
+
     pub fn get(&self, id: &str) -> Result<Option<OfflineDashboard>, WorkcopyError> {
         Ok(self
             .load()?
@@ -186,6 +245,15 @@ impl OfflineDashboardStore {
         self.get(id)?
             .map(|dashboard| {
                 build_typed_package_bytes(&dashboard.bundle)
+                    .map_err(|_| WorkcopyError::new("offline_dashboard_export_failed"))
+            })
+            .transpose()
+    }
+
+    pub fn export_yaml(&self, id: &str) -> Result<Option<Vec<u8>>, WorkcopyError> {
+        self.get(id)?
+            .map(|dashboard| {
+                zdashstitch_core::formats::build_typed_yaml_bytes(&dashboard.bundle)
                     .map_err(|_| WorkcopyError::new("offline_dashboard_export_failed"))
             })
             .transpose()
@@ -225,6 +293,7 @@ impl OfflineDashboardStore {
             updated_at_ms: dashboard.updated_at_ms,
             revision: dashboard.revision,
             catalog_versions: dashboard.catalog_versions.clone(),
+            embedded_catalogs: dashboard.embedded_catalogs.clone(),
             bundle: TypedPortableBundle {
                 project,
                 catalogs: dashboard.bundle.catalogs.clone(),
@@ -240,6 +309,7 @@ impl OfflineDashboardStore {
         page_id: &str,
         request: UpdatePage,
     ) -> Result<OfflinePageView, WorkcopyError> {
+        let _pin_lock = crate::catalog_pin_lock::lock()?;
         let _lock = WRITE_LOCK
             .lock()
             .map_err(|_| WorkcopyError::new("storage_write_failed"))?;
@@ -292,6 +362,7 @@ impl OfflineDashboardStore {
     }
 
     pub fn create(&self, request: CreateDashboard) -> Result<OfflineDashboard, WorkcopyError> {
+        let _pin_lock = crate::catalog_pin_lock::lock()?;
         let _lock = WRITE_LOCK
             .lock()
             .map_err(|_| WorkcopyError::new("storage_write_failed"))?;
@@ -302,12 +373,20 @@ impl OfflineDashboardStore {
         let id = random_id()?;
         let bundle = self.compose(&id, &request.name, &[], &request.page_ids, None)?;
         let now = now_ms();
+        let embedded_catalogs = bundle
+            .0
+            .catalogs
+            .keys()
+            .filter(|id| !bundle.1.iter().any(|pin| &pin.catalog_id == *id))
+            .cloned()
+            .collect();
         let dashboard = OfflineDashboard {
             local_id: id,
             created_at_ms: now,
             updated_at_ms: now,
             revision: 1,
             catalog_versions: bundle.1,
+            embedded_catalogs,
             bundle: bundle.0,
         };
         file.dashboards.push(dashboard.clone());
@@ -320,6 +399,7 @@ impl OfflineDashboardStore {
         id: &str,
         request: UpdateDashboard,
     ) -> Result<OfflineDashboard, WorkcopyError> {
+        let _pin_lock = crate::catalog_pin_lock::lock()?;
         let _lock = WRITE_LOCK
             .lock()
             .map_err(|_| WorkcopyError::new("storage_write_failed"))?;
@@ -346,6 +426,18 @@ impl OfflineDashboardStore {
             .ok_or_else(corrupt)?;
         dashboard.bundle = bundle;
         dashboard.catalog_versions = pins;
+        dashboard.embedded_catalogs = dashboard
+            .bundle
+            .catalogs
+            .keys()
+            .filter(|id| {
+                !dashboard
+                    .catalog_versions
+                    .iter()
+                    .any(|pin| &pin.catalog_id == *id)
+            })
+            .cloned()
+            .collect();
         dashboard.revision = dashboard.revision.checked_add(1).ok_or_else(corrupt)?;
         dashboard.updated_at_ms = now_ms().max(dashboard.updated_at_ms);
         let result = dashboard.clone();
@@ -367,6 +459,7 @@ impl OfflineDashboardStore {
         let mut pages = Vec::<Page>::new();
         let mut catalogs = BTreeMap::<String, MetricCatalog>::new();
         let mut pins = BTreeMap::<String, u32>::new();
+        let mut embedded = BTreeSet::<String>::new();
         let mut roles = BTreeMap::<String, Role>::new();
         let mut compatibility = None;
         if let Some(existing) = existing {
@@ -393,6 +486,7 @@ impl OfflineDashboardStore {
                     .iter()
                     .map(|pin| (pin.catalog_id.clone(), pin.version)),
             );
+            embedded.extend(existing.embedded_catalogs.iter().cloned());
             roles.clone_from(&existing.bundle.project.roles);
             compatibility = Some(existing.bundle.project.declared_compatibility.clone());
         } else if !page_order.is_empty() {
@@ -410,25 +504,49 @@ impl OfflineDashboardStore {
             }
         }
         let store = OfflinePageStore::new(self.root.clone());
+        let library = PageLibrary::new(self.root.clone());
         let mut page_ids: BTreeSet<String> = pages.iter().map(|page| page.id.clone()).collect();
         for source_id in append {
-            let source = store
-                .get(source_id)?
-                .ok_or_else(|| WorkcopyError::new("offline_page_not_found"))?;
-            let ProjectRoot::Page(page) = &source.bundle.project.root else {
+            let (bundle, catalog_versions, embedded_catalogs) = if source_id.starts_with("lp-") {
+                let source = library
+                    .get(source_id)?
+                    .ok_or_else(|| WorkcopyError::new("page_library_not_found"))?;
+                (
+                    source.bundle,
+                    source.catalog_versions,
+                    source.embedded_catalogs,
+                )
+            } else {
+                let source = store
+                    .get(source_id)?
+                    .ok_or_else(|| WorkcopyError::new("offline_page_not_found"))?;
+                (
+                    source.bundle,
+                    source.catalog_versions,
+                    source.embedded_catalogs,
+                )
+            };
+            let ProjectRoot::Page(page) = &bundle.project.root else {
                 return Err(corrupt());
             };
-            if !page_ids.insert(page.id.clone()) {
+            let mut appended = page.clone();
+            if source_id.starts_with("lp-") {
+                appended.id.clone_from(source_id);
+            }
+            if !page_ids.insert(appended.id.clone()) {
                 return Err(invalid());
             }
             if let Some(range) = &compatibility {
-                if range != &source.bundle.project.declared_compatibility {
+                if range != &bundle.project.declared_compatibility {
                     return Err(sources_conflict());
                 }
             } else {
-                compatibility = Some(source.bundle.project.declared_compatibility.clone());
+                compatibility = Some(bundle.project.declared_compatibility.clone());
             }
-            for pin in &source.catalog_versions {
+            for pin in &catalog_versions {
+                if embedded.contains(&pin.catalog_id) {
+                    return Err(sources_conflict());
+                }
                 if pins
                     .get(&pin.catalog_id)
                     .is_some_and(|version| *version != pin.version)
@@ -437,19 +555,24 @@ impl OfflineDashboardStore {
                 }
                 pins.insert(pin.catalog_id.clone(), pin.version);
             }
-            for (key, catalog) in &source.bundle.catalogs {
+            for id in embedded_catalogs {
+                if pins.contains_key(&id) {
+                    return Err(sources_conflict());
+                }
+                embedded.insert(id);
+            }
+            for (key, catalog) in &bundle.catalogs {
                 if catalogs.get(key).is_some_and(|old| old != catalog) {
                     return Err(sources_conflict());
                 }
                 catalogs.insert(key.clone(), catalog.clone());
             }
-            for (key, role) in &source.bundle.project.roles {
+            for (key, role) in &bundle.project.roles {
                 if roles.get(key).is_some_and(|old| old != role) {
                     return Err(sources_conflict());
                 }
                 roles.insert(key.clone(), role.clone());
             }
-            let mut appended = page.clone();
             rewrite_page_references(&mut appended, &mut used_references)?;
             pages.push(appended);
         }
@@ -465,7 +588,9 @@ impl OfflineDashboardStore {
             project_id: id.to_owned(),
             kind: ProjectKind::Dashboard,
             declared_compatibility: compatibility.ok_or_else(invalid)?,
-            provenance: ProjectProvenance::Local,
+            provenance: existing.map_or(ProjectProvenance::Local, |dashboard| {
+                dashboard.bundle.project.provenance.clone()
+            }),
             catalogs: references,
             roles,
             root: ProjectRoot::Dashboard(Dashboard {
@@ -573,7 +698,7 @@ fn page_references(page: &Page) -> Result<BTreeSet<String>, WorkcopyError> {
 /// Keeps each inserted page's links local when its provider code collides with
 /// a provider already in the target dashboard. A link to a provider outside
 /// this page is ambiguous until P4-09 carries source dashboard identity.
-fn rewrite_page_references(
+pub(crate) fn rewrite_page_references(
     page: &mut Page,
     used: &mut BTreeSet<String>,
 ) -> Result<(), WorkcopyError> {

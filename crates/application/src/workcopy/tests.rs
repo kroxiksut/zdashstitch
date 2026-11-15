@@ -192,7 +192,11 @@ fn stored_workcopies_convert_without_changing_source_files() {
         "dashboardid": "42", "name": "Server dashboard", "pages": [
             {"dashboard_pageid": "420", "name": "Server page", "sortorder": "0",
              "widgets": [{"widgetid": "4200", "type": "clock", "name": "Clock",
-                "x": "0", "y": "0", "width": "12", "height": "4", "fields": []}]}
+                "x": "0", "y": "0", "width": "12", "height": "4",
+                "fields": [{"name": "reference", "type": 1, "value": "ABCDE"}]},
+               {"widgetid": "4201", "type": "item", "name": "Item",
+                "x": "12", "y": "0", "width": "12", "height": "4",
+                "fields": [{"name": "time_period._reference", "type": 1, "value": "ABCDE._timeperiod"}]}]}
         ]
     }));
     store
@@ -247,6 +251,9 @@ fn stored_workcopies_convert_without_changing_source_files() {
         }
         .unwrap_or_else(|error| panic!("convert: {error}"));
         assert_eq!(bundle.project.kind, kind);
+        let project_json = serde_json::to_string(&bundle.project)
+            .unwrap_or_else(|error| panic!("serialize: {error}"));
+        assert!(project_json.contains("ABCDE._timeperiod"));
         let root_name = match &bundle.project.root {
             ProjectRoot::Dashboard(root) => &root.name,
             ProjectRoot::Page(root) => &root.name,
@@ -257,6 +264,44 @@ fn stored_workcopies_convert_without_changing_source_files() {
         assert_eq!(
             read_typed_package_bytes(&package).unwrap_or_else(|error| panic!("reopen: {error}")),
             bundle
+        );
+        let saved = service
+            .make_portable(id)
+            .unwrap_or_else(|error| panic!("save: {error}"));
+        let again = service
+            .make_portable(id)
+            .unwrap_or_else(|error| panic!("save again: {error}"));
+        assert_ne!(saved.local_id, again.local_id);
+        let reopened = if kind == ProjectKind::Dashboard {
+            assert_eq!(saved.kind, DraftKind::Dashboard);
+            crate::offline_dashboards::OfflineDashboardStore::new(directory.path().to_path_buf())
+                .get(&saved.local_id)
+                .unwrap_or_else(|error| panic!("open: {error}"))
+                .unwrap_or_else(|| panic!("missing dashboard"))
+                .bundle
+        } else {
+            assert_eq!(saved.kind, DraftKind::Page);
+            crate::offline_pages::OfflinePageStore::new(directory.path().to_path_buf())
+                .get(&saved.local_id)
+                .unwrap_or_else(|error| panic!("open: {error}"))
+                .unwrap_or_else(|| panic!("missing page"))
+                .bundle
+        };
+        assert_eq!(reopened.project.kind, kind);
+        assert_eq!(reopened.project.project_id, saved.local_id);
+        assert_eq!(
+            match &reopened.project.root {
+                ProjectRoot::Dashboard(root) => &root.id,
+                ProjectRoot::Page(root) => &root.id,
+            },
+            &saved.local_id
+        );
+        assert_eq!(
+            match &reopened.project.root {
+                ProjectRoot::Dashboard(root) => &root.name,
+                ProjectRoot::Page(root) => &root.name,
+            },
+            name
         );
     }
     assert_eq!(read(&snapshot_path(directory.path(), &file)), saved_base);
@@ -289,11 +334,8 @@ fn stored_workcopy_conversion_refuses_unportable_data_without_writes() {
         preview.blocker,
         Some("portable_conversion_unsupported_data")
     );
-    assert!(
-        preview
-            .blockers
-            .contains(&"portable_conversion_unknown_data")
-    );
+    assert_eq!(preview.inventory.unclassified_widgets, 1);
+    assert_eq!(preview.inventory.unknown_fields, 0);
     assert!(
         preview
             .blockers
@@ -309,6 +351,14 @@ fn stored_workcopy_conversion_refuses_unportable_data_without_writes() {
         .err()
         .map(|error| error.code());
     assert_eq!(error, Some("portable_conversion_unsupported_data"));
+    assert_eq!(
+        service
+            .make_portable(WORKCOPY)
+            .err()
+            .map(|error| error.code()),
+        Some("portable_conversion_unsupported_data")
+    );
+    assert!(!directory.path().join("drafts").exists());
     assert_eq!(read(&snapshot_path(directory.path(), &file)), before_base);
     assert_eq!(
         read(&workcopy_path(directory.path(), WORKCOPY)),
@@ -757,4 +807,284 @@ fn editable_mark_is_per_field_for_classic_graphs() {
     assert!(!super::view::widget_editable(&simple, &registry));
     let clock = json!({"type": "clock", "fields": []});
     assert!(!super::view::widget_editable(&clock, &registry));
+}
+
+#[test]
+fn snapshot_library_lists_verified_metadata_and_reports_corruption_without_raw_values() {
+    let root = temp_root();
+    let store = LocalStore::at(root.path().to_owned());
+    let file = snapshot_file(raw_dashboard("private-dashboard-title"));
+    store
+        .put_snapshot(&file)
+        .unwrap_or_else(|error| panic!("{error}"));
+    store
+        .create_workcopy(&workcopy_file(&file, WORKCOPY))
+        .unwrap_or_else(|error| panic!("{error}"));
+    let view = crate::snapshot_library::SnapshotLibrary::open(root.path().to_owned())
+        .unwrap_or_else(|error| panic!("{error}"));
+    assert_eq!(view.snapshots.len(), 1);
+    assert_eq!(view.snapshots[0].used_by, vec![WORKCOPY]);
+    assert!(!view.references_incomplete);
+    let serialized = serde_json::to_string(&view).unwrap_or_else(|error| panic!("{error}"));
+    assert!(!serialized.contains("private-dashboard-title"));
+    assert!(!serialized.contains("dashboardid"));
+    assert!(!serialized.contains("raw_api_document"));
+    assert!(!serialized.contains("\"42\""));
+    write(&workcopy_path(root.path(), WORKCOPY), b"{broken");
+    let uncertain = crate::snapshot_library::SnapshotLibrary::open(root.path().to_owned())
+        .unwrap_or_else(|error| panic!("{error}"));
+    assert!(uncertain.references_incomplete);
+    assert_eq!(uncertain.snapshots.len(), 1);
+    write(&snapshot_path(root.path(), &file), b"{broken");
+    let damaged = crate::snapshot_library::SnapshotLibrary::open(root.path().to_owned())
+        .unwrap_or_else(|error| panic!("{error}"));
+    assert!(damaged.snapshots.is_empty());
+    assert_eq!(damaged.damaged.len(), 1);
+    assert_eq!(damaged.damaged[0].code, "snapshot_corrupt");
+}
+
+#[test]
+fn snapshot_library_compares_only_saved_bases_without_exposing_content() {
+    let root = temp_root();
+    let store = LocalStore::at(root.path().to_owned());
+    let first = snapshot_file(raw_dashboard("secret-one"));
+    let second = snapshot_file(raw_dashboard("secret-two"));
+    store
+        .put_snapshot(&first)
+        .unwrap_or_else(|error| panic!("{error}"));
+    store
+        .put_snapshot(&second)
+        .unwrap_or_else(|error| panic!("{error}"));
+    let listing = crate::snapshot_library::SnapshotLibrary::open(root.path().to_owned())
+        .unwrap_or_else(|error| panic!("{error}"));
+    assert_eq!(listing.snapshots.len(), 2);
+    let a = &listing.snapshots[0].library_id;
+    let b = &listing.snapshots[1].library_id;
+    let different = crate::snapshot_library::SnapshotLibrary::compare(root.path().to_owned(), a, b)
+        .unwrap_or_else(|error| panic!("{error}"));
+    assert!(!different.identical);
+    assert_eq!(
+        (
+            different.left_pages,
+            different.right_pages,
+            different.left_widgets,
+            different.right_widgets
+        ),
+        (1, 1, 1, 1)
+    );
+    let raw = serde_json::to_string(&different).unwrap_or_else(|error| panic!("{error}"));
+    assert!(!raw.contains("secret"));
+    assert!(
+        crate::snapshot_library::SnapshotLibrary::compare(root.path().to_owned(), a, a)
+            .unwrap_or_else(|error| panic!("{error}"))
+            .identical
+    );
+    assert_eq!(
+        crate::snapshot_library::SnapshotLibrary::compare(
+            root.path().to_owned(),
+            a,
+            "snap-invalid"
+        )
+        .err()
+        .map(|error| error.code()),
+        Some("snapshot_library_not_found")
+    );
+    assert_eq!(
+        crate::snapshot_library::SnapshotLibrary::delete(root.path().to_owned(), a, false)
+            .err()
+            .map(|error| error.code()),
+        Some("snapshot_delete_not_confirmed")
+    );
+    crate::snapshot_library::SnapshotLibrary::delete(root.path().to_owned(), a, true)
+        .unwrap_or_else(|error| panic!("{error}"));
+    assert_eq!(
+        crate::snapshot_library::SnapshotLibrary::open(root.path().to_owned())
+            .unwrap_or_else(|error| panic!("{error}"))
+            .snapshots
+            .len(),
+        1
+    );
+}
+
+#[test]
+fn snapshot_deletion_rechecks_workcopies_and_fails_closed_on_damage() {
+    let root = temp_root();
+    let path = root.path().to_owned();
+    let store = LocalStore::at(path.clone());
+    let file = snapshot_file(raw_dashboard("Synthetic"));
+    store
+        .put_snapshot(&file)
+        .unwrap_or_else(|error| panic!("{error}"));
+    let id = crate::snapshot_library::SnapshotLibrary::open(path.clone())
+        .unwrap_or_else(|error| panic!("{error}"))
+        .snapshots[0]
+        .library_id
+        .clone();
+    assert!(
+        crate::snapshot_library::SnapshotLibrary::deletion_preview(path.clone(), &id)
+            .unwrap_or_else(|error| panic!("{error}"))
+            .deletable
+    );
+    store
+        .create_workcopy(&workcopy_file(&file, WORKCOPY))
+        .unwrap_or_else(|error| panic!("{error}"));
+    assert_eq!(
+        crate::snapshot_library::SnapshotLibrary::delete(path.clone(), &id, true)
+            .err()
+            .map(|error| error.code()),
+        Some("snapshot_delete_blocked")
+    );
+    write(&workcopy_path(root.path(), WORKCOPY), b"{broken");
+    let preview = crate::snapshot_library::SnapshotLibrary::deletion_preview(path.clone(), &id)
+        .unwrap_or_else(|error| panic!("{error}"));
+    assert!(preview.references_unknown);
+    assert!(!preview.deletable);
+    assert!(snapshot_path(root.path(), &file).exists());
+}
+
+#[test]
+fn snapshot_deletion_blocks_unfinished_finished_and_damaged_journals() {
+    use crate::publish_journal::{JournalTarget, OperationKind, OperationRecord, PublishJournal};
+    let root = temp_root();
+    let path = root.path().to_owned();
+    let store = LocalStore::at(path.clone());
+    let file = snapshot_file(raw_dashboard("Synthetic"));
+    store
+        .put_snapshot(&file)
+        .unwrap_or_else(|error| panic!("{error}"));
+    let id = crate::snapshot_library::SnapshotLibrary::open(path.clone())
+        .unwrap_or_else(|error| panic!("{error}"))
+        .snapshots[0]
+        .library_id
+        .clone();
+    let journal = PublishJournal::new(path.clone());
+    let record = OperationRecord {
+        kind: OperationKind::Update,
+        intent: "replace_host",
+        connection_id: CONNECTION.to_owned(),
+        server_version: "7.4.16".to_owned(),
+        endpoint_fingerprint: "a".repeat(64),
+        server_identity: "b".repeat(64),
+        target: JournalTarget::ExistingDashboard {
+            dashboardid: "42".to_owned(),
+            name: None,
+        },
+        source: None,
+        source_fingerprint: "c".repeat(64),
+        expected_fingerprint: "d".repeat(64),
+        owner_userid: None,
+        plan_created_at_ms: 1,
+        confirmed_at_ms: 2,
+    };
+    let mut handle = journal
+        .begin("zds-snapshot-delete-test", &record)
+        .unwrap_or_else(|error| panic!("{error}"));
+    assert_eq!(
+        crate::snapshot_library::SnapshotLibrary::deletion_preview(path.clone(), &id)
+            .unwrap_or_else(|error| panic!("{error}"))
+            .journal_count,
+        1
+    );
+    assert!(
+        !crate::snapshot_library::SnapshotLibrary::deletion_preview(path.clone(), &id)
+            .unwrap_or_else(|error| panic!("{error}"))
+            .deletable
+    );
+    assert!(handle.admit_send());
+    handle
+        .finish(crate::publish_journal::JournalState::Verified, None)
+        .unwrap_or_else(|error| panic!("{error}"));
+    assert_eq!(
+        crate::snapshot_library::SnapshotLibrary::delete(path.clone(), &id, true)
+            .err()
+            .map(|error| error.code()),
+        Some("snapshot_delete_blocked")
+    );
+    std::fs::write(
+        path.join("journal/zds-snapshot-delete-test.jsonl"),
+        b"{broken\n",
+    )
+    .unwrap_or_else(|error| panic!("{error}"));
+    assert!(
+        crate::snapshot_library::SnapshotLibrary::deletion_preview(path.clone(), &id)
+            .unwrap_or_else(|error| panic!("{error}"))
+            .references_unknown
+    );
+    assert!(snapshot_path(root.path(), &file).exists());
+}
+
+#[test]
+fn concurrent_workcopy_creation_and_snapshot_deletion_never_leave_dangling_base() {
+    let root = temp_root();
+    let path = root.path().to_owned();
+    let store = LocalStore::at(path.clone());
+    let file = snapshot_file(raw_dashboard("Synthetic"));
+    store
+        .put_snapshot(&file)
+        .unwrap_or_else(|error| panic!("{error}"));
+    let id = crate::snapshot_library::SnapshotLibrary::open(path.clone())
+        .unwrap_or_else(|error| panic!("{error}"))
+        .snapshots[0]
+        .library_id
+        .clone();
+    let barrier = std::sync::Barrier::new(2);
+    std::thread::scope(|scope| {
+        let path_for_create = path.clone();
+        let file_for_create = file.clone();
+        let barrier_ref = &barrier;
+        scope.spawn(move || {
+            barrier_ref.wait();
+            let _ = LocalStore::at(path_for_create)
+                .create_workcopy(&workcopy_file(&file_for_create, WORKCOPY));
+        });
+        barrier.wait();
+        let _ = crate::snapshot_library::SnapshotLibrary::delete(path.clone(), &id, true);
+    });
+    if store
+        .workcopy_ids()
+        .unwrap_or_else(|error| panic!("{error}"))
+        .contains(&WORKCOPY.to_owned())
+    {
+        assert!(
+            store
+                .load_snapshot(CONNECTION, "42", &file.fingerprint)
+                .is_ok()
+        );
+    }
+}
+
+#[test]
+fn snapshot_compare_rejects_another_dashboard_and_clone_branches_block_delete() {
+    let root = temp_root();
+    let path = root.path().to_owned();
+    let store = LocalStore::at(path.clone());
+    let original = snapshot_file(raw_dashboard("Original"));
+    store
+        .put_snapshot(&original)
+        .unwrap_or_else(|error| panic!("{error}"));
+    let mut other_raw = raw_dashboard("Other");
+    other_raw["dashboardid"] = json!("43");
+    let mut other = snapshot_file(other_raw);
+    other.dashboardid = "43".to_owned();
+    store
+        .put_snapshot(&other)
+        .unwrap_or_else(|error| panic!("{error}"));
+    let listing = crate::snapshot_library::SnapshotLibrary::open(path.clone())
+        .unwrap_or_else(|error| panic!("{error}"));
+    let left = &listing.snapshots[0].library_id;
+    let right = &listing.snapshots[1].library_id;
+    assert_eq!(
+        crate::snapshot_library::SnapshotLibrary::compare(path.clone(), left, right)
+            .err()
+            .map(|error| error.code()),
+        Some("snapshot_scope_mismatch")
+    );
+    std::fs::create_dir(path.join("clone-workcopies")).unwrap_or_else(|error| panic!("{error}"));
+    std::fs::write(path.join("clone-workcopies/probe"), b"damaged")
+        .unwrap_or_else(|error| panic!("{error}"));
+    assert!(
+        crate::snapshot_library::SnapshotLibrary::deletion_preview(path.clone(), left)
+            .unwrap_or_else(|error| panic!("{error}"))
+            .references_unknown
+    );
 }

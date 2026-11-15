@@ -660,6 +660,29 @@
                                         "type": "object",
                                         "required": [
                                           "kind",
+                                          "value",
+                                          "role"
+                                        ],
+                                        "properties": {
+                                          "kind": {
+                                            "const": "dynamic_pattern"
+                                          },
+                                          "value": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 255
+                                          },
+                                          "role": {
+                                            "type": "string",
+                                            "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                          }
+                                        },
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "required": [
+                                          "kind",
                                           "role",
                                           "selection"
                                         ],
@@ -1401,6 +1424,29 @@
                                     "value": {
                                       "type": "string",
                                       "maxLength": 16384
+                                    }
+                                  },
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "object",
+                                  "required": [
+                                    "kind",
+                                    "value",
+                                    "role"
+                                  ],
+                                  "properties": {
+                                    "kind": {
+                                      "const": "dynamic_pattern"
+                                    },
+                                    "value": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 255
+                                    },
+                                    "role": {
+                                      "type": "string",
+                                      "pattern": "^[a-z][a-z0-9_-]{1,63}$"
                                     }
                                   },
                                   "additionalProperties": false
@@ -2196,6 +2242,29 @@
                                           "type": "object",
                                           "required": [
                                             "kind",
+                                            "value",
+                                            "role"
+                                          ],
+                                          "properties": {
+                                            "kind": {
+                                              "const": "dynamic_pattern"
+                                            },
+                                            "value": {
+                                              "type": "string",
+                                              "minLength": 1,
+                                              "maxLength": 255
+                                            },
+                                            "role": {
+                                              "type": "string",
+                                              "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                            }
+                                          },
+                                          "additionalProperties": false
+                                        },
+                                        {
+                                          "type": "object",
+                                          "required": [
+                                            "kind",
                                             "role",
                                             "selection"
                                           ],
@@ -2953,6 +3022,29 @@
                                       "value": {
                                         "type": "string",
                                         "maxLength": 16384
+                                      }
+                                    },
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "object",
+                                    "required": [
+                                      "kind",
+                                      "value",
+                                      "role"
+                                    ],
+                                    "properties": {
+                                      "kind": {
+                                        "const": "dynamic_pattern"
+                                      },
+                                      "value": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 255
+                                      },
+                                      "role": {
+                                        "type": "string",
+                                        "pattern": "^[a-z][a-z0-9_-]{1,63}$"
                                       }
                                     },
                                     "additionalProperties": false

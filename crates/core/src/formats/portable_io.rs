@@ -15,11 +15,13 @@ use cap_std::{
 };
 use serde::{Serialize, de::DeserializeOwned};
 use serde_json::Value;
+use sha2::{Digest, Sha256};
 use thiserror::Error;
 use zip::{CompressionMethod, DateTime, ZipArchive, ZipWriter, write::SimpleFileOptions};
 
 use super::{
-    CatalogReference, FormatError, MetricCatalog, PortableProject, TypedProject, Validate,
+    CatalogReference, FormatError, LegacyRootSelection, MetricCatalog, PortableProject,
+    TypedProject, Validate, migrate_legacy_project,
     strict::{self, DocumentSyntax},
     to_yaml_string, validate_project, validate_typed_project,
 };
@@ -95,6 +97,17 @@ impl PortableBundle {
     pub fn validate(&self) -> Result<()> {
         validate_project(&self.project, &self.catalogs)?;
         Ok(())
+    }
+
+    /// Convert an explicitly selected legacy root without changing the source bundle.
+    pub fn migrate(&self, selection: &LegacyRootSelection) -> Result<TypedPortableBundle> {
+        self.validate()?;
+        let migrated = TypedPortableBundle {
+            project: migrate_legacy_project(&self.project, selection)?,
+            catalogs: self.catalogs.clone(),
+        };
+        migrated.validate()?;
+        Ok(migrated)
     }
 }
 
@@ -216,7 +229,40 @@ pub fn read_typed_package_bytes(raw: &[u8]) -> Result<TypedPortableBundle> {
 pub fn build_typed_package_bytes(bundle: &TypedPortableBundle) -> Result<Vec<u8>> {
     bundle.validate()?;
     let raw = build_package_document(&bundle.project, &bundle.catalogs)?;
-    read_typed_package_bytes(&raw)?;
+    if read_typed_package_bytes(&raw)? != *bundle {
+        return Err(PortableIoError::policy(
+            "round_trip",
+            "portable package did not round-trip",
+        ));
+    }
+    Ok(raw)
+}
+
+/// A standalone YAML is self-contained only when it references no catalogs.
+pub fn build_typed_yaml_bytes(bundle: &TypedPortableBundle) -> Result<Vec<u8>> {
+    bundle.validate()?;
+    if !bundle.catalogs.is_empty() || !bundle.project.catalogs.is_empty() {
+        return Err(PortableIoError::policy(
+            "standalone_catalogs",
+            "standalone YAML cannot contain catalog references",
+        ));
+    }
+    let raw = to_yaml_string(&bundle.project)?.into_bytes();
+    if raw.len() > MAX_FILE_BYTES {
+        return Err(PortableIoError::policy(
+            "file_size",
+            "standalone YAML exceeds size limit",
+        ));
+    }
+    let decoded: TypedProject = super::from_yaml_str(
+        std::str::from_utf8(&raw).map_err(|_| PortableIoError::policy("utf8", "invalid UTF-8"))?,
+    )?;
+    if decoded != bundle.project {
+        return Err(PortableIoError::policy(
+            "round_trip",
+            "standalone YAML did not round-trip",
+        ));
+    }
     Ok(raw)
 }
 
@@ -318,6 +364,15 @@ fn read_archive_entries(raw: &[u8]) -> Result<BTreeMap<String, Vec<u8>>> {
         entries.insert(name, content);
     }
     Ok(entries)
+}
+
+/// Hash bounded, regular archive entries without extracting them to disk.
+/// Callers must separately validate the package's project and catalogs.
+pub fn package_entry_hashes(raw: &[u8]) -> Result<BTreeMap<String, String>> {
+    Ok(read_archive_entries(raw)?
+        .into_iter()
+        .map(|(name, bytes)| (name, format!("{:x}", Sha256::digest(&bytes))))
+        .collect())
 }
 
 fn read_package_document<T: ProjectDocument>(

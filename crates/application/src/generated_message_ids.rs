@@ -761,6 +761,45 @@ impl MessageId {
     pub const DRAFTS_LIST_OPEN_HINT: Self = Self("drafts.list.open_hint");
     pub const DRAFTS_LOAD_FAILED: Self = Self("drafts.load_failed");
     pub const DRAFTS_NAME_SOURCE_CONNECTION: Self = Self("drafts.name.source_connection");
+    pub const DRAFTS_PORTABLE_BINDINGS_GRAPHS_UNRESOLVED: Self = Self("drafts.portable.bindings.graphs_unresolved");
+    pub const DRAFTS_PORTABLE_BINDINGS_HELP: Self = Self("drafts.portable.bindings.help");
+    pub const DRAFTS_PORTABLE_BINDINGS_LLD_INSTANCE: Self = Self("drafts.portable.bindings.lld_instance");
+    pub const DRAFTS_PORTABLE_BINDINGS_METRIC: Self = Self("drafts.portable.bindings.metric");
+    pub const DRAFTS_PORTABLE_BINDINGS_OPEN: Self = Self("drafts.portable.bindings.open");
+    pub const DRAFTS_PORTABLE_BINDINGS_PATTERN_HELP: Self = Self("drafts.portable.bindings.pattern_help");
+    pub const DRAFTS_PORTABLE_BINDINGS_ROLE: Self = Self("drafts.portable.bindings.role");
+    pub const DRAFTS_PORTABLE_BINDINGS_SELECT: Self = Self("drafts.portable.bindings.select");
+    pub const DRAFTS_PORTABLE_BINDINGS_SLOT: Self = Self("drafts.portable.bindings.slot");
+    pub const DRAFTS_PORTABLE_BINDINGS_STALE: Self = Self("drafts.portable.bindings.stale");
+    pub const DRAFTS_PORTABLE_BINDINGS_UNAVAILABLE: Self = Self("drafts.portable.bindings.unavailable");
+    pub const DRAFTS_PORTABLE_BLOCKER_BINDING_REQUIRED: Self = Self("drafts.portable.blocker.binding_required");
+    pub const DRAFTS_PORTABLE_BLOCKER_FIELD_UNSUPPORTED: Self = Self("drafts.portable.blocker.field_unsupported");
+    pub const DRAFTS_PORTABLE_BLOCKER_GRAPH_BINDING_REQUIRED: Self = Self("drafts.portable.blocker.graph_binding_required");
+    pub const DRAFTS_PORTABLE_BLOCKER_HOST_BINDING_REQUIRED: Self = Self("drafts.portable.blocker.host_binding_required");
+    pub const DRAFTS_PORTABLE_BLOCKER_ITEM_BINDING_REQUIRED: Self = Self("drafts.portable.blocker.item_binding_required");
+    pub const DRAFTS_PORTABLE_BLOCKER_REFERENCE_REQUIRED: Self = Self("drafts.portable.blocker.reference_required");
+    pub const DRAFTS_PORTABLE_BLOCKER_SCOPE_UNSUPPORTED: Self = Self("drafts.portable.blocker.scope_unsupported");
+    pub const DRAFTS_PORTABLE_BLOCKER_UNKNOWN_DATA: Self = Self("drafts.portable.blocker.unknown_data");
+    pub const DRAFTS_PORTABLE_BLOCKER_UNSUPPORTED_DATA: Self = Self("drafts.portable.blocker.unsupported_data");
+    pub const DRAFTS_PORTABLE_BLOCKER_WIDGET_UNSUPPORTED: Self = Self("drafts.portable.blocker.widget_unsupported");
+    pub const DRAFTS_PORTABLE_CHECKING: Self = Self("drafts.portable.checking");
+    pub const DRAFTS_PORTABLE_COUNT_GRAPH_FIELDS: Self = Self("drafts.portable.count.graph_fields");
+    pub const DRAFTS_PORTABLE_COUNT_HOST_FIELDS: Self = Self("drafts.portable.count.host_fields");
+    pub const DRAFTS_PORTABLE_COUNT_HOST_PATTERN_FIELDS: Self = Self("drafts.portable.count.host_pattern_fields");
+    pub const DRAFTS_PORTABLE_COUNT_ITEM_FIELDS: Self = Self("drafts.portable.count.item_fields");
+    pub const DRAFTS_PORTABLE_COUNT_ITEM_PATTERN_FIELDS: Self = Self("drafts.portable.count.item_pattern_fields");
+    pub const DRAFTS_PORTABLE_COUNT_REFERENCE_CONSUMERS: Self = Self("drafts.portable.count.reference_consumers");
+    pub const DRAFTS_PORTABLE_COUNT_REFERENCE_DEFINITIONS: Self = Self("drafts.portable.count.reference_definitions");
+    pub const DRAFTS_PORTABLE_COUNT_UNCLASSIFIED_WIDGETS: Self = Self("drafts.portable.count.unclassified_widgets");
+    pub const DRAFTS_PORTABLE_COUNT_UNKNOWN_FIELDS: Self = Self("drafts.portable.count.unknown_fields");
+    pub const DRAFTS_PORTABLE_CREATE_ACTION: Self = Self("drafts.portable.create_action");
+    pub const DRAFTS_PORTABLE_CREATE_FAILED_TITLE: Self = Self("drafts.portable.create_failed_title");
+    pub const DRAFTS_PORTABLE_CREATING: Self = Self("drafts.portable.creating");
+    pub const DRAFTS_PORTABLE_DEPENDENCIES_TITLE: Self = Self("drafts.portable.dependencies_title");
+    pub const DRAFTS_PORTABLE_FAILED_TITLE: Self = Self("drafts.portable.failed_title");
+    pub const DRAFTS_PORTABLE_PREVIEW_TITLE: Self = Self("drafts.portable.preview_title");
+    pub const DRAFTS_PORTABLE_READY: Self = Self("drafts.portable.ready");
+    pub const DRAFTS_PORTABLE_SUMMARY: Self = Self("drafts.portable.summary");
     pub const DRAFTS_RENAME_DESCRIPTION: Self = Self("drafts.rename.description");
     pub const DRAFTS_RENAME_DONE: Self = Self("drafts.rename.done");
     pub const DRAFTS_RENAME_TITLE: Self = Self("drafts.rename.title");
@@ -896,6 +935,21 @@ impl MessageId {
     pub const ERRORS_WORKCOPY_STORAGE_WRITE_FAILED: Self = Self("errors.workcopy.storage_write_failed");
     pub const ERRORS_WORKCOPY_TOO_LARGE: Self = Self("errors.workcopy.too_large");
     pub const ERRORS_WORKCOPY_UNSUPPORTED_OPERATION: Self = Self("errors.workcopy.unsupported_operation");
+    pub const EXPORT_PROGRESS_CANCEL: Self = Self("export_progress.cancel");
+    pub const EXPORT_PROGRESS_CANCELLED: Self = Self("export_progress.cancelled");
+    pub const EXPORT_PROGRESS_CHOOSING: Self = Self("export_progress.choosing");
+    pub const EXPORT_PROGRESS_COMMITTING: Self = Self("export_progress.committing");
+    pub const EXPORT_PROGRESS_CREATED: Self = Self("export_progress.created");
+    pub const EXPORT_PROGRESS_DONE: Self = Self("export_progress.done");
+    pub const EXPORT_PROGRESS_FAILED: Self = Self("export_progress.failed");
+    pub const EXPORT_PROGRESS_PACKAGING: Self = Self("export_progress.packaging");
+    pub const EXPORT_PROGRESS_PREPARING: Self = Self("export_progress.preparing");
+    pub const EXPORT_PROGRESS_SCANNING: Self = Self("export_progress.scanning");
+    pub const EXPORT_PROGRESS_TOO_LATE: Self = Self("export_progress.too_late");
+    pub const EXPORT_PROGRESS_TRANSFORMING: Self = Self("export_progress.transforming");
+    pub const EXPORT_PROGRESS_VALIDATING: Self = Self("export_progress.validating");
+    pub const EXPORT_PROGRESS_VERIFYING: Self = Self("export_progress.verifying");
+    pub const EXPORT_PROGRESS_WRITING: Self = Self("export_progress.writing");
     pub const HTTP_SECURITY_API_NOT_FOUND: Self = Self("http.security.api_not_found");
     pub const HTTP_SECURITY_BODY_TOO_LARGE: Self = Self("http.security.body_too_large");
     pub const HTTP_SECURITY_BOOTSTRAP_INVALID: Self = Self("http.security.bootstrap_invalid");
@@ -948,9 +1002,13 @@ impl MessageId {
     pub const OFFLINE_BUILDER_EDIT_ROLE: Self = Self("offline_builder.edit_role");
     pub const OFFLINE_BUILDER_EDIT_TITLE: Self = Self("offline_builder.edit_title");
     pub const OFFLINE_BUILDER_EDIT_WIDGET: Self = Self("offline_builder.edit_widget");
+    pub const OFFLINE_BUILDER_EMBEDDED_CATALOG: Self = Self("offline_builder.embedded_catalog");
     pub const OFFLINE_BUILDER_EMPTY: Self = Self("offline_builder.empty");
     pub const OFFLINE_BUILDER_ERROR: Self = Self("offline_builder.error");
+    pub const OFFLINE_BUILDER_EXPORT: Self = Self("offline_builder.export");
+    pub const OFFLINE_BUILDER_EXPORT_FAILED: Self = Self("offline_builder.export_failed");
     pub const OFFLINE_BUILDER_GO_TO_DRAFTS: Self = Self("offline_builder.go_to_drafts");
+    pub const OFFLINE_BUILDER_GRAPH_ROWS: Self = Self("offline_builder.graph_rows");
     pub const OFFLINE_BUILDER_HELP: Self = Self("offline_builder.help");
     pub const OFFLINE_BUILDER_LEAVE_DIRTY: Self = Self("offline_builder.leave_dirty");
     pub const OFFLINE_BUILDER_LIBRARY_UNAVAILABLE: Self = Self("offline_builder.library_unavailable");
@@ -1035,6 +1093,7 @@ impl MessageId {
     pub const OFFLINE_EDITOR_CHECK_INCOMPLETE: Self = Self("offline_editor.check.incomplete");
     pub const OFFLINE_EDITOR_CHECK_METRIC: Self = Self("offline_editor.check.metric");
     pub const OFFLINE_EDITOR_CHECK_METRIC_TYPE: Self = Self("offline_editor.check.metric_type");
+    pub const OFFLINE_EDITOR_CHECK_MIXED_UNITS: Self = Self("offline_editor.check.mixed_units");
     pub const OFFLINE_EDITOR_CHECK_NAME: Self = Self("offline_editor.check.name");
     pub const OFFLINE_EDITOR_CHECK_OVERLAP: Self = Self("offline_editor.check.overlap");
     pub const OFFLINE_EDITOR_CHECK_ROLE: Self = Self("offline_editor.check.role");
@@ -1105,6 +1164,97 @@ impl MessageId {
     pub const OFFLINE_EDITOR_ZOOM_IN: Self = Self("offline_editor.zoom_in");
     pub const OFFLINE_EDITOR_ZOOM_OUT: Self = Self("offline_editor.zoom_out");
     pub const OFFLINE_EDITOR_ZOOM_RESET: Self = Self("offline_editor.zoom_reset");
+    pub const PACKAGE_IMPORT_CHOOSE: Self = Self("package_import.choose");
+    pub const PACKAGE_IMPORT_COMPATIBILITY_MIN: Self = Self("package_import.compatibility_min");
+    pub const PACKAGE_IMPORT_COMPATIBILITY_RANGE: Self = Self("package_import.compatibility_range");
+    pub const PACKAGE_IMPORT_DASHBOARD: Self = Self("package_import.dashboard");
+    pub const PACKAGE_IMPORT_EXPORT_HASH: Self = Self("package_import.export_hash");
+    pub const PACKAGE_IMPORT_EXPORT_YAML: Self = Self("package_import.export_yaml");
+    pub const PACKAGE_IMPORT_FAILED: Self = Self("package_import.failed");
+    pub const PACKAGE_IMPORT_FILE_HASHES: Self = Self("package_import.file_hashes");
+    pub const PACKAGE_IMPORT_HASH_HINT: Self = Self("package_import.hash_hint");
+    pub const PACKAGE_IMPORT_HELP: Self = Self("package_import.help");
+    pub const PACKAGE_IMPORT_IMPORT: Self = Self("package_import.import");
+    pub const PACKAGE_IMPORT_INVALID: Self = Self("package_import.invalid");
+    pub const PACKAGE_IMPORT_LIMITS: Self = Self("package_import.limits");
+    pub const PACKAGE_IMPORT_PAGE: Self = Self("package_import.page");
+    pub const PACKAGE_IMPORT_PREVIEW: Self = Self("package_import.preview");
+    pub const PACKAGE_IMPORT_REGISTRY_INCOMPATIBLE: Self = Self("package_import.registry_incompatible");
+    pub const PACKAGE_IMPORT_REGISTRY_KNOWN: Self = Self("package_import.registry_known");
+    pub const PACKAGE_IMPORT_REGISTRY_MIN: Self = Self("package_import.registry_min");
+    pub const PACKAGE_IMPORT_REGISTRY_MISMATCH: Self = Self("package_import.registry_mismatch");
+    pub const PACKAGE_IMPORT_REGISTRY_RANGE: Self = Self("package_import.registry_range");
+    pub const PACKAGE_IMPORT_REGISTRY_UNKNOWN: Self = Self("package_import.registry_unknown");
+    pub const PACKAGE_IMPORT_SAVED: Self = Self("package_import.saved");
+    pub const PACKAGE_IMPORT_SHA256: Self = Self("package_import.sha256");
+    pub const PACKAGE_IMPORT_SIZE: Self = Self("package_import.size");
+    pub const PACKAGE_IMPORT_SUMMARY: Self = Self("package_import.summary");
+    pub const PACKAGE_IMPORT_TITLE: Self = Self("package_import.title");
+    pub const PACKAGE_SCAN_ACTION: Self = Self("package_scan.action");
+    pub const PACKAGE_SCAN_CREDENTIAL: Self = Self("package_scan.credential");
+    pub const PACKAGE_SCAN_CREDENTIAL_COUNT: Self = Self("package_scan.credential_count");
+    pub const PACKAGE_SCAN_EMAIL: Self = Self("package_scan.email");
+    pub const PACKAGE_SCAN_EVIDENCE_HEURISTIC: Self = Self("package_scan.evidence_heuristic");
+    pub const PACKAGE_SCAN_EVIDENCE_STRUCTURAL: Self = Self("package_scan.evidence_structural");
+    pub const PACKAGE_SCAN_EVIDENCE_UNANALYSED: Self = Self("package_scan.evidence_unanalysed");
+    pub const PACKAGE_SCAN_FAILED: Self = Self("package_scan.failed");
+    pub const PACKAGE_SCAN_FILTER: Self = Self("package_scan.filter");
+    pub const PACKAGE_SCAN_FQDN: Self = Self("package_scan.fqdn");
+    pub const PACKAGE_SCAN_FREE_TEXT: Self = Self("package_scan.free_text");
+    pub const PACKAGE_SCAN_IDENTIFIER: Self = Self("package_scan.identifier");
+    pub const PACKAGE_SCAN_IP: Self = Self("package_scan.ip");
+    pub const PACKAGE_SCAN_MACRO: Self = Self("package_scan.macro");
+    pub const PACKAGE_SCAN_MASK: Self = Self("package_scan.mask");
+    pub const PACKAGE_SCAN_METRIC_KEY: Self = Self("package_scan.metric_key");
+    pub const PACKAGE_SCAN_NONE: Self = Self("package_scan.none");
+    pub const PACKAGE_SCAN_PATH: Self = Self("package_scan.path");
+    pub const PACKAGE_SCAN_PREPARE_COPY: Self = Self("package_scan.prepare_copy");
+    pub const PACKAGE_SCAN_TRUNCATED: Self = Self("package_scan.truncated");
+    pub const PACKAGE_SCAN_UNKNOWN: Self = Self("package_scan.unknown");
+    pub const PACKAGE_SCAN_UNKNOWN_COUNT: Self = Self("package_scan.unknown_count");
+    pub const PACKAGE_SCAN_URL: Self = Self("package_scan.url");
+    pub const PACKAGE_SCAN_WARNING: Self = Self("package_scan.warning");
+    pub const PAGE_LIBRARY_ACTION_FAILED: Self = Self("page_library.action_failed");
+    pub const PAGE_LIBRARY_ALL: Self = Self("page_library.all");
+    pub const PAGE_LIBRARY_CACHE_WRITE_FAILED: Self = Self("page_library.cache_write_failed");
+    pub const PAGE_LIBRARY_CANCEL: Self = Self("page_library.cancel");
+    pub const PAGE_LIBRARY_CATALOG_COUNT: Self = Self("page_library.catalog_count");
+    pub const PAGE_LIBRARY_CATALOG_DELETE_EFFECT: Self = Self("page_library.catalog_delete_effect");
+    pub const PAGE_LIBRARY_CATALOG_DELETE_UNPROVEN: Self = Self("page_library.catalog_delete_unproven");
+    pub const PAGE_LIBRARY_CATALOG_IN_USE: Self = Self("page_library.catalog_in_use");
+    pub const PAGE_LIBRARY_CHECK_PAGE: Self = Self("page_library.check_page");
+    pub const PAGE_LIBRARY_CHOOSE_FROM_WORKCOPY: Self = Self("page_library.choose_from_workcopy");
+    pub const PAGE_LIBRARY_CONFIRM_CATALOG_DELETE: Self = Self("page_library.confirm_catalog_delete");
+    pub const PAGE_LIBRARY_CONFIRM_DELETE: Self = Self("page_library.confirm_delete");
+    pub const PAGE_LIBRARY_CONFIRM_NAME: Self = Self("page_library.confirm_name");
+    pub const PAGE_LIBRARY_DELETE: Self = Self("page_library.delete");
+    pub const PAGE_LIBRARY_DELETE_EFFECT: Self = Self("page_library.delete_effect");
+    pub const PAGE_LIBRARY_DISPLAY_NAME: Self = Self("page_library.display_name");
+    pub const PAGE_LIBRARY_DRAFT_SOURCE: Self = Self("page_library.draft_source");
+    pub const PAGE_LIBRARY_DUPLICATE: Self = Self("page_library.duplicate");
+    pub const PAGE_LIBRARY_EMPTY: Self = Self("page_library.empty");
+    pub const PAGE_LIBRARY_FILTERS: Self = Self("page_library.filters");
+    pub const PAGE_LIBRARY_INDEX_UNAVAILABLE: Self = Self("page_library.index_unavailable");
+    pub const PAGE_LIBRARY_KIND: Self = Self("page_library.kind");
+    pub const PAGE_LIBRARY_LIBRARY_SOURCE: Self = Self("page_library.library_source");
+    pub const PAGE_LIBRARY_LIST_FAILED: Self = Self("page_library.list_failed");
+    pub const PAGE_LIBRARY_NAME: Self = Self("page_library.name");
+    pub const PAGE_LIBRARY_NEWEST: Self = Self("page_library.newest");
+    pub const PAGE_LIBRARY_RENAME: Self = Self("page_library.rename");
+    pub const PAGE_LIBRARY_SAVE_ACTION: Self = Self("page_library.save_action");
+    pub const PAGE_LIBRARY_SAVE_FAILED: Self = Self("page_library.save_failed");
+    pub const PAGE_LIBRARY_SAVE_NAME: Self = Self("page_library.save_name");
+    pub const PAGE_LIBRARY_SAVED: Self = Self("page_library.saved");
+    pub const PAGE_LIBRARY_SEARCH: Self = Self("page_library.search");
+    pub const PAGE_LIBRARY_SELECT_PAGE: Self = Self("page_library.select_page");
+    pub const PAGE_LIBRARY_SELECTED_PAGE: Self = Self("page_library.selected_page");
+    pub const PAGE_LIBRARY_SORT: Self = Self("page_library.sort");
+    pub const PAGE_LIBRARY_SOURCE: Self = Self("page_library.source");
+    pub const PAGE_LIBRARY_TAKE_ACTION: Self = Self("page_library.take_action");
+    pub const PAGE_LIBRARY_TAKE_FAILED: Self = Self("page_library.take_failed");
+    pub const PAGE_LIBRARY_TITLE: Self = Self("page_library.title");
+    pub const PAGE_LIBRARY_USAGE_UNKNOWN: Self = Self("page_library.usage_unknown");
+    pub const PAGE_LIBRARY_USED_BY: Self = Self("page_library.used_by");
     pub const PUBLICATION_A11Y_STEPS: Self = Self("publication.a11y.steps");
     pub const PUBLICATION_ACCESS_COPY_PRIVATE: Self = Self("publication.access.copy_private");
     pub const PUBLICATION_ACCESS_TITLE: Self = Self("publication.access.title");
@@ -1435,6 +1585,61 @@ impl MessageId {
     pub const PUBLICATION_UNTOUCHED_TITLE: Self = Self("publication.untouched.title");
     pub const PUBLICATION_UNTOUCHED_WIDGETS: Self = Self("publication.untouched.widgets");
     pub const PUBLICATION_UNTOUCHED_ZABBIX_OBJECTS: Self = Self("publication.untouched.zabbix_objects");
+    pub const REDACTION_ACKNOWLEDGE: Self = Self("redaction.acknowledge");
+    pub const REDACTION_ADD: Self = Self("redaction.add");
+    pub const REDACTION_ALIAS_CAUTION: Self = Self("redaction.alias_caution");
+    pub const REDACTION_CATALOG_ID: Self = Self("redaction.catalog_id");
+    pub const REDACTION_CATALOG_METRIC: Self = Self("redaction.catalog_metric");
+    pub const REDACTION_CATALOG_METRIC_ID: Self = Self("redaction.catalog_metric_id");
+    pub const REDACTION_CATALOG_METRIC_UNITS: Self = Self("redaction.catalog_metric_units");
+    pub const REDACTION_CATALOG_TEMPLATE: Self = Self("redaction.catalog_template");
+    pub const REDACTION_CLEAR_CATALOG_SOURCE: Self = Self("redaction.clear_catalog_source");
+    pub const REDACTION_CLEAR_CATALOG_SOURCE_CAUTION: Self = Self("redaction.clear_catalog_source_caution");
+    pub const REDACTION_CLEAR_PROVENANCE: Self = Self("redaction.clear_provenance");
+    pub const REDACTION_CLEAR_UUIDS: Self = Self("redaction.clear_uuids");
+    pub const REDACTION_CREDENTIALS_BLOCK: Self = Self("redaction.credentials_block");
+    pub const REDACTION_DASHBOARD: Self = Self("redaction.dashboard");
+    pub const REDACTION_DASHBOARD_ID: Self = Self("redaction.dashboard_id");
+    pub const REDACTION_EXPORT: Self = Self("redaction.export");
+    pub const REDACTION_FAILED: Self = Self("redaction.failed");
+    pub const REDACTION_HELP: Self = Self("redaction.help");
+    pub const REDACTION_HOST_MASK: Self = Self("redaction.host_mask");
+    pub const REDACTION_ID_CAUTION: Self = Self("redaction.id_caution");
+    pub const REDACTION_ITEM_PATTERN: Self = Self("redaction.item_pattern");
+    pub const REDACTION_ITEM_PATTERN_CAUTION: Self = Self("redaction.item_pattern_caution");
+    pub const REDACTION_LENGTH: Self = Self("redaction.length");
+    pub const REDACTION_LIMIT: Self = Self("redaction.limit");
+    pub const REDACTION_MASK_CAUTION: Self = Self("redaction.mask_caution");
+    pub const REDACTION_MATCHING: Self = Self("redaction.matching");
+    pub const REDACTION_PAGE: Self = Self("redaction.page");
+    pub const REDACTION_PAGE_ID: Self = Self("redaction.page_id");
+    pub const REDACTION_PREVIEW: Self = Self("redaction.preview");
+    pub const REDACTION_PROJECT_ID: Self = Self("redaction.project_id");
+    pub const REDACTION_PROTECTED: Self = Self("redaction.protected");
+    pub const REDACTION_REMAINING: Self = Self("redaction.remaining");
+    pub const REDACTION_REMOVE: Self = Self("redaction.remove");
+    pub const REDACTION_REMOVE_CAUTION: Self = Self("redaction.remove_caution");
+    pub const REDACTION_REMOVE_PAGE: Self = Self("redaction.remove_page");
+    pub const REDACTION_REMOVE_WIDGET: Self = Self("redaction.remove_widget");
+    pub const REDACTION_REPLACEMENT: Self = Self("redaction.replacement");
+    pub const REDACTION_ROLE: Self = Self("redaction.role");
+    pub const REDACTION_ROLE_DESCRIPTION: Self = Self("redaction.role_description");
+    pub const REDACTION_SAVE_AS: Self = Self("redaction.save_as");
+    pub const REDACTION_SAVE_AS_HINT: Self = Self("redaction.save_as_hint");
+    pub const REDACTION_SAVE_NO_OVERWRITE: Self = Self("redaction.save_no_overwrite");
+    pub const REDACTION_SAVE_YAML_AS: Self = Self("redaction.save_yaml_as");
+    pub const REDACTION_SAVE_ZIP_AS: Self = Self("redaction.save_zip_as");
+    pub const REDACTION_SAVED: Self = Self("redaction.saved");
+    pub const REDACTION_SELECTOR_ALIASES: Self = Self("redaction.selector_aliases");
+    pub const REDACTION_SLOT: Self = Self("redaction.slot");
+    pub const REDACTION_TARGET: Self = Self("redaction.target");
+    pub const REDACTION_TITLE: Self = Self("redaction.title");
+    pub const REDACTION_UNITS_CAUTION: Self = Self("redaction.units_caution");
+    pub const REDACTION_UNRESOLVED_NAME: Self = Self("redaction.unresolved_name");
+    pub const REDACTION_WIDGET: Self = Self("redaction.widget");
+    pub const REDACTION_WIDGET_ID: Self = Self("redaction.widget_id");
+    pub const REDACTION_WIDGET_TEXT: Self = Self("redaction.widget_text");
+    pub const REDACTION_WITH_VALUE: Self = Self("redaction.with_value");
     pub const REPLACE_HOST_SOURCE: Self = Self("replace_host.source");
     pub const SERVER_ACTION_CLONE: Self = Self("server.action.clone");
     pub const SERVER_ACTION_COPY: Self = Self("server.action.copy");
@@ -1564,6 +1769,33 @@ impl MessageId {
     pub const SHELL_A11Y_BREADCRUMBS: Self = Self("shell.a11y.breadcrumbs");
     pub const SHELL_A11Y_MAIN_NAV: Self = Self("shell.a11y.main_nav");
     pub const SHELL_DEMO_MARKER: Self = Self("shell.demo.marker");
+    pub const SNAPSHOT_LIBRARY_CHOOSE: Self = Self("snapshot_library.choose");
+    pub const SNAPSHOT_LIBRARY_COMPARE_ACTION: Self = Self("snapshot_library.compare_action");
+    pub const SNAPSHOT_LIBRARY_COMPARE_FAILED: Self = Self("snapshot_library.compare_failed");
+    pub const SNAPSHOT_LIBRARY_COMPARE_TITLE: Self = Self("snapshot_library.compare_title");
+    pub const SNAPSHOT_LIBRARY_CONFIRM_DELETE: Self = Self("snapshot_library.confirm_delete");
+    pub const SNAPSHOT_LIBRARY_COUNTS: Self = Self("snapshot_library.counts");
+    pub const SNAPSHOT_LIBRARY_DAMAGED: Self = Self("snapshot_library.damaged");
+    pub const SNAPSHOT_LIBRARY_DELETE_ACTION: Self = Self("snapshot_library.delete_action");
+    pub const SNAPSHOT_LIBRARY_DELETE_EFFECT: Self = Self("snapshot_library.delete_effect");
+    pub const SNAPSHOT_LIBRARY_DELETE_FAILED: Self = Self("snapshot_library.delete_failed");
+    pub const SNAPSHOT_LIBRARY_DELETE_REFS: Self = Self("snapshot_library.delete_refs");
+    pub const SNAPSHOT_LIBRARY_DELETE_UNKNOWN: Self = Self("snapshot_library.delete_unknown");
+    pub const SNAPSHOT_LIBRARY_DIFFERENT: Self = Self("snapshot_library.different");
+    pub const SNAPSHOT_LIBRARY_EMPTY: Self = Self("snapshot_library.empty");
+    pub const SNAPSHOT_LIBRARY_FIRST: Self = Self("snapshot_library.first");
+    pub const SNAPSHOT_LIBRARY_IDENTICAL: Self = Self("snapshot_library.identical");
+    pub const SNAPSHOT_LIBRARY_ITEM: Self = Self("snapshot_library.item");
+    pub const SNAPSHOT_LIBRARY_LIST_FAILED: Self = Self("snapshot_library.list_failed");
+    pub const SNAPSHOT_LIBRARY_LOCAL_ONLY: Self = Self("snapshot_library.local_only");
+    pub const SNAPSHOT_LIBRARY_OPEN_COPY: Self = Self("snapshot_library.open_copy");
+    pub const SNAPSHOT_LIBRARY_READ_AT: Self = Self("snapshot_library.read_at");
+    pub const SNAPSHOT_LIBRARY_REFERENCES_INCOMPLETE: Self = Self("snapshot_library.references_incomplete");
+    pub const SNAPSHOT_LIBRARY_SECOND: Self = Self("snapshot_library.second");
+    pub const SNAPSHOT_LIBRARY_SOURCE: Self = Self("snapshot_library.source");
+    pub const SNAPSHOT_LIBRARY_TITLE: Self = Self("snapshot_library.title");
+    pub const SNAPSHOT_LIBRARY_USAGE_UNKNOWN: Self = Self("snapshot_library.usage_unknown");
+    pub const SNAPSHOT_LIBRARY_USED_BY: Self = Self("snapshot_library.used_by");
     pub const STARTUP_ACTION_ALL_DRAFTS: Self = Self("startup.action.all_drafts");
     pub const STARTUP_ACTION_ASSEMBLE_DASHBOARD: Self = Self("startup.action.assemble_dashboard");
     pub const STARTUP_ACTION_CHOOSE_DASHBOARD: Self = Self("startup.action.choose_dashboard");
@@ -1632,6 +1864,7 @@ impl MessageId {
     pub const TEMPLATE_IMPORT_HELP: Self = Self("template_import.help");
     pub const TEMPLATE_IMPORT_INSPECT: Self = Self("template_import.inspect");
     pub const TEMPLATE_IMPORT_LIST_FAILED: Self = Self("template_import.list_failed");
+    pub const TEMPLATE_IMPORT_LLD_REQUIRES_INSTANCE: Self = Self("template_import.lld_requires_instance");
     pub const TEMPLATE_IMPORT_MISSING_PARENT: Self = Self("template_import.missing_parent");
     pub const TEMPLATE_IMPORT_NEW_VERSION: Self = Self("template_import.new_version");
     pub const TEMPLATE_IMPORT_PARTIAL: Self = Self("template_import.partial");
@@ -2435,6 +2668,45 @@ impl MessageId {
         Self::DRAFTS_LIST_OPEN_HINT,
         Self::DRAFTS_LOAD_FAILED,
         Self::DRAFTS_NAME_SOURCE_CONNECTION,
+        Self::DRAFTS_PORTABLE_BINDINGS_GRAPHS_UNRESOLVED,
+        Self::DRAFTS_PORTABLE_BINDINGS_HELP,
+        Self::DRAFTS_PORTABLE_BINDINGS_LLD_INSTANCE,
+        Self::DRAFTS_PORTABLE_BINDINGS_METRIC,
+        Self::DRAFTS_PORTABLE_BINDINGS_OPEN,
+        Self::DRAFTS_PORTABLE_BINDINGS_PATTERN_HELP,
+        Self::DRAFTS_PORTABLE_BINDINGS_ROLE,
+        Self::DRAFTS_PORTABLE_BINDINGS_SELECT,
+        Self::DRAFTS_PORTABLE_BINDINGS_SLOT,
+        Self::DRAFTS_PORTABLE_BINDINGS_STALE,
+        Self::DRAFTS_PORTABLE_BINDINGS_UNAVAILABLE,
+        Self::DRAFTS_PORTABLE_BLOCKER_BINDING_REQUIRED,
+        Self::DRAFTS_PORTABLE_BLOCKER_FIELD_UNSUPPORTED,
+        Self::DRAFTS_PORTABLE_BLOCKER_GRAPH_BINDING_REQUIRED,
+        Self::DRAFTS_PORTABLE_BLOCKER_HOST_BINDING_REQUIRED,
+        Self::DRAFTS_PORTABLE_BLOCKER_ITEM_BINDING_REQUIRED,
+        Self::DRAFTS_PORTABLE_BLOCKER_REFERENCE_REQUIRED,
+        Self::DRAFTS_PORTABLE_BLOCKER_SCOPE_UNSUPPORTED,
+        Self::DRAFTS_PORTABLE_BLOCKER_UNKNOWN_DATA,
+        Self::DRAFTS_PORTABLE_BLOCKER_UNSUPPORTED_DATA,
+        Self::DRAFTS_PORTABLE_BLOCKER_WIDGET_UNSUPPORTED,
+        Self::DRAFTS_PORTABLE_CHECKING,
+        Self::DRAFTS_PORTABLE_COUNT_GRAPH_FIELDS,
+        Self::DRAFTS_PORTABLE_COUNT_HOST_FIELDS,
+        Self::DRAFTS_PORTABLE_COUNT_HOST_PATTERN_FIELDS,
+        Self::DRAFTS_PORTABLE_COUNT_ITEM_FIELDS,
+        Self::DRAFTS_PORTABLE_COUNT_ITEM_PATTERN_FIELDS,
+        Self::DRAFTS_PORTABLE_COUNT_REFERENCE_CONSUMERS,
+        Self::DRAFTS_PORTABLE_COUNT_REFERENCE_DEFINITIONS,
+        Self::DRAFTS_PORTABLE_COUNT_UNCLASSIFIED_WIDGETS,
+        Self::DRAFTS_PORTABLE_COUNT_UNKNOWN_FIELDS,
+        Self::DRAFTS_PORTABLE_CREATE_ACTION,
+        Self::DRAFTS_PORTABLE_CREATE_FAILED_TITLE,
+        Self::DRAFTS_PORTABLE_CREATING,
+        Self::DRAFTS_PORTABLE_DEPENDENCIES_TITLE,
+        Self::DRAFTS_PORTABLE_FAILED_TITLE,
+        Self::DRAFTS_PORTABLE_PREVIEW_TITLE,
+        Self::DRAFTS_PORTABLE_READY,
+        Self::DRAFTS_PORTABLE_SUMMARY,
         Self::DRAFTS_RENAME_DESCRIPTION,
         Self::DRAFTS_RENAME_DONE,
         Self::DRAFTS_RENAME_TITLE,
@@ -2570,6 +2842,21 @@ impl MessageId {
         Self::ERRORS_WORKCOPY_STORAGE_WRITE_FAILED,
         Self::ERRORS_WORKCOPY_TOO_LARGE,
         Self::ERRORS_WORKCOPY_UNSUPPORTED_OPERATION,
+        Self::EXPORT_PROGRESS_CANCEL,
+        Self::EXPORT_PROGRESS_CANCELLED,
+        Self::EXPORT_PROGRESS_CHOOSING,
+        Self::EXPORT_PROGRESS_COMMITTING,
+        Self::EXPORT_PROGRESS_CREATED,
+        Self::EXPORT_PROGRESS_DONE,
+        Self::EXPORT_PROGRESS_FAILED,
+        Self::EXPORT_PROGRESS_PACKAGING,
+        Self::EXPORT_PROGRESS_PREPARING,
+        Self::EXPORT_PROGRESS_SCANNING,
+        Self::EXPORT_PROGRESS_TOO_LATE,
+        Self::EXPORT_PROGRESS_TRANSFORMING,
+        Self::EXPORT_PROGRESS_VALIDATING,
+        Self::EXPORT_PROGRESS_VERIFYING,
+        Self::EXPORT_PROGRESS_WRITING,
         Self::HTTP_SECURITY_API_NOT_FOUND,
         Self::HTTP_SECURITY_BODY_TOO_LARGE,
         Self::HTTP_SECURITY_BOOTSTRAP_INVALID,
@@ -2622,9 +2909,13 @@ impl MessageId {
         Self::OFFLINE_BUILDER_EDIT_ROLE,
         Self::OFFLINE_BUILDER_EDIT_TITLE,
         Self::OFFLINE_BUILDER_EDIT_WIDGET,
+        Self::OFFLINE_BUILDER_EMBEDDED_CATALOG,
         Self::OFFLINE_BUILDER_EMPTY,
         Self::OFFLINE_BUILDER_ERROR,
+        Self::OFFLINE_BUILDER_EXPORT,
+        Self::OFFLINE_BUILDER_EXPORT_FAILED,
         Self::OFFLINE_BUILDER_GO_TO_DRAFTS,
+        Self::OFFLINE_BUILDER_GRAPH_ROWS,
         Self::OFFLINE_BUILDER_HELP,
         Self::OFFLINE_BUILDER_LEAVE_DIRTY,
         Self::OFFLINE_BUILDER_LIBRARY_UNAVAILABLE,
@@ -2709,6 +3000,7 @@ impl MessageId {
         Self::OFFLINE_EDITOR_CHECK_INCOMPLETE,
         Self::OFFLINE_EDITOR_CHECK_METRIC,
         Self::OFFLINE_EDITOR_CHECK_METRIC_TYPE,
+        Self::OFFLINE_EDITOR_CHECK_MIXED_UNITS,
         Self::OFFLINE_EDITOR_CHECK_NAME,
         Self::OFFLINE_EDITOR_CHECK_OVERLAP,
         Self::OFFLINE_EDITOR_CHECK_ROLE,
@@ -2779,6 +3071,97 @@ impl MessageId {
         Self::OFFLINE_EDITOR_ZOOM_IN,
         Self::OFFLINE_EDITOR_ZOOM_OUT,
         Self::OFFLINE_EDITOR_ZOOM_RESET,
+        Self::PACKAGE_IMPORT_CHOOSE,
+        Self::PACKAGE_IMPORT_COMPATIBILITY_MIN,
+        Self::PACKAGE_IMPORT_COMPATIBILITY_RANGE,
+        Self::PACKAGE_IMPORT_DASHBOARD,
+        Self::PACKAGE_IMPORT_EXPORT_HASH,
+        Self::PACKAGE_IMPORT_EXPORT_YAML,
+        Self::PACKAGE_IMPORT_FAILED,
+        Self::PACKAGE_IMPORT_FILE_HASHES,
+        Self::PACKAGE_IMPORT_HASH_HINT,
+        Self::PACKAGE_IMPORT_HELP,
+        Self::PACKAGE_IMPORT_IMPORT,
+        Self::PACKAGE_IMPORT_INVALID,
+        Self::PACKAGE_IMPORT_LIMITS,
+        Self::PACKAGE_IMPORT_PAGE,
+        Self::PACKAGE_IMPORT_PREVIEW,
+        Self::PACKAGE_IMPORT_REGISTRY_INCOMPATIBLE,
+        Self::PACKAGE_IMPORT_REGISTRY_KNOWN,
+        Self::PACKAGE_IMPORT_REGISTRY_MIN,
+        Self::PACKAGE_IMPORT_REGISTRY_MISMATCH,
+        Self::PACKAGE_IMPORT_REGISTRY_RANGE,
+        Self::PACKAGE_IMPORT_REGISTRY_UNKNOWN,
+        Self::PACKAGE_IMPORT_SAVED,
+        Self::PACKAGE_IMPORT_SHA256,
+        Self::PACKAGE_IMPORT_SIZE,
+        Self::PACKAGE_IMPORT_SUMMARY,
+        Self::PACKAGE_IMPORT_TITLE,
+        Self::PACKAGE_SCAN_ACTION,
+        Self::PACKAGE_SCAN_CREDENTIAL,
+        Self::PACKAGE_SCAN_CREDENTIAL_COUNT,
+        Self::PACKAGE_SCAN_EMAIL,
+        Self::PACKAGE_SCAN_EVIDENCE_HEURISTIC,
+        Self::PACKAGE_SCAN_EVIDENCE_STRUCTURAL,
+        Self::PACKAGE_SCAN_EVIDENCE_UNANALYSED,
+        Self::PACKAGE_SCAN_FAILED,
+        Self::PACKAGE_SCAN_FILTER,
+        Self::PACKAGE_SCAN_FQDN,
+        Self::PACKAGE_SCAN_FREE_TEXT,
+        Self::PACKAGE_SCAN_IDENTIFIER,
+        Self::PACKAGE_SCAN_IP,
+        Self::PACKAGE_SCAN_MACRO,
+        Self::PACKAGE_SCAN_MASK,
+        Self::PACKAGE_SCAN_METRIC_KEY,
+        Self::PACKAGE_SCAN_NONE,
+        Self::PACKAGE_SCAN_PATH,
+        Self::PACKAGE_SCAN_PREPARE_COPY,
+        Self::PACKAGE_SCAN_TRUNCATED,
+        Self::PACKAGE_SCAN_UNKNOWN,
+        Self::PACKAGE_SCAN_UNKNOWN_COUNT,
+        Self::PACKAGE_SCAN_URL,
+        Self::PACKAGE_SCAN_WARNING,
+        Self::PAGE_LIBRARY_ACTION_FAILED,
+        Self::PAGE_LIBRARY_ALL,
+        Self::PAGE_LIBRARY_CACHE_WRITE_FAILED,
+        Self::PAGE_LIBRARY_CANCEL,
+        Self::PAGE_LIBRARY_CATALOG_COUNT,
+        Self::PAGE_LIBRARY_CATALOG_DELETE_EFFECT,
+        Self::PAGE_LIBRARY_CATALOG_DELETE_UNPROVEN,
+        Self::PAGE_LIBRARY_CATALOG_IN_USE,
+        Self::PAGE_LIBRARY_CHECK_PAGE,
+        Self::PAGE_LIBRARY_CHOOSE_FROM_WORKCOPY,
+        Self::PAGE_LIBRARY_CONFIRM_CATALOG_DELETE,
+        Self::PAGE_LIBRARY_CONFIRM_DELETE,
+        Self::PAGE_LIBRARY_CONFIRM_NAME,
+        Self::PAGE_LIBRARY_DELETE,
+        Self::PAGE_LIBRARY_DELETE_EFFECT,
+        Self::PAGE_LIBRARY_DISPLAY_NAME,
+        Self::PAGE_LIBRARY_DRAFT_SOURCE,
+        Self::PAGE_LIBRARY_DUPLICATE,
+        Self::PAGE_LIBRARY_EMPTY,
+        Self::PAGE_LIBRARY_FILTERS,
+        Self::PAGE_LIBRARY_INDEX_UNAVAILABLE,
+        Self::PAGE_LIBRARY_KIND,
+        Self::PAGE_LIBRARY_LIBRARY_SOURCE,
+        Self::PAGE_LIBRARY_LIST_FAILED,
+        Self::PAGE_LIBRARY_NAME,
+        Self::PAGE_LIBRARY_NEWEST,
+        Self::PAGE_LIBRARY_RENAME,
+        Self::PAGE_LIBRARY_SAVE_ACTION,
+        Self::PAGE_LIBRARY_SAVE_FAILED,
+        Self::PAGE_LIBRARY_SAVE_NAME,
+        Self::PAGE_LIBRARY_SAVED,
+        Self::PAGE_LIBRARY_SEARCH,
+        Self::PAGE_LIBRARY_SELECT_PAGE,
+        Self::PAGE_LIBRARY_SELECTED_PAGE,
+        Self::PAGE_LIBRARY_SORT,
+        Self::PAGE_LIBRARY_SOURCE,
+        Self::PAGE_LIBRARY_TAKE_ACTION,
+        Self::PAGE_LIBRARY_TAKE_FAILED,
+        Self::PAGE_LIBRARY_TITLE,
+        Self::PAGE_LIBRARY_USAGE_UNKNOWN,
+        Self::PAGE_LIBRARY_USED_BY,
         Self::PUBLICATION_A11Y_STEPS,
         Self::PUBLICATION_ACCESS_COPY_PRIVATE,
         Self::PUBLICATION_ACCESS_TITLE,
@@ -3109,6 +3492,61 @@ impl MessageId {
         Self::PUBLICATION_UNTOUCHED_TITLE,
         Self::PUBLICATION_UNTOUCHED_WIDGETS,
         Self::PUBLICATION_UNTOUCHED_ZABBIX_OBJECTS,
+        Self::REDACTION_ACKNOWLEDGE,
+        Self::REDACTION_ADD,
+        Self::REDACTION_ALIAS_CAUTION,
+        Self::REDACTION_CATALOG_ID,
+        Self::REDACTION_CATALOG_METRIC,
+        Self::REDACTION_CATALOG_METRIC_ID,
+        Self::REDACTION_CATALOG_METRIC_UNITS,
+        Self::REDACTION_CATALOG_TEMPLATE,
+        Self::REDACTION_CLEAR_CATALOG_SOURCE,
+        Self::REDACTION_CLEAR_CATALOG_SOURCE_CAUTION,
+        Self::REDACTION_CLEAR_PROVENANCE,
+        Self::REDACTION_CLEAR_UUIDS,
+        Self::REDACTION_CREDENTIALS_BLOCK,
+        Self::REDACTION_DASHBOARD,
+        Self::REDACTION_DASHBOARD_ID,
+        Self::REDACTION_EXPORT,
+        Self::REDACTION_FAILED,
+        Self::REDACTION_HELP,
+        Self::REDACTION_HOST_MASK,
+        Self::REDACTION_ID_CAUTION,
+        Self::REDACTION_ITEM_PATTERN,
+        Self::REDACTION_ITEM_PATTERN_CAUTION,
+        Self::REDACTION_LENGTH,
+        Self::REDACTION_LIMIT,
+        Self::REDACTION_MASK_CAUTION,
+        Self::REDACTION_MATCHING,
+        Self::REDACTION_PAGE,
+        Self::REDACTION_PAGE_ID,
+        Self::REDACTION_PREVIEW,
+        Self::REDACTION_PROJECT_ID,
+        Self::REDACTION_PROTECTED,
+        Self::REDACTION_REMAINING,
+        Self::REDACTION_REMOVE,
+        Self::REDACTION_REMOVE_CAUTION,
+        Self::REDACTION_REMOVE_PAGE,
+        Self::REDACTION_REMOVE_WIDGET,
+        Self::REDACTION_REPLACEMENT,
+        Self::REDACTION_ROLE,
+        Self::REDACTION_ROLE_DESCRIPTION,
+        Self::REDACTION_SAVE_AS,
+        Self::REDACTION_SAVE_AS_HINT,
+        Self::REDACTION_SAVE_NO_OVERWRITE,
+        Self::REDACTION_SAVE_YAML_AS,
+        Self::REDACTION_SAVE_ZIP_AS,
+        Self::REDACTION_SAVED,
+        Self::REDACTION_SELECTOR_ALIASES,
+        Self::REDACTION_SLOT,
+        Self::REDACTION_TARGET,
+        Self::REDACTION_TITLE,
+        Self::REDACTION_UNITS_CAUTION,
+        Self::REDACTION_UNRESOLVED_NAME,
+        Self::REDACTION_WIDGET,
+        Self::REDACTION_WIDGET_ID,
+        Self::REDACTION_WIDGET_TEXT,
+        Self::REDACTION_WITH_VALUE,
         Self::REPLACE_HOST_SOURCE,
         Self::SERVER_ACTION_CLONE,
         Self::SERVER_ACTION_COPY,
@@ -3238,6 +3676,33 @@ impl MessageId {
         Self::SHELL_A11Y_BREADCRUMBS,
         Self::SHELL_A11Y_MAIN_NAV,
         Self::SHELL_DEMO_MARKER,
+        Self::SNAPSHOT_LIBRARY_CHOOSE,
+        Self::SNAPSHOT_LIBRARY_COMPARE_ACTION,
+        Self::SNAPSHOT_LIBRARY_COMPARE_FAILED,
+        Self::SNAPSHOT_LIBRARY_COMPARE_TITLE,
+        Self::SNAPSHOT_LIBRARY_CONFIRM_DELETE,
+        Self::SNAPSHOT_LIBRARY_COUNTS,
+        Self::SNAPSHOT_LIBRARY_DAMAGED,
+        Self::SNAPSHOT_LIBRARY_DELETE_ACTION,
+        Self::SNAPSHOT_LIBRARY_DELETE_EFFECT,
+        Self::SNAPSHOT_LIBRARY_DELETE_FAILED,
+        Self::SNAPSHOT_LIBRARY_DELETE_REFS,
+        Self::SNAPSHOT_LIBRARY_DELETE_UNKNOWN,
+        Self::SNAPSHOT_LIBRARY_DIFFERENT,
+        Self::SNAPSHOT_LIBRARY_EMPTY,
+        Self::SNAPSHOT_LIBRARY_FIRST,
+        Self::SNAPSHOT_LIBRARY_IDENTICAL,
+        Self::SNAPSHOT_LIBRARY_ITEM,
+        Self::SNAPSHOT_LIBRARY_LIST_FAILED,
+        Self::SNAPSHOT_LIBRARY_LOCAL_ONLY,
+        Self::SNAPSHOT_LIBRARY_OPEN_COPY,
+        Self::SNAPSHOT_LIBRARY_READ_AT,
+        Self::SNAPSHOT_LIBRARY_REFERENCES_INCOMPLETE,
+        Self::SNAPSHOT_LIBRARY_SECOND,
+        Self::SNAPSHOT_LIBRARY_SOURCE,
+        Self::SNAPSHOT_LIBRARY_TITLE,
+        Self::SNAPSHOT_LIBRARY_USAGE_UNKNOWN,
+        Self::SNAPSHOT_LIBRARY_USED_BY,
         Self::STARTUP_ACTION_ALL_DRAFTS,
         Self::STARTUP_ACTION_ASSEMBLE_DASHBOARD,
         Self::STARTUP_ACTION_CHOOSE_DASHBOARD,
@@ -3306,6 +3771,7 @@ impl MessageId {
         Self::TEMPLATE_IMPORT_HELP,
         Self::TEMPLATE_IMPORT_INSPECT,
         Self::TEMPLATE_IMPORT_LIST_FAILED,
+        Self::TEMPLATE_IMPORT_LLD_REQUIRES_INSTANCE,
         Self::TEMPLATE_IMPORT_MISSING_PARENT,
         Self::TEMPLATE_IMPORT_NEW_VERSION,
         Self::TEMPLATE_IMPORT_PARTIAL,

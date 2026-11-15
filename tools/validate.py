@@ -237,6 +237,7 @@ def validate_zabbix_field_shape(field):
     elif not (
         (kind == 'integer' and field_type == 0)
         or (kind == 'string' and field_type == 1)
+        or (kind == 'dynamic_pattern' and field_type == 1)
         or (kind == 'host' and field_type in {2, 3})
         or (kind == 'metric' and field_type in {4, 5})
         or (kind == 'unresolved' and field_type > 13 and value.get('object_kind') == 'unknown')
@@ -245,6 +246,8 @@ def validate_zabbix_field_shape(field):
             'widget_field_value_kind', 'widget field value kind does not match field type'
         )
     text = value.get('value')
+    if kind == 'dynamic_pattern' and isinstance(text, str) and (not 1 <= len(text) <= 255 or any(unicodedata.category(char) == 'Cc' for char in text)):
+        raise ProjectValidationError('widget_pattern', 'widget pattern must be 1..255 characters without controls')
     if kind == 'string' and isinstance(text, str) and len(text) > 16384:
         raise ProjectValidationError(
             'widget_field_value', 'widget field string value length must be 0..=16384'
@@ -404,7 +407,12 @@ def validate_content(project, catalogs):
                     for field in w['fields']:
                         value = field['value']
                         kind = value['kind']
-                        if kind == 'host':
+                        if kind == 'dynamic_pattern':
+                            if value['role'] not in project['roles']:
+                                raise ProjectValidationError('unknown_role', 'dynamic pattern references an unknown role')
+                            if w['widget_type'] != 'svggraph' or not re.fullmatch(r'(?:(?:ds|or)\.[0-9]+\.(?:hosts|items)\.[0-9]+|problemhosts\.[0-9]+)', field['name']):
+                                raise ProjectValidationError('widget_pattern_field', 'dynamic patterns are limited to known svggraph pattern fields')
+                        elif kind == 'host':
                             validate_portable_host(value, project['roles'])
                             validate_single_reference(value, project['roles'])
                         elif kind == 'metric':

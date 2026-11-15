@@ -11,14 +11,32 @@ mod clone_preflight;
 mod clone_setup;
 pub use clone_comparison::CloneComparison;
 pub mod catalog_library;
+mod catalog_pin_lock;
 mod compatibility;
 pub mod connections;
 mod create_dashboard;
 mod generated_message_ids;
+pub mod library_index;
 pub mod offline_dashboards;
 pub mod offline_page_sessions;
 pub mod offline_pages;
+pub mod page_library;
+mod portable_bindings;
 pub mod portable_conversion;
+pub use portable_bindings::{PortableHostChoice, PortableItemChoice, PortablePatternChoice};
+mod portable_evidence;
+pub use portable_evidence::{
+    PortableBindingCandidate, PortableBindingHost, PortableBindingItem, PortableBindingPattern,
+    PortableBindingSetup, PortableEvidenceSummary,
+};
+pub mod portable_import;
+pub mod portable_pattern_review;
+pub mod portable_redaction;
+mod portable_save;
+pub mod portable_scan;
+mod snapshot_guard;
+pub mod snapshot_library;
+pub use portable_save::PortableConversionOutcome;
 pub mod publication;
 pub mod publish_journal;
 mod publisher;

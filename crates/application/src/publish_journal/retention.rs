@@ -103,6 +103,8 @@ impl PublishJournal {
     /// [`Self::prune_expired`] with the current time `now_ms` (Unix epoch
     /// milliseconds) injected.
     pub(crate) fn prune_expired_at(&self, now_ms: u64) -> Result<RetentionReport, JournalError> {
+        let _snapshot_guard =
+            crate::snapshot_guard::lock().map_err(|_| JournalError::new("storage_unavailable"))?;
         let Some(directory) = file::directory(&self.store, false)? else {
             return Ok(RetentionReport::default());
         };

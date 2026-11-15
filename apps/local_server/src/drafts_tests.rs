@@ -20,6 +20,7 @@ use axum::{
 };
 use http_body_util::BodyExt;
 use serde_json::{Value, json};
+use sha2::{Digest, Sha256};
 use tower::ServiceExt;
 use zdashstitch_application::catalog_library::{CatalogLibrary, inspect_template_file};
 use zdashstitch_application::connections::{ConnectionService, MemoryCredentialStore};
@@ -82,6 +83,23 @@ async fn rpc(
             }
         }
         "dashboard.get" => script.list.clone(),
+        "item.get"
+            if body["params"].get("selectItemDiscovery").is_some()
+                && body["params"]["itemids"] == json!(["30002"]) =>
+        {
+            json!([
+                {"itemid":"30002","hostid":"40001","key_":"synthetic.value[db-a]","name":"Value db-a","value_type":"0","units":"","flags":"4","templateid":"0","itemDiscovery":{"parent_itemid":"50001","key_":"synthetic.value[{#ID}]"},"hosts":[{"hostid":"40001","name":"Synthetic host"}]}
+            ])
+        }
+        "itemprototype.get" if body["params"]["itemids"] == json!(["50001"]) => json!([
+            {"itemid":"50001","hostid":"40001","key_":"synthetic.value[{#ID}]","name":"Value {#ID}","value_type":"0","units":"","templateid":"0","discoveryRule":[]}
+        ]),
+        "item.get" if body["params"].get("selectItemDiscovery").is_some() => json!([
+            {"itemid":"30001","hostid":"40001","key_":"synthetic.rate","name":"Rate","value_type":"0","units":"","flags":"0","templateid":"0","itemDiscovery":[],"hosts":[{"hostid":"40001","name":"Synthetic host"}]}
+        ]),
+        "host.get" if body["params"]["hostids"] == json!(["40001"]) => json!([
+            {"hostid":"40001","host":"synthetic-host","name":"Synthetic host"}
+        ]),
         "item.get" => json!([
             {"itemid": "30001", "value_type": "3", "units": "", "valuemapid": "0", "valuemap": []}
         ]),
@@ -190,10 +208,14 @@ impl App {
         ));
         let initial = LocalSecurity::initialize(PORT)
             .unwrap_or_else(|error| panic!("security must initialize: {error}"));
-        let api = connections::routes(handle.clone()).merge(routes(
-            handle,
-            DraftsHandle::at(storage.path().to_path_buf()),
-        ));
+        let drafts = DraftsHandle::at(storage.path().to_path_buf());
+        let api = connections::routes(handle.clone())
+            .merge(routes(handle.clone(), drafts.clone()))
+            .merge(super::publication_routes(
+                handle,
+                drafts,
+                Arc::new(super::PlanRegistry::default()),
+            ));
         let router = build_router_with_api("missing-ui", initial.security, api);
         let mut app = Self {
             router,
@@ -418,6 +440,9 @@ async fn routes_stay_behind_session_origin_csrf_and_content_type() {
     let mut no_cookie = app.request("GET", "/api/drafts", None);
     no_cookie.headers_mut().remove(header::COOKIE);
     assert_eq!(app.send(no_cookie).await.0, StatusCode::UNAUTHORIZED);
+    let mut no_cookie = app.request("GET", "/api/library/snapshots", None);
+    no_cookie.headers_mut().remove(header::COOKIE);
+    assert_eq!(app.send(no_cookie).await.0, StatusCode::UNAUTHORIZED);
 
     let mut foreign = app.request("GET", &format!("/api/server/{id}/dashboards"), None);
     foreign.headers_mut().insert(
@@ -425,6 +450,12 @@ async fn routes_stay_behind_session_origin_csrf_and_content_type() {
         HeaderValue::from_static("http://attacker.example.invalid"),
     );
     assert_eq!(app.send(foreign).await.0, StatusCode::FORBIDDEN);
+    let mut foreign_snapshots = app.request("GET", "/api/library/snapshots", None);
+    foreign_snapshots.headers_mut().insert(
+        header::ORIGIN,
+        HeaderValue::from_static("http://attacker.example.invalid"),
+    );
+    assert_eq!(app.send(foreign_snapshots).await.0, StatusCode::FORBIDDEN);
 
     let mut no_csrf = app.request("POST", &import, Some(&body));
     no_csrf.headers_mut().remove(CSRF_HEADER);
@@ -557,6 +588,105 @@ async fn requests_are_validated_before_any_read() {
 
     assert!(app.methods().is_empty(), "{:?}", app.methods());
     assert_eq!(app.stored_files(), 0);
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn library_index_route_rebuilds_cache_and_requires_session() {
+    let app = App::start(default_script()).await;
+    let unauthorized = Request::builder()
+        .uri("/api/library/index")
+        .header(header::HOST, format!("127.0.0.1:{PORT}"))
+        .body(Body::empty())
+        .unwrap_or_else(|error| panic!("{error}"));
+    let (unauthorized_status, _) = app.send(unauthorized).await;
+    assert_ne!(unauthorized_status, StatusCode::OK);
+    let (status, empty) = app.call("GET", "/api/library/index", None).await;
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(
+        empty["catalogs"]
+            .as_array()
+            .unwrap_or_else(|| panic!("catalogs array"))
+            .len(),
+        0
+    );
+    let imported = inspect_template_file(
+        "synthetic.json",
+        br#"{"zabbix_export":{"version":"7.4","templates":[{"template":"Synthetic metrics","items":[{"name":"Rate","key":"synthetic.rate","value_type":"FLOAT"}]}]}}"#,
+    ).unwrap_or_else(|| panic!("known extension")).unwrap_or_else(|error| panic!("{error}"));
+    CatalogLibrary::new(app.storage.path().to_owned())
+        .save(imported)
+        .unwrap_or_else(|error| panic!("{error}"));
+    let (status, indexed) = app.call("GET", "/api/library/index", None).await;
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(
+        indexed["catalogs"]
+            .as_array()
+            .unwrap_or_else(|| panic!("catalogs array"))
+            .len(),
+        1
+    );
+    assert_eq!(
+        indexed["pages"]
+            .as_array()
+            .unwrap_or_else(|| panic!("pages array"))
+            .len(),
+        0
+    );
+    std::fs::write(app.storage.path().join("library-index.json"), b"{partial")
+        .unwrap_or_else(|error| panic!("{error}"));
+    let requests = tokio::join!(
+        app.call("GET", "/api/library/index", None),
+        app.call("GET", "/api/library/index", None),
+        app.call("GET", "/api/library/index", None),
+        app.call("GET", "/api/library/index", None)
+    );
+    for (status, rebuilt) in [requests.0, requests.1, requests.2, requests.3] {
+        assert_eq!(status, StatusCode::OK);
+        assert_eq!(rebuilt, indexed);
+    }
+    let entry_id = indexed["catalogs"][0]["library_id"]
+        .as_str()
+        .unwrap_or_else(|| panic!("catalog entry id"));
+    let (status, renamed) = app
+        .call(
+            "POST",
+            &format!("/api/library/catalogs/{entry_id}/rename"),
+            Some(json!({"expected_revision":1,"display_name":"Alias"})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK, "{renamed}");
+    assert_eq!(renamed["name"], "Alias");
+    let (status, duplicated) = app
+        .call(
+            "POST",
+            &format!("/api/library/catalogs/{entry_id}/duplicate"),
+            Some(json!({"expected_revision":2})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::CREATED, "{duplicated}");
+    assert_eq!(duplicated["version"], 2);
+    assert_ne!(
+        duplicated["library_id"],
+        indexed["catalogs"][0]["library_id"]
+    );
+    let (status, still_original) = app
+        .call(
+            "GET",
+            &format!(
+                "/api/library/catalogs/{}/1",
+                indexed["catalogs"][0]["catalog_id"]
+                    .as_str()
+                    .unwrap_or_else(|| panic!("catalog id"))
+            ),
+            None,
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK, "{still_original}");
+    let (status, refreshed) = app.call("GET", "/api/library/index", None).await;
+    assert_eq!(status, StatusCode::OK, "{refreshed}");
+    assert_eq!(refreshed["catalogs"].as_array().map(Vec::len), Some(2));
+    assert_eq!(refreshed["catalogs"][0]["name"], "Alias");
+    assert!(app.methods().is_empty());
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
@@ -1045,18 +1175,19 @@ async fn offline_dashboard_copies_pages_and_reopens_in_order_without_zabbix_call
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn offline_dashboard_rewrites_colliding_references_without_changing_sources() {
     let app = App::start(default_script()).await;
-    let imported = inspect_template_file(
-        "synthetic.json",
-        br#"{"zabbix_export":{"version":"7.4","templates":[{"template":"Synthetic metrics","items":[{"name":"Rate","key":"synthetic.rate","value_type":"FLOAT"}]}]}}"#,
-    ).unwrap_or_else(|| panic!("known extension"))
-        .unwrap_or_else(|error| panic!("fixture: {error}"));
-    let catalog_id = imported[0].catalog.catalog_id.clone();
-    let metric_id = imported[0].catalog.metrics[0].id.clone();
-    CatalogLibrary::new(app.storage.path().to_owned())
-        .save(imported)
-        .unwrap_or_else(|error| panic!("save catalog: {error}"));
     let mut ids = Vec::new();
     for name in ["One", "Two", "Three"] {
+        let export = format!(
+            r#"{{"zabbix_export":{{"version":"7.4","templates":[{{"template":"{name} metrics","items":[{{"name":"Rate {name}","key":"synthetic.rate.{name}","value_type":"FLOAT"}}]}}]}}}}"#
+        );
+        let imported = inspect_template_file("synthetic.json", export.as_bytes())
+            .unwrap_or_else(|| panic!("known extension"))
+            .unwrap_or_else(|error| panic!("fixture: {error}"));
+        let catalog_id = imported[0].catalog.catalog_id.clone();
+        let metric_id = imported[0].catalog.metrics[0].id.clone();
+        CatalogLibrary::new(app.storage.path().to_owned())
+            .save(imported)
+            .unwrap_or_else(|error| panic!("save catalog: {error}"));
         let (status, page) = app
             .call(
                 "POST",
@@ -1137,6 +1268,16 @@ async fn offline_dashboard_rewrites_colliding_references_without_changing_source
     let pages = dashboard["bundle"]["project"]["root"]["pages"]
         .as_array()
         .unwrap_or_else(|| panic!("dashboard pages"));
+    assert_eq!(
+        dashboard["catalog_versions"].as_array().map(Vec::len),
+        Some(3)
+    );
+    assert_eq!(
+        dashboard["bundle"]["catalogs"]
+            .as_object()
+            .map(|catalogs| catalogs.len()),
+        Some(3)
+    );
     for (page, reference) in pages.iter().zip(["ABCDE", "R0000", "R0001"]) {
         assert_eq!(page["widgets"][0]["fields"][0]["value"]["value"], reference);
         assert_eq!(
@@ -1152,6 +1293,99 @@ async fn offline_dashboard_rewrites_colliding_references_without_changing_source
         )
         .await;
     assert_eq!(reopened, dashboard);
+    let (status, library_page) = app
+        .call(
+            "POST",
+            &format!("/api/library/pages/from-draft/{}", ids[0]),
+            Some(json!({})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::CREATED, "{library_page}");
+    let library_id = library_page["library_id"]
+        .as_str()
+        .unwrap_or_else(|| panic!("library id"));
+    let source_snapshot =
+        zdashstitch_application::page_library::PageLibrary::new(app.storage.path().to_owned())
+            .get(library_id)
+            .unwrap_or_else(|error| panic!("{error}"))
+            .unwrap_or_else(|| panic!("library snapshot"));
+    let (status, taken) = app
+        .call(
+            "POST",
+            &format!("/api/library/pages/{library_id}/take"),
+            Some(json!({})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::CREATED, "{taken}");
+    let taken_id = taken["local_id"]
+        .as_str()
+        .unwrap_or_else(|| panic!("taken id"));
+    assert_ne!(taken_id, ids[0]);
+    let taken_widgets = &taken["bundle"]["project"]["root"]["widgets"];
+    assert_ne!(taken_widgets[0]["id"], "provider");
+    assert_ne!(taken_widgets[1]["id"], "consumer");
+    assert_ne!(taken_widgets[0]["id"], taken_widgets[1]["id"]);
+    assert_eq!(taken_widgets[0]["fields"][0]["value"]["value"], "ABCDE");
+    assert_eq!(
+        taken_widgets[1]["fields"][0]["value"]["value"],
+        "ABCDE._hostid"
+    );
+    let (status, edit) = app
+        .call(
+            "POST",
+            &format!("/api/library/offline-pages/{taken_id}/edit-session"),
+            Some(json!({"take_over": false})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK, "{edit}");
+    let token = edit["token"]
+        .as_str()
+        .unwrap_or_else(|| panic!("editor token"));
+    let (status, changed) = app
+        .editor_call(
+            &format!("/api/library/offline-pages/{taken_id}"),
+            token,
+            json!({
+                "expected_revision": 1,
+                "page": {
+                    "name": "Edited taken page",
+                    "catalogs": taken["catalog_versions"],
+                    "roles": taken["bundle"]["project"]["roles"],
+                    "widgets": [
+                        {"kind":"preserved", "widget_id":taken_widgets[0]["id"]},
+                        {"kind":"preserved", "widget_id":taken_widgets[1]["id"]}
+                    ]
+                }
+            }),
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK, "{changed}");
+    assert_eq!(
+        changed["bundle"]["project"]["root"]["name"],
+        "Edited taken page"
+    );
+    assert_eq!(
+        changed["bundle"]["project"]["root"]["widgets"],
+        *taken_widgets
+    );
+    assert_eq!(
+        zdashstitch_application::page_library::PageLibrary::new(app.storage.path().to_owned())
+            .get(library_id)
+            .unwrap_or_else(|error| panic!("{error}"))
+            .unwrap_or_else(|| panic!("library snapshot"))
+            .bundle,
+        source_snapshot.bundle
+    );
+    assert_eq!(
+        app.call(
+            "GET",
+            &format!("/api/library/offline-dashboards/{id}"),
+            None
+        )
+        .await
+        .1,
+        dashboard
+    );
     let (status, export) = app
         .call(
             "POST",
@@ -1178,6 +1412,14 @@ async fn offline_dashboard_rewrites_colliding_references_without_changing_source
         .await
         .unwrap_or_else(|error| panic!("download body: {error}"))
         .to_bytes();
+    assert_eq!(export["sha256"], format!("{:x}", Sha256::digest(&raw)));
+    assert_eq!(export["size_bytes"], raw.len());
+    let entries = zdashstitch_core::formats::package_entry_hashes(&raw)
+        .unwrap_or_else(|error| panic!("entry hashes: {error}"));
+    assert_eq!(
+        export["entry_hashes"],
+        serde_json::to_value(entries).unwrap_or_else(|error| panic!("entry hashes JSON: {error}"))
+    );
     let package =
         read_typed_package_bytes(&raw).unwrap_or_else(|error| panic!("exported package: {error}"));
     let expected: TypedPortableBundle = serde_json::from_value(dashboard["bundle"].clone())
@@ -1193,9 +1435,19 @@ async fn offline_dashboard_rewrites_colliding_references_without_changing_source
         )
         .await;
     assert_eq!(status, StatusCode::NOT_FOUND, "{missing_export}");
+    let current_source_file: Value = serde_json::from_slice(
+        &std::fs::read(&source_file).unwrap_or_else(|error| panic!("read sources: {error}")),
+    )
+    .unwrap_or_else(|error| panic!("parse sources: {error}"));
+    let original_source_file: Value = serde_json::from_slice(&source_raw)
+        .unwrap_or_else(|error| panic!("parse original sources: {error}"));
     assert_eq!(
-        std::fs::read(&source_file).unwrap_or_else(|error| panic!("read sources: {error}")),
-        source_raw
+        &current_source_file["pages"]
+            .as_array()
+            .unwrap_or_else(|| panic!("current pages"))[..3],
+        original_source_file["pages"]
+            .as_array()
+            .unwrap_or_else(|| panic!("original pages"))
     );
     assert!(app.methods().is_empty(), "{:?}", app.methods());
 
@@ -1227,6 +1479,281 @@ async fn offline_dashboard_rewrites_colliding_references_without_changing_source
         std::fs::read(&dashboard_file).unwrap_or_else(|error| panic!("reread dashboards: {error}")),
         before
     );
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn library_page_is_independent_of_draft_and_assembled_dashboard() {
+    let app = App::start(default_script()).await;
+    let imported = inspect_template_file("synthetic.json", br#"{"zabbix_export":{"version":"7.4","templates":[{"template":"Reusable metrics","items":[{"name":"Rate","key":"synthetic.rate","value_type":"FLOAT"}]}]}}"#)
+        .unwrap_or_else(|| panic!("extension")).unwrap_or_else(|error| panic!("{error}"));
+    let catalog_id = imported[0].catalog.catalog_id.clone();
+    let metric_id = imported[0].catalog.metrics[0].id.clone();
+    CatalogLibrary::new(app.storage.path().to_owned())
+        .save(imported)
+        .unwrap_or_else(|error| panic!("{error}"));
+    let mut request = json!({"name":"Original","catalogs":[{"catalog_id":catalog_id,"version":1}],
+        "roles":{"source":{"cardinality":"one","slots":["node-a"]}},
+        "widgets":[{"kind":"item_value","title":"Original widget","metric":{"catalog_id":catalog_id,"metric_id":metric_id},"hosts":{"role":"source","selection":"one"},"expansion":"single"}]});
+    let (status, draft) = app
+        .call("POST", "/api/library/offline-pages", Some(request.clone()))
+        .await;
+    assert_eq!(status, StatusCode::CREATED, "{draft}");
+    let draft_id = draft["local_id"]
+        .as_str()
+        .unwrap_or_else(|| panic!("draft id"));
+    let save_path = format!("/api/library/pages/from-draft/{draft_id}");
+    let (status, first) = app.call("POST", &save_path, Some(json!({}))).await;
+    assert_eq!(status, StatusCode::CREATED, "{first}");
+    let (status, second) = app.call("POST", &save_path, Some(json!({}))).await;
+    assert_eq!(status, StatusCode::CREATED, "{second}");
+    let library_id = first["library_id"]
+        .as_str()
+        .unwrap_or_else(|| panic!("library id"));
+    assert_ne!(first["library_id"], second["library_id"]);
+    let (status, dashboard) = app
+        .call(
+            "POST",
+            "/api/library/offline-dashboards",
+            Some(json!({"name":"Assembled","page_ids":[library_id]})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::CREATED, "{dashboard}");
+    let dashboard_id = dashboard["local_id"]
+        .as_str()
+        .unwrap_or_else(|| panic!("dashboard id"));
+    let catalog_entry = CatalogLibrary::new(app.storage.path().to_owned())
+        .list()
+        .unwrap_or_else(|error| panic!("{error}"))[0]
+        .library_id
+        .clone()
+        .unwrap_or_else(|| panic!("catalog entry"));
+    let (status, usage) = app
+        .call(
+            "GET",
+            &format!("/api/library/catalogs/{catalog_entry}/delete-preview"),
+            None,
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK, "{usage}");
+    let consumers = usage["used_by"]
+        .as_array()
+        .unwrap_or_else(|| panic!("consumers"));
+    assert!(consumers.iter().any(|value| value == draft_id));
+    assert!(consumers.iter().any(|value| value == library_id));
+    assert!(consumers.iter().any(|value| value == dashboard_id));
+    let (status, blocked) = app
+        .call(
+            "POST",
+            &format!("/api/library/catalogs/{catalog_entry}/delete"),
+            Some(json!({"expected_revision":1,"confirmed_name":usage["name"]})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::CONFLICT, "{blocked}");
+    assert_eq!(blocked["code"], "catalog_in_use");
+    let original_page = dashboard["bundle"]["project"]["root"]["pages"][0].clone();
+    let embedded_id = original_page["id"]
+        .as_str()
+        .unwrap_or_else(|| panic!("page id"));
+    let (status, dashboard_copy) = app
+        .call(
+            "POST",
+            &format!("/api/library/pages/from-dashboard/{dashboard_id}/{embedded_id}"),
+            Some(json!({})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::CREATED, "{dashboard_copy}");
+    let dashboard_copy_id = dashboard_copy["library_id"]
+        .as_str()
+        .unwrap_or_else(|| panic!("library id"));
+    let (status, missing) = app
+        .call(
+            "POST",
+            &format!("/api/library/pages/from-dashboard/{dashboard_id}/missing"),
+            Some(json!({})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::NOT_FOUND, "{missing}");
+    request["name"] = json!("Changed draft");
+    let update = zdashstitch_application::offline_pages::UpdatePage::parse_json(
+        &serde_json::to_vec(&json!({"expected_revision":1,"page":request}))
+            .unwrap_or_else(|error| panic!("{error}")),
+    )
+    .unwrap_or_else(|| panic!("update"));
+    zdashstitch_application::offline_pages::OfflinePageStore::new(app.storage.path().to_owned())
+        .update(draft_id, update)
+        .unwrap_or_else(|error| panic!("{error}"));
+    let reopened =
+        zdashstitch_application::page_library::PageLibrary::new(app.storage.path().to_owned());
+    assert_eq!(
+        reopened
+            .list()
+            .unwrap_or_else(|error| panic!("{error}"))
+            .len(),
+        3
+    );
+    let copied = reopened
+        .get(dashboard_copy_id)
+        .unwrap_or_else(|error| panic!("{error}"))
+        .unwrap_or_else(|| panic!("dashboard page"));
+    assert_eq!(
+        serde_json::to_value(&copied.bundle.project.root).unwrap_or_else(|error| panic!("{error}")),
+        original_page
+    );
+    let saved = reopened
+        .get(library_id)
+        .unwrap_or_else(|error| panic!("{error}"))
+        .unwrap_or_else(|| panic!("saved page"));
+    assert_eq!(
+        serde_json::to_value(&saved.bundle.project.root).unwrap_or_else(|error| panic!("{error}")),
+        draft["bundle"]["project"]["root"]
+    );
+    let (status, taken) = app
+        .call(
+            "POST",
+            &format!("/api/library/pages/{library_id}/take"),
+            Some(json!({})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::CREATED, "{taken}");
+    let taken_id = taken["local_id"]
+        .as_str()
+        .unwrap_or_else(|| panic!("taken id"));
+    assert_ne!(taken_id, draft_id);
+    assert_eq!(taken["bundle"]["project"]["project_id"], taken_id);
+    assert_eq!(taken["bundle"]["project"]["root"]["id"], taken_id);
+    assert_ne!(
+        taken["bundle"]["project"]["root"]["widgets"][0]["id"],
+        draft["bundle"]["project"]["root"]["widgets"][0]["id"]
+    );
+    assert_eq!(taken["catalog_versions"], draft["catalog_versions"]);
+    assert_eq!(taken["bundle"]["catalogs"], draft["bundle"]["catalogs"]);
+    assert_eq!(
+        taken["bundle"]["project"]["roles"],
+        draft["bundle"]["project"]["roles"]
+    );
+    let (status, reopened_taken) = app
+        .call(
+            "GET",
+            &format!("/api/library/offline-pages/{taken_id}"),
+            None,
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK, "{reopened_taken}");
+    assert_eq!(reopened_taken["bundle"], taken["bundle"]);
+    let (status, missing_take) = app
+        .call(
+            "POST",
+            "/api/library/pages/lp-missing/take",
+            Some(json!({})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::NOT_FOUND, "{missing_take}");
+    assert_eq!(
+        reopened
+            .get(library_id)
+            .unwrap_or_else(|error| panic!("{error}"))
+            .unwrap_or_else(|| panic!("library page"))
+            .bundle,
+        saved.bundle
+    );
+    assert_eq!(
+        app.call(
+            "GET",
+            &format!("/api/library/offline-dashboards/{dashboard_id}"),
+            None
+        )
+        .await
+        .1["bundle"]["project"]["root"]["pages"][0],
+        original_page
+    );
+    let mut no_csrf = app.request(
+        "POST",
+        &format!("/api/library/pages/{library_id}/delete"),
+        Some(r#"{"expected_revision":1,"confirmed_name":"Original"}"#),
+    );
+    no_csrf.headers_mut().remove(CSRF_HEADER);
+    let (blocked_status, _) = app.send(no_csrf).await;
+    assert_ne!(blocked_status, StatusCode::OK);
+    let (status, duplicate) = app
+        .call(
+            "POST",
+            &format!("/api/library/pages/{library_id}/duplicate"),
+            Some(json!({"expected_revision":1})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::CREATED, "{duplicate}");
+    assert_ne!(duplicate["library_id"], first["library_id"]);
+    let (status, renamed) = app
+        .call(
+            "POST",
+            &format!("/api/library/pages/{library_id}/rename"),
+            Some(json!({"expected_revision":1,"display_name":"Display only"})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK, "{renamed}");
+    assert_eq!(renamed["name"], "Display only");
+    assert_eq!(renamed["revision"], 2);
+    let (status, conflict) = app
+        .call(
+            "POST",
+            &format!("/api/library/pages/{library_id}/rename"),
+            Some(json!({"expected_revision":1,"display_name":"Stale"})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::CONFLICT, "{conflict}");
+    let (status, mismatch) = app
+        .call(
+            "POST",
+            &format!("/api/library/pages/{library_id}/delete"),
+            Some(json!({"expected_revision":2,"confirmed_name":"Original"})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::CONFLICT, "{mismatch}");
+    let (status, deleted) = app
+        .call(
+            "POST",
+            &format!("/api/library/pages/{library_id}/delete"),
+            Some(json!({"expected_revision":2,"confirmed_name":"Display only"})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK, "{deleted}");
+    assert!(
+        reopened
+            .get(library_id)
+            .unwrap_or_else(|error| panic!("{error}"))
+            .is_none()
+    );
+    assert!(
+        reopened
+            .get(
+                duplicate["library_id"]
+                    .as_str()
+                    .unwrap_or_else(|| panic!("duplicate id"))
+            )
+            .unwrap_or_else(|error| panic!("{error}"))
+            .is_some()
+    );
+    assert_eq!(
+        app.call(
+            "GET",
+            &format!("/api/library/offline-pages/{taken_id}"),
+            None
+        )
+        .await
+        .1["bundle"],
+        taken["bundle"]
+    );
+    assert_eq!(
+        app.call(
+            "GET",
+            &format!("/api/library/offline-dashboards/{dashboard_id}"),
+            None
+        )
+        .await
+        .1["bundle"]["project"]["root"]["pages"][0],
+        original_page
+    );
+    assert!(app.methods().is_empty());
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
@@ -1511,6 +2038,67 @@ async fn list_preview_import_and_drafts_round_trip() {
     assert_eq!(page["name"], "Vendor");
     assert_eq!(page["snapshot_reused"], true);
 
+    let (status, library_snapshots) = app.call("GET", "/api/library/snapshots", None).await;
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(
+        library_snapshots["snapshots"].as_array().map(Vec::len),
+        Some(1)
+    );
+    assert_eq!(
+        library_snapshots["snapshots"][0]["used_by"]
+            .as_array()
+            .map(Vec::len),
+        Some(2)
+    );
+    let serialized = library_snapshots.to_string();
+    assert!(!serialized.contains("raw_api_document"));
+    assert!(!serialized.contains("dashboardid"));
+    assert!(!serialized.contains("Synthetic DB"));
+    let (status, library_index) = app.call("GET", "/api/library/index", None).await;
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(library_index["snapshots"], library_snapshots["snapshots"]);
+    let snapshot_id = library_snapshots["snapshots"][0]["library_id"]
+        .as_str()
+        .unwrap_or_else(|| panic!("snapshot id: {library_snapshots}"));
+    let (status, comparison) = app
+        .call(
+            "POST",
+            "/api/library/snapshots/compare",
+            Some(json!({"left": snapshot_id, "right": snapshot_id})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(comparison["identical"], true);
+    assert!(comparison.get("raw_api_document").is_none());
+    let (status, missing) = app
+        .call(
+            "POST",
+            "/api/library/snapshots/compare",
+            Some(json!({"left": snapshot_id, "right": "snap-invalid"})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::NOT_FOUND);
+    assert_eq!(missing["code"], "snapshot_library_not_found");
+    let (status, deletion) = app
+        .call(
+            "GET",
+            &format!("/api/library/snapshots/{snapshot_id}/delete-preview"),
+            None,
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(deletion["deletable"], false);
+    assert_eq!(deletion["workcopy_count"], 2);
+    let (status, refused) = app
+        .call(
+            "POST",
+            &format!("/api/library/snapshots/{snapshot_id}/delete"),
+            Some(json!({"confirmed": true})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::CONFLICT);
+    assert_eq!(refused["code"], "snapshot_delete_blocked");
+
     let (status, missing_page) = app
         .call(
             "POST",
@@ -1565,6 +2153,23 @@ async fn list_preview_import_and_drafts_round_trip() {
     assert_eq!(portable["ready"], false);
     assert!(portable["blocker"].is_string());
     assert_eq!(portable["inventory"]["kind"], "dashboard");
+    let (blocked_status, blocked) = app
+        .call(
+            "POST",
+            &format!("/api/drafts/{local_id}/make-portable"),
+            Some(json!({})),
+        )
+        .await;
+    assert_eq!(blocked_status, StatusCode::CONFLICT, "{blocked}");
+    assert_eq!(blocked["code"], portable["blocker"]);
+    let (status, blocked_library) = app
+        .call(
+            "POST",
+            &format!("/api/library/pages/from-workcopy/{local_id}"),
+            Some(json!({})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::CONFLICT, "{blocked_library}");
     assert_eq!(
         app.methods(),
         before_preview_methods,
@@ -1644,6 +2249,466 @@ async fn list_preview_import_and_drafts_round_trip() {
     assert_eq!(stored["source"]["dashboard_name"], "Synthetic DB");
 
     assert_reads_only(&app.methods());
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn selected_dashboard_workcopy_page_is_independent_and_protected() {
+    let source = json!({
+        "dashboardid": "801", "name": "Synthetic", "userid": "3", "private": "1",
+        "display_period": "30", "auto_start": "1", "users": [], "userGroups": [],
+        "pages": [
+            {"dashboard_pageid": "8010", "name": "Portable", "sortorder": "0", "display_period": "0",
+             "widgets": [{"widgetid": "80100", "type": "clock", "name": "Clock", "x": "0", "y": "0", "width": "12", "height": "4", "view_mode": "0", "fields": []}]},
+            {"dashboard_pageid": "8020", "name": "Unsupported sibling", "sortorder": "1", "display_period": "0",
+             "widgets": [{"widgetid": "80200", "type": "vendor_unknown", "name": "Unknown", "x": "0", "y": "0", "width": "12", "height": "4", "view_mode": "0", "fields": []}]}
+        ]
+    });
+    let app = App::start(Script {
+        snapshots: VecDeque::from([json!([source])]),
+        list: json!([]),
+        methods: Vec::new(),
+    })
+    .await;
+    let connection = app.connect().await;
+    let (status, imported) = app
+        .call(
+            "POST",
+            &format!("/api/server/{connection}/dashboards/801/import"),
+            Some(json!({"scope":"dashboard"})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::CREATED, "{imported}");
+    let id = imported["local_id"].as_str().unwrap_or_default();
+    let before_methods = app.methods();
+    let (_, before) = app.call("GET", &format!("/api/drafts/{id}"), None).await;
+    let preview_path = format!("/api/drafts/{id}/pages/8010/portable-preview");
+    let (status, preview) = app.call("GET", &preview_path, None).await;
+    assert_eq!(status, StatusCode::OK, "{preview}");
+    assert_eq!(preview["ready"], true);
+    assert_eq!(preview["inventory"]["pages"], 1);
+    assert_eq!(preview["inventory"]["widgets"], 1);
+    let (_, sibling) = app
+        .call(
+            "GET",
+            &format!("/api/drafts/{id}/pages/8020/portable-preview"),
+            None,
+        )
+        .await;
+    assert_eq!(sibling["ready"], false);
+    let save_path = format!("/api/library/pages/from-workcopy/{id}/pages/8010");
+    let (status, first) = app.call("POST", &save_path, Some(json!({}))).await;
+    assert_eq!(status, StatusCode::CREATED, "{first}");
+    assert_eq!(first["name"], "Portable");
+    let (_, second) = app.call("POST", &save_path, Some(json!({}))).await;
+    assert_ne!(first["library_id"], second["library_id"]);
+    let library =
+        zdashstitch_application::page_library::PageLibrary::new(app.storage.path().to_owned());
+    let saved = library
+        .get(first["library_id"].as_str().unwrap_or_default())
+        .unwrap_or_else(|error| panic!("library read: {error}"))
+        .unwrap_or_else(|| panic!("library page missing"));
+    assert_eq!(saved.source_local_id, id);
+    let saved_json =
+        serde_json::to_value(&saved.bundle).unwrap_or_else(|error| panic!("bundle: {error}"));
+    assert_eq!(saved_json["project"]["root"]["name"], "Portable");
+    assert_eq!(
+        saved_json["project"]["root"]["widgets"]
+            .as_array()
+            .map(Vec::len),
+        Some(1)
+    );
+    let (status, blocked) = app
+        .call(
+            "POST",
+            &format!("/api/library/pages/from-workcopy/{id}/pages/8020"),
+            Some(json!({})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::CONFLICT, "{blocked}");
+    let (status, missing) = app
+        .call(
+            "POST",
+            &format!("/api/library/pages/from-workcopy/{id}/pages/missing"),
+            Some(json!({})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::NOT_FOUND, "{missing}");
+    let mut no_csrf = app.request("POST", &save_path, Some("{}"));
+    no_csrf.headers_mut().remove(CSRF_HEADER);
+    assert_eq!(app.send(no_csrf).await.0, StatusCode::FORBIDDEN);
+    let mut compare_no_csrf = app.request("POST", "/api/library/snapshots/compare", Some("{}"));
+    compare_no_csrf.headers_mut().remove(CSRF_HEADER);
+    assert_eq!(app.send(compare_no_csrf).await.0, StatusCode::FORBIDDEN);
+    let mut delete_no_csrf = app.request(
+        "POST",
+        "/api/library/snapshots/snap-invalid/delete",
+        Some("{}"),
+    );
+    delete_no_csrf.headers_mut().remove(CSRF_HEADER);
+    assert_eq!(app.send(delete_no_csrf).await.0, StatusCode::FORBIDDEN);
+    let mut no_session = app.request("GET", &preview_path, None);
+    no_session.headers_mut().remove(header::COOKIE);
+    assert_eq!(app.send(no_session).await.0, StatusCode::UNAUTHORIZED);
+    let (_, after) = app.call("GET", &format!("/api/drafts/{id}"), None).await;
+    assert_eq!(before, after);
+    assert_eq!(app.methods(), before_methods);
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn portable_bindings_http_reads_selects_saves_and_reopens() {
+    let source = json!({"dashboardid":"601","name":"Source","userid":"3","private":"1","display_period":"30","auto_start":"1","users":[],"userGroups":[],"pages":[{"dashboard_pageid":"6010","name":"Page","display_period":"0","sortorder":"0","widgets":[{"widgetid":"60100","type":"item","name":"Rate","x":"0","y":"0","width":"12","height":"4","view_mode":"0","fields":[{"type":"4","name":"itemid.0","value":"30001"}]}]}]});
+    let app = App::start(Script {
+        snapshots: VecDeque::from([json!([source])]),
+        list: json!([]),
+        methods: Vec::new(),
+    })
+    .await;
+    let imported = inspect_template_file("synthetic.json", br#"{"zabbix_export":{"version":"7.4","templates":[{"template":"Synthetic metrics","items":[{"name":"Rate","key":"synthetic.rate","value_type":"FLOAT"}]}]}}"#).unwrap_or_else(|| panic!("extension")).unwrap_or_else(|e| panic!("{e}"));
+    CatalogLibrary::new(app.storage.path().to_owned())
+        .save(imported)
+        .unwrap_or_else(|e| panic!("{e}"));
+    let connection = app.connect().await;
+    let (status, imported) = app
+        .call(
+            "POST",
+            &format!("/api/server/{connection}/dashboards/601/import"),
+            Some(json!({"scope":"page","dashboard_pageid":"6010"})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::CREATED, "{imported}");
+    let id = imported["local_id"].as_str().unwrap_or_default();
+    let (_, before) = app.call("GET", &format!("/api/drafts/{id}"), None).await;
+    let path = format!("/api/drafts/{id}/portable-bindings");
+    let (status, setup) = app.call("GET", &path, None).await;
+    assert_eq!(status, StatusCode::OK, "{setup}");
+    let candidate = &setup["items"][0]["candidates"][0];
+    assert_eq!(setup["items"][0]["name"], "Rate");
+    let payload = json!({"revision":setup["revision"],"catalogs":setup["catalogs"],"choices":[{"itemid":"30001","catalog":candidate["catalog"],"metric":candidate["metric"],"role":"hosts","slot":"first"}]});
+    let mut no_csrf = app.request("POST", &path, Some(&payload.to_string()));
+    no_csrf.headers_mut().remove(CSRF_HEADER);
+    assert_eq!(app.send(no_csrf).await.0, StatusCode::FORBIDDEN);
+    let mut stale = payload.clone();
+    stale["revision"] = json!(999);
+    let (status, _) = app.call("POST", &path, Some(stale)).await;
+    assert_eq!(status, StatusCode::CONFLICT);
+    let mut invalid = payload.clone();
+    invalid["choices"][0]["metric"] = json!("wrong");
+    let (status, _) = app.call("POST", &path, Some(invalid)).await;
+    assert_eq!(status, StatusCode::CONFLICT);
+    let (status, saved) = app.call("POST", &path, Some(payload)).await;
+    assert_eq!(status, StatusCode::OK, "{saved}");
+    let saved_id = saved["local_id"].as_str().unwrap_or_default();
+    let (status, reopened) = app
+        .call("GET", &format!("/api/drafts/{saved_id}"), None)
+        .await;
+    assert_eq!(status, StatusCode::OK, "{reopened}");
+    assert_eq!(reopened["storage_kind"], "offline_page");
+    let bundle = &reopened["page"]["bundle"];
+    assert_eq!(
+        bundle["project"]["root"]["widgets"][0]["fields"][0]["value"]["metric"],
+        candidate["metric"]
+    );
+    assert!(!bundle.to_string().contains("30001"));
+    let (_, after) = app.call("GET", &format!("/api/drafts/{id}"), None).await;
+    assert_eq!(before, after);
+    assert!(
+        !app.methods()
+            .iter()
+            .any(|method| method == "dashboard.update" || method == "dashboard.create")
+    );
+    let (status, dashboard) = app
+        .call(
+            "POST",
+            &format!("/api/server/{connection}/dashboards/601/import"),
+            Some(json!({"scope":"dashboard"})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::CREATED, "{dashboard}");
+    let dashboard_id = dashboard["local_id"].as_str().unwrap_or_default();
+    let dashboard_path = format!("/api/drafts/{dashboard_id}/portable-bindings");
+    let (status, setup) = app.call("GET", &dashboard_path, None).await;
+    assert_eq!(status, StatusCode::OK, "{setup}");
+    let candidate = &setup["items"][0]["candidates"][0];
+    let payload = json!({"revision":setup["revision"],"catalogs":setup["catalogs"],"choices":[{"itemid":"30001","catalog":candidate["catalog"],"metric":candidate["metric"],"role":"hosts","slot":"first"}]});
+    let (status, saved) = app.call("POST", &dashboard_path, Some(payload)).await;
+    assert_eq!(status, StatusCode::OK, "{saved}");
+    assert_eq!(saved["kind"], "dashboard");
+    let saved_id = saved["local_id"].as_str().unwrap_or_default();
+    let (status, reopened) = app
+        .call("GET", &format!("/api/drafts/{saved_id}"), None)
+        .await;
+    assert_eq!(status, StatusCode::OK, "{reopened}");
+    assert!(!reopened.to_string().contains("30001"));
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn portable_dynamic_masks_require_explicit_roles_and_reopen_unverified() {
+    let source = json!({"dashboardid":"604","name":"Source","userid":"3","private":"1","display_period":"30","auto_start":"1","users":[],"userGroups":[],"pages":[{"dashboard_pageid":"6040","name":"Page","display_period":"0","sortorder":"0","widgets":[{"widgetid":"60400","type":"svggraph","name":"CPU","x":"0","y":"0","width":"12","height":"4","view_mode":"0","fields":[{"type":"1","name":"ds.0.hosts.0","value":"db-*"},{"type":"1","name":"ds.0.items.0","value":"CPU*"}]}]}]});
+    let app = App::start(Script {
+        snapshots: VecDeque::from([json!([source])]),
+        list: json!([]),
+        methods: Vec::new(),
+    })
+    .await;
+    let connection = app.connect().await;
+    let (status, imported) = app
+        .call(
+            "POST",
+            &format!("/api/server/{connection}/dashboards/604/import"),
+            Some(json!({"scope":"page","dashboard_pageid":"6040"})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::CREATED, "{imported}");
+    let id = imported["local_id"].as_str().unwrap_or_default();
+    let path = format!("/api/drafts/{id}/portable-bindings");
+    let (status, setup) = app.call("GET", &path, None).await;
+    assert_eq!(status, StatusCode::OK, "{setup}");
+    assert_eq!(setup["patterns"].as_array().map(Vec::len), Some(2));
+    let (status, _) = app
+        .call(
+            "POST",
+            &path,
+            Some(json!({"revision":setup["revision"],"catalogs":{},"choices":[]})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::CONFLICT);
+    let patterns: Vec<_> = setup["patterns"].as_array().unwrap_or_else(|| panic!("patterns")).iter().map(|p| json!({"page_index":p["page_index"],"widget_index":p["widget_index"],"field_name":p["field_name"],"role":"hosts"})).collect();
+    let (status, saved) = app.call("POST", &path, Some(json!({"revision":setup["revision"],"catalogs":{},"choices":[],"patterns":patterns}))).await;
+    assert_eq!(status, StatusCode::OK, "{saved}");
+    let (status, reopened) = app
+        .call(
+            "GET",
+            &format!(
+                "/api/drafts/{}",
+                saved["local_id"].as_str().unwrap_or_default()
+            ),
+            None,
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK, "{reopened}");
+    let fields = &reopened["page"]["bundle"]["project"]["root"]["widgets"][0]["fields"];
+    assert_eq!(
+        fields[0]["value"],
+        json!({"kind":"dynamic_pattern","value":"db-*","role":"hosts"})
+    );
+    assert_eq!(fields[1]["value"]["kind"], "dynamic_pattern");
+    let review_path = format!(
+        "/api/drafts/{}/portable-pattern-review",
+        saved["local_id"].as_str().unwrap_or_default()
+    );
+    let review = json!({"revision":reopened["page"]["revision"],"page_index":0,"widget_index":0,"field_index":0,"targets":[{"slot_id":"first","host":{"hostid":"40001","host":"not-trusted","name":"not-trusted"}}]});
+    let (status, preview) = app.call("POST", &review_path, Some(review.clone())).await;
+    assert_eq!(status, StatusCode::OK, "{preview}");
+    assert_eq!(preview["preview"]["match_count"], 0);
+    assert_eq!(preview["fingerprint"].as_str().map(str::len), Some(64));
+    let mut stale = review;
+    stale["revision"] = json!(999);
+    assert_eq!(
+        app.call("POST", &review_path, Some(stale)).await.0,
+        StatusCode::CONFLICT
+    );
+    assert!(
+        !app.methods()
+            .iter()
+            .any(|method| method == "dashboard.update" || method == "dashboard.create")
+    );
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn portable_lld_prototype_http_preserves_selected_instance_key() {
+    let source = json!({"dashboardid":"603","name":"Source","userid":"3","private":"1","display_period":"30","auto_start":"1","users":[],"userGroups":[],"pages":[{"dashboard_pageid":"6030","name":"Page","display_period":"0","sortorder":"0","widgets":[{"widgetid":"60300","type":"item","name":"Value","x":"0","y":"0","width":"12","height":"4","view_mode":"0","fields":[{"type":"4","name":"itemid.0","value":"30002"}]}]}]});
+    let app = App::start(Script {
+        snapshots: VecDeque::from([json!([source])]),
+        list: json!([]),
+        methods: Vec::new(),
+    })
+    .await;
+    let imported = inspect_template_file("synthetic.json", br#"{"zabbix_export":{"version":"7.4","templates":[{"template":"LLD","discovery_rules":[{"name":"Discovery","key":"synthetic.discovery","item_prototypes":[{"name":"Value {#ID}","key":"synthetic.value[{#ID}]","value_type":"FLOAT"}]}]}]}}"#).unwrap_or_else(|| panic!("extension")).unwrap_or_else(|e| panic!("{e}"));
+    CatalogLibrary::new(app.storage.path().to_owned())
+        .save(imported)
+        .unwrap_or_else(|e| panic!("{e}"));
+    let connection = app.connect().await;
+    let (status, imported) = app
+        .call(
+            "POST",
+            &format!("/api/server/{connection}/dashboards/603/import"),
+            Some(json!({"scope":"page","dashboard_pageid":"6030"})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::CREATED, "{imported}");
+    let id = imported["local_id"].as_str().unwrap_or_default();
+    let path = format!("/api/drafts/{id}/portable-bindings");
+    let (status, setup) = app.call("GET", &path, None).await;
+    assert_eq!(status, StatusCode::OK, "{setup}");
+    let candidate = &setup["items"][0]["candidates"][0];
+    assert_eq!(candidate["lld_prototype"], true, "{setup}");
+    let payload = json!({"revision":setup["revision"],"catalogs":setup["catalogs"],"choices":[{"itemid":"30002","catalog":candidate["catalog"],"metric":candidate["metric"],"role":"hosts","slot":"first"}]});
+    let (status, saved) = app.call("POST", &path, Some(payload)).await;
+    assert_eq!(status, StatusCode::OK, "{saved}");
+    let (status, reopened) = app
+        .call(
+            "GET",
+            &format!(
+                "/api/drafts/{}",
+                saved["local_id"].as_str().unwrap_or_default()
+            ),
+            None,
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK, "{reopened}");
+    let bundle = &reopened["page"]["bundle"];
+    assert!(bundle.to_string().contains("synthetic.value[db-a]"));
+    assert!(!bundle.to_string().contains("30002") && !bundle.to_string().contains("50001"));
+    assert!(
+        !app.methods()
+            .iter()
+            .any(|method| method == "dashboard.update" || method == "dashboard.create")
+    );
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn portable_host_only_http_requires_explicit_visible_host_slot() {
+    let source = json!({"dashboardid":"602","name":"Source","userid":"3","private":"1","display_period":"30","auto_start":"1","users":[],"userGroups":[],"pages":[{"dashboard_pageid":"6020","name":"Page","display_period":"0","sortorder":"0","widgets":[{"widgetid":"60200","type":"problems","name":"Problems","x":"0","y":"0","width":"12","height":"4","view_mode":"0","fields":[{"type":"3","name":"hostids.0","value":"40001"}]}]}]});
+    let app = App::start(Script {
+        snapshots: VecDeque::from([json!([source])]),
+        list: json!([]),
+        methods: Vec::new(),
+    })
+    .await;
+    let connection = app.connect().await;
+    let (_, imported) = app
+        .call(
+            "POST",
+            &format!("/api/server/{connection}/dashboards/602/import"),
+            Some(json!({"scope":"page","dashboard_pageid":"6020"})),
+        )
+        .await;
+    let id = imported["local_id"].as_str().unwrap_or_default();
+    let path = format!("/api/drafts/{id}/portable-bindings");
+    let (status, setup) = app.call("GET", &path, None).await;
+    assert_eq!(status, StatusCode::OK, "{setup}");
+    assert_eq!(setup["hosts"][0]["name"], "Synthetic host");
+    let missing = json!({"revision":setup["revision"],"catalogs":{},"choices":[]});
+    let (status, _) = app.call("POST", &path, Some(missing)).await;
+    assert_eq!(status, StatusCode::CONFLICT);
+    let payload = json!({"revision":setup["revision"],"catalogs":{},"choices":[],"hosts":[{"hostid":"40001","role":"hosts","slot":"first"}]});
+    let (status, saved) = app.call("POST", &path, Some(payload)).await;
+    assert_eq!(status, StatusCode::OK, "{saved}");
+    let (status, reopened) = app
+        .call(
+            "GET",
+            &format!(
+                "/api/drafts/{}",
+                saved["local_id"].as_str().unwrap_or_default()
+            ),
+            None,
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK, "{reopened}");
+    assert_eq!(
+        reopened["page"]["bundle"]["project"]["root"]["widgets"][0]["fields"][0]["value"]["slot_id"],
+        "first"
+    );
+    assert!(!reopened["page"]["bundle"].to_string().contains("40001"));
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn portable_page_preview_creates_a_separate_local_draft_without_zabbix_calls() {
+    let source = json!({
+        "dashboardid": "601", "name": "Clock source", "userid": "3", "private": "1",
+        "display_period": "30", "auto_start": "1", "users": [], "userGroups": [],
+        "pages": [{
+            "dashboard_pageid": "6010", "name": "Clock page", "display_period": "0",
+            "sortorder": "0", "widgets": [{
+                "widgetid": "60100", "type": "clock", "name": "Clock",
+                "x": "0", "y": "0", "width": "12", "height": "4",
+                "view_mode": "0", "fields": []
+            }]
+        }]
+    });
+    let app = App::start(Script {
+        snapshots: VecDeque::from([json!([source])]),
+        list: json!([]),
+        methods: Vec::new(),
+    })
+    .await;
+    let connection = app.connect().await;
+    let (status, imported) = app
+        .call(
+            "POST",
+            &format!("/api/server/{connection}/dashboards/601/import"),
+            Some(json!({"scope": "page", "dashboard_pageid": "6010"})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::CREATED, "{imported}");
+    let workcopy = imported["local_id"]
+        .as_str()
+        .unwrap_or_else(|| panic!("workcopy: {imported}"));
+    let methods_after_import = app.methods();
+    let (status, preview) = app
+        .call(
+            "GET",
+            &format!("/api/drafts/{workcopy}/portable-preview"),
+            None,
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK, "{preview}");
+    assert_eq!(preview["ready"], true);
+    assert_eq!(preview["blockers"], json!([]));
+    assert_eq!(preview["inventory"]["kind"], "page");
+    let (status, library_page) = app
+        .call(
+            "POST",
+            &format!("/api/library/pages/from-workcopy/{workcopy}"),
+            Some(json!({})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::CREATED, "{library_page}");
+    assert_eq!(library_page["name"], "Clock page");
+    let (status, assembled) = app
+        .call(
+            "POST",
+            "/api/library/offline-dashboards",
+            Some(json!({"name":"From workcopy", "page_ids":[library_page["library_id"]]})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::CREATED, "{assembled}");
+    assert_eq!(
+        assembled["bundle"]["project"]["root"]["pages"][0]["name"],
+        "Clock page"
+    );
+    let (status, created) = app
+        .call(
+            "POST",
+            &format!("/api/drafts/{workcopy}/make-portable"),
+            Some(json!({})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::CREATED, "{created}");
+    assert_eq!(created["kind"], "page");
+    let local_id = created["local_id"]
+        .as_str()
+        .unwrap_or_else(|| panic!("local draft: {created}"));
+    assert!(local_id.starts_with("pg-"));
+    let (status, reopened) = app
+        .call("GET", &format!("/api/drafts/{local_id}"), None)
+        .await;
+    assert_eq!(status, StatusCode::OK, "{reopened}");
+    assert_eq!(reopened["storage_kind"], "offline_page");
+    assert_eq!(
+        reopened["page"]["bundle"]["project"]["root"]["name"],
+        "Clock page"
+    );
+    let (status, source_reopened) = app
+        .call("GET", &format!("/api/drafts/{workcopy}"), None)
+        .await;
+    assert_eq!(status, StatusCode::OK, "{source_reopened}");
+    assert_eq!(source_reopened["name"], "Clock page");
+    assert_eq!(
+        app.methods(),
+        methods_after_import,
+        "conversion is local-only"
+    );
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]

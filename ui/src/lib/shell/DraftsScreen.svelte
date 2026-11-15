@@ -4,6 +4,7 @@
   import { workcopyCodeText } from '../workcopy/messages';
   import OfflinePageBuilder from '../library/OfflinePageBuilder.svelte';
   import OfflineDashboardBuilder from '../library/OfflineDashboardBuilder.svelte';
+  import PackageImport from '../library/PackageImport.svelte';
   import type { PageClipboard } from '../library/editor-clipboard';
   import ComingLater from './ComingLater.svelte';
   import DraftDetails from './DraftDetails.svelte';
@@ -22,17 +23,20 @@
   import { listSourceText, sourceConnectionSuffix, stateText } from './format';
   import { KIND_LABEL, ORIGIN_LABEL } from './labels';
   import { draftPath } from './router';
+  import type { PortableClient, PortableConversionOutcome } from '../workcopy/client';
 
   // «Drafts» (P1-03F, mockup 02-01): filters, search by name, the list and the details column.
   // `drafts` is null while the list is loading. The name is a link that opens the draft (P2-08A);
   // a click elsewhere in the row selects it and shows the details. Selecting is separate from
   // focus (P1-03H): arrows move focus between the name links, Enter opens, Space selects.
-  let { i18n, drafts, onrename, onchanged, clipboard }: {
+  let { i18n, drafts, onrename, onchanged, clipboard, portable, onportablecreated }: {
     i18n: I18n;
     drafts: DraftListResult | null;
     onrename?: (localId: string, name: string) => Promise<DraftRenameResult>;
     onchanged?: () => void;
     clipboard?: PageClipboard;
+    portable?: PortableClient;
+    onportablecreated?: (outcome: PortableConversionOutcome) => void;
   } = $props();
 
   // RadioGroup binds plain strings; only known filter values are offered.
@@ -94,6 +98,7 @@
     </ComingLater>
     <a href="/library">{i18n.t('startup.action.import_files')}</a>
   </header>
+  <PackageImport {i18n} {onchanged} />
 
   {#if drafts === null}
     <Skeleton {i18n} label={{ id: 'common.state.loading' }} lines={4} />
@@ -186,7 +191,13 @@
           <p class="hint">{i18n.t('drafts.sort_hint')}</p>
         </div>
         <aside id="drafts-details" class="card drafts-details" aria-labelledby="drafts-details-title">
-          <DraftDetails {i18n} draft={selected} onrename={selected.storage_kind === 'offline_page' || selected.storage_kind === 'offline_dashboard' ? undefined : onrename} />
+          <DraftDetails
+            {i18n}
+            draft={selected}
+            onrename={selected.storage_kind === 'offline_page' || selected.storage_kind === 'offline_dashboard' ? undefined : onrename}
+            {portable}
+            {onportablecreated}
+          />
         </aside>
       </div>
     {/if}

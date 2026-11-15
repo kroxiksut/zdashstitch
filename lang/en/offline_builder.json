@@ -1,4 +1,306 @@
 {
+  "redaction.title": {
+    "message": "Prepare a copy with replacements",
+    "placeholders": {}
+  },
+  "redaction.help": {
+    "message": "Change selected information in the exported copy. The source draft is unchanged. Metric keys change only when you explicitly replace them with aliases.",
+    "placeholders": {}
+  },
+  "redaction.target": {
+    "message": "Object",
+    "placeholders": {}
+  },
+  "redaction.dashboard": {
+    "message": "Dashboard name",
+    "placeholders": {}
+  },
+  "redaction.page": {
+    "message": "Page {page}",
+    "placeholders": {
+      "page": "number"
+    }
+  },
+  "redaction.widget": {
+    "message": "Page {page}, widget {widget}",
+    "placeholders": {
+      "page": "number",
+      "widget": "number"
+    }
+  },
+  "redaction.host_mask": {
+    "message": "Page {page}, widget {widget}, host mask {field}",
+    "placeholders": {
+      "page": "number",
+      "widget": "number",
+      "field": "number"
+    }
+  },
+  "redaction.mask_caution": {
+    "message": "A replacement host mask is not automatically bound to real hosts. Review it before publishing.",
+    "placeholders": {}
+  },
+  "redaction.replacement": {
+    "message": "Replacement value",
+    "placeholders": {}
+  },
+  "redaction.add": {
+    "message": "Add replacement",
+    "placeholders": {}
+  },
+  "redaction.matching": {
+    "message": "Apply to exact matches in supported names and host masks",
+    "placeholders": {}
+  },
+  "redaction.limit": {
+    "message": "Up to 128 objects per copy; if there are more matches, the operation is refused without changes.",
+    "placeholders": {}
+  },
+  "redaction.remove": {
+    "message": "Remove replacement",
+    "placeholders": {}
+  },
+  "redaction.preview": {
+    "message": "Preview copy",
+    "placeholders": {}
+  },
+  "redaction.length": {
+    "message": "Original value: {before} characters; replacement: {after} characters.",
+    "placeholders": {
+      "before": "number",
+      "after": "number"
+    }
+  },
+  "redaction.remaining": {
+    "message": "Remaining candidates: {count}. The check is limited and does not guarantee anonymization.",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "redaction.acknowledge": {
+    "message": "I understand this check is incomplete and I must verify that no credentials are shared.",
+    "placeholders": {}
+  },
+  "redaction.export": {
+    "message": "Export the reviewed copy",
+    "placeholders": {}
+  },
+  "redaction.failed": {
+    "message": "Could not prepare the copy. Check the replacements and reload a changed draft.",
+    "placeholders": {}
+  },
+  "redaction.credentials_block": {
+    "message": "Export is blocked because this limited check found possible credentials. Remove them from the draft and review again.",
+    "placeholders": {}
+  },
+  "package_scan.action": {
+    "message": "Find possible sensitive values",
+    "placeholders": {}
+  },
+  "package_scan.filter": {
+    "message": "Filter candidates",
+    "placeholders": {}
+  },
+  "package_scan.warning": {
+    "message": "This limited local check does not guarantee anonymization or find every sensitive value. Review the contents before sharing.",
+    "placeholders": {}
+  },
+  "package_scan.none": {
+    "message": "No candidates found by this limited check.",
+    "placeholders": {}
+  },
+  "package_scan.truncated": {
+    "message": "Only the first 256 candidates are shown.",
+    "placeholders": {}
+  },
+  "package_scan.failed": {
+    "message": "The check could not be completed.",
+    "placeholders": {}
+  },
+  "package_scan.url": {
+    "message": "Possible URL",
+    "placeholders": {}
+  },
+  "package_scan.email": {
+    "message": "Possible email",
+    "placeholders": {}
+  },
+  "package_scan.ip": {
+    "message": "Possible IP address",
+    "placeholders": {}
+  },
+  "package_scan.macro": {
+    "message": "Macro",
+    "placeholders": {}
+  },
+  "package_scan.unknown": {
+    "message": "Unknown field or widget; not fully checked",
+    "placeholders": {}
+  },
+  "package_scan.credential": {
+    "message": "Possible credential; review before sharing",
+    "placeholders": {}
+  },
+  "package_scan.credential_count": {
+    "message": "Possible credentials: {count}; review before sharing.",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "package_scan.unknown_count": {
+    "message": "Unknown fields or widgets: {count}; their content is not fully checked.",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "package_scan.metric_key": {
+    "message": "Metric key",
+    "placeholders": {}
+  },
+  "package_scan.mask": {
+    "message": "Possible mask",
+    "placeholders": {}
+  },
+  "package_scan.path": {
+    "message": "Possible file path",
+    "placeholders": {}
+  },
+  "package_scan.fqdn": {
+    "message": "Possible domain name",
+    "placeholders": {}
+  },
+  "package_import.sha256": {
+    "message": "SHA-256",
+    "placeholders": {}
+  },
+  "package_import.file_hashes": {
+    "message": "File fingerprints",
+    "placeholders": {}
+  },
+  "package_import.size": {
+    "message": "File size: {bytes} bytes",
+    "placeholders": {
+      "bytes": "number"
+    }
+  },
+  "package_import.compatibility_min": {
+    "message": "Author-declared compatibility: {version} and later",
+    "placeholders": {
+      "version": "technical"
+    }
+  },
+  "package_import.compatibility_range": {
+    "message": "Author-declared compatibility: {minimum} up to, but not including, {maximum}",
+    "placeholders": {
+      "minimum": "technical",
+      "maximum": "technical"
+    }
+  },
+  "package_import.registry_known": {
+    "message": "The local 7.4 registry recognizes the listed widgets and fields. Server support still needs checking.",
+    "placeholders": {}
+  },
+  "package_import.registry_unknown": {
+    "message": "The local 7.4 registry cannot assess every widget or field. Server support is not confirmed.",
+    "placeholders": {}
+  },
+  "package_import.registry_incompatible": {
+    "message": "The local registry found no common supported version for these widgets.",
+    "placeholders": {}
+  },
+  "package_import.registry_mismatch": {
+    "message": "The author-declared range extends beyond the range inferred from the local registry.",
+    "placeholders": {}
+  },
+  "package_import.registry_min": {
+    "message": "Registry estimate: {version} and later",
+    "placeholders": {
+      "version": "technical"
+    }
+  },
+  "package_import.registry_range": {
+    "message": "Registry estimate: {minimum} up to, but not including, {maximum}",
+    "placeholders": {
+      "minimum": "technical",
+      "maximum": "technical"
+    }
+  },
+  "package_import.hash_hint": {
+    "message": "Compare this fingerprint with a trusted value. It does not establish who created the file.",
+    "placeholders": {}
+  },
+  "package_import.export_hash": {
+    "message": "Prepared package SHA-256",
+    "placeholders": {}
+  },
+  "package_import.export_yaml": {
+    "message": "Export as YAML",
+    "placeholders": {}
+  },
+  "package_import.summary": {
+    "message": "Pages: {pages}; widgets: {widgets}; catalogs: {catalogs}.",
+    "placeholders": {
+      "pages": "number",
+      "widgets": "number",
+      "catalogs": "number"
+    }
+  },
+  "offline_builder.embedded_catalog": {
+    "message": "Stored in this draft",
+    "placeholders": {}
+  },
+  "package_import.title": {
+    "message": "Import dashboard or page packages",
+    "placeholders": {}
+  },
+  "package_import.help": {
+    "message": "Select DATA-ONLY ZIP files or YAML files without catalogs. Catalogs are kept inside each imported draft.",
+    "placeholders": {}
+  },
+  "package_import.limits": {
+    "message": "Up to 32 files; each ZIP up to 16 MiB, each YAML up to 2 MiB, and the selection up to 32 MiB.",
+    "placeholders": {}
+  },
+  "package_import.preview": {
+    "message": "Check files",
+    "placeholders": {}
+  },
+  "package_import.choose": {
+    "message": "Select a dashboard or page",
+    "placeholders": {}
+  },
+  "package_import.dashboard": {
+    "message": "Dashboard",
+    "placeholders": {}
+  },
+  "package_import.page": {
+    "message": "Page",
+    "placeholders": {}
+  },
+  "package_import.import": {
+    "message": "Import selected files",
+    "placeholders": {}
+  },
+  "package_import.invalid": {
+    "message": "The package could not be validated.",
+    "placeholders": {}
+  },
+  "package_import.failed": {
+    "message": "Import failed. Check the files and try again.",
+    "placeholders": {}
+  },
+  "package_import.saved": {
+    "message": "Imported",
+    "placeholders": {}
+  },
+  "offline_builder.export": {
+    "message": "Export page package",
+    "placeholders": {}
+  },
+  "offline_builder.export_failed": {
+    "message": "The page package could not be prepared. The saved page was not changed.",
+    "placeholders": {}
+  },
   "offline_builder.title": {
     "message": "Create a page from metric catalogs",
     "placeholders": {}
@@ -181,6 +483,12 @@
     "placeholders": {
       "widgets": "number",
       "sources": "number"
+    }
+  },
+  "offline_builder.graph_rows": {
+    "message": "Logical rows in this graph: {count} (one widget).",
+    "placeholders": {
+      "count": "number"
     }
   },
   "offline_builder.logical_truncated": {
@@ -542,6 +850,10 @@
     "message": "Assign and verify real sources before publishing.",
     "placeholders": {}
   },
+  "offline_editor.check.mixed_units": {
+    "message": "This graph mixes metric units. Check axis configuration after assigning real sources; publication may be blocked.",
+    "placeholders": {}
+  },
   "offline_editor.clipboard.copy": {
     "message": "Copy",
     "placeholders": {}
@@ -703,6 +1015,281 @@
   },
   "offline_editor.resolve.go_to_object": {
     "message": "Go to object",
+    "placeholders": {}
+  },
+  "redaction.role": {
+    "message": "Role {role}",
+    "placeholders": {
+      "role": "number"
+    }
+  },
+  "redaction.slot": {
+    "message": "Role {role}, slot {slot}",
+    "placeholders": {
+      "role": "number",
+      "slot": "number"
+    }
+  },
+  "redaction.role_description": {
+    "message": "Description of role {role}",
+    "placeholders": {
+      "role": "number"
+    }
+  },
+  "redaction.remove_widget": {
+    "message": "Exclude widget {widget} on page {page}",
+    "placeholders": {
+      "page": "number",
+      "widget": "number"
+    }
+  },
+  "redaction.unresolved_name": {
+    "message": "Unresolved object name {field} in widget {widget}, page {page}",
+    "placeholders": {
+      "page": "number",
+      "widget": "number",
+      "field": "number"
+    }
+  },
+  "redaction.save_as": {
+    "message": "Save copy as…",
+    "placeholders": {}
+  },
+  "redaction.save_as_hint": {
+    "message": "Choose a new .zip file. Existing files are not overwritten.",
+    "placeholders": {}
+  },
+  "redaction.saved": {
+    "message": "Saved",
+    "placeholders": {}
+  },
+  "redaction.widget_text": {
+    "message": "Text field {field} in widget {widget}, page {page}",
+    "placeholders": {
+      "field": "number",
+      "widget": "number",
+      "page": "number"
+    }
+  },
+  "redaction.remove_caution": {
+    "message": "Exclusion is blocked when a remaining widget may lose a provider, or when retained unknown fields prevent a safe check.",
+    "placeholders": {}
+  },
+  "redaction.catalog_template": {
+    "message": "Template name in catalog {catalog}",
+    "placeholders": {
+      "catalog": "number"
+    }
+  },
+  "redaction.catalog_metric": {
+    "message": "Metric {metric} name in catalog {catalog}",
+    "placeholders": {
+      "catalog": "number",
+      "metric": "number"
+    }
+  },
+  "redaction.save_zip_as": {
+    "message": "Save ZIP as…",
+    "placeholders": {}
+  },
+  "redaction.save_yaml_as": {
+    "message": "Save YAML as…",
+    "placeholders": {}
+  },
+  "redaction.save_no_overwrite": {
+    "message": "Choose a new file; existing files are not overwritten.",
+    "placeholders": {}
+  },
+  "redaction.clear_provenance": {
+    "message": "Remove source provenance",
+    "placeholders": {}
+  },
+  "redaction.selector_aliases": {
+    "message": "Replace metric keys with aliases in catalog {catalog}",
+    "placeholders": {
+      "catalog": "number"
+    }
+  },
+  "redaction.clear_uuids": {
+    "message": "Remove template and metric UUIDs in catalog {catalog}",
+    "placeholders": {
+      "catalog": "number"
+    }
+  },
+  "redaction.alias_caution": {
+    "message": "Aliases replace metric keys in this copy. Metrics must be matched again before publishing.",
+    "placeholders": {}
+  },
+  "package_scan.identifier": {
+    "message": "Source identifier",
+    "placeholders": {}
+  },
+  "export_progress.created": {
+    "message": "Preparing export…",
+    "placeholders": {}
+  },
+  "export_progress.choosing": {
+    "message": "Choose a destination…",
+    "placeholders": {}
+  },
+  "export_progress.preparing": {
+    "message": "Checking and packaging…",
+    "placeholders": {}
+  },
+  "export_progress.writing": {
+    "message": "Writing temporary file…",
+    "placeholders": {}
+  },
+  "export_progress.committing": {
+    "message": "Finishing save…",
+    "placeholders": {}
+  },
+  "export_progress.done": {
+    "message": "Saved.",
+    "placeholders": {}
+  },
+  "export_progress.failed": {
+    "message": "Save failed.",
+    "placeholders": {}
+  },
+  "export_progress.cancelled": {
+    "message": "Save cancelled.",
+    "placeholders": {}
+  },
+  "export_progress.cancel": {
+    "message": "Cancel",
+    "placeholders": {}
+  },
+  "export_progress.too_late": {
+    "message": "Saving has already reached the final step and can no longer be cancelled.",
+    "placeholders": {}
+  },
+  "package_scan.free_text": {
+    "message": "Name or free text to review",
+    "placeholders": {}
+  },
+  "redaction.project_id": {
+    "message": "Package identifier",
+    "placeholders": {}
+  },
+  "redaction.dashboard_id": {
+    "message": "Dashboard identifier",
+    "placeholders": {}
+  },
+  "redaction.page_id": {
+    "message": "Page {page} identifier",
+    "placeholders": {
+      "page": "number"
+    }
+  },
+  "redaction.widget_id": {
+    "message": "Widget {widget} identifier on page {page}",
+    "placeholders": {
+      "page": "number",
+      "widget": "number"
+    }
+  },
+  "redaction.id_caution": {
+    "message": "Identifiers must use the portable identifier format. Unknown objects block identifier changes.",
+    "placeholders": {}
+  },
+  "redaction.with_value": {
+    "message": "{target}: {value}",
+    "placeholders": {
+      "target": "text",
+      "value": "text"
+    }
+  },
+  "redaction.catalog_metric_id": {
+    "message": "Identifier of metric {metric} in catalog {catalog}",
+    "placeholders": {
+      "metric": "number",
+      "catalog": "number"
+    }
+  },
+  "redaction.catalog_id": {
+    "message": "Identifier of catalog {catalog}",
+    "placeholders": {
+      "catalog": "number"
+    }
+  },
+  "redaction.protected": {
+    "message": "The change cannot be verified safely: check remaining widget links or unknown fields. Remove or revise the affected objects and preview again.",
+    "placeholders": {}
+  },
+  "redaction.item_pattern": {
+    "message": "Item pattern {field} in widget {widget}, page {page}",
+    "placeholders": {
+      "field": "number",
+      "widget": "number",
+      "page": "number"
+    }
+  },
+  "redaction.item_pattern_caution": {
+    "message": "Changing an item pattern may change which metrics the widget displays. Review the target server before publishing.",
+    "placeholders": {}
+  },
+  "redaction.clear_catalog_source": {
+    "message": "Remove source details from catalog {catalog}",
+    "placeholders": {
+      "catalog": "number"
+    }
+  },
+  "redaction.clear_catalog_source_caution": {
+    "message": "The copy will no longer identify the source template or its export version.",
+    "placeholders": {}
+  },
+  "redaction.remove_page": {
+    "message": "Exclude page {page} and its widgets",
+    "placeholders": {
+      "page": "number"
+    }
+  },
+  "redaction.catalog_metric_units": {
+    "message": "Units of metric {metric} in catalog {catalog}",
+    "placeholders": {
+      "metric": "number",
+      "catalog": "number"
+    }
+  },
+  "redaction.units_caution": {
+    "message": "Changing or clearing units changes metric interpretation and matching. An empty replacement clears the units.",
+    "placeholders": {}
+  },
+  "export_progress.scanning": {
+    "message": "Scanning content…",
+    "placeholders": {}
+  },
+  "export_progress.transforming": {
+    "message": "Applying changes to the copy…",
+    "placeholders": {}
+  },
+  "export_progress.validating": {
+    "message": "Validating…",
+    "placeholders": {}
+  },
+  "export_progress.packaging": {
+    "message": "Building the package…",
+    "placeholders": {}
+  },
+  "export_progress.verifying": {
+    "message": "Checking the package…",
+    "placeholders": {}
+  },
+  "package_scan.evidence_structural": {
+    "message": "field or syntax identified",
+    "placeholders": {}
+  },
+  "package_scan.evidence_heuristic": {
+    "message": "heuristic candidate",
+    "placeholders": {}
+  },
+  "package_scan.evidence_unanalysed": {
+    "message": "not analysed",
+    "placeholders": {}
+  },
+  "package_scan.prepare_copy": {
+    "message": "Prepare a copy",
     "placeholders": {}
   }
 }

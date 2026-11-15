@@ -3,7 +3,7 @@
 use std::{
     collections::HashMap,
     ffi::{OsStr, OsString},
-    io::Read,
+    io::{Read, Write},
     path::{Component, Path, PathBuf},
     sync::{Arc, Mutex},
     time::{Duration, Instant},
@@ -23,6 +23,50 @@ pub enum SelectionKind {
     File,
     Directory,
     SaveDestination,
+}
+
+/// Commit an export only if the destination does not exist. The hard link is
+/// an atomic no-replace operation on the selected filesystem.
+#[cfg(test)]
+pub(crate) fn save_new_file(path: &Path, bytes: &[u8]) -> Result<(), SelectionError> {
+    save_new_file_before_commit(path, bytes, || true)
+}
+
+pub(crate) fn save_new_file_before_commit(
+    path: &Path,
+    bytes: &[u8],
+    commit: impl FnOnce() -> bool,
+) -> Result<(), SelectionError> {
+    let resolved = resolve_selected_path(path, SelectionKind::SaveDestination)?;
+    validate_selected_path(&resolved, SelectionKind::SaveDestination)?;
+    let parent = resolved.parent().ok_or(SelectionError::PathNotPermitted)?;
+    let name = resolved
+        .file_name()
+        .ok_or(SelectionError::PathNotPermitted)?;
+    let directory = open_directory_nofollow(parent)?;
+    let temporary = format!(".zdash-export-{}.tmp", random_id()?);
+    let mut options = OpenOptions::new();
+    options
+        .write(true)
+        .create_new(true)
+        .follow(FollowSymlinks::No);
+    let mut file = directory
+        .open_with(&temporary, &options)
+        .map_err(|_| SelectionError::Io)?;
+    let result = (|| {
+        file.write_all(bytes).map_err(|_| SelectionError::Io)?;
+        file.sync_all().map_err(|_| SelectionError::Io)?;
+        drop(file);
+        if !commit() {
+            return Err(SelectionError::Cancelled);
+        }
+        directory
+            .hard_link(&temporary, &directory, name)
+            .map_err(|_| SelectionError::Io)?;
+        Ok(())
+    })();
+    let _ = directory.remove_file(&temporary);
+    result
 }
 
 #[derive(Clone, Eq, PartialEq, Serialize)]
@@ -78,6 +122,8 @@ struct SelectionRecord {
 
 #[derive(Debug, Error, Eq, PartialEq)]
 pub enum SelectionError {
+    #[error("operation cancelled")]
+    Cancelled,
     #[error("selection is invalid or expired")]
     InvalidOrExpired,
     #[error("selection path is not permitted")]
@@ -396,6 +442,38 @@ mod tests {
     use std::{fs, thread};
 
     use tempfile::tempdir;
+
+    #[test]
+    fn export_save_is_no_replace_and_leaves_no_temporary_file() {
+        let temporary = tempdir().unwrap_or_else(|error| panic!("temp directory: {error}"));
+        let destination = temporary.path().join("export.zip");
+        save_new_file(&destination, b"first").unwrap_or_else(|error| panic!("save: {error}"));
+        assert!(save_new_file(&destination, b"second").is_err());
+        assert_eq!(std::fs::read(&destination).unwrap_or_default(), b"first");
+        assert_eq!(
+            std::fs::read_dir(temporary.path())
+                .map(|entries| entries.count())
+                .unwrap_or_default(),
+            1
+        );
+    }
+
+    #[test]
+    fn cancelled_before_commit_leaves_neither_destination_nor_temp_file() {
+        let temporary = tempdir().unwrap_or_else(|error| panic!("temp directory: {error}"));
+        let destination = temporary.path().join("cancelled.zip");
+        assert!(matches!(
+            save_new_file_before_commit(&destination, b"content", || false),
+            Err(SelectionError::Cancelled)
+        ));
+        assert!(!destination.exists());
+        assert_eq!(
+            std::fs::read_dir(temporary.path())
+                .map(|entries| entries.count())
+                .unwrap_or_default(),
+            0
+        );
+    }
 
     use super::*;
 

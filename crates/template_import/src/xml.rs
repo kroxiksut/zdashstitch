@@ -104,6 +104,15 @@ fn record(
             }
         }
     }
+    // Keep a marker for unfamiliar elements instead of silently discarding
+    // them. Recognized list/object elements are replaced by their parsed value
+    // in the caller; unrecognized markers reach source_partial detection.
+    for child in node.children().filter(Node::is_element) {
+        let key = child.tag_name().name();
+        if !fields.contains(&key) && !omitted.contains(&key) {
+            result.insert(key.to_owned(), Value::Bool(true));
+        }
+    }
     Ok(result)
 }
 

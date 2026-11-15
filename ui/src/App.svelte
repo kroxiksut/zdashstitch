@@ -35,7 +35,7 @@
     type DraftsClient
   } from './lib/shell/drafts';
   import { draftPath, internalLinkPath, parseRoute, serverPath, topSection, type Route } from './lib/shell/router';
-  import { createHttpWorkcopyClients, type ImportOutcome, type ServerClient } from './lib/workcopy/client';
+  import { createHttpWorkcopyClients, type ImportOutcome, type PortableConversionOutcome, type ServerClient } from './lib/workcopy/client';
   import CopyScreen from './lib/workcopy/CopyScreen.svelte';
   import ServerDashboardsScreen from './lib/workcopy/ServerDashboardsScreen.svelte';
   import ServerGate from './lib/workcopy/ServerGate.svelte';
@@ -152,6 +152,12 @@
           ? { id: 'copy.result.metadata_unavailable' }
           : undefined;
     announcement = detail ? { text: { id: 'copy.result.created', params: { name: draftName } }, detail } : { text: { id: 'copy.result.created', params: { name: draftName } } };
+  }
+
+  /** Conversion saves a separate offline draft; open its established opaque-ID route. */
+  function portableCreated(outcome: PortableConversionOutcome): void {
+    draftList = null;
+    navigate(draftPath(outcome.local_id));
   }
 
   $effect(() => {
@@ -368,9 +374,9 @@
     {#if route.name === 'start'}
       <StartScreen {i18n} drafts={namedList} connection={connections.header} />
     {:else if route.name === 'drafts'}
-      <DraftsScreen {i18n} clipboard={pageClipboard} drafts={namedList} onrename={renameDraft} onchanged={() => void refreshList()} />
+      <DraftsScreen {i18n} clipboard={pageClipboard} drafts={namedList} onrename={renameDraft} onchanged={() => void refreshList()} portable={demo ? undefined : http.portable} onportablecreated={portableCreated} />
     {:else if route.name === 'library'}
-      <CatalogLibrary {i18n} />
+      <CatalogLibrary {i18n} ontaken={(page) => { draftList = null; navigate(draftPath(page.local_id)); }} />
     {/if}
   </main>
 {/if}

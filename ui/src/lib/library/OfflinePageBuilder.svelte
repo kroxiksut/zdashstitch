@@ -11,20 +11,24 @@
   import { createEditorSettingsClient } from '../settings/editor';
   import { settingsPath } from '../shell/router';
   import EditorCanvas from './EditorCanvas.svelte';
+  import SensitivePreview from './SensitivePreview.svelte';
+  import RedactionPreview from './RedactionPreview.svelte';
+  import SaveAsButton from './SaveAsButton.svelte';
   import type { FixedLayout } from './editor-geometry';
   import { PageEditingSession, type EditorAccess } from './editor-session';
   import { PageClipboard, type ClipboardCode, type ClipboardContent, type ClipboardContext, type ClipboardIssue } from './editor-clipboard';
   import { emptyResolution, initialResolution, inspectResolvedPaste, applyResolvedPaste } from './editor-paste-resolution';
   import PasteResolutionForm from './PasteResolutionForm.svelte';
-  import { compositionFindings } from './editor-composition';
+  import { compositionFindings, graphRowCount } from './editor-composition';
   import { Dialog, resolveText, type LocalizedText } from '../components';
   import type { LayoutChange } from './editor-geometry';
 
   let { i18n, initialPage = null, onchanged, clipboard = new PageClipboard(), view = 'edit', dashboardId }: { i18n: I18n; initialPage?: OfflinePage | null; onchanged?: (page: OfflinePage) => void; clipboard?: PageClipboard; view?: 'edit' | 'checks'; dashboardId?: string } = $props();
   const client = createCatalogClient(undefined, untrack(() => dashboardId));
   const pagePath = (pageId: string): string => dashboardId ? dashboardPagePath(dashboardId, pageId) : draftPath(pageId, 'structure');
-  let catalogs = $state<CatalogSummary[]>([]);
-  let chosen = $state<CatalogSummary[]>([]);
+  type EditorCatalog = Omit<CatalogSummary, 'version'> & { version: number | null };
+  let catalogs = $state<EditorCatalog[]>([]);
+  let chosen = $state<EditorCatalog[]>([]);
   let metrics = $state<Record<string, CatalogMetric[]>>({});
   let selected = $state<PageSeriesChoice[]>([]);
   let roles = $state<Record<string, PageRole>>({ source: { cardinality: 'one', slots: ['source-01'] } });
@@ -47,6 +51,14 @@
   let savingPage = $state(false);
   let error = $state(false);
   let saved = $state(false);
+  let librarySaved = $state(false);
+  let librarySaveFailed = $state(false);
+  let librarySaving = $state(false);
+  let exporting = $state(false);
+  let exportFailed = $state(false);
+  let exportHash = $state<string | null>(null);
+  let exportEntries = $state<Record<string, string> | null>(null);
+  let redactionJump = $state<{ location: string; sequence: number } | null>(null);
   let catalogInUse = $state(false);
   let memoryHistory: EditorHistory<NewOfflinePage> | null = null;
   let undoAction = $state<MessageId | null>(null);
@@ -66,7 +78,7 @@
   let findingFocus = $state<string | null>(null);
   const localScope = `unsaved-${crypto.randomUUID()}`;
   const canEdit = $derived(opened === null || editAccess === 'editing');
-  const request = (): NewOfflinePage => ({ name, catalogs: chosen.map(({ catalog_id, version }) => ({ catalog_id, version })), roles, widgets });
+  const request = (): NewOfflinePage => ({ name, catalogs: chosen.filter((item): item is CatalogSummary => item.version !== null).map(({ catalog_id, version }) => ({ catalog_id, version })), roles, widgets });
   const modelDirty = $derived(canonicalEditorState(request()) !== baseline);
   const dirty = $derived(modelDirty || widgetTitle.trim() !== '' || selected.length > 0 || roleId.trim() !== '' || slotLines.trim() !== '');
   const pendingInput = $derived(selected.length > 0 || !!widgetTitle.trim() || !!roleId.trim() || !!slotLines.trim());
@@ -121,7 +133,7 @@
     widgets = widgets.map((widget, index) => byIndex.has(index) ? { ...widget, layout: byIndex.get(index)! } : widget);
     commitChange('editor.op.move');
   }
-  $effect(() => { if (dirty) saved = false; });
+  $effect(() => { if (dirty) { saved = false; exportHash = null; exportEntries = null; } });
   const autosaver = new EditorAutosave({
     dirty: () => modelDirty && !conflict && canEdit,
     save: savePage,
@@ -160,7 +172,7 @@
   }
   function applySnapshot(snapshot: NewOfflinePage): void {
     name = snapshot.name; roles = snapshot.roles; widgets = snapshot.widgets;
-    chosen = snapshot.catalogs.map((pin) => catalogs.find((item) => keyOf(item) === keyOf(pin))).filter((item): item is CatalogSummary => item !== undefined);
+    chosen = [...catalogs.filter((item) => item.version === null), ...snapshot.catalogs.map((pin) => catalogs.find((item) => keyOf(item) === keyOf(pin))).filter((item): item is EditorCatalog => item !== undefined)];
     selected = []; widgetTitle = ''; editingWidget = null; roleId = ''; slotLines = ''; editingRole = null;
     selectedWidgetIds = selectedWidgetIds.filter((id) => snapshot.widgets.some((widget) => widget.widget_id === id));
     syncHistory(); if (opened) autosaver.changed();
@@ -182,7 +194,7 @@
     commitChange(action === 'move' ? 'editor.op.move' : 'editor.op.resize');
   }
 
-  const keyOf = (catalog: Pick<CatalogSummary, 'catalog_id' | 'version'>): string => `${catalog.catalog_id}/${catalog.version}`;
+  const keyOf = (catalog: Pick<EditorCatalog, 'catalog_id' | 'version'>): string => `${catalog.catalog_id}/${catalog.version ?? 'embedded'}`;
   const isNumeric = (metric: CatalogMetric): boolean => metric.value_type === 'numeric_float' || metric.value_type === 'numeric_unsigned';
   const metricFor = (choice: PageMetricChoice): CatalogMetric | undefined => {
     const catalog = chosen.find((item) => item.catalog_id === choice.catalog_id);
@@ -195,19 +207,25 @@
   const itemReady = $derived(selected.length === 1 && metricFor(selected[0]) !== undefined && metricFor(selected[0])?.value_type !== 'binary' && validSource(selected[0].hosts, roles));
   const singleReady = $derived(itemReady && singleSource(selected[0].hosts, roles));
   const repeatReady = $derived(itemReady && selected[0].hosts.selection === 'all');
+  const selectedGraphRows = $derived(graphRowCount(selected, roles));
   const usesCatalog = (id: string): boolean => widgets.some((widget) => widget.kind === 'graph'
     ? widget.metrics.some((metric) => metric.catalog_id === id)
     : widget.kind === 'item_value' ? widget.metric.catalog_id === id : true);
 
   function hydrate(page: OfflinePage): void {
     const content = pageRequestFromSaved(page);
-    const pinned = savedCatalogChoices(page);
+    const embedded: EditorCatalog[] = (page.embedded_catalogs ?? []).map((catalog_id) => {
+      const catalog = page.bundle.catalogs[catalog_id];
+      if (!catalog) throw new Error('offline_page_missing_catalog');
+      return { catalog_id, version: null, name: catalog.source.template_name ?? catalog_id, export_format_version: catalog.source.export_format_version ?? null, metrics: catalog.metrics.length, discovery_rules: 0, metrics_with_hints: 0, omitted_template_dashboards: 0, diagnostics: [] };
+    });
+    const pinned: EditorCatalog[] = [...savedCatalogChoices(page), ...embedded];
     opened = page;
     name = content.name;
     roles = content.roles;
     widgets = content.widgets;
     chosen = pinned;
-    catalogs = [...catalogs.filter((catalog) => !pinned.some((pin) => keyOf(pin) === keyOf(catalog))), ...pinned];
+    catalogs = [...catalogs.filter((catalog) => !pinned.some((pin) => pin.catalog_id === catalog.catalog_id)), ...pinned];
     metrics = { ...metrics, ...Object.fromEntries(pinned.map((pin) => [keyOf(pin), page.bundle.catalogs[pin.catalog_id].metrics])) };
     selected = []; widgetTitle = ''; editingWidget = null;
     roleId = ''; slotLines = ''; editingRole = null;
@@ -230,7 +248,7 @@
     refreshEditorSettings();
     clipboardContent = clipboard.read();
     try { if (initialPage) hydrate(initialPage); else { baseline = canonicalEditorState(request()); memoryHistory = new EditorHistory($state.snapshot(request())); } } catch { error = true; }
-    void client.list().then((items) => catalogs = [...chosen, ...items.filter((item) => !chosen.some((pin) => keyOf(pin) === keyOf(item)))]).catch(() => loadWarning = true);
+    void client.list().then((items) => catalogs = [...chosen, ...items.filter((item) => !chosen.some((pin) => pin.catalog_id === item.catalog_id))]).catch(() => loadWarning = true);
     if (initialPage) void claimEditor();
     const currentPath = location.pathname;
     let bypass = false;
@@ -290,7 +308,8 @@
     };
   });
 
-  async function toggleCatalog(catalog: CatalogSummary, checked: boolean): Promise<void> {
+  async function toggleCatalog(catalog: EditorCatalog, checked: boolean): Promise<void> {
+    if (catalog.version === null) return;
     if (busy) return;
     error = false;
     catalogInUse = false;
@@ -445,6 +464,32 @@
     catch { error = true; }
     finally { busy = false; autosaver.setEnabled(autosaveEnabled && canEdit); }
   }
+
+  async function exportPage(yaml = false): Promise<void> {
+    if (!opened || dashboardId || dirty || busy || exporting) return;
+    exporting = true; exportFailed = false; exportHash = null; exportEntries = null;
+    try {
+      const download = yaml ? await client.preparePageYamlExport(opened.local_id, opened.revision) : await client.preparePageExport(opened.local_id, opened.revision);
+      exportHash = download.sha256;
+      exportEntries = Object.keys(download.entry_hashes).length ? download.entry_hashes : null;
+      const link = document.createElement('a');
+      link.href = `/api/downloads/${encodeURIComponent(download.id)}`;
+      link.download = download.display_name;
+      document.body.append(link); link.click(); link.remove();
+    } catch { exportFailed = true; }
+    finally { exporting = false; }
+  }
+  let exportPath = $state<string | null>(null);
+  async function savePageExport(yaml: boolean, jobId: string): Promise<{ cancelled: boolean }> {
+    if (!opened || dashboardId || dirty || busy || exporting) return { cancelled: true };
+    exporting = true; exportFailed = false; exportPath = null; exportHash = null; exportEntries = null;
+    try {
+      const result = await client.saveExport('page', opened.local_id, opened.revision, yaml, jobId);
+      if (!result.cancelled) { exportPath = result.path ?? null; exportHash = result.sha256 ?? null; exportEntries = result.entry_hashes && Object.keys(result.entry_hashes).length ? result.entry_hashes : null; }
+      return result;
+    } catch (error) { exportFailed = true; throw error; }
+    finally { exporting = false; }
+  }
 </script>
 
 <section class="card offline-builder" aria-labelledby="offline-builder-title">
@@ -474,6 +519,37 @@
   {#if error}<p role="alert">{i18n.t('offline_builder.error')}</p>{/if}
   {#if catalogInUse}<p role="alert">{i18n.t('offline_builder.catalog_in_use')}</p>{/if}
   {#if saved}<p role="status">{i18n.t('offline_builder.saved')}</p>{/if}
+  {#if opened}
+    {#if !dashboardId}
+      <SensitivePreview {i18n} kind="page" id={opened.local_id} revision={opened.revision} enabled={!dirty && !busy} onFinding={(location) => { redactionJump = { location, sequence: (redactionJump?.sequence ?? 0) + 1 }; }} />
+      <RedactionPreview {i18n} kind="page" id={opened.local_id} revision={opened.revision} enabled={!dirty && !busy} pages={[opened.bundle.project.root]} roles={opened.bundle.project.roles} catalogs={opened.bundle.catalogs} jump={redactionJump} />
+      <button type="button" disabled={busy || dirty || exporting} onclick={() => void exportPage()}>{i18n.t('offline_builder.export')}</button>
+      <SaveAsButton {i18n} messageId="redaction.save_zip_as" disabled={busy || dirty || exporting} run={(job) => savePageExport(false, job)} onDone={() => {}} onError={() => { exportFailed = true; }} />
+      {#if opened.bundle.project.catalogs.length === 0}<button type="button" disabled={busy || dirty || exporting} onclick={() => void exportPage(true)}>{i18n.t('package_import.export_yaml')}</button>{/if}
+      {#if opened.bundle.project.catalogs.length === 0}<SaveAsButton {i18n} messageId="redaction.save_yaml_as" disabled={busy || dirty || exporting} run={(job) => savePageExport(true, job)} onDone={() => {}} onError={() => { exportFailed = true; }} />{/if}
+      <p class="muted">{i18n.t('redaction.save_no_overwrite')}</p>
+      {#if exportPath}<p role="status">{i18n.t('redaction.saved')}: <bdi>{exportPath}</bdi></p>{/if}
+      <p class="muted">{i18n.t('offline_dashboard.export_caution')}</p>
+      {#if exportHash}<p role="status">{i18n.t('package_import.export_hash')}: <code>{exportHash}</code></p>{/if}
+      {#if exportEntries}<details><summary>{i18n.t('package_import.file_hashes')}</summary><ul>{#each Object.entries(exportEntries) as [name, hash] (name)}<li><bdi>{name}</bdi>: <code>{hash}</code></li>{/each}</ul></details>{/if}
+      {#if exportFailed}<p role="alert">{i18n.t('offline_builder.export_failed')}</p>{/if}
+    {/if}
+    <button type="button" disabled={busy || dirty || librarySaving} onclick={async () => {
+      if (!opened) return;
+      librarySaveFailed = false;
+      librarySaved = false;
+      librarySaving = true;
+      try {
+        if (dashboardId) await client.saveDashboardPageToLibrary(dashboardId, opened.local_id);
+        else await client.savePageToLibrary(opened.local_id);
+        librarySaved = true;
+      }
+      catch { librarySaveFailed = true; }
+      finally { librarySaving = false; }
+    }}>{i18n.t('page_library.save_action')}</button>
+    {#if librarySaved}<p role="status">{i18n.t('page_library.saved')}</p>{/if}
+    {#if librarySaveFailed}<p role="alert">{i18n.t('page_library.save_failed')}</p>{/if}
+  {/if}
   {#if view === 'checks'}
     <section aria-labelledby="local-checks-title">
       <h3 id="local-checks-title">{i18n.t('draft.nav.checks')}</h3>
@@ -527,9 +603,9 @@
   <fieldset>
     <legend>{i18n.t('offline_builder.choose_catalogs')}</legend>
     {#each catalogs as catalog (keyOf(catalog))}
-      <label class="builder-choice"><input type="checkbox" disabled={busy || dashboardId !== undefined} checked={chosen.some((item) => keyOf(item) === keyOf(catalog))}
+      <label class="builder-choice"><input type="checkbox" disabled={busy || dashboardId !== undefined || catalog.version === null} checked={chosen.some((item) => keyOf(item) === keyOf(catalog))}
         onchange={(event) => void toggleCatalog(catalog, event.currentTarget.checked)} />
-        <bdi>{catalog.name}</bdi> · {i18n.t('offline_builder.version', { version: catalog.version })}
+        <bdi>{catalog.name}</bdi> · {catalog.version === null ? i18n.t('offline_builder.embedded_catalog') : i18n.t('offline_builder.version', { version: catalog.version })}
       </label>
     {/each}
   </fieldset>
@@ -571,6 +647,7 @@
     {/each}
     <label for="offline-widget-title">{i18n.t('offline_builder.widget_title')}</label>
     <input id="offline-widget-title" maxlength="200" disabled={busy} bind:value={widgetTitle} />
+    {#if selected.length > 0}<p role="status">{i18n.t('offline_builder.graph_rows', { count: selectedGraphRows })}</p>{/if}
     <div class="actions">
       <button type="button" disabled={busy || !widgetTitle.trim() || !graphReady}
         onclick={addGraph}>{i18n.t(editingWidget === null ? 'offline_builder.add_graph' : 'offline_builder.apply_graph')}</button>
@@ -584,6 +661,7 @@
   {#if widgets.length > 0}
     <h3>{i18n.t('offline_builder.widgets')}</h3>
     <ol>{#each widgets as widget, index}<li><bdi>{titleOf(widget)}</bdi>
+      {#if widget.kind === 'graph'}<span> · {i18n.t('offline_builder.graph_rows', { count: graphRowCount(widget.metrics, roles) })}</span>{/if}
       <ul>{#each findings.filter((finding) => finding.widget_ids.includes(widget.widget_id ?? '')) as finding (finding.id)}<li><code>{finding.code}</code> · {resolveText(i18n, finding.message)}</li>{/each}</ul>
       {#if widget.kind === 'item_value' && widget.expansion === 'widget_per_host'}<span>{i18n.t('offline_builder.repeated')}</span>{/if}
       {#if widget.kind === 'preserved'}<p>{i18n.t('offline_editor.opaque')}</p>{:else}

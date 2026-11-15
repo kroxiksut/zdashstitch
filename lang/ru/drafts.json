@@ -283,6 +283,118 @@
     "message": "Копия с сервера экспортируется только после преобразования в переносимую.",
     "placeholders": {}
   },
+  "drafts.portable.preview_title": {
+    "message": "Проверка переносимости",
+    "placeholders": {}
+  },
+  "drafts.portable.summary": {
+    "message": "{kind}: страниц — {pages}, виджетов — {widgets}.",
+    "placeholders": {"kind": "text", "pages": "number", "widgets": "number"}
+  },
+  "drafts.portable.dependencies_title": {
+    "message": "Зависимости в этой копии",
+    "placeholders": {}
+  },
+  "drafts.portable.count.item_fields": {
+    "message": "Поля элементов данных",
+    "placeholders": {}
+  },
+  "drafts.portable.count.item_pattern_fields": {
+    "message": "Поля шаблонов элементов данных",
+    "placeholders": {}
+  },
+  "drafts.portable.count.host_fields": {
+    "message": "Поля узлов сети",
+    "placeholders": {}
+  },
+  "drafts.portable.count.host_pattern_fields": {
+    "message": "Поля шаблонов узлов сети",
+    "placeholders": {}
+  },
+  "drafts.portable.count.graph_fields": {
+    "message": "Поля графиков",
+    "placeholders": {}
+  },
+  "drafts.portable.count.unknown_fields": {
+    "message": "Неизвестные поля",
+    "placeholders": {}
+  },
+  "drafts.portable.count.unclassified_widgets": {
+    "message": "Виджеты без определённого типа",
+    "placeholders": {}
+  },
+  "drafts.portable.count.reference_definitions": {
+    "message": "Определения ссылок",
+    "placeholders": {}
+  },
+  "drafts.portable.count.reference_consumers": {
+    "message": "Потребители ссылок",
+    "placeholders": {}
+  },
+  "drafts.portable.ready": {
+    "message": "Блокирующих причин преобразования нет. Можно создать отдельный локальный черновик.",
+    "placeholders": {}
+  },
+  "drafts.portable.blocker.item_binding_required": {
+    "message": "Сначала назначьте полям элементов данных переносимые метрики.",
+    "placeholders": {}
+  },
+  "drafts.portable.blocker.host_binding_required": {
+    "message": "Сначала назначьте полям узлов сети переносимые роли.",
+    "placeholders": {}
+  },
+  "drafts.portable.blocker.graph_binding_required": {
+    "message": "Сначала задайте переносимое сопоставление для полей графиков.",
+    "placeholders": {}
+  },
+  "drafts.portable.blocker.unknown_data": {
+    "message": "Перед преобразованием разрешите неизвестные поля или виджеты.",
+    "placeholders": {}
+  },
+  "drafts.portable.blocker.reference_required": {
+    "message": "Перед преобразованием разрешите ссылки между виджетами.",
+    "placeholders": {}
+  },
+  "drafts.portable.blocker.scope_unsupported": {
+    "message": "Эту область копии нельзя преобразовать в переносимый черновик.",
+    "placeholders": {}
+  },
+  "drafts.portable.blocker.unsupported_data": {
+    "message": "Некоторые данные копии нельзя представить в переносимом черновике.",
+    "placeholders": {}
+  },
+  "drafts.portable.blocker.binding_required": {
+    "message": "Сначала задайте переносимое сопоставление для полей, связанных с сервером.",
+    "placeholders": {}
+  },
+  "drafts.portable.blocker.widget_unsupported": {
+    "message": "Этот тип виджета не поддерживается при переносимом преобразовании.",
+    "placeholders": {}
+  },
+  "drafts.portable.blocker.field_unsupported": {
+    "message": "Это поле виджета не поддерживается при переносимом преобразовании.",
+    "placeholders": {}
+  },
+  "drafts.portable.checking": {
+    "message": "Проверяем переносимость…",
+    "placeholders": {}
+  },
+  "drafts.portable.create_action": {
+    "message": "Создать отдельный локальный черновик",
+    "placeholders": {}
+  },
+  "drafts.portable.creating": {
+    "message": "Создаём локальный черновик…",
+    "placeholders": {}
+  },
+  "drafts.portable.failed_title": {
+    "message": "Не удалось завершить проверку переносимости",
+    "placeholders": {}
+  },
+  "drafts.portable.create_failed_title": {
+    "message": "Не удалось создать локальный черновик",
+    "placeholders": {}
+  },
   "draft.structure.page_summary": {
     "message": "{widgets} · {period}",
     "placeholders": {"widgets": "text", "period": "text"}
@@ -467,6 +579,17 @@
     "message": "Разделы черновика",
     "placeholders": {}
   },
+  "drafts.portable.bindings.open": {"message": "Настроить привязки", "placeholders": {}},
+  "drafts.portable.bindings.lld_instance": {"message": "выбранный экземпляр LLD", "placeholders": {}},
+  "drafts.portable.bindings.pattern_help": {"message": "Эти динамические маски нужно проверить и подтвердить на целевом Zabbix перед публикацией.", "placeholders": {}},
+  "drafts.portable.bindings.graphs_unresolved": {"message": "Классические графики потребуют привязки перед публикацией.", "placeholders": {}},
+  "drafts.portable.bindings.stale": {"message": "Копия изменилась. Загрузите сопоставления метрик заново.", "placeholders": {}},
+  "drafts.portable.bindings.help": {"message": "Для каждого элемента данных выберите метрику каталога. Совпадение не подтверждает происхождение из шаблона. Укажите роли и слоты узлов.", "placeholders": {}},
+  "drafts.portable.bindings.unavailable": {"message": "Недоступно", "placeholders": {}},
+  "drafts.portable.bindings.metric": {"message": "Метрика каталога", "placeholders": {}},
+  "drafts.portable.bindings.select": {"message": "Выберите метрику", "placeholders": {}},
+  "drafts.portable.bindings.role": {"message": "Идентификатор роли", "placeholders": {}},
+  "drafts.portable.bindings.slot": {"message": "Идентификатор слота узла", "placeholders": {}},
   "draft.overview.step.open_section": {
     "message": "Перейти в раздел «{section}»",
     "placeholders": {"section": "text"}

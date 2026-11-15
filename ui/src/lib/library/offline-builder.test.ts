@@ -8,6 +8,7 @@ import { pageRequestFromSaved, savedCatalogChoices, saveKnownPage } from './offl
 import { createHttpWorkcopyClients } from '../workcopy/client';
 import DraftsScreen from '../shell/DraftsScreen.svelte';
 import { singleSource, validNewRole, validSource } from './offline-roles';
+import { compositionFindings, graphRowCount } from './editor-composition';
 
 const roles: Record<string, PageRole> = {
   primary: { cardinality: 'one', slots: ['primary-01'] },
@@ -32,6 +33,34 @@ const savedPage: OfflinePage = {
 };
 
 describe('offline page source choices', () => {
+  it('takes a library page through the protected local API', async () => {
+    const calls: Array<{ path: string; method: string; csrf?: string }> = [];
+    const fetcher: typeof fetch = async (input, init) => {
+      const path = String(input);
+      calls.push({ path, method: init?.method ?? 'GET', csrf: new Headers(init?.headers).get(CSRF_HEADER) ?? undefined });
+      if (path === '/api/session') return Response.json({ csrf_token: 'test-csrf' });
+      return Response.json(savedPage);
+    };
+    const taken = await createCatalogClient(fetcher).takeLibraryPage('lp-synthetic');
+    expect(taken.local_id).toBe('pg-synthetic');
+    expect(calls.some((call) => call.path === '/api/library/pages/lp-synthetic/take' && call.method === 'POST' && call.csrf === 'test-csrf')).toBe(true);
+  });
+  it('keeps many slots as rows of one graph and updates counts and diagnostics when slots change', () => {
+    const graph = { kind: 'graph' as const, widget_id: 'cpu-memory', title: 'CPU and memory', metrics: [
+      { catalog_id: 'synthetic', metric_id: 'cpu', hosts: { role: 'workers', selection: 'all' as const } },
+      { catalog_id: 'synthetic', metric_id: 'memory', hosts: { role: 'workers', selection: 'all' as const } }
+    ] };
+    const page = { name: 'Metrics', catalogs: [{ catalog_id: 'synthetic', version: 1 }], roles: structuredClone(roles), widgets: [graph] };
+    const metrics = { synthetic: [
+      { id: 'cpu', name: 'CPU iowait', value_type: 'numeric_float', units: '%', origin: 'item' },
+      { id: 'memory', name: 'Memory', value_type: 'numeric_unsigned', units: 'B', origin: 'item' }
+    ] };
+    expect(graphRowCount(graph.metrics, page.roles)).toBe(4);
+    expect(page.widgets).toHaveLength(1);
+    expect(compositionFindings(page, metrics).map((finding) => finding.code)).toContain('graph_mixed_units');
+    page.roles.workers.slots?.push('worker-c');
+    expect(graphRowCount(graph.metrics, page.roles)).toBe(6);
+  });
   it('allows singleton and explicit slots but never silently picks the first of many', () => {
     expect(singleSource({ role: 'primary', selection: 'one' }, roles)).toBe(true);
     expect(singleSource({ role: 'primary', selection: 'all' }, roles)).toBe(true);
@@ -101,6 +130,22 @@ describe('offline page source choices', () => {
     editable.roles.workers.slots?.reverse();
     expect(savedPage.bundle.project.roles.workers.slots).toEqual(['worker-b', 'worker-a']);
     expect(savedCatalogChoices(savedPage)[0]).toMatchObject({ name: 'Pinned catalog', version: 2, metrics: 1 });
+  });
+
+  it('keeps one fixed graph and its geometry when reopened roles grow from two to three hosts', () => {
+    const page = structuredClone(savedPage);
+    page.bundle.project.root.widgets = [{
+      id: 'cpu-iowait', type: 'graph', title: 'CPU iowait', expansion: 'series_per_host',
+      series: [{ metric: { catalog: 'synthetic', metric: 'rate' }, hosts: { role: 'workers', selection: 'all' } }],
+      layout: { mode: 'fixed', x: 5, y: 7, w: 30, h: 9 }
+    }];
+    const editable = pageRequestFromSaved(page);
+    expect(editable.widgets).toHaveLength(1);
+    expect(graphRowCount(editable.widgets[0].kind === 'graph' ? editable.widgets[0].metrics : [], editable.roles)).toBe(2);
+    editable.roles.workers.slots?.push('worker-c');
+    expect(editable.widgets[0]).toMatchObject({ widget_id: 'cpu-iowait', layout: { mode: 'fixed', x: 5, y: 7, w: 30, h: 9 }, metrics: [{ hosts: { role: 'workers', selection: 'all' } }] });
+    expect(graphRowCount(editable.widgets[0].kind === 'graph' ? editable.widgets[0].metrics : [], editable.roles)).toBe(3);
+    expect(page.bundle.project.roles.workers.slots).toEqual(['worker-b', 'worker-a']);
   });
 
   it('keeps local page summaries and load results distinct from Workcopy details', async () => {

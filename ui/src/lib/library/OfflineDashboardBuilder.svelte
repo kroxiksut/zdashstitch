@@ -1,8 +1,12 @@
 <script lang="ts">
   import { onMount, untrack } from 'svelte';
   import type { I18n } from '../i18n';
-  import { createCatalogClient, type OfflineDashboard, type OfflinePageSummary } from './client';
+  import { createCatalogClient, type OfflineDashboard, type OfflinePageSummary, type LibraryPageSummary } from './client';
   import { dashboardPagePath, draftPath, internalLinkPath } from '../shell/router';
+  import { choosePageSource } from './page-source-selection';
+  import SensitivePreview from './SensitivePreview.svelte';
+  import RedactionPreview from './RedactionPreview.svelte';
+  import SaveAsButton from './SaveAsButton.svelte';
 
   let { i18n, initialDashboard = null, onchanged }: {
     i18n: I18n;
@@ -14,21 +18,30 @@
   let name = $state(untrack(() => initialDashboard?.bundle.project.root.name ?? ''));
   let existing = $state(untrack(() => (initialDashboard?.bundle.project.root.pages ?? []).map((page) => ({ id: page.id, name: page.name, widgets: page.widgets.length }))));
   let sources = $state<OfflinePageSummary[]>([]);
+  let librarySources = $state<LibraryPageSummary[]>([]);
   let append = $state<string[]>([]);
   let selectedSource = $state('');
   let busy = $state(false);
   let failed = $state(false);
   let exportFailed = $state(false);
+  let exportHash = $state<string | null>(null);
+  let exportEntries = $state<Record<string, string> | null>(null);
+  let redactionJump = $state<{ location: string; sequence: number } | null>(null);
   let exporting = $state(false);
   let conflict = $state(false);
   let failureCode = $state('');
   let saved = $state(false);
   let dirty = $state(false);
+  $effect(() => { if (dirty) { exportHash = null; exportEntries = null; } });
 
   onMount(() => {
     void client.pages().then((pages) => {
       sources = pages;
-      selectedSource = pages[0]?.local_id ?? '';
+      selectedSource = choosePageSource(selectedSource, pages.map((page) => page.local_id));
+    }).catch(() => { failed = true; });
+    void client.libraryPages().then((pages) => {
+      librarySources = pages;
+      selectedSource = choosePageSource(selectedSource, pages.map((page) => page.library_id));
     }).catch(() => { failed = true; });
     const currentPath = location.pathname;
     let bypass = false;
@@ -85,6 +98,8 @@
     busy = true;
     failed = false;
     exportFailed = false;
+    exportHash = null;
+    exportEntries = null;
     failureCode = '';
     saved = false;
     try {
@@ -114,12 +129,16 @@
     }
   }
 
-  async function exportPackage(): Promise<void> {
+  async function exportPackage(yaml = false): Promise<void> {
     if (!opened || dirty || busy || exporting) return;
     exporting = true;
     exportFailed = false;
+    exportHash = null;
+    exportEntries = null;
     try {
-      const download = await client.prepareDashboardExport(opened.local_id);
+      const download = yaml ? await client.prepareDashboardYamlExport(opened.local_id, opened.revision) : await client.prepareDashboardExport(opened.local_id, opened.revision);
+      exportHash = download.sha256;
+      exportEntries = Object.keys(download.entry_hashes).length ? download.entry_hashes : null;
       const link = document.createElement('a');
       link.href = `/api/downloads/${encodeURIComponent(download.id)}`;
       link.download = download.display_name;
@@ -131,6 +150,17 @@
     } finally {
       exporting = false;
     }
+  }
+  let exportPath = $state<string | null>(null);
+  async function savePackage(yaml: boolean, jobId: string): Promise<{ cancelled: boolean }> {
+    if (!opened || dirty || busy || exporting) return { cancelled: true };
+    exporting = true; exportFailed = false; exportPath = null; exportHash = null; exportEntries = null;
+    try {
+      const result = await client.saveExport('dashboard', opened.local_id, opened.revision, yaml, jobId);
+      if (!result.cancelled) { exportPath = result.path ?? null; exportHash = result.sha256 ?? null; exportEntries = result.entry_hashes && Object.keys(result.entry_hashes).length ? result.entry_hashes : null; }
+      return result;
+    } catch (error) { exportFailed = true; throw error; }
+    finally { exporting = false; }
   }
 </script>
 
@@ -157,19 +187,22 @@
 
   <label for="offline-dashboard-source">{i18n.t('offline_dashboard.add_page')}</label>
   <div class="source-row">
-    <select id="offline-dashboard-source" bind:value={selectedSource} disabled={busy || conflict || sources.length === 0}>
+    <select id="offline-dashboard-source" bind:value={selectedSource} disabled={busy || conflict || sources.length + librarySources.length === 0}>
       {#each sources as source (source.local_id)}
-        <option value={source.local_id}>{source.name}</option>
+        <option value={source.local_id}>{i18n.t('page_library.draft_source')}: {source.name}</option>
+      {/each}
+      {#each librarySources as source (source.library_id)}
+        <option value={source.library_id}>{i18n.t('page_library.library_source')}: {source.name}</option>
       {/each}
     </select>
     <button type="button" disabled={busy || conflict || !selectedSource} onclick={add}>{i18n.t('offline_dashboard.add')}</button>
   </div>
-  {#if sources.length === 0}<p class="muted">{i18n.t('offline_dashboard.no_pages')}</p>{/if}
+  {#if sources.length + librarySources.length === 0}<p class="muted">{i18n.t('offline_dashboard.no_pages')}</p>{/if}
   {#if append.length > 0}
     <h3>{i18n.t('offline_dashboard.pending')}</h3>
     <ul>
       {#each append as id (id)}
-        <li><bdi>{sources.find((page) => page.local_id === id)?.name ?? id}</bdi>
+        <li><bdi>{sources.find((page) => page.local_id === id)?.name ?? librarySources.find((page) => page.library_id === id)?.name ?? id}</bdi>
           <button type="button" disabled={busy} onclick={() => { append = append.filter((candidate) => candidate !== id); dirty = true; }}>{i18n.t('offline_dashboard.remove')}</button>
         </li>
       {/each}
@@ -177,8 +210,17 @@
   {/if}
   <button type="button" disabled={busy || conflict || !name.trim() || existing.length + append.length === 0} onclick={() => void save()}>{i18n.t('offline_dashboard.save')}</button>
   {#if opened}
+    <SensitivePreview {i18n} kind="dashboard" id={opened.local_id} revision={opened.revision} enabled={!dirty && !busy} onFinding={(location) => { redactionJump = { location, sequence: (redactionJump?.sequence ?? 0) + 1 }; }} />
+    <RedactionPreview {i18n} kind="dashboard" id={opened.local_id} revision={opened.revision} enabled={!dirty && !busy} pages={opened.bundle.project.root.pages} roles={opened.bundle.project.roles} catalogs={opened.bundle.catalogs} jump={redactionJump} />
     <button type="button" disabled={busy || exporting || dirty} onclick={() => void exportPackage()}>{i18n.t('offline_dashboard.export')}</button>
+    <SaveAsButton {i18n} messageId="redaction.save_zip_as" disabled={busy || dirty || exporting} run={(job) => savePackage(false, job)} onDone={() => {}} onError={() => { exportFailed = true; }} />
+    {#if opened.bundle.project.catalogs.length === 0}<button type="button" disabled={busy || exporting || dirty} onclick={() => void exportPackage(true)}>{i18n.t('package_import.export_yaml')}</button>{/if}
+    {#if opened.bundle.project.catalogs.length === 0}<SaveAsButton {i18n} messageId="redaction.save_yaml_as" disabled={busy || exporting || dirty} run={(job) => savePackage(true, job)} onDone={() => {}} onError={() => { exportFailed = true; }} />{/if}
+    <p class="muted">{i18n.t('redaction.save_no_overwrite')}</p>
+    {#if exportPath}<p role="status">{i18n.t('redaction.saved')}: <bdi>{exportPath}</bdi></p>{/if}
     <p class="muted">{i18n.t('offline_dashboard.export_caution')}</p>
+    {#if exportHash}<p role="status">{i18n.t('package_import.export_hash')}: <code>{exportHash}</code></p>{/if}
+    {#if exportEntries}<details><summary>{i18n.t('package_import.file_hashes')}</summary><ul>{#each Object.entries(exportEntries) as [name, hash] (name)}<li><bdi>{name}</bdi>: <code>{hash}</code></li>{/each}</ul></details>{/if}
     {#if dirty}<p class="muted">{i18n.t('offline_dashboard.save_before_export')}</p>{/if}
   {/if}
   <div aria-live="polite">

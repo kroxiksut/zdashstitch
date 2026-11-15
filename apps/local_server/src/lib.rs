@@ -12,6 +12,7 @@ mod about;
 mod browser_transfer;
 mod connections;
 mod drafts;
+mod export_jobs;
 mod file_dialog;
 pub mod instance;
 mod security;
@@ -327,6 +328,909 @@ mod tests {
     }
 
     #[tokio::test]
+    #[allow(clippy::expect_used)]
+    async fn export_job_cancel_is_protected_and_prevents_dispatch() {
+        let root = tempdir().expect("storage");
+        let ui = tempdir().expect("ui");
+        let (security, code) = security();
+        let router = super::build_router_with_api_and_transfers(
+            ui.path(),
+            security,
+            super::drafts::routes(
+                super::ConnectionsHandle::unavailable(),
+                super::drafts::DraftsHandle::at(root.path().to_owned()),
+            ),
+            BrowserTransferService::new(),
+        );
+        let cookie = session_cookie(&router, &code).await;
+        let csrf = csrf_token(&router, &cookie).await;
+        let path = "/api/library/export-jobs";
+        assert_eq!(
+            status(
+                &router,
+                api_request(
+                    "POST",
+                    path,
+                    &cookie,
+                    None,
+                    "application/json",
+                    Body::from("{}")
+                )
+            )
+            .await,
+            StatusCode::FORBIDDEN
+        );
+        let response = router
+            .clone()
+            .oneshot(api_request(
+                "POST",
+                path,
+                &cookie,
+                Some(&csrf),
+                "application/json",
+                Body::from("{}"),
+            ))
+            .await
+            .expect("create");
+        assert_eq!(response.status(), StatusCode::CREATED);
+        let body = response
+            .into_body()
+            .collect()
+            .await
+            .expect("body")
+            .to_bytes();
+        let value: Value = serde_json::from_slice(&body).expect("json");
+        let id = value["id"].as_str().expect("id");
+        let cancel = format!("{path}/{id}/cancel");
+        let response = router
+            .clone()
+            .oneshot(api_request(
+                "POST",
+                &cancel,
+                &cookie,
+                Some(&csrf),
+                "application/json",
+                Body::from("{}"),
+            ))
+            .await
+            .expect("cancel");
+        let body = response
+            .into_body()
+            .collect()
+            .await
+            .expect("body")
+            .to_bytes();
+        assert_eq!(
+            serde_json::from_slice::<Value>(&body).expect("json")["cancelled"],
+            true
+        );
+        let response = router
+            .clone()
+            .oneshot(api_request(
+                "POST",
+                "/api/library/offline-pages/missing/save-export",
+                &cookie,
+                Some(&csrf),
+                "application/json",
+                Body::from(json!({"job_id":id,"expected_revision":1,"yaml":false}).to_string()),
+            ))
+            .await
+            .expect("save");
+        let body = response
+            .into_body()
+            .collect()
+            .await
+            .expect("body")
+            .to_bytes();
+        assert_eq!(
+            serde_json::from_slice::<Value>(&body).expect("json")["cancelled"],
+            true
+        );
+    }
+
+    #[test]
+    #[allow(clippy::expect_used)]
+    fn page_and_dashboard_packages_transfer_between_independent_stores() {
+        use zdashstitch_application::{
+            offline_dashboards::OfflineDashboardStore, offline_pages::OfflinePageStore,
+        };
+        use zdashstitch_core::formats::{
+            build_typed_package_bytes, load_typed_project_file, read_typed_package_bytes,
+        };
+        let source = tempdir().expect("source");
+        let target = tempdir().expect("target");
+        let workspace = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .ancestors()
+            .nth(2)
+            .expect("workspace");
+        let page = load_typed_project_file(&workspace.join("examples/page-v2.yaml")).expect("page");
+        let dashboard = load_typed_project_file(&workspace.join("examples/dashboard-v2.yaml"))
+            .expect("dashboard");
+        let original_page = OfflinePageStore::new(source.path().to_owned())
+            .save_imported(page)
+            .expect("source page");
+        let original_dashboard = OfflineDashboardStore::new(source.path().to_owned())
+            .save_imported(dashboard)
+            .expect("source dashboard");
+        let transferred_page = read_typed_package_bytes(
+            &build_typed_package_bytes(&original_page.bundle).expect("page package"),
+        )
+        .expect("page import");
+        let transferred_dashboard = read_typed_package_bytes(
+            &build_typed_package_bytes(&original_dashboard.bundle).expect("dashboard package"),
+        )
+        .expect("dashboard import");
+        let saved_page = OfflinePageStore::new(target.path().to_owned())
+            .save_imported(transferred_page)
+            .expect("target page");
+        let saved_dashboard = OfflineDashboardStore::new(target.path().to_owned())
+            .save_imported(transferred_dashboard)
+            .expect("target dashboard");
+        let reopened_page = OfflinePageStore::new(target.path().to_owned())
+            .get(&saved_page.local_id)
+            .expect("read")
+            .expect("page");
+        let reopened_dashboard = OfflineDashboardStore::new(target.path().to_owned())
+            .get(&saved_dashboard.local_id)
+            .expect("read")
+            .expect("dashboard");
+        assert_ne!(reopened_page.local_id, original_page.local_id);
+        assert_ne!(reopened_dashboard.local_id, original_dashboard.local_id);
+        let mut page_content = reopened_page.bundle;
+        page_content
+            .project
+            .project_id
+            .clone_from(&original_page.bundle.project.project_id);
+        let (
+            zdashstitch_core::formats::ProjectRoot::Page(page),
+            zdashstitch_core::formats::ProjectRoot::Page(original),
+        ) = (
+            &mut page_content.project.root,
+            &original_page.bundle.project.root,
+        )
+        else {
+            panic!("page root")
+        };
+        page.id.clone_from(&original.id);
+        assert_eq!(page_content, original_page.bundle);
+        let mut dashboard_content = reopened_dashboard.bundle;
+        dashboard_content
+            .project
+            .project_id
+            .clone_from(&original_dashboard.bundle.project.project_id);
+        let (
+            zdashstitch_core::formats::ProjectRoot::Dashboard(dashboard),
+            zdashstitch_core::formats::ProjectRoot::Dashboard(original),
+        ) = (
+            &mut dashboard_content.project.root,
+            &original_dashboard.bundle.project.root,
+        )
+        else {
+            panic!("dashboard root")
+        };
+        dashboard.id.clone_from(&original.id);
+        assert_eq!(dashboard_content, original_dashboard.bundle);
+    }
+
+    #[tokio::test]
+    #[allow(clippy::expect_used, clippy::unwrap_used)]
+    async fn portable_import_requires_preview_and_explicit_legacy_root() {
+        use sha2::Digest as _;
+        let root = tempdir().expect("storage");
+        let ui = tempdir().expect("ui");
+        let (security, code) = security();
+        let transfers = BrowserTransferService::new();
+        let router = super::build_router_with_api_and_transfers(
+            ui.path(),
+            security,
+            super::drafts::routes(
+                super::ConnectionsHandle::unavailable(),
+                super::drafts::DraftsHandle::at(root.path().to_owned()),
+            ),
+            transfers.clone(),
+        );
+        let cookie = session_cookie(&router, &code).await;
+        let csrf = csrf_token(&router, &cookie).await;
+        let set = transfers.create_upload_set().expect("upload set");
+        let workspace = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .ancestors()
+            .nth(2)
+            .expect("workspace");
+        let bytes =
+            std::fs::read(workspace.join("examples/db-pilot-package.zip")).expect("fixture");
+        let expected_hash = format!("{:x}", sha2::Sha256::digest(&bytes));
+        let expected_size = bytes.len();
+        let expected_entries =
+            zdashstitch_core::formats::package_entry_hashes(&bytes).expect("entry hashes");
+        transfers
+            .add_file(&set.id, "fixture.zip", bytes.into())
+            .expect("upload");
+        let inspect = format!("/api/library/package-import/{}/inspect", set.id);
+        let run = format!("/api/library/package-import/{}/run", set.id);
+        let request = |path: &str, body: &str, token: Option<&str>| {
+            api_request(
+                "POST",
+                path,
+                &cookie,
+                token,
+                "application/json",
+                Body::from(body.to_owned()),
+            )
+        };
+        assert_eq!(
+            status(&router, request(&inspect, "{}", None)).await,
+            StatusCode::FORBIDDEN
+        );
+        let preview = router
+            .clone()
+            .oneshot(request(&inspect, "{}", Some(&csrf)))
+            .await
+            .expect("preview");
+        assert_eq!(preview.status(), StatusCode::OK);
+        let value: Value = serde_json::from_slice(
+            &preview
+                .into_body()
+                .collect()
+                .await
+                .expect("body")
+                .to_bytes(),
+        )
+        .expect("json");
+        assert_eq!(value[0]["outcome"]["version"], "v1");
+        assert_eq!(value[0]["sha256"], expected_hash);
+        assert_eq!(value[0]["size_bytes"], expected_size);
+        assert_eq!(
+            value[0]["entry_hashes"],
+            serde_json::to_value(expected_entries).expect("entry JSON")
+        );
+        let body = r#"{"selections":[{"file":"fixture.zip","dashboard_id":"db-pilot","page_id":"clickhouse"}]}"#;
+        let response = router
+            .clone()
+            .oneshot(request(&run, body, Some(&csrf)))
+            .await
+            .expect("import");
+        assert_eq!(response.status(), StatusCode::OK);
+        let value: Value = serde_json::from_slice(
+            &response
+                .into_body()
+                .collect()
+                .await
+                .expect("body")
+                .to_bytes(),
+        )
+        .expect("json");
+        assert_eq!(value[0]["outcome"]["status"], "saved");
+        assert_eq!(value[0]["outcome"]["kind"], "page");
+        let id = value[0]["outcome"]["local_id"].as_str().expect("id");
+        let page =
+            zdashstitch_application::offline_pages::OfflinePageStore::new(root.path().to_owned())
+                .get(id)
+                .expect("store")
+                .expect("page");
+        assert!(!page.embedded_catalogs.is_empty());
+        assert!(page.catalog_versions.is_empty());
+        let scan_path = format!("/api/library/offline-pages/{id}/sensitive-preview");
+        let scan = router
+            .clone()
+            .oneshot(api_request(
+                "GET",
+                &scan_path,
+                &cookie,
+                None,
+                "application/json",
+                Body::empty(),
+            ))
+            .await
+            .expect("scan");
+        assert_eq!(scan.status(), StatusCode::OK);
+        let scan_bytes = scan
+            .into_body()
+            .collect()
+            .await
+            .expect("scan body")
+            .to_bytes();
+        let scan: Value = serde_json::from_slice(&scan_bytes).expect("scan json");
+        assert_eq!(scan["revision"], page.revision);
+        assert!(!String::from_utf8_lossy(&scan_bytes).contains("db-pilot"));
+        assert_eq!(
+            status(&router, request(&run, body, Some(&csrf))).await,
+            StatusCode::NOT_FOUND
+        );
+    }
+
+    #[tokio::test]
+    #[allow(clippy::expect_used, clippy::unwrap_used)]
+    async fn portable_import_handles_multiple_versions_and_rejects_missing_selection() {
+        let root = tempdir().expect("storage");
+        let ui = tempdir().expect("ui");
+        let (security, code) = security();
+        let transfers = BrowserTransferService::new();
+        let router = super::build_router_with_api_and_transfers(
+            ui.path(),
+            security,
+            super::drafts::routes(
+                super::ConnectionsHandle::unavailable(),
+                super::drafts::DraftsHandle::at(root.path().to_owned()),
+            ),
+            transfers.clone(),
+        );
+        let cookie = session_cookie(&router, &code).await;
+        let csrf = csrf_token(&router, &cookie).await;
+        let set = transfers.create_upload_set().expect("upload set");
+        let workspace = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .ancestors()
+            .nth(2)
+            .expect("workspace");
+        let legacy =
+            std::fs::read(workspace.join("examples/db-pilot-package.zip")).expect("fixture");
+        let typed = zdashstitch_core::formats::load_typed_project_file(
+            &workspace.join("examples/page-v2.yaml"),
+        )
+        .expect("v2 fixture");
+        let typed = zdashstitch_core::formats::build_typed_package_bytes(&typed).expect("v2 zip");
+        transfers
+            .add_file(&set.id, "dashboard.zip", legacy.clone().into())
+            .expect("upload");
+        transfers
+            .add_file(&set.id, "legacy.zip", legacy.into())
+            .expect("upload");
+        transfers
+            .add_file(&set.id, "page.zip", typed.into())
+            .expect("upload");
+        let inspect = format!("/api/library/package-import/{}/inspect", set.id);
+        let run = format!("/api/library/package-import/{}/run", set.id);
+        let request = |path: &str, body: &str| {
+            api_request(
+                "POST",
+                path,
+                &cookie,
+                Some(&csrf),
+                "application/json",
+                Body::from(body.to_owned()),
+            )
+        };
+        let response = router
+            .clone()
+            .oneshot(request(&inspect, "{}"))
+            .await
+            .expect("preview");
+        assert_eq!(response.status(), StatusCode::OK);
+        let preview: Value = serde_json::from_slice(
+            &response
+                .into_body()
+                .collect()
+                .await
+                .expect("preview body")
+                .to_bytes(),
+        )
+        .expect("preview json");
+        assert_eq!(preview[2]["outcome"]["version"], "v2");
+        assert!(preview[2]["outcome"]["declared_compatibility"]["minimum"].is_string());
+        assert!(preview[2]["outcome"]["registry_compatibility"]["knowledge"].is_string());
+        let body = r#"{"selections":[{"file":"dashboard.zip","dashboard_id":"db-pilot","page_id":null},{"file":"legacy.zip","dashboard_id":null,"page_id":null},{"file":"page.zip","dashboard_id":null,"page_id":null}]}"#;
+        let response = router
+            .clone()
+            .oneshot(request(&run, body))
+            .await
+            .expect("import");
+        let value: Value = serde_json::from_slice(
+            &response
+                .into_body()
+                .collect()
+                .await
+                .expect("body")
+                .to_bytes(),
+        )
+        .expect("json");
+        assert_eq!(value[0]["outcome"]["status"], "saved");
+        assert_eq!(value[0]["outcome"]["kind"], "dashboard");
+        assert_eq!(value[1]["outcome"]["status"], "failed");
+        assert_eq!(value[2]["outcome"]["status"], "saved");
+        assert_eq!(value[2]["outcome"]["kind"], "page");
+        let store =
+            zdashstitch_application::offline_pages::OfflinePageStore::new(root.path().to_owned());
+        assert_eq!(store.list().expect("pages").len(), 1);
+    }
+
+    #[tokio::test]
+    #[allow(clippy::expect_used, clippy::unwrap_used)]
+    async fn standalone_yaml_exports_and_imports_through_protected_routes() {
+        let root = tempdir().expect("storage");
+        let ui = tempdir().expect("ui");
+        let (security, code) = security();
+        let transfers = BrowserTransferService::new();
+        let router = super::build_router_with_api_and_transfers(
+            ui.path(),
+            security,
+            super::drafts::routes(
+                super::ConnectionsHandle::unavailable(),
+                super::drafts::DraftsHandle::at(root.path().to_owned()),
+            ),
+            transfers.clone(),
+        );
+        let cookie = session_cookie(&router, &code).await;
+        let csrf = csrf_token(&router, &cookie).await;
+        let workspace = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .ancestors()
+            .nth(2)
+            .expect("workspace");
+        let bundle = zdashstitch_core::formats::load_typed_project_file(
+            &workspace.join("examples/clock-page-v2.yaml"),
+        )
+        .expect("fixture");
+        let store =
+            zdashstitch_application::offline_pages::OfflinePageStore::new(root.path().to_owned());
+        let saved = store.save_imported(bundle).expect("save");
+        let export = format!("/api/library/offline-pages/{}/export-yaml", saved.local_id);
+        assert_eq!(
+            status(
+                &router,
+                api_request(
+                    "POST",
+                    &export,
+                    &cookie,
+                    Some(&csrf),
+                    "application/json",
+                    Body::from(r#"{"expected_revision":1,"expected_revision":2}"#)
+                )
+            )
+            .await,
+            StatusCode::BAD_REQUEST
+        );
+        assert_eq!(
+            status(
+                &router,
+                api_request(
+                    "POST",
+                    &export,
+                    &cookie,
+                    Some(&csrf),
+                    "application/json",
+                    Body::from(r#"{"expected_revision":999}"#)
+                )
+            )
+            .await,
+            StatusCode::CONFLICT
+        );
+        let response = router
+            .clone()
+            .oneshot(api_request(
+                "POST",
+                &export,
+                &cookie,
+                Some(&csrf),
+                "application/json",
+                Body::from("{}"),
+            ))
+            .await
+            .expect("export");
+        assert_eq!(response.status(), StatusCode::CREATED);
+        let value: Value = serde_json::from_slice(
+            &response
+                .into_body()
+                .collect()
+                .await
+                .expect("body")
+                .to_bytes(),
+        )
+        .expect("json");
+        let download = format!("/api/downloads/{}", value["id"].as_str().expect("id"));
+        let response = router
+            .clone()
+            .oneshot(api_request(
+                "GET",
+                &download,
+                &cookie,
+                None,
+                "application/json",
+                Body::empty(),
+            ))
+            .await
+            .expect("download");
+        let bytes = response
+            .into_body()
+            .collect()
+            .await
+            .expect("body")
+            .to_bytes();
+        let set = transfers.create_upload_set().expect("upload set");
+        transfers
+            .add_file(&set.id, "page.yaml", bytes)
+            .expect("upload");
+        let inspect = format!("/api/library/package-import/{}/inspect", set.id);
+        let response = router
+            .clone()
+            .oneshot(api_request(
+                "POST",
+                &inspect,
+                &cookie,
+                Some(&csrf),
+                "application/json",
+                Body::from("{}"),
+            ))
+            .await
+            .expect("inspect");
+        let preview: Value = serde_json::from_slice(
+            &response
+                .into_body()
+                .collect()
+                .await
+                .expect("body")
+                .to_bytes(),
+        )
+        .expect("json");
+        assert_eq!(preview[0]["outcome"]["kind"], "page");
+        assert!(preview[0]["entry_hashes"].is_null());
+        let run = format!("/api/library/package-import/{}/run", set.id);
+        let body = r#"{"selections":[{"file":"page.yaml","dashboard_id":null,"page_id":null}]}"#;
+        let response = router
+            .clone()
+            .oneshot(api_request(
+                "POST",
+                &run,
+                &cookie,
+                Some(&csrf),
+                "application/json",
+                Body::from(body),
+            ))
+            .await
+            .expect("import");
+        let result: Value = serde_json::from_slice(
+            &response
+                .into_body()
+                .collect()
+                .await
+                .expect("body")
+                .to_bytes(),
+        )
+        .expect("json");
+        assert_eq!(result[0]["outcome"]["status"], "saved");
+        let imported = store
+            .get(result[0]["outcome"]["local_id"].as_str().expect("id"))
+            .expect("load")
+            .expect("page");
+        let (
+            zdashstitch_core::formats::ProjectRoot::Page(imported_page),
+            zdashstitch_core::formats::ProjectRoot::Page(saved_page),
+        ) = (&imported.bundle.project.root, &saved.bundle.project.root)
+        else {
+            panic!("page roots")
+        };
+        assert_eq!(imported_page.name, saved_page.name);
+        assert_eq!(imported_page.widgets, saved_page.widgets);
+    }
+
+    #[tokio::test]
+    #[allow(clippy::expect_used, clippy::unwrap_used)]
+    async fn redaction_preview_is_revision_bound_and_never_mutates_or_echoes_values() {
+        let root = tempdir().expect("storage");
+        let ui = tempdir().expect("ui");
+        let (security, code) = security();
+        let router = super::build_router_with_api_and_transfers(
+            ui.path(),
+            security,
+            super::drafts::routes(
+                super::ConnectionsHandle::unavailable(),
+                super::drafts::DraftsHandle::at(root.path().to_owned()),
+            ),
+            BrowserTransferService::new(),
+        );
+        let cookie = session_cookie(&router, &code).await;
+        let csrf = csrf_token(&router, &cookie).await;
+        let workspace = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .ancestors()
+            .nth(2)
+            .expect("workspace");
+        let bundle = zdashstitch_core::formats::load_typed_project_file(
+            &workspace.join("examples/clock-page-v2.yaml"),
+        )
+        .expect("fixture");
+        let store =
+            zdashstitch_application::offline_pages::OfflinePageStore::new(root.path().to_owned());
+        let saved = store.save_imported(bundle).expect("save");
+        let path = format!(
+            "/api/library/offline-pages/{}/redaction-preview",
+            saved.local_id
+        );
+        let body = r#"{"expected_revision":1,"changes":[{"target":{"kind":"page_name","page_index":0},"replacement":"private-alias-test"}]}"#;
+        let make = |token| {
+            api_request(
+                "POST",
+                &path,
+                &cookie,
+                token,
+                "application/json",
+                Body::from(body),
+            )
+        };
+        assert_eq!(status(&router, make(None)).await, StatusCode::FORBIDDEN);
+        let response = router
+            .clone()
+            .oneshot(make(Some(&csrf)))
+            .await
+            .expect("preview");
+        assert_eq!(response.status(), StatusCode::OK);
+        let raw = response
+            .into_body()
+            .collect()
+            .await
+            .expect("body")
+            .to_bytes();
+        assert!(!String::from_utf8_lossy(&raw).contains("private-alias-test"));
+        assert!(!String::from_utf8_lossy(&raw).contains("Часы"));
+        let result: Value = serde_json::from_slice(&raw).expect("json");
+        assert_eq!(result["revision"], saved.revision);
+        assert_eq!(result["sha256"].as_str().map(str::len), Some(64));
+        assert_eq!(
+            store.get(&saved.local_id).expect("read"),
+            Some(saved.clone())
+        );
+        let stale = body.replace("\"expected_revision\":1", "\"expected_revision\":999");
+        assert_eq!(
+            status(
+                &router,
+                api_request(
+                    "POST",
+                    &path,
+                    &cookie,
+                    Some(&csrf),
+                    "application/json",
+                    Body::from(stale)
+                )
+            )
+            .await,
+            StatusCode::CONFLICT
+        );
+        let risky = serde_json::json!({"expected_revision":saved.revision,"changes":[{"target":{"kind":"page_name","page_index":0},"replacement":"password=synthetic-secret"}]});
+        let response = router
+            .clone()
+            .oneshot(api_request(
+                "POST",
+                &path,
+                &cookie,
+                Some(&csrf),
+                "application/json",
+                Body::from(risky.to_string()),
+            ))
+            .await
+            .expect("risky preview");
+        let preview: Value = serde_json::from_slice(
+            &response
+                .into_body()
+                .collect()
+                .await
+                .expect("body")
+                .to_bytes(),
+        )
+        .expect("json");
+        assert!(
+            preview["remaining"]["credential_candidates"]
+                .as_u64()
+                .unwrap_or(0)
+                > 0
+        );
+        let export_path = format!(
+            "/api/library/offline-pages/{}/redaction-export",
+            saved.local_id
+        );
+        let mut risky_export = risky;
+        risky_export["preview_sha256"] = preview["sha256"].clone();
+        risky_export["acknowledged"] = true.into();
+        assert_eq!(
+            status(
+                &router,
+                api_request(
+                    "POST",
+                    &export_path,
+                    &cookie,
+                    Some(&csrf),
+                    "application/json",
+                    Body::from(risky_export.to_string())
+                )
+            )
+            .await,
+            StatusCode::CONFLICT
+        );
+        let hash = result["sha256"].as_str().expect("hash");
+        let payload = serde_json::json!({"expected_revision":saved.revision,"changes":[{"target":{"kind":"page_name","page_index":0},"replacement":"private-alias-test"}],"preview_sha256":hash,"acknowledged":false});
+        let send = |value: &Value| {
+            api_request(
+                "POST",
+                &export_path,
+                &cookie,
+                Some(&csrf),
+                "application/json",
+                Body::from(value.to_string()),
+            )
+        };
+        assert_eq!(
+            status(&router, send(&payload)).await,
+            StatusCode::BAD_REQUEST
+        );
+        let mut wrong = payload.clone();
+        wrong["acknowledged"] = true.into();
+        wrong["preview_sha256"] = "0".repeat(64).into();
+        assert_eq!(status(&router, send(&wrong)).await, StatusCode::CONFLICT);
+        let mut changed_after_preview = payload.clone();
+        changed_after_preview["acknowledged"] = true.into();
+        changed_after_preview["changes"][0]["replacement"] = "different-alias".into();
+        assert_eq!(
+            status(&router, send(&changed_after_preview)).await,
+            StatusCode::CONFLICT
+        );
+        let mut changed_revision = payload.clone();
+        changed_revision["acknowledged"] = true.into();
+        changed_revision["expected_revision"] = 999.into();
+        assert_eq!(
+            status(&router, send(&changed_revision)).await,
+            StatusCode::CONFLICT
+        );
+        let mut confirmed = payload;
+        confirmed["acknowledged"] = true.into();
+        let response = router
+            .clone()
+            .oneshot(send(&confirmed))
+            .await
+            .expect("export");
+        assert_eq!(response.status(), StatusCode::CREATED);
+        let exported: Value = serde_json::from_slice(
+            &response
+                .into_body()
+                .collect()
+                .await
+                .expect("body")
+                .to_bytes(),
+        )
+        .expect("json");
+        assert_eq!(exported["sha256"], hash);
+        let download_path = format!("/api/downloads/{}", exported["id"].as_str().expect("id"));
+        let response = router
+            .clone()
+            .oneshot(api_request(
+                "GET",
+                &download_path,
+                &cookie,
+                None,
+                "application/json",
+                Body::empty(),
+            ))
+            .await
+            .expect("download");
+        let bytes = response
+            .into_body()
+            .collect()
+            .await
+            .expect("body")
+            .to_bytes();
+        let imported =
+            zdashstitch_core::formats::read_typed_package_bytes(&bytes).expect("package");
+        assert!(
+            matches!(&imported.project.root, zdashstitch_core::formats::ProjectRoot::Page(page) if page.name == "private-alias-test")
+        );
+        assert_eq!(store.get(&saved.local_id).expect("read"), Some(saved));
+    }
+
+    #[tokio::test]
+    #[allow(clippy::expect_used, clippy::unwrap_used)]
+    async fn redacted_export_groups_exact_matches_without_changing_the_draft() {
+        use zdashstitch_core::formats::{ProjectRoot, Widget};
+        let root = tempdir().expect("storage");
+        let ui = tempdir().expect("ui");
+        let (security, code) = security();
+        let router = super::build_router_with_api_and_transfers(
+            ui.path(),
+            security,
+            super::drafts::routes(
+                super::ConnectionsHandle::unavailable(),
+                super::drafts::DraftsHandle::at(root.path().to_owned()),
+            ),
+            BrowserTransferService::new(),
+        );
+        let cookie = session_cookie(&router, &code).await;
+        let csrf = csrf_token(&router, &cookie).await;
+        let workspace = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .ancestors()
+            .nth(2)
+            .expect("workspace");
+        let mut bundle = zdashstitch_core::formats::load_typed_project_file(
+            &workspace.join("examples/clock-page-v2.yaml"),
+        )
+        .expect("fixture");
+        let ProjectRoot::Page(page) = &mut bundle.project.root else {
+            panic!("page")
+        };
+        page.name = "internal-name".into();
+        let Widget::Zabbix { name, .. } = &mut page.widgets[0] else {
+            panic!("widget")
+        };
+        *name = "internal-name".into();
+        let store =
+            zdashstitch_application::offline_pages::OfflinePageStore::new(root.path().to_owned());
+        let saved = store.save_imported(bundle).expect("save");
+        let path = format!(
+            "/api/library/offline-pages/{}/redaction-preview",
+            saved.local_id
+        );
+        let changes = serde_json::json!([{"target":{"kind":"page_name","page_index":0},"replacement":"alias","apply_to_matching":true}]);
+        let body = serde_json::json!({"expected_revision":saved.revision,"changes":changes});
+        let post = |path: &str, body: &Value| {
+            api_request(
+                "POST",
+                path,
+                &cookie,
+                Some(&csrf),
+                "application/json",
+                Body::from(body.to_string()),
+            )
+        };
+        let response = router
+            .clone()
+            .oneshot(post(&path, &body))
+            .await
+            .expect("preview");
+        assert_eq!(response.status(), StatusCode::OK);
+        let preview: Value = serde_json::from_slice(
+            &response
+                .into_body()
+                .collect()
+                .await
+                .expect("body")
+                .to_bytes(),
+        )
+        .expect("json");
+        assert_eq!(preview["changes"].as_array().expect("changes").len(), 2);
+        assert_eq!(preview["changes"][0]["request_index"], 0);
+        assert_eq!(preview["changes"][1]["request_index"], 0);
+        let export = format!(
+            "/api/library/offline-pages/{}/redaction-export",
+            saved.local_id
+        );
+        let request = serde_json::json!({"expected_revision":saved.revision,"changes":changes,"preview_sha256":preview["sha256"],"acknowledged":true});
+        let response = router
+            .clone()
+            .oneshot(post(&export, &request))
+            .await
+            .expect("export");
+        assert_eq!(response.status(), StatusCode::CREATED);
+        let output: Value = serde_json::from_slice(
+            &response
+                .into_body()
+                .collect()
+                .await
+                .expect("body")
+                .to_bytes(),
+        )
+        .expect("json");
+        let download = format!("/api/downloads/{}", output["id"].as_str().expect("id"));
+        let response = router
+            .clone()
+            .oneshot(api_request(
+                "GET",
+                &download,
+                &cookie,
+                None,
+                "application/json",
+                Body::empty(),
+            ))
+            .await
+            .expect("download");
+        let bytes = response
+            .into_body()
+            .collect()
+            .await
+            .expect("body")
+            .to_bytes();
+        let exported =
+            zdashstitch_core::formats::read_typed_package_bytes(&bytes).expect("archive");
+        let ProjectRoot::Page(page) = &exported.project.root else {
+            panic!("page")
+        };
+        assert_eq!(page.name, "alias");
+        assert!(matches!(&page.widgets[0], Widget::Zabbix { name, .. } if name == "alias"));
+        assert_eq!(store.get(&saved.local_id).expect("read"), Some(saved));
+    }
+
+    #[tokio::test]
     async fn template_upload_requires_preview_and_commits_valid_files_once() {
         let root = tempdir().unwrap_or_else(|error| panic!("{error}"));
         let ui = tempdir().unwrap_or_else(|error| panic!("{error}"));
@@ -358,7 +1262,7 @@ mod tests {
                 Body::from("{}"),
             )
         };
-        let payload = br#"{"zabbix_export":{"version":"7.4","templates":[{"template":"fixture","items":[{"name":"Ping","key":"agent.ping","delay":"30s"}]},{"template":"other"}]}}"#;
+        let payload = br#"{"zabbix_export":{"version":"7.4","templates":[{"template":"fixture","items":[{"name":"Ping","key":"agent.ping","delay":"30s","vendor_extension":"ignored"}]},{"template":"other"}]}}"#;
         for (name, bytes) in [
             ("good.json", payload.as_slice()),
             (
@@ -409,6 +1313,14 @@ mod tests {
         assert_eq!(result[0]["status"], "ready");
         assert_eq!(result[0]["catalogs"].as_array().map(Vec::len), Some(2));
         assert_eq!(result[0]["catalogs"][0]["metrics_with_hints"], 1);
+        assert_eq!(
+            result[0]["catalogs"][0]["diagnostics"],
+            serde_json::json!(["source_partial"])
+        );
+        assert_eq!(
+            result[0]["catalogs"][1]["diagnostics"],
+            serde_json::json!([])
+        );
         assert_eq!(result[1]["status"], "rejected");
         assert_eq!(result[1]["code"], "xml_dtd");
         assert!(!String::from_utf8_lossy(&bytes).contains("file:///private"));
@@ -432,7 +1344,16 @@ mod tests {
         );
         let library =
             zdashstitch_application::catalog_library::CatalogLibrary::new(root.path().to_owned());
-        assert_eq!(library.list().ok().map(|catalogs| catalogs.len()), Some(2));
+        let saved = library.list().unwrap_or_else(|error| panic!("{error}"));
+        assert_eq!(saved.len(), 2);
+        let fixture = saved
+            .iter()
+            .find(|catalog| catalog.name == "fixture")
+            .unwrap_or_else(|| panic!("fixture catalog"));
+        assert_eq!(
+            fixture.diagnostics,
+            vec![zdashstitch_core::formats::Diagnostic::SourcePartial]
+        );
     }
 
     #[tokio::test]

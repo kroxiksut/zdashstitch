@@ -38,6 +38,7 @@ widget_object_kind={'enum':['host_group','host','item','item_prototype','graph',
 widget_field_value={'oneOf':[
  {'type':'object','required':['kind','value'],'properties':{'kind':{'const':'integer'},'value':{'type':'integer','minimum':-9223372036854775808,'maximum':9223372036854775807}},'additionalProperties':False},
  {'type':'object','required':['kind','value'],'properties':{'kind':{'const':'string'},'value':{'type':'string','maxLength':16384}},'additionalProperties':False},
+ {'type':'object','required':['kind','value','role'],'properties':{'kind':{'const':'dynamic_pattern'},'value':{'type':'string','minLength':1,'maxLength':255},'role':slug},'additionalProperties':False},
  {'type':'object','required':['kind','role','selection'],'properties':{'kind':{'const':'host'},**role_ref['properties']},'allOf':role_ref['allOf'],'additionalProperties':False},
  {'type':'object','required':['kind','catalog','metric','hosts'],'properties':{'kind':{'const':'metric'},'catalog':slug,'metric':slug,'hosts':role_ref},'additionalProperties':False},
  {'type':'object','required':['kind','object_kind','display_name'],'properties':{'kind':{'const':'unresolved'},'object_kind':widget_object_kind,'display_name':{'type':'string','maxLength':500}},'additionalProperties':False}

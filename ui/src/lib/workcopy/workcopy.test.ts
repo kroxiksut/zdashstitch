@@ -146,6 +146,7 @@ interface Call {
   readonly path: string;
   readonly method: string;
   readonly csrf: string | null;
+  readonly contentType: string | null;
   readonly body: string | null;
 }
 
@@ -155,7 +156,13 @@ function fakeServer(answer: (path: string, method: string) => Response | Promise
     const path = String(input);
     const headers = (init?.headers ?? {}) as Record<string, string>;
     const method = init?.method ?? 'GET';
-    calls.push({ path, method, csrf: headers[CSRF_HEADER] ?? null, body: typeof init?.body === 'string' ? init.body : null });
+    calls.push({
+      path,
+      method,
+      csrf: headers[CSRF_HEADER] ?? null,
+      contentType: headers['Content-Type'] ?? null,
+      body: typeof init?.body === 'string' ? init.body : null
+    });
     if (path === SESSION_ENDPOINT) return json({ csrf_token: 'csrf-token' });
     return answer(path, method);
   };
@@ -177,6 +184,66 @@ function fakeServerClient(overrides: Partial<ServerClient> = {}): ServerClient &
 }
 
 describe('workcopy HTTP client', () => {
+  it('loads page choices and checks only the encoded selected page before a CSRF save', async () => {
+    const pageId = 'page/one';
+    const preview = { inventory: { kind: 'page', pages: 1, widgets: 1 }, ready: true, blocker: null, blockers: [] };
+    const server = fakeServer((path, method) => {
+      if (path === `/api/drafts/${COPY_ID}` && method === 'GET') return json(wireDetail);
+      if (path === `/api/drafts/${COPY_ID}/pages/page%2Fone/portable-preview` && method === 'GET') return json(preview);
+      if (path === `/api/library/pages/from-workcopy/${COPY_ID}/pages/page%2Fone` && method === 'POST') return json({ library_id: 'lp-test' }, 201);
+      return json({ code: 'workcopy_not_found', params: {} }, 404);
+    });
+    const { portable } = createHttpWorkcopyClients(server.fetcher);
+    expect((await portable.pages(COPY_ID)).status).toBe('ready');
+    expect(await portable.previewPage(COPY_ID, pageId)).toEqual({ status: 'ready', value: preview });
+    expect(await portable.saveDashboardPageToLibrary(COPY_ID, pageId)).toEqual({ status: 'ready', value: undefined });
+    expect(server.calls.at(-1)).toEqual({ path: `/api/library/pages/from-workcopy/${COPY_ID}/pages/page%2Fone`, method: 'POST', csrf: 'csrf-token', contentType: 'application/json', body: '{}' });
+  });
+  it('previews conversion by GET and creates a separate portable draft with a JSON CSRF POST', async () => {
+    const portablePreview = {
+      inventory: {
+        kind: 'dashboard', pages: 2, widgets: 4, unclassified_widgets: 0,
+        item_fields: 0, host_fields: 0, graph_fields: 0, host_pattern_fields: 0,
+        item_pattern_fields: 0, unknown_fields: 0, reference_definitions: 0, reference_consumers: 0
+      },
+      ready: true,
+      blocker: null,
+      blockers: []
+    };
+    const portableOutcome = { local_id: 'offline-0123456789abcdef0123456789abcdef', kind: 'dashboard' };
+    const server = fakeServer((path, method) => {
+      if (path === `/api/drafts/${COPY_ID}/portable-preview` && method === 'GET') return json(portablePreview);
+      if (path === `/api/drafts/${COPY_ID}/make-portable` && method === 'POST') return json(portableOutcome, 201);
+      return json({ code: 'workcopy_not_found', params: {} }, 404);
+    });
+    const { portable } = createHttpWorkcopyClients(server.fetcher);
+
+    expect(await portable.preview(COPY_ID)).toEqual({ status: 'ready', value: portablePreview });
+    expect(await portable.create(COPY_ID)).toEqual({ status: 'ready', value: portableOutcome });
+    expect(server.calls).toEqual([
+      { path: `/api/drafts/${COPY_ID}/portable-preview`, method: 'GET', csrf: null, contentType: null, body: null },
+      { path: SESSION_ENDPOINT, method: 'GET', csrf: null, contentType: null, body: null },
+      {
+        path: `/api/drafts/${COPY_ID}/make-portable`,
+        method: 'POST',
+        csrf: 'csrf-token',
+        contentType: 'application/json',
+        body: '{}'
+      }
+    ]);
+  });
+
+  it('loads binding candidates and sends the chosen bindings with CSRF', async () => {
+    const setup = { revision: 2, catalogs: { memory: { catalog_id: 'memory' } }, items: [{ itemid: '30001', name: 'Memory', host: 'DB', hostid: '40001', candidates: [{ catalog: 'memory', catalog_name: 'Memory', metric: 'used', metric_name: 'Used' }] }] };
+    const outcome = { local_id: 'pg-0123456789abcdef0123456789abcdef', kind: 'page' };
+    const server = fakeServer((path, method) => path === `/api/drafts/${COPY_ID}/portable-bindings` ? json(method === 'GET' ? setup : outcome) : json({}, 404));
+    const { portable } = createHttpWorkcopyClients(server.fetcher);
+    expect(await portable.bindingSetup?.(COPY_ID)).toEqual({ status: 'ready', value: setup });
+    const choices = [{ itemid: '30001', catalog: 'memory', metric: 'used', role: 'hosts', slot: 'first' }];
+    expect(await portable.createWithBindings?.(COPY_ID, setup, choices)).toEqual({ status: 'ready', value: outcome });
+    expect(server.calls.at(-1)).toMatchObject({ method: 'POST', csrf: 'csrf-token', contentType: 'application/json', body: JSON.stringify({ revision: 2, catalogs: setup.catalogs, choices }) });
+  });
+
   it('maps drafts with RFC 3339 times and keeps Zabbix IDs out of the model', async () => {
     const server = fakeServer((path) => {
       if (path === '/api/drafts') return json({ drafts: [wireSummary], damaged: [{ local_id: 'wc-x', code: 'workcopy_corrupt' }] });

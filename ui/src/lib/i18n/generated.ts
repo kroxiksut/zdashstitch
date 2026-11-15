@@ -756,6 +756,45 @@ export const catalogs = {
     "drafts.list.open_hint": "Click a name to open the draft. Click elsewhere in the row, or press Space on the name, to show its details.",
     "drafts.load_failed": "Could not load local drafts",
     "drafts.name.source_connection": "({connection})",
+    "drafts.portable.bindings.graphs_unresolved": "Classic graphs will need to be bound before publication.",
+    "drafts.portable.bindings.help": "Choose a catalog metric for each item. Matches are suggestions, not proof of template origin. Assign roles and host slots explicitly.",
+    "drafts.portable.bindings.lld_instance": "selected LLD instance",
+    "drafts.portable.bindings.metric": "Catalog metric",
+    "drafts.portable.bindings.open": "Configure bindings",
+    "drafts.portable.bindings.pattern_help": "These dynamic patterns must be checked and confirmed on the target Zabbix before publication.",
+    "drafts.portable.bindings.role": "Role identifier",
+    "drafts.portable.bindings.select": "Select a metric",
+    "drafts.portable.bindings.slot": "Host slot identifier",
+    "drafts.portable.bindings.stale": "The copy changed. Load the metric mappings again.",
+    "drafts.portable.bindings.unavailable": "Unavailable",
+    "drafts.portable.blocker.binding_required": "Server-bound fields need a portable mapping before this copy can be converted.",
+    "drafts.portable.blocker.field_unsupported": "A widget field is not supported for portable conversion.",
+    "drafts.portable.blocker.graph_binding_required": "Graph fields need a portable mapping before this copy can be converted.",
+    "drafts.portable.blocker.host_binding_required": "Host fields need to be assigned to portable roles before this copy can be converted.",
+    "drafts.portable.blocker.item_binding_required": "Item fields need to be assigned to portable metrics before this copy can be converted.",
+    "drafts.portable.blocker.reference_required": "Widget references need to be resolved before this copy can be converted.",
+    "drafts.portable.blocker.scope_unsupported": "This copy scope cannot be converted to a portable draft.",
+    "drafts.portable.blocker.unknown_data": "Unknown fields or widgets must be resolved before this copy can be converted.",
+    "drafts.portable.blocker.unsupported_data": "Some copy data cannot be represented in a portable draft.",
+    "drafts.portable.blocker.widget_unsupported": "A widget type is not supported for portable conversion.",
+    "drafts.portable.checking": "Checking portability…",
+    "drafts.portable.count.graph_fields": "Graph fields",
+    "drafts.portable.count.host_fields": "Host fields",
+    "drafts.portable.count.host_pattern_fields": "Host pattern fields",
+    "drafts.portable.count.item_fields": "Item fields",
+    "drafts.portable.count.item_pattern_fields": "Item pattern fields",
+    "drafts.portable.count.reference_consumers": "Reference consumers",
+    "drafts.portable.count.reference_definitions": "Reference definitions",
+    "drafts.portable.count.unclassified_widgets": "Unclassified widgets",
+    "drafts.portable.count.unknown_fields": "Unknown fields",
+    "drafts.portable.create_action": "Create separate local draft",
+    "drafts.portable.create_failed_title": "The local draft could not be created",
+    "drafts.portable.creating": "Creating local draft…",
+    "drafts.portable.dependencies_title": "Dependencies in this copy",
+    "drafts.portable.failed_title": "The portability check could not be completed",
+    "drafts.portable.preview_title": "Portability check",
+    "drafts.portable.ready": "No conversion blockers were found. A separate local draft can be created.",
+    "drafts.portable.summary": "{kind}: {pages} pages and {widgets} widgets.",
     "drafts.rename.description": "Only the local name changes. The dashboard on the server is not changed.",
     "drafts.rename.done": "Renamed: {name}",
     "drafts.rename.title": "Rename draft",
@@ -891,6 +930,21 @@ export const catalogs = {
     "errors.workcopy.storage_write_failed": "Could not write to local storage. Nothing was saved.",
     "errors.workcopy.too_large": "The draft file is too large; it was not read.",
     "errors.workcopy.unsupported_operation": "The draft contains changes from a newer version of ZDashstitch. It was not changed.",
+    "export_progress.cancel": "Cancel",
+    "export_progress.cancelled": "Save cancelled.",
+    "export_progress.choosing": "Choose a destination…",
+    "export_progress.committing": "Finishing save…",
+    "export_progress.created": "Preparing export…",
+    "export_progress.done": "Saved.",
+    "export_progress.failed": "Save failed.",
+    "export_progress.packaging": "Building the package…",
+    "export_progress.preparing": "Checking and packaging…",
+    "export_progress.scanning": "Scanning content…",
+    "export_progress.too_late": "Saving has already reached the final step and can no longer be cancelled.",
+    "export_progress.transforming": "Applying changes to the copy…",
+    "export_progress.validating": "Validating…",
+    "export_progress.verifying": "Checking the package…",
+    "export_progress.writing": "Writing temporary file…",
     "http.security.api_not_found": "The requested local API endpoint does not exist.",
     "http.security.body_too_large": "The request is larger than the allowed limit.",
     "http.security.bootstrap_invalid": "The one-time startup link is invalid or has expired.",
@@ -943,9 +997,13 @@ export const catalogs = {
     "offline_builder.edit_role": "Edit role {role}",
     "offline_builder.edit_title": "Edit local page composition",
     "offline_builder.edit_widget": "Edit widget {widget}",
+    "offline_builder.embedded_catalog": "Stored in this draft",
     "offline_builder.empty": "No local pages saved yet.",
     "offline_builder.error": "The page operation failed. Check the selected metrics and try again.",
+    "offline_builder.export": "Export page package",
+    "offline_builder.export_failed": "The page package could not be prepared. The saved page was not changed.",
     "offline_builder.go_to_drafts": "Create a local page",
+    "offline_builder.graph_rows": "Logical rows in this graph: {count} (one widget).",
     "offline_builder.help": "Choose catalog versions and metrics, add a graph or item value, then save a local page. Server hosts are assigned later.",
     "offline_builder.leave_dirty": "The form has unsaved changes. Leave and discard them?",
     "offline_builder.library_unavailable": "The library could not be loaded. Saved catalog copies remain available for this page.",
@@ -1030,6 +1088,7 @@ export const catalogs = {
     "offline_editor.check.incomplete": "The widget has no metric source.",
     "offline_editor.check.metric": "Metric {metric} is unavailable in the pinned catalog.",
     "offline_editor.check.metric_type": "The metric type is unsupported by this widget.",
+    "offline_editor.check.mixed_units": "This graph mixes metric units. Check axis configuration after assigning real sources; publication may be blocked.",
     "offline_editor.check.name": "Enter a page name.",
     "offline_editor.check.overlap": "Widgets overlap.",
     "offline_editor.check.role": "Check role {role} and its source selector.",
@@ -1100,6 +1159,97 @@ export const catalogs = {
     "offline_editor.zoom_in": "Zoom in",
     "offline_editor.zoom_out": "Zoom out",
     "offline_editor.zoom_reset": "100%",
+    "package_import.choose": "Select a dashboard or page",
+    "package_import.compatibility_min": "Author-declared compatibility: {version} and later",
+    "package_import.compatibility_range": "Author-declared compatibility: {minimum} up to, but not including, {maximum}",
+    "package_import.dashboard": "Dashboard",
+    "package_import.export_hash": "Prepared package SHA-256",
+    "package_import.export_yaml": "Export as YAML",
+    "package_import.failed": "Import failed. Check the files and try again.",
+    "package_import.file_hashes": "File fingerprints",
+    "package_import.hash_hint": "Compare this fingerprint with a trusted value. It does not establish who created the file.",
+    "package_import.help": "Select DATA-ONLY ZIP files or YAML files without catalogs. Catalogs are kept inside each imported draft.",
+    "package_import.import": "Import selected files",
+    "package_import.invalid": "The package could not be validated.",
+    "package_import.limits": "Up to 32 files; each ZIP up to 16 MiB, each YAML up to 2 MiB, and the selection up to 32 MiB.",
+    "package_import.page": "Page",
+    "package_import.preview": "Check files",
+    "package_import.registry_incompatible": "The local registry found no common supported version for these widgets.",
+    "package_import.registry_known": "The local 7.4 registry recognizes the listed widgets and fields. Server support still needs checking.",
+    "package_import.registry_min": "Registry estimate: {version} and later",
+    "package_import.registry_mismatch": "The author-declared range extends beyond the range inferred from the local registry.",
+    "package_import.registry_range": "Registry estimate: {minimum} up to, but not including, {maximum}",
+    "package_import.registry_unknown": "The local 7.4 registry cannot assess every widget or field. Server support is not confirmed.",
+    "package_import.saved": "Imported",
+    "package_import.sha256": "SHA-256",
+    "package_import.size": "File size: {bytes} bytes",
+    "package_import.summary": "Pages: {pages}; widgets: {widgets}; catalogs: {catalogs}.",
+    "package_import.title": "Import dashboard or page packages",
+    "package_scan.action": "Find possible sensitive values",
+    "package_scan.credential": "Possible credential; review before sharing",
+    "package_scan.credential_count": "Possible credentials: {count}; review before sharing.",
+    "package_scan.email": "Possible email",
+    "package_scan.evidence_heuristic": "heuristic candidate",
+    "package_scan.evidence_structural": "field or syntax identified",
+    "package_scan.evidence_unanalysed": "not analysed",
+    "package_scan.failed": "The check could not be completed.",
+    "package_scan.filter": "Filter candidates",
+    "package_scan.fqdn": "Possible domain name",
+    "package_scan.free_text": "Name or free text to review",
+    "package_scan.identifier": "Source identifier",
+    "package_scan.ip": "Possible IP address",
+    "package_scan.macro": "Macro",
+    "package_scan.mask": "Possible mask",
+    "package_scan.metric_key": "Metric key",
+    "package_scan.none": "No candidates found by this limited check.",
+    "package_scan.path": "Possible file path",
+    "package_scan.prepare_copy": "Prepare a copy",
+    "package_scan.truncated": "Only the first 256 candidates are shown.",
+    "package_scan.unknown": "Unknown field or widget; not fully checked",
+    "package_scan.unknown_count": "Unknown fields or widgets: {count}; their content is not fully checked.",
+    "package_scan.url": "Possible URL",
+    "package_scan.warning": "This limited local check does not guarantee anonymization or find every sensitive value. Review the contents before sharing.",
+    "page_library.action_failed": "The library action failed. The object may have changed; review the refreshed list.",
+    "page_library.all": "All types",
+    "page_library.cache_write_failed": "The library index could not be saved. Usage details were rebuilt from saved objects.",
+    "page_library.cancel": "Cancel",
+    "page_library.catalog_count": "Pinned catalogs: {count}",
+    "page_library.catalog_delete_effect": "This deletes only the selected local catalog version. Other versions and copied page contents remain unchanged.",
+    "page_library.catalog_delete_unproven": "Catalog deletion is unavailable until all pinned consumers can be checked without a race.",
+    "page_library.catalog_in_use": "This version is pinned by {count} local objects and cannot be deleted.",
+    "page_library.check_page": "Check selected page",
+    "page_library.choose_from_workcopy": "Choose page from dashboard copy",
+    "page_library.confirm_catalog_delete": "Delete catalog version",
+    "page_library.confirm_delete": "Delete library page",
+    "page_library.confirm_name": "Enter {name} to confirm deletion",
+    "page_library.delete": "Delete",
+    "page_library.delete_effect": "Deleting this library page does not change drafts or dashboards made from it. The original source is kept.",
+    "page_library.display_name": "Library display name",
+    "page_library.draft_source": "Draft",
+    "page_library.duplicate": "Duplicate",
+    "page_library.empty": "No pages saved to the library yet.",
+    "page_library.filters": "Library filters",
+    "page_library.index_unavailable": "Library usage details are unavailable. Saved catalogs and pages remain available.",
+    "page_library.kind": "Object type",
+    "page_library.library_source": "Library",
+    "page_library.list_failed": "The local page library could not be read.",
+    "page_library.name": "Name",
+    "page_library.newest": "Newest first",
+    "page_library.rename": "Rename",
+    "page_library.save_action": "Save page to library",
+    "page_library.save_failed": "Could not save the page to the library.",
+    "page_library.save_name": "Save name",
+    "page_library.saved": "The page was saved as a separate library copy.",
+    "page_library.search": "Search",
+    "page_library.select_page": "Select a page",
+    "page_library.selected_page": "Page",
+    "page_library.sort": "Sort",
+    "page_library.source": "Saved from {id}",
+    "page_library.take_action": "Take page",
+    "page_library.take_failed": "Could not create a draft from this library page.",
+    "page_library.title": "Pages",
+    "page_library.usage_unknown": "Usage details unavailable",
+    "page_library.used_by": "Used by {count} local objects",
     "publication.a11y.steps": "Publication steps",
     "publication.access.copy_private": "The new dashboard is private and you are its owner. Writing sharing is turned on after its laboratory check.",
     "publication.access.title": "Owner and sharing",
@@ -1430,6 +1580,61 @@ export const catalogs = {
     "publication.untouched.title": "Not changed",
     "publication.untouched.widgets": "{count, plural, one {# widget without references to {host} is sent as is, with its IDs} other {# widgets without references to {host} are sent as is, with their IDs}}",
     "publication.untouched.zabbix_objects": "Hosts, templates, items and triggers never change",
+    "redaction.acknowledge": "I understand this check is incomplete and I must verify that no credentials are shared.",
+    "redaction.add": "Add replacement",
+    "redaction.alias_caution": "Aliases replace metric keys in this copy. Metrics must be matched again before publishing.",
+    "redaction.catalog_id": "Identifier of catalog {catalog}",
+    "redaction.catalog_metric": "Metric {metric} name in catalog {catalog}",
+    "redaction.catalog_metric_id": "Identifier of metric {metric} in catalog {catalog}",
+    "redaction.catalog_metric_units": "Units of metric {metric} in catalog {catalog}",
+    "redaction.catalog_template": "Template name in catalog {catalog}",
+    "redaction.clear_catalog_source": "Remove source details from catalog {catalog}",
+    "redaction.clear_catalog_source_caution": "The copy will no longer identify the source template or its export version.",
+    "redaction.clear_provenance": "Remove source provenance",
+    "redaction.clear_uuids": "Remove template and metric UUIDs in catalog {catalog}",
+    "redaction.credentials_block": "Export is blocked because this limited check found possible credentials. Remove them from the draft and review again.",
+    "redaction.dashboard": "Dashboard name",
+    "redaction.dashboard_id": "Dashboard identifier",
+    "redaction.export": "Export the reviewed copy",
+    "redaction.failed": "Could not prepare the copy. Check the replacements and reload a changed draft.",
+    "redaction.help": "Change selected information in the exported copy. The source draft is unchanged. Metric keys change only when you explicitly replace them with aliases.",
+    "redaction.host_mask": "Page {page}, widget {widget}, host mask {field}",
+    "redaction.id_caution": "Identifiers must use the portable identifier format. Unknown objects block identifier changes.",
+    "redaction.item_pattern": "Item pattern {field} in widget {widget}, page {page}",
+    "redaction.item_pattern_caution": "Changing an item pattern may change which metrics the widget displays. Review the target server before publishing.",
+    "redaction.length": "Original value: {before} characters; replacement: {after} characters.",
+    "redaction.limit": "Up to 128 objects per copy; if there are more matches, the operation is refused without changes.",
+    "redaction.mask_caution": "A replacement host mask is not automatically bound to real hosts. Review it before publishing.",
+    "redaction.matching": "Apply to exact matches in supported names and host masks",
+    "redaction.page": "Page {page}",
+    "redaction.page_id": "Page {page} identifier",
+    "redaction.preview": "Preview copy",
+    "redaction.project_id": "Package identifier",
+    "redaction.protected": "The change cannot be verified safely: check remaining widget links or unknown fields. Remove or revise the affected objects and preview again.",
+    "redaction.remaining": "Remaining candidates: {count}. The check is limited and does not guarantee anonymization.",
+    "redaction.remove": "Remove replacement",
+    "redaction.remove_caution": "Exclusion is blocked when a remaining widget may lose a provider, or when retained unknown fields prevent a safe check.",
+    "redaction.remove_page": "Exclude page {page} and its widgets",
+    "redaction.remove_widget": "Exclude widget {widget} on page {page}",
+    "redaction.replacement": "Replacement value",
+    "redaction.role": "Role {role}",
+    "redaction.role_description": "Description of role {role}",
+    "redaction.save_as": "Save copy as…",
+    "redaction.save_as_hint": "Choose a new .zip file. Existing files are not overwritten.",
+    "redaction.save_no_overwrite": "Choose a new file; existing files are not overwritten.",
+    "redaction.save_yaml_as": "Save YAML as…",
+    "redaction.save_zip_as": "Save ZIP as…",
+    "redaction.saved": "Saved",
+    "redaction.selector_aliases": "Replace metric keys with aliases in catalog {catalog}",
+    "redaction.slot": "Role {role}, slot {slot}",
+    "redaction.target": "Object",
+    "redaction.title": "Prepare a copy with replacements",
+    "redaction.units_caution": "Changing or clearing units changes metric interpretation and matching. An empty replacement clears the units.",
+    "redaction.unresolved_name": "Unresolved object name {field} in widget {widget}, page {page}",
+    "redaction.widget": "Page {page}, widget {widget}",
+    "redaction.widget_id": "Widget {widget} identifier on page {page}",
+    "redaction.widget_text": "Text field {field} in widget {widget}, page {page}",
+    "redaction.with_value": "{target}: {value}",
     "replace_host.source": "Host to replace",
     "server.action.clone": "Clone",
     "server.action.copy": "Copy from server",
@@ -1559,6 +1764,33 @@ export const catalogs = {
     "shell.a11y.breadcrumbs": "Breadcrumbs",
     "shell.a11y.main_nav": "Main navigation",
     "shell.demo.marker": "Demo data",
+    "snapshot_library.choose": "Choose a snapshot",
+    "snapshot_library.compare_action": "Compare locally",
+    "snapshot_library.compare_failed": "Could not compare these snapshots. Choose two verified snapshots of the same dashboard and server version.",
+    "snapshot_library.compare_title": "Compare saved snapshots",
+    "snapshot_library.confirm_delete": "Confirm snapshot deletion",
+    "snapshot_library.counts": "Pages: {left_pages} → {right_pages}; widgets: {left_widgets} → {right_widgets}.",
+    "snapshot_library.damaged": "{count} snapshots could not be verified. Stored data was left unchanged.",
+    "snapshot_library.delete_action": "Delete snapshot…",
+    "snapshot_library.delete_effect": "Only this locally stored Base snapshot will be removed. Server dashboards and historical journal records are never changed.",
+    "snapshot_library.delete_failed": "The snapshot could not be deleted. References or storage may have changed; review the refreshed list.",
+    "snapshot_library.delete_refs": "References: {copies} copies, {journal} journal records.",
+    "snapshot_library.delete_unknown": "Some references cannot be verified. Deletion is blocked.",
+    "snapshot_library.different": "The saved dashboard contents differ.",
+    "snapshot_library.empty": "No snapshots stored yet.",
+    "snapshot_library.first": "First snapshot",
+    "snapshot_library.identical": "The saved dashboard contents are identical.",
+    "snapshot_library.item": "Dashboard snapshot",
+    "snapshot_library.list_failed": "Local snapshots could not be read.",
+    "snapshot_library.local_only": "Stored on this computer for server copies. Snapshots cannot be exported from the library.",
+    "snapshot_library.open_copy": "Open copy",
+    "snapshot_library.read_at": "Read {time}",
+    "snapshot_library.references_incomplete": "Some copies could not be read. Snapshot usage may be incomplete.",
+    "snapshot_library.second": "Second snapshot",
+    "snapshot_library.source": "Connection {connection} · Zabbix {version}",
+    "snapshot_library.title": "Snapshots",
+    "snapshot_library.usage_unknown": "Usage cannot be fully checked",
+    "snapshot_library.used_by": "Used by {count} copies",
     "startup.action.all_drafts": "All local drafts",
     "startup.action.assemble_dashboard": "Build from pages",
     "startup.action.choose_dashboard": "Choose dashboard",
@@ -1620,16 +1852,17 @@ export const catalogs = {
     "startup.subtitle": "Create and maintain Zabbix dashboards locally",
     "template_import.action_failed": "The file operation failed. Inspect the files again before retrying.",
     "template_import.becomes": "Metric catalogs to save: {count}, one per template.",
-    "template_import.catalog_use_later": "Saved catalogs can be selected when creating a page in Drafts.",
+    "template_import.catalog_use_later": "Use saved catalogs to build a local page in Drafts. Select catalog versions and metrics there; the page keeps its selected copies.",
     "template_import.catalogs": "Metric catalogs",
     "template_import.choose": "Upload through the browser",
     "template_import.empty": "No metric catalogs have been saved yet.",
     "template_import.help": "Choose Zabbix 7.4 template exports in YAML, JSON or XML. Review the result before saving catalogs on this computer.",
     "template_import.inspect": "Inspect files",
     "template_import.list_failed": "The local metric library could not be read.",
+    "template_import.lld_requires_instance": "Discovery prototypes need a concrete discovered item before they can be used.",
     "template_import.missing_parent": "A parent template is missing from this export.",
     "template_import.new_version": "A new version will be saved. Earlier versions are kept.",
-    "template_import.partial": "Only supported metric data is imported. Template dashboards and configuration outside the catalog are skipped.",
+    "template_import.partial": "This catalog is incomplete: unsupported or unfamiliar source fields were skipped, including any template dashboards.",
     "template_import.position": "Line {line}, column {column}.",
     "template_import.preview_counts": "Metrics: {metrics}. Discovery rules: {rules}. Metrics with preview hints: {hints}.",
     "template_import.rejected": "File rejected ({code}).",
@@ -2429,6 +2662,45 @@ export const catalogs = {
     "drafts.list.open_hint": "Щелчок по имени открывает черновик. Щелчок по остальной части строки или клавиша «Пробел» на имени показывает сведения.",
     "drafts.load_failed": "Не удалось загрузить локальные черновики",
     "drafts.name.source_connection": "({connection})",
+    "drafts.portable.bindings.graphs_unresolved": "Классические графики потребуют привязки перед публикацией.",
+    "drafts.portable.bindings.help": "Для каждого элемента данных выберите метрику каталога. Совпадение не подтверждает происхождение из шаблона. Укажите роли и слоты узлов.",
+    "drafts.portable.bindings.lld_instance": "выбранный экземпляр LLD",
+    "drafts.portable.bindings.metric": "Метрика каталога",
+    "drafts.portable.bindings.open": "Настроить привязки",
+    "drafts.portable.bindings.pattern_help": "Эти динамические маски нужно проверить и подтвердить на целевом Zabbix перед публикацией.",
+    "drafts.portable.bindings.role": "Идентификатор роли",
+    "drafts.portable.bindings.select": "Выберите метрику",
+    "drafts.portable.bindings.slot": "Идентификатор слота узла",
+    "drafts.portable.bindings.stale": "Копия изменилась. Загрузите сопоставления метрик заново.",
+    "drafts.portable.bindings.unavailable": "Недоступно",
+    "drafts.portable.blocker.binding_required": "Сначала задайте переносимое сопоставление для полей, связанных с сервером.",
+    "drafts.portable.blocker.field_unsupported": "Это поле виджета не поддерживается при переносимом преобразовании.",
+    "drafts.portable.blocker.graph_binding_required": "Сначала задайте переносимое сопоставление для полей графиков.",
+    "drafts.portable.blocker.host_binding_required": "Сначала назначьте полям узлов сети переносимые роли.",
+    "drafts.portable.blocker.item_binding_required": "Сначала назначьте полям элементов данных переносимые метрики.",
+    "drafts.portable.blocker.reference_required": "Перед преобразованием разрешите ссылки между виджетами.",
+    "drafts.portable.blocker.scope_unsupported": "Эту область копии нельзя преобразовать в переносимый черновик.",
+    "drafts.portable.blocker.unknown_data": "Перед преобразованием разрешите неизвестные поля или виджеты.",
+    "drafts.portable.blocker.unsupported_data": "Некоторые данные копии нельзя представить в переносимом черновике.",
+    "drafts.portable.blocker.widget_unsupported": "Этот тип виджета не поддерживается при переносимом преобразовании.",
+    "drafts.portable.checking": "Проверяем переносимость…",
+    "drafts.portable.count.graph_fields": "Поля графиков",
+    "drafts.portable.count.host_fields": "Поля узлов сети",
+    "drafts.portable.count.host_pattern_fields": "Поля шаблонов узлов сети",
+    "drafts.portable.count.item_fields": "Поля элементов данных",
+    "drafts.portable.count.item_pattern_fields": "Поля шаблонов элементов данных",
+    "drafts.portable.count.reference_consumers": "Потребители ссылок",
+    "drafts.portable.count.reference_definitions": "Определения ссылок",
+    "drafts.portable.count.unclassified_widgets": "Виджеты без определённого типа",
+    "drafts.portable.count.unknown_fields": "Неизвестные поля",
+    "drafts.portable.create_action": "Создать отдельный локальный черновик",
+    "drafts.portable.create_failed_title": "Не удалось создать локальный черновик",
+    "drafts.portable.creating": "Создаём локальный черновик…",
+    "drafts.portable.dependencies_title": "Зависимости в этой копии",
+    "drafts.portable.failed_title": "Не удалось завершить проверку переносимости",
+    "drafts.portable.preview_title": "Проверка переносимости",
+    "drafts.portable.ready": "Блокирующих причин преобразования нет. Можно создать отдельный локальный черновик.",
+    "drafts.portable.summary": "{kind}: страниц — {pages}, виджетов — {widgets}.",
     "drafts.rename.description": "Меняется только локальное имя. Панель на сервере не изменяется.",
     "drafts.rename.done": "Переименовано: «{name}»",
     "drafts.rename.title": "Переименовать черновик",
@@ -2564,6 +2836,21 @@ export const catalogs = {
     "errors.workcopy.storage_write_failed": "Не удалось записать в локальное хранилище. Ничего не сохранено.",
     "errors.workcopy.too_large": "Файл черновика слишком большой; он не прочитан.",
     "errors.workcopy.unsupported_operation": "Черновик содержит изменения из более новой версии ZDashstitch. Он не изменялся.",
+    "export_progress.cancel": "Отменить",
+    "export_progress.cancelled": "Сохранение отменено.",
+    "export_progress.choosing": "Выберите место сохранения…",
+    "export_progress.committing": "Завершение сохранения…",
+    "export_progress.created": "Подготовка экспорта…",
+    "export_progress.done": "Сохранено.",
+    "export_progress.failed": "Не удалось сохранить.",
+    "export_progress.packaging": "Упаковка…",
+    "export_progress.preparing": "Проверка и упаковка…",
+    "export_progress.scanning": "Проверка содержимого…",
+    "export_progress.too_late": "Сохранение уже перешло к завершающему шагу и не может быть отменено.",
+    "export_progress.transforming": "Изменение копии…",
+    "export_progress.validating": "Проверка данных…",
+    "export_progress.verifying": "Проверка пакета…",
+    "export_progress.writing": "Запись временного файла…",
     "http.security.api_not_found": "Запрошенный локальный адрес API не существует.",
     "http.security.body_too_large": "Размер запроса превышает допустимый предел.",
     "http.security.bootstrap_invalid": "Одноразовая ссылка запуска недействительна или устарела.",
@@ -2616,9 +2903,13 @@ export const catalogs = {
     "offline_builder.edit_role": "Изменить роль {role}",
     "offline_builder.edit_title": "Изменить состав локальной страницы",
     "offline_builder.edit_widget": "Изменить виджет «{widget}»",
+    "offline_builder.embedded_catalog": "Хранится в этом черновике",
     "offline_builder.empty": "Локальных страниц пока нет.",
     "offline_builder.error": "Операция со страницей не выполнена. Проверьте выбранные метрики и повторите.",
+    "offline_builder.export": "Экспортировать пакет страницы",
+    "offline_builder.export_failed": "Не удалось подготовить пакет страницы. Сохранённая страница не изменилась.",
     "offline_builder.go_to_drafts": "Создать локальную страницу",
+    "offline_builder.graph_rows": "Логических рядов в этом графике: {count} (один виджет).",
     "offline_builder.help": "Выберите версии каталогов и метрики, добавьте график или значение элемента данных и сохраните локальную страницу. Узлы сети назначаются позже.",
     "offline_builder.leave_dirty": "В форме есть несохранённые изменения. Уйти и отбросить их?",
     "offline_builder.library_unavailable": "Библиотека не загрузилась. Сохранённые копии каталогов этой страницы остаются доступны.",
@@ -2703,6 +2994,7 @@ export const catalogs = {
     "offline_editor.check.incomplete": "У виджета нет источника метрики.",
     "offline_editor.check.metric": "Метрика {metric} недоступна в закреплённом каталоге.",
     "offline_editor.check.metric_type": "Тип метрики не поддерживается этим виджетом.",
+    "offline_editor.check.mixed_units": "В графике смешаны единицы измерения. После назначения реальных источников проверьте настройку осей; публикация может быть заблокирована.",
     "offline_editor.check.name": "Укажите имя страницы.",
     "offline_editor.check.overlap": "Виджеты перекрываются.",
     "offline_editor.check.role": "Проверьте роль {role} и выбор источников.",
@@ -2773,6 +3065,97 @@ export const catalogs = {
     "offline_editor.zoom_in": "Увеличить",
     "offline_editor.zoom_out": "Уменьшить",
     "offline_editor.zoom_reset": "100%",
+    "package_import.choose": "Выберите панель или страницу",
+    "package_import.compatibility_min": "Заявленная автором совместимость: {version} и новее",
+    "package_import.compatibility_range": "Заявленная автором совместимость: от {minimum} до {maximum}, не включая верхнюю границу",
+    "package_import.dashboard": "Панель",
+    "package_import.export_hash": "SHA-256 подготовленного пакета",
+    "package_import.export_yaml": "Экспортировать YAML",
+    "package_import.failed": "Импорт не выполнен. Проверьте файлы и повторите попытку.",
+    "package_import.file_hashes": "Отпечатки файлов",
+    "package_import.hash_hint": "Сравните отпечаток с доверенным значением. Сам по себе он не подтверждает автора файла.",
+    "package_import.help": "Выберите ZIP-пакеты DATA-ONLY или YAML-файлы без каталогов. Каталоги сохраняются внутри каждого импортированного черновика.",
+    "package_import.import": "Импортировать выбранные файлы",
+    "package_import.invalid": "Не удалось проверить пакет.",
+    "package_import.limits": "До 32 файлов: ZIP — до 16 МиБ, YAML — до 2 МиБ, весь набор — до 32 МиБ.",
+    "package_import.page": "Страница",
+    "package_import.preview": "Проверить файлы",
+    "package_import.registry_incompatible": "Локальный реестр не нашёл общей поддерживаемой версии для этих виджетов.",
+    "package_import.registry_known": "Локальный реестр 7.4 распознаёт указанные виджеты и поля. Поддержку сервером ещё нужно проверить.",
+    "package_import.registry_min": "Оценка по реестру: {version} и новее",
+    "package_import.registry_mismatch": "Диапазон автора шире диапазона, рассчитанного по локальному реестру.",
+    "package_import.registry_range": "Оценка по реестру: от {minimum} до {maximum}, не включая верхнюю границу",
+    "package_import.registry_unknown": "Локальный реестр 7.4 не может оценить все виджеты или поля. Поддержка сервером не подтверждена.",
+    "package_import.saved": "Импортировано",
+    "package_import.sha256": "SHA-256",
+    "package_import.size": "Размер файла: {bytes} байт",
+    "package_import.summary": "Страниц: {pages}; виджетов: {widgets}; каталогов: {catalogs}.",
+    "package_import.title": "Импорт пакетов панелей и страниц",
+    "package_scan.action": "Найти возможные чувствительные значения",
+    "package_scan.credential": "Возможные учётные данные; проверьте перед передачей",
+    "package_scan.credential_count": "Возможных учётных данных: {count}; проверьте перед передачей.",
+    "package_scan.email": "Возможный адрес электронной почты",
+    "package_scan.evidence_heuristic": "эвристический кандидат",
+    "package_scan.evidence_structural": "поле или синтаксис определены",
+    "package_scan.evidence_unanalysed": "не проанализировано",
+    "package_scan.failed": "Не удалось выполнить проверку.",
+    "package_scan.filter": "Фильтр кандидатов",
+    "package_scan.fqdn": "Возможное доменное имя",
+    "package_scan.free_text": "Имя или текст для проверки",
+    "package_scan.identifier": "Идентификатор источника",
+    "package_scan.ip": "Возможный IP-адрес",
+    "package_scan.macro": "Макрос",
+    "package_scan.mask": "Возможная маска",
+    "package_scan.metric_key": "Ключ элемента данных",
+    "package_scan.none": "Ограниченная проверка не нашла кандидатов.",
+    "package_scan.path": "Возможный путь к файлу",
+    "package_scan.prepare_copy": "Подготовить копию",
+    "package_scan.truncated": "Показаны только первые 256 кандидатов.",
+    "package_scan.unknown": "Неизвестное поле или виджет; проверка неполная",
+    "package_scan.unknown_count": "Неизвестных полей или виджетов: {count}; их содержимое проверено не полностью.",
+    "package_scan.url": "Возможный URL",
+    "package_scan.warning": "Эта ограниченная локальная проверка не гарантирует обезличивание и не находит все чувствительные значения. Перед передачей проверьте содержимое.",
+    "page_library.action_failed": "Не удалось выполнить действие с библиотекой. Объект мог измениться; проверьте обновлённый список.",
+    "page_library.all": "Все типы",
+    "page_library.cache_write_failed": "Не удалось сохранить индекс библиотеки. Сведения об использовании восстановлены из сохранённых объектов.",
+    "page_library.cancel": "Отмена",
+    "page_library.catalog_count": "Закреплено каталогов: {count}",
+    "page_library.catalog_delete_effect": "Будет удалена только выбранная локальная версия каталога. Другие версии и содержимое скопированных страниц не изменятся.",
+    "page_library.catalog_delete_unproven": "Удаление каталога недоступно, пока нельзя проверить все закреплённые копии без гонки.",
+    "page_library.catalog_in_use": "Эта версия закреплена в локальных объектах ({count}); удалить её нельзя.",
+    "page_library.check_page": "Проверить выбранную страницу",
+    "page_library.choose_from_workcopy": "Выбрать страницу из копии панели",
+    "page_library.confirm_catalog_delete": "Удалить версию каталога",
+    "page_library.confirm_delete": "Удалить страницу из библиотеки",
+    "page_library.confirm_name": "Введите «{name}» для подтверждения удаления",
+    "page_library.delete": "Удалить",
+    "page_library.delete_effect": "Удаление страницы из библиотеки не меняет созданные из неё черновики и панели. Исходный объект сохраняется.",
+    "page_library.display_name": "Отображаемое имя в библиотеке",
+    "page_library.draft_source": "Черновик",
+    "page_library.duplicate": "Дублировать",
+    "page_library.empty": "В библиотеке пока нет сохранённых страниц.",
+    "page_library.filters": "Фильтры библиотеки",
+    "page_library.index_unavailable": "Сведения об использовании библиотеки недоступны. Сохранённые каталоги и страницы по-прежнему доступны.",
+    "page_library.kind": "Тип объекта",
+    "page_library.library_source": "Библиотека",
+    "page_library.list_failed": "Не удалось прочитать локальную библиотеку страниц.",
+    "page_library.name": "Имя",
+    "page_library.newest": "Сначала новые",
+    "page_library.rename": "Переименовать",
+    "page_library.save_action": "Сохранить страницу в библиотеку",
+    "page_library.save_failed": "Не удалось сохранить страницу в библиотеку.",
+    "page_library.save_name": "Сохранить имя",
+    "page_library.saved": "Страница сохранена отдельной копией в библиотеке.",
+    "page_library.search": "Поиск",
+    "page_library.select_page": "Выберите страницу",
+    "page_library.selected_page": "Страница",
+    "page_library.sort": "Сортировка",
+    "page_library.source": "Сохранена из {id}",
+    "page_library.take_action": "Взять страницу",
+    "page_library.take_failed": "Не удалось создать черновик из страницы библиотеки.",
+    "page_library.title": "Страницы",
+    "page_library.usage_unknown": "Сведения об использовании недоступны",
+    "page_library.used_by": "Используют локальные объекты: {count}",
     "publication.a11y.steps": "Шаги публикации",
     "publication.access.copy_private": "Новая панель — личная, владелец — вы. Запись доступа включится после её лабораторной проверки.",
     "publication.access.title": "Владелец и доступ",
@@ -3103,6 +3486,61 @@ export const catalogs = {
     "publication.untouched.title": "Не изменяется",
     "publication.untouched.widgets": "{count, plural, one {# виджет без ссылок на {host} передаётся как есть, с прежним идентификатором} few {# виджета без ссылок на {host} передаются как есть, с прежними идентификаторами} many {# виджетов без ссылок на {host} передаются как есть, с прежними идентификаторами} other {# виджета без ссылок на {host} передаются как есть, с прежними идентификаторами}}",
     "publication.untouched.zabbix_objects": "Узлы сети, шаблоны, элементы данных и триггеры не изменяются никогда",
+    "redaction.acknowledge": "Я понимаю, что проверка неполная, и должен убедиться, что учётные данные не передаются.",
+    "redaction.add": "Добавить замену",
+    "redaction.alias_caution": "Псевдонимы заменят ключи метрик в этой копии. Перед публикацией метрики потребуется сопоставить заново.",
+    "redaction.catalog_id": "Идентификатор каталога {catalog}",
+    "redaction.catalog_metric": "Имя метрики {metric} в каталоге {catalog}",
+    "redaction.catalog_metric_id": "Идентификатор метрики {metric} в каталоге {catalog}",
+    "redaction.catalog_metric_units": "Единицы метрики {metric} в каталоге {catalog}",
+    "redaction.catalog_template": "Имя шаблона в каталоге {catalog}",
+    "redaction.clear_catalog_source": "Убрать сведения об источнике каталога {catalog}",
+    "redaction.clear_catalog_source_caution": "В копии больше не будут указаны исходный шаблон и версия его экспорта.",
+    "redaction.clear_provenance": "Убрать сведения об исходном объекте",
+    "redaction.clear_uuids": "Удалить UUID шаблона и метрик в каталоге {catalog}",
+    "redaction.credentials_block": "Экспорт заблокирован: ограниченная проверка нашла возможные учётные данные. Удалите их из черновика и повторите проверку.",
+    "redaction.dashboard": "Название панели",
+    "redaction.dashboard_id": "Идентификатор панели",
+    "redaction.export": "Экспортировать проверенную копию",
+    "redaction.failed": "Не удалось подготовить копию. Проверьте замены и заново откройте изменённый черновик.",
+    "redaction.help": "Измените выбранные сведения в экспортируемой копии. Исходный черновик не меняется. Ключи метрик меняются только при явной замене псевдонимами.",
+    "redaction.host_mask": "Страница {page}, виджет {widget}, маска узлов {field}",
+    "redaction.id_caution": "Идентификаторы должны соответствовать переносимому формату. Неизвестные объекты блокируют их замену.",
+    "redaction.item_pattern": "Маска элементов данных {field} виджета {widget}, страница {page}",
+    "redaction.item_pattern_caution": "Замена маски может изменить набор отображаемых метрик. Перед публикацией проверьте целевой сервер.",
+    "redaction.length": "Исходное значение: {before} символов; замена: {after} символов.",
+    "redaction.limit": "До 128 объектов в одной копии; при большем числе совпадений операция отклоняется без изменений.",
+    "redaction.mask_caution": "Заменённая маска узлов не привязывается к реальным узлам автоматически. Проверьте её перед публикацией.",
+    "redaction.matching": "Применить к точным совпадениям в поддерживаемых названиях и масках узлов",
+    "redaction.page": "Страница {page}",
+    "redaction.page_id": "Идентификатор страницы {page}",
+    "redaction.preview": "Проверить копию",
+    "redaction.project_id": "Идентификатор пакета",
+    "redaction.protected": "Безопасность изменения нельзя проверить: проверьте связи оставшихся виджетов и неизвестные поля. Измените выбор объектов и повторите предпросмотр.",
+    "redaction.remaining": "Осталось кандидатов: {count}. Проверка ограничена и не гарантирует обезличивание.",
+    "redaction.remove": "Убрать замену",
+    "redaction.remove_caution": "Исключение блокируется, если оставшийся виджет может потерять источник данных или неизвестные поля в сохраняемых виджетах мешают проверке.",
+    "redaction.remove_page": "Исключить страницу {page} вместе с виджетами",
+    "redaction.remove_widget": "Исключить виджет {widget} на странице {page}",
+    "redaction.replacement": "Новое значение",
+    "redaction.role": "Роль {role}",
+    "redaction.role_description": "Описание роли {role}",
+    "redaction.save_as": "Сохранить копию как…",
+    "redaction.save_as_hint": "Выберите новый файл .zip. Существующие файлы не перезаписываются.",
+    "redaction.save_no_overwrite": "Выберите новый файл: существующие файлы не перезаписываются.",
+    "redaction.save_yaml_as": "Сохранить YAML как…",
+    "redaction.save_zip_as": "Сохранить ZIP как…",
+    "redaction.saved": "Сохранено",
+    "redaction.selector_aliases": "Заменить ключи метрик псевдонимами в каталоге {catalog}",
+    "redaction.slot": "Роль {role}, слот {slot}",
+    "redaction.target": "Объект",
+    "redaction.title": "Подготовить копию с заменами",
+    "redaction.units_caution": "Замена или очистка единиц меняет интерпретацию метрики и её сопоставление. Пустое значение удаляет единицы.",
+    "redaction.unresolved_name": "Имя непривязанного объекта {field} в виджете {widget}, страница {page}",
+    "redaction.widget": "Страница {page}, виджет {widget}",
+    "redaction.widget_id": "Идентификатор виджета {widget} на странице {page}",
+    "redaction.widget_text": "Текстовое поле {field} виджета {widget}, страница {page}",
+    "redaction.with_value": "{target}: {value}",
     "replace_host.source": "Заменяемый узел сети",
     "server.action.clone": "Клонировать",
     "server.action.copy": "Скопировать с сервера",
@@ -3232,6 +3670,33 @@ export const catalogs = {
     "shell.a11y.breadcrumbs": "Навигационная цепочка",
     "shell.a11y.main_nav": "Основная навигация",
     "shell.demo.marker": "Демонстрационные данные",
+    "snapshot_library.choose": "Выберите снимок",
+    "snapshot_library.compare_action": "Сравнить локально",
+    "snapshot_library.compare_failed": "Не удалось сравнить снимки. Выберите два проверенных снимка одной панели и версии сервера.",
+    "snapshot_library.compare_title": "Сравнить сохранённые снимки",
+    "snapshot_library.confirm_delete": "Подтвердить удаление снимка",
+    "snapshot_library.counts": "Страниц: {left_pages} → {right_pages}; виджетов: {left_widgets} → {right_widgets}.",
+    "snapshot_library.damaged": "Не удалось проверить снимки: {count}. Сохранённые данные не изменены.",
+    "snapshot_library.delete_action": "Удалить снимок…",
+    "snapshot_library.delete_effect": "Удалится только этот локальный базовый снимок. Панели в Zabbix и исторические записи журнала не изменятся.",
+    "snapshot_library.delete_failed": "Не удалось удалить снимок. Ссылки или хранилище могли измениться; проверьте обновлённый список.",
+    "snapshot_library.delete_refs": "Ссылки: копии — {copies}, записи журнала — {journal}.",
+    "snapshot_library.delete_unknown": "Часть ссылок проверить нельзя. Удаление заблокировано.",
+    "snapshot_library.different": "Сохранённое содержимое панели различается.",
+    "snapshot_library.empty": "Снимков пока нет.",
+    "snapshot_library.first": "Первый снимок",
+    "snapshot_library.identical": "Сохранённое содержимое панели совпадает.",
+    "snapshot_library.item": "Снимок панели",
+    "snapshot_library.list_failed": "Не удалось прочитать локальные снимки.",
+    "snapshot_library.local_only": "Хранятся на этом компьютере для копий с сервера. Экспорт снимков из библиотеки недоступен.",
+    "snapshot_library.open_copy": "Открыть копию",
+    "snapshot_library.read_at": "Получен {time}",
+    "snapshot_library.references_incomplete": "Часть копий не удалось прочитать. Сведения об использовании снимков могут быть неполными.",
+    "snapshot_library.second": "Второй снимок",
+    "snapshot_library.source": "Подключение {connection} · Zabbix {version}",
+    "snapshot_library.title": "Снимки",
+    "snapshot_library.usage_unknown": "Использование нельзя проверить полностью",
+    "snapshot_library.used_by": "Используют копии: {count}",
     "startup.action.all_drafts": "Все локальные черновики",
     "startup.action.assemble_dashboard": "Собрать из страниц",
     "startup.action.choose_dashboard": "Выбрать панель",
@@ -3293,16 +3758,17 @@ export const catalogs = {
     "startup.subtitle": "Локальное создание и сопровождение панелей Zabbix",
     "template_import.action_failed": "Не удалось обработать файлы. Перед повторной попыткой проверьте их ещё раз.",
     "template_import.becomes": "Будет сохранено каталогов метрик: {count}, по одному на шаблон.",
-    "template_import.catalog_use_later": "Сохранённые каталоги можно выбрать при создании страницы в разделе «Черновики».",
+    "template_import.catalog_use_later": "Создайте локальную страницу из сохранённых каталогов в разделе «Черновики». Там можно выбрать версии каталогов и метрики; страница сохранит выбранные копии.",
     "template_import.catalogs": "Каталоги метрик",
     "template_import.choose": "Загрузить через браузер",
     "template_import.empty": "Пока нет сохранённых каталогов метрик.",
     "template_import.help": "Выберите экспорт шаблонов Zabbix 7.4 в YAML, JSON или XML. Проверьте результат перед сохранением каталогов на этом компьютере.",
     "template_import.inspect": "Проверить файлы",
     "template_import.list_failed": "Не удалось прочитать локальную библиотеку каталогов.",
+    "template_import.lld_requires_instance": "Для использования прототипов обнаружения нужен конкретный обнаруженный элемент данных.",
     "template_import.missing_parent": "В экспорте отсутствует родительский шаблон.",
     "template_import.new_version": "Будет сохранена новая версия. Прежние версии останутся в библиотеке.",
-    "template_import.partial": "Импортируются поддерживаемые данные метрик. Панели шаблонов и настройки за пределами каталога пропускаются.",
+    "template_import.partial": "Каталог неполон: неподдерживаемые или неизвестные поля исходного файла пропущены, в том числе панели шаблонов, если они были.",
     "template_import.position": "Строка {line}, столбец {column}.",
     "template_import.preview_counts": "Метрик: {metrics}. Правил обнаружения: {rules}. Метрик с подсказками: {hints}.",
     "template_import.rejected": "Файл отклонён ({code}).",
@@ -4458,6 +4924,49 @@ export const placeholderTypes = {
   "drafts.name.source_connection": {
     "connection": "text"
   },
+  "drafts.portable.bindings.graphs_unresolved": {},
+  "drafts.portable.bindings.help": {},
+  "drafts.portable.bindings.lld_instance": {},
+  "drafts.portable.bindings.metric": {},
+  "drafts.portable.bindings.open": {},
+  "drafts.portable.bindings.pattern_help": {},
+  "drafts.portable.bindings.role": {},
+  "drafts.portable.bindings.select": {},
+  "drafts.portable.bindings.slot": {},
+  "drafts.portable.bindings.stale": {},
+  "drafts.portable.bindings.unavailable": {},
+  "drafts.portable.blocker.binding_required": {},
+  "drafts.portable.blocker.field_unsupported": {},
+  "drafts.portable.blocker.graph_binding_required": {},
+  "drafts.portable.blocker.host_binding_required": {},
+  "drafts.portable.blocker.item_binding_required": {},
+  "drafts.portable.blocker.reference_required": {},
+  "drafts.portable.blocker.scope_unsupported": {},
+  "drafts.portable.blocker.unknown_data": {},
+  "drafts.portable.blocker.unsupported_data": {},
+  "drafts.portable.blocker.widget_unsupported": {},
+  "drafts.portable.checking": {},
+  "drafts.portable.count.graph_fields": {},
+  "drafts.portable.count.host_fields": {},
+  "drafts.portable.count.host_pattern_fields": {},
+  "drafts.portable.count.item_fields": {},
+  "drafts.portable.count.item_pattern_fields": {},
+  "drafts.portable.count.reference_consumers": {},
+  "drafts.portable.count.reference_definitions": {},
+  "drafts.portable.count.unclassified_widgets": {},
+  "drafts.portable.count.unknown_fields": {},
+  "drafts.portable.create_action": {},
+  "drafts.portable.create_failed_title": {},
+  "drafts.portable.creating": {},
+  "drafts.portable.dependencies_title": {},
+  "drafts.portable.failed_title": {},
+  "drafts.portable.preview_title": {},
+  "drafts.portable.ready": {},
+  "drafts.portable.summary": {
+    "kind": "text",
+    "pages": "number",
+    "widgets": "number"
+  },
   "drafts.rename.description": {},
   "drafts.rename.done": {
     "name": "text"
@@ -4633,6 +5142,21 @@ export const placeholderTypes = {
   "errors.workcopy.storage_write_failed": {},
   "errors.workcopy.too_large": {},
   "errors.workcopy.unsupported_operation": {},
+  "export_progress.cancel": {},
+  "export_progress.cancelled": {},
+  "export_progress.choosing": {},
+  "export_progress.committing": {},
+  "export_progress.created": {},
+  "export_progress.done": {},
+  "export_progress.failed": {},
+  "export_progress.packaging": {},
+  "export_progress.preparing": {},
+  "export_progress.scanning": {},
+  "export_progress.too_late": {},
+  "export_progress.transforming": {},
+  "export_progress.validating": {},
+  "export_progress.verifying": {},
+  "export_progress.writing": {},
   "http.security.api_not_found": {},
   "http.security.body_too_large": {},
   "http.security.bootstrap_invalid": {},
@@ -4698,9 +5222,15 @@ export const placeholderTypes = {
   "offline_builder.edit_widget": {
     "widget": "text"
   },
+  "offline_builder.embedded_catalog": {},
   "offline_builder.empty": {},
   "offline_builder.error": {},
+  "offline_builder.export": {},
+  "offline_builder.export_failed": {},
   "offline_builder.go_to_drafts": {},
+  "offline_builder.graph_rows": {
+    "count": "number"
+  },
   "offline_builder.help": {},
   "offline_builder.leave_dirty": {},
   "offline_builder.library_unavailable": {},
@@ -4808,6 +5338,7 @@ export const placeholderTypes = {
     "metric": "text"
   },
   "offline_editor.check.metric_type": {},
+  "offline_editor.check.mixed_units": {},
   "offline_editor.check.name": {},
   "offline_editor.check.overlap": {},
   "offline_editor.check.role": {
@@ -4917,6 +5448,127 @@ export const placeholderTypes = {
   "offline_editor.zoom_in": {},
   "offline_editor.zoom_out": {},
   "offline_editor.zoom_reset": {},
+  "package_import.choose": {},
+  "package_import.compatibility_min": {
+    "version": "technical"
+  },
+  "package_import.compatibility_range": {
+    "minimum": "technical",
+    "maximum": "technical"
+  },
+  "package_import.dashboard": {},
+  "package_import.export_hash": {},
+  "package_import.export_yaml": {},
+  "package_import.failed": {},
+  "package_import.file_hashes": {},
+  "package_import.hash_hint": {},
+  "package_import.help": {},
+  "package_import.import": {},
+  "package_import.invalid": {},
+  "package_import.limits": {},
+  "package_import.page": {},
+  "package_import.preview": {},
+  "package_import.registry_incompatible": {},
+  "package_import.registry_known": {},
+  "package_import.registry_min": {
+    "version": "technical"
+  },
+  "package_import.registry_mismatch": {},
+  "package_import.registry_range": {
+    "minimum": "technical",
+    "maximum": "technical"
+  },
+  "package_import.registry_unknown": {},
+  "package_import.saved": {},
+  "package_import.sha256": {},
+  "package_import.size": {
+    "bytes": "number"
+  },
+  "package_import.summary": {
+    "pages": "number",
+    "widgets": "number",
+    "catalogs": "number"
+  },
+  "package_import.title": {},
+  "package_scan.action": {},
+  "package_scan.credential": {},
+  "package_scan.credential_count": {
+    "count": "number"
+  },
+  "package_scan.email": {},
+  "package_scan.evidence_heuristic": {},
+  "package_scan.evidence_structural": {},
+  "package_scan.evidence_unanalysed": {},
+  "package_scan.failed": {},
+  "package_scan.filter": {},
+  "package_scan.fqdn": {},
+  "package_scan.free_text": {},
+  "package_scan.identifier": {},
+  "package_scan.ip": {},
+  "package_scan.macro": {},
+  "package_scan.mask": {},
+  "package_scan.metric_key": {},
+  "package_scan.none": {},
+  "package_scan.path": {},
+  "package_scan.prepare_copy": {},
+  "package_scan.truncated": {},
+  "package_scan.unknown": {},
+  "package_scan.unknown_count": {
+    "count": "number"
+  },
+  "package_scan.url": {},
+  "package_scan.warning": {},
+  "page_library.action_failed": {},
+  "page_library.all": {},
+  "page_library.cache_write_failed": {},
+  "page_library.cancel": {},
+  "page_library.catalog_count": {
+    "count": "number"
+  },
+  "page_library.catalog_delete_effect": {},
+  "page_library.catalog_delete_unproven": {},
+  "page_library.catalog_in_use": {
+    "count": "number"
+  },
+  "page_library.check_page": {},
+  "page_library.choose_from_workcopy": {},
+  "page_library.confirm_catalog_delete": {},
+  "page_library.confirm_delete": {},
+  "page_library.confirm_name": {
+    "name": "text"
+  },
+  "page_library.delete": {},
+  "page_library.delete_effect": {},
+  "page_library.display_name": {},
+  "page_library.draft_source": {},
+  "page_library.duplicate": {},
+  "page_library.empty": {},
+  "page_library.filters": {},
+  "page_library.index_unavailable": {},
+  "page_library.kind": {},
+  "page_library.library_source": {},
+  "page_library.list_failed": {},
+  "page_library.name": {},
+  "page_library.newest": {},
+  "page_library.rename": {},
+  "page_library.save_action": {},
+  "page_library.save_failed": {},
+  "page_library.save_name": {},
+  "page_library.saved": {},
+  "page_library.search": {},
+  "page_library.select_page": {},
+  "page_library.selected_page": {},
+  "page_library.sort": {},
+  "page_library.source": {
+    "id": "text"
+  },
+  "page_library.take_action": {},
+  "page_library.take_failed": {},
+  "page_library.title": {},
+  "page_library.usage_unknown": {},
+  "page_library.used_by": {
+    "count": "number"
+  },
   "publication.a11y.steps": {},
   "publication.access.copy_private": {},
   "publication.access.title": {},
@@ -5380,6 +6032,126 @@ export const placeholderTypes = {
     "host": "text"
   },
   "publication.untouched.zabbix_objects": {},
+  "redaction.acknowledge": {},
+  "redaction.add": {},
+  "redaction.alias_caution": {},
+  "redaction.catalog_id": {
+    "catalog": "number"
+  },
+  "redaction.catalog_metric": {
+    "catalog": "number",
+    "metric": "number"
+  },
+  "redaction.catalog_metric_id": {
+    "metric": "number",
+    "catalog": "number"
+  },
+  "redaction.catalog_metric_units": {
+    "metric": "number",
+    "catalog": "number"
+  },
+  "redaction.catalog_template": {
+    "catalog": "number"
+  },
+  "redaction.clear_catalog_source": {
+    "catalog": "number"
+  },
+  "redaction.clear_catalog_source_caution": {},
+  "redaction.clear_provenance": {},
+  "redaction.clear_uuids": {
+    "catalog": "number"
+  },
+  "redaction.credentials_block": {},
+  "redaction.dashboard": {},
+  "redaction.dashboard_id": {},
+  "redaction.export": {},
+  "redaction.failed": {},
+  "redaction.help": {},
+  "redaction.host_mask": {
+    "page": "number",
+    "widget": "number",
+    "field": "number"
+  },
+  "redaction.id_caution": {},
+  "redaction.item_pattern": {
+    "field": "number",
+    "widget": "number",
+    "page": "number"
+  },
+  "redaction.item_pattern_caution": {},
+  "redaction.length": {
+    "before": "number",
+    "after": "number"
+  },
+  "redaction.limit": {},
+  "redaction.mask_caution": {},
+  "redaction.matching": {},
+  "redaction.page": {
+    "page": "number"
+  },
+  "redaction.page_id": {
+    "page": "number"
+  },
+  "redaction.preview": {},
+  "redaction.project_id": {},
+  "redaction.protected": {},
+  "redaction.remaining": {
+    "count": "number"
+  },
+  "redaction.remove": {},
+  "redaction.remove_caution": {},
+  "redaction.remove_page": {
+    "page": "number"
+  },
+  "redaction.remove_widget": {
+    "page": "number",
+    "widget": "number"
+  },
+  "redaction.replacement": {},
+  "redaction.role": {
+    "role": "number"
+  },
+  "redaction.role_description": {
+    "role": "number"
+  },
+  "redaction.save_as": {},
+  "redaction.save_as_hint": {},
+  "redaction.save_no_overwrite": {},
+  "redaction.save_yaml_as": {},
+  "redaction.save_zip_as": {},
+  "redaction.saved": {},
+  "redaction.selector_aliases": {
+    "catalog": "number"
+  },
+  "redaction.slot": {
+    "role": "number",
+    "slot": "number"
+  },
+  "redaction.target": {},
+  "redaction.title": {},
+  "redaction.units_caution": {},
+  "redaction.unresolved_name": {
+    "page": "number",
+    "widget": "number",
+    "field": "number"
+  },
+  "redaction.widget": {
+    "page": "number",
+    "widget": "number"
+  },
+  "redaction.widget_id": {
+    "page": "number",
+    "widget": "number"
+  },
+  "redaction.widget_text": {
+    "field": "number",
+    "widget": "number",
+    "page": "number"
+  },
+  "redaction.with_value": {
+    "target": "text",
+    "value": "text"
+  },
   "replace_host.source": {},
   "server.action.clone": {},
   "server.action.copy": {},
@@ -5543,6 +6315,50 @@ export const placeholderTypes = {
   "shell.a11y.breadcrumbs": {},
   "shell.a11y.main_nav": {},
   "shell.demo.marker": {},
+  "snapshot_library.choose": {},
+  "snapshot_library.compare_action": {},
+  "snapshot_library.compare_failed": {},
+  "snapshot_library.compare_title": {},
+  "snapshot_library.confirm_delete": {},
+  "snapshot_library.counts": {
+    "left_pages": "number",
+    "right_pages": "number",
+    "left_widgets": "number",
+    "right_widgets": "number"
+  },
+  "snapshot_library.damaged": {
+    "count": "number"
+  },
+  "snapshot_library.delete_action": {},
+  "snapshot_library.delete_effect": {},
+  "snapshot_library.delete_failed": {},
+  "snapshot_library.delete_refs": {
+    "copies": "number",
+    "journal": "number"
+  },
+  "snapshot_library.delete_unknown": {},
+  "snapshot_library.different": {},
+  "snapshot_library.empty": {},
+  "snapshot_library.first": {},
+  "snapshot_library.identical": {},
+  "snapshot_library.item": {},
+  "snapshot_library.list_failed": {},
+  "snapshot_library.local_only": {},
+  "snapshot_library.open_copy": {},
+  "snapshot_library.read_at": {
+    "time": "datetime"
+  },
+  "snapshot_library.references_incomplete": {},
+  "snapshot_library.second": {},
+  "snapshot_library.source": {
+    "connection": "technical",
+    "version": "technical"
+  },
+  "snapshot_library.title": {},
+  "snapshot_library.usage_unknown": {},
+  "snapshot_library.used_by": {
+    "count": "number"
+  },
   "startup.action.all_drafts": {},
   "startup.action.assemble_dashboard": {},
   "startup.action.choose_dashboard": {},
@@ -5645,6 +6461,7 @@ export const placeholderTypes = {
   "template_import.help": {},
   "template_import.inspect": {},
   "template_import.list_failed": {},
+  "template_import.lld_requires_instance": {},
   "template_import.missing_parent": {},
   "template_import.new_version": {},
   "template_import.partial": {},
@@ -8035,6 +8852,125 @@ export interface MessageParamsById {
   "drafts.name.source_connection": {
     "connection": string;
   };
+  "drafts.portable.bindings.graphs_unresolved": {
+
+  };
+  "drafts.portable.bindings.help": {
+
+  };
+  "drafts.portable.bindings.lld_instance": {
+
+  };
+  "drafts.portable.bindings.metric": {
+
+  };
+  "drafts.portable.bindings.open": {
+
+  };
+  "drafts.portable.bindings.pattern_help": {
+
+  };
+  "drafts.portable.bindings.role": {
+
+  };
+  "drafts.portable.bindings.select": {
+
+  };
+  "drafts.portable.bindings.slot": {
+
+  };
+  "drafts.portable.bindings.stale": {
+
+  };
+  "drafts.portable.bindings.unavailable": {
+
+  };
+  "drafts.portable.blocker.binding_required": {
+
+  };
+  "drafts.portable.blocker.field_unsupported": {
+
+  };
+  "drafts.portable.blocker.graph_binding_required": {
+
+  };
+  "drafts.portable.blocker.host_binding_required": {
+
+  };
+  "drafts.portable.blocker.item_binding_required": {
+
+  };
+  "drafts.portable.blocker.reference_required": {
+
+  };
+  "drafts.portable.blocker.scope_unsupported": {
+
+  };
+  "drafts.portable.blocker.unknown_data": {
+
+  };
+  "drafts.portable.blocker.unsupported_data": {
+
+  };
+  "drafts.portable.blocker.widget_unsupported": {
+
+  };
+  "drafts.portable.checking": {
+
+  };
+  "drafts.portable.count.graph_fields": {
+
+  };
+  "drafts.portable.count.host_fields": {
+
+  };
+  "drafts.portable.count.host_pattern_fields": {
+
+  };
+  "drafts.portable.count.item_fields": {
+
+  };
+  "drafts.portable.count.item_pattern_fields": {
+
+  };
+  "drafts.portable.count.reference_consumers": {
+
+  };
+  "drafts.portable.count.reference_definitions": {
+
+  };
+  "drafts.portable.count.unclassified_widgets": {
+
+  };
+  "drafts.portable.count.unknown_fields": {
+
+  };
+  "drafts.portable.create_action": {
+
+  };
+  "drafts.portable.create_failed_title": {
+
+  };
+  "drafts.portable.creating": {
+
+  };
+  "drafts.portable.dependencies_title": {
+
+  };
+  "drafts.portable.failed_title": {
+
+  };
+  "drafts.portable.preview_title": {
+
+  };
+  "drafts.portable.ready": {
+
+  };
+  "drafts.portable.summary": {
+    "kind": string;
+    "pages": number;
+    "widgets": number;
+  };
   "drafts.rename.description": {
 
   };
@@ -8440,6 +9376,51 @@ export interface MessageParamsById {
   "errors.workcopy.unsupported_operation": {
 
   };
+  "export_progress.cancel": {
+
+  };
+  "export_progress.cancelled": {
+
+  };
+  "export_progress.choosing": {
+
+  };
+  "export_progress.committing": {
+
+  };
+  "export_progress.created": {
+
+  };
+  "export_progress.done": {
+
+  };
+  "export_progress.failed": {
+
+  };
+  "export_progress.packaging": {
+
+  };
+  "export_progress.preparing": {
+
+  };
+  "export_progress.scanning": {
+
+  };
+  "export_progress.too_late": {
+
+  };
+  "export_progress.transforming": {
+
+  };
+  "export_progress.validating": {
+
+  };
+  "export_progress.verifying": {
+
+  };
+  "export_progress.writing": {
+
+  };
   "http.security.api_not_found": {
 
   };
@@ -8597,14 +9578,26 @@ export interface MessageParamsById {
   "offline_builder.edit_widget": {
     "widget": string;
   };
+  "offline_builder.embedded_catalog": {
+
+  };
   "offline_builder.empty": {
 
   };
   "offline_builder.error": {
 
   };
+  "offline_builder.export": {
+
+  };
+  "offline_builder.export_failed": {
+
+  };
   "offline_builder.go_to_drafts": {
 
+  };
+  "offline_builder.graph_rows": {
+    "count": number;
   };
   "offline_builder.help": {
 
@@ -8863,6 +9856,9 @@ export interface MessageParamsById {
   "offline_editor.check.metric_type": {
 
   };
+  "offline_editor.check.mixed_units": {
+
+  };
   "offline_editor.check.name": {
 
   };
@@ -9079,6 +10075,283 @@ export interface MessageParamsById {
   };
   "offline_editor.zoom_reset": {
 
+  };
+  "package_import.choose": {
+
+  };
+  "package_import.compatibility_min": {
+    "version": string;
+  };
+  "package_import.compatibility_range": {
+    "minimum": string;
+    "maximum": string;
+  };
+  "package_import.dashboard": {
+
+  };
+  "package_import.export_hash": {
+
+  };
+  "package_import.export_yaml": {
+
+  };
+  "package_import.failed": {
+
+  };
+  "package_import.file_hashes": {
+
+  };
+  "package_import.hash_hint": {
+
+  };
+  "package_import.help": {
+
+  };
+  "package_import.import": {
+
+  };
+  "package_import.invalid": {
+
+  };
+  "package_import.limits": {
+
+  };
+  "package_import.page": {
+
+  };
+  "package_import.preview": {
+
+  };
+  "package_import.registry_incompatible": {
+
+  };
+  "package_import.registry_known": {
+
+  };
+  "package_import.registry_min": {
+    "version": string;
+  };
+  "package_import.registry_mismatch": {
+
+  };
+  "package_import.registry_range": {
+    "minimum": string;
+    "maximum": string;
+  };
+  "package_import.registry_unknown": {
+
+  };
+  "package_import.saved": {
+
+  };
+  "package_import.sha256": {
+
+  };
+  "package_import.size": {
+    "bytes": number;
+  };
+  "package_import.summary": {
+    "pages": number;
+    "widgets": number;
+    "catalogs": number;
+  };
+  "package_import.title": {
+
+  };
+  "package_scan.action": {
+
+  };
+  "package_scan.credential": {
+
+  };
+  "package_scan.credential_count": {
+    "count": number;
+  };
+  "package_scan.email": {
+
+  };
+  "package_scan.evidence_heuristic": {
+
+  };
+  "package_scan.evidence_structural": {
+
+  };
+  "package_scan.evidence_unanalysed": {
+
+  };
+  "package_scan.failed": {
+
+  };
+  "package_scan.filter": {
+
+  };
+  "package_scan.fqdn": {
+
+  };
+  "package_scan.free_text": {
+
+  };
+  "package_scan.identifier": {
+
+  };
+  "package_scan.ip": {
+
+  };
+  "package_scan.macro": {
+
+  };
+  "package_scan.mask": {
+
+  };
+  "package_scan.metric_key": {
+
+  };
+  "package_scan.none": {
+
+  };
+  "package_scan.path": {
+
+  };
+  "package_scan.prepare_copy": {
+
+  };
+  "package_scan.truncated": {
+
+  };
+  "package_scan.unknown": {
+
+  };
+  "package_scan.unknown_count": {
+    "count": number;
+  };
+  "package_scan.url": {
+
+  };
+  "package_scan.warning": {
+
+  };
+  "page_library.action_failed": {
+
+  };
+  "page_library.all": {
+
+  };
+  "page_library.cache_write_failed": {
+
+  };
+  "page_library.cancel": {
+
+  };
+  "page_library.catalog_count": {
+    "count": number;
+  };
+  "page_library.catalog_delete_effect": {
+
+  };
+  "page_library.catalog_delete_unproven": {
+
+  };
+  "page_library.catalog_in_use": {
+    "count": number;
+  };
+  "page_library.check_page": {
+
+  };
+  "page_library.choose_from_workcopy": {
+
+  };
+  "page_library.confirm_catalog_delete": {
+
+  };
+  "page_library.confirm_delete": {
+
+  };
+  "page_library.confirm_name": {
+    "name": string;
+  };
+  "page_library.delete": {
+
+  };
+  "page_library.delete_effect": {
+
+  };
+  "page_library.display_name": {
+
+  };
+  "page_library.draft_source": {
+
+  };
+  "page_library.duplicate": {
+
+  };
+  "page_library.empty": {
+
+  };
+  "page_library.filters": {
+
+  };
+  "page_library.index_unavailable": {
+
+  };
+  "page_library.kind": {
+
+  };
+  "page_library.library_source": {
+
+  };
+  "page_library.list_failed": {
+
+  };
+  "page_library.name": {
+
+  };
+  "page_library.newest": {
+
+  };
+  "page_library.rename": {
+
+  };
+  "page_library.save_action": {
+
+  };
+  "page_library.save_failed": {
+
+  };
+  "page_library.save_name": {
+
+  };
+  "page_library.saved": {
+
+  };
+  "page_library.search": {
+
+  };
+  "page_library.select_page": {
+
+  };
+  "page_library.selected_page": {
+
+  };
+  "page_library.sort": {
+
+  };
+  "page_library.source": {
+    "id": string;
+  };
+  "page_library.take_action": {
+
+  };
+  "page_library.take_failed": {
+
+  };
+  "page_library.title": {
+
+  };
+  "page_library.usage_unknown": {
+
+  };
+  "page_library.used_by": {
+    "count": number;
   };
   "publication.a11y.steps": {
 
@@ -10085,6 +11358,188 @@ export interface MessageParamsById {
   "publication.untouched.zabbix_objects": {
 
   };
+  "redaction.acknowledge": {
+
+  };
+  "redaction.add": {
+
+  };
+  "redaction.alias_caution": {
+
+  };
+  "redaction.catalog_id": {
+    "catalog": number;
+  };
+  "redaction.catalog_metric": {
+    "catalog": number;
+    "metric": number;
+  };
+  "redaction.catalog_metric_id": {
+    "metric": number;
+    "catalog": number;
+  };
+  "redaction.catalog_metric_units": {
+    "metric": number;
+    "catalog": number;
+  };
+  "redaction.catalog_template": {
+    "catalog": number;
+  };
+  "redaction.clear_catalog_source": {
+    "catalog": number;
+  };
+  "redaction.clear_catalog_source_caution": {
+
+  };
+  "redaction.clear_provenance": {
+
+  };
+  "redaction.clear_uuids": {
+    "catalog": number;
+  };
+  "redaction.credentials_block": {
+
+  };
+  "redaction.dashboard": {
+
+  };
+  "redaction.dashboard_id": {
+
+  };
+  "redaction.export": {
+
+  };
+  "redaction.failed": {
+
+  };
+  "redaction.help": {
+
+  };
+  "redaction.host_mask": {
+    "page": number;
+    "widget": number;
+    "field": number;
+  };
+  "redaction.id_caution": {
+
+  };
+  "redaction.item_pattern": {
+    "field": number;
+    "widget": number;
+    "page": number;
+  };
+  "redaction.item_pattern_caution": {
+
+  };
+  "redaction.length": {
+    "before": number;
+    "after": number;
+  };
+  "redaction.limit": {
+
+  };
+  "redaction.mask_caution": {
+
+  };
+  "redaction.matching": {
+
+  };
+  "redaction.page": {
+    "page": number;
+  };
+  "redaction.page_id": {
+    "page": number;
+  };
+  "redaction.preview": {
+
+  };
+  "redaction.project_id": {
+
+  };
+  "redaction.protected": {
+
+  };
+  "redaction.remaining": {
+    "count": number;
+  };
+  "redaction.remove": {
+
+  };
+  "redaction.remove_caution": {
+
+  };
+  "redaction.remove_page": {
+    "page": number;
+  };
+  "redaction.remove_widget": {
+    "page": number;
+    "widget": number;
+  };
+  "redaction.replacement": {
+
+  };
+  "redaction.role": {
+    "role": number;
+  };
+  "redaction.role_description": {
+    "role": number;
+  };
+  "redaction.save_as": {
+
+  };
+  "redaction.save_as_hint": {
+
+  };
+  "redaction.save_no_overwrite": {
+
+  };
+  "redaction.save_yaml_as": {
+
+  };
+  "redaction.save_zip_as": {
+
+  };
+  "redaction.saved": {
+
+  };
+  "redaction.selector_aliases": {
+    "catalog": number;
+  };
+  "redaction.slot": {
+    "role": number;
+    "slot": number;
+  };
+  "redaction.target": {
+
+  };
+  "redaction.title": {
+
+  };
+  "redaction.units_caution": {
+
+  };
+  "redaction.unresolved_name": {
+    "page": number;
+    "widget": number;
+    "field": number;
+  };
+  "redaction.widget": {
+    "page": number;
+    "widget": number;
+  };
+  "redaction.widget_id": {
+    "page": number;
+    "widget": number;
+  };
+  "redaction.widget_text": {
+    "field": number;
+    "widget": number;
+    "page": number;
+  };
+  "redaction.with_value": {
+    "target": string;
+    "value": string;
+  };
   "replace_host.source": {
 
   };
@@ -10478,6 +11933,92 @@ export interface MessageParamsById {
   "shell.demo.marker": {
 
   };
+  "snapshot_library.choose": {
+
+  };
+  "snapshot_library.compare_action": {
+
+  };
+  "snapshot_library.compare_failed": {
+
+  };
+  "snapshot_library.compare_title": {
+
+  };
+  "snapshot_library.confirm_delete": {
+
+  };
+  "snapshot_library.counts": {
+    "left_pages": number;
+    "right_pages": number;
+    "left_widgets": number;
+    "right_widgets": number;
+  };
+  "snapshot_library.damaged": {
+    "count": number;
+  };
+  "snapshot_library.delete_action": {
+
+  };
+  "snapshot_library.delete_effect": {
+
+  };
+  "snapshot_library.delete_failed": {
+
+  };
+  "snapshot_library.delete_refs": {
+    "copies": number;
+    "journal": number;
+  };
+  "snapshot_library.delete_unknown": {
+
+  };
+  "snapshot_library.different": {
+
+  };
+  "snapshot_library.empty": {
+
+  };
+  "snapshot_library.first": {
+
+  };
+  "snapshot_library.identical": {
+
+  };
+  "snapshot_library.item": {
+
+  };
+  "snapshot_library.list_failed": {
+
+  };
+  "snapshot_library.local_only": {
+
+  };
+  "snapshot_library.open_copy": {
+
+  };
+  "snapshot_library.read_at": {
+    "time": Date | number;
+  };
+  "snapshot_library.references_incomplete": {
+
+  };
+  "snapshot_library.second": {
+
+  };
+  "snapshot_library.source": {
+    "connection": string;
+    "version": string;
+  };
+  "snapshot_library.title": {
+
+  };
+  "snapshot_library.usage_unknown": {
+
+  };
+  "snapshot_library.used_by": {
+    "count": number;
+  };
   "startup.action.all_drafts": {
 
   };
@@ -10690,6 +12231,9 @@ export interface MessageParamsById {
 
   };
   "template_import.list_failed": {
+
+  };
+  "template_import.lld_requires_instance": {
 
   };
   "template_import.missing_parent": {

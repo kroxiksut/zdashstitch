@@ -133,6 +133,11 @@ pub(crate) fn routes(
         .route("/drafts", get(list_drafts))
         .route("/drafts/{local_id}", get(draft))
         .route("/drafts/{local_id}/portable-preview", get(portable_preview))
+        .route(
+            "/drafts/{local_id}/pages/{page_id}/portable-preview",
+            get(dashboard_page_portable_preview),
+        )
+        .route("/drafts/{local_id}/make-portable", post(make_portable))
         .route("/drafts/{local_id}/rename", post(rename_draft))
         .merge(replace_host::routes())
         .merge(catalog_import::routes())
@@ -178,12 +183,17 @@ fn workcopy_status(code: &str) -> StatusCode {
     match code {
         "workcopy_not_found"
         | "offline_page_not_found"
+        | "page_library_not_found"
+        | "catalog_not_found"
         | "offline_dashboard_not_found"
         | "not_visible_or_denied"
         | "import_page_not_found" => StatusCode::NOT_FOUND,
         "offline_page_edit_lost"
         | "offline_page_conflict"
         | "offline_dashboard_conflict"
+        | "library_conflict"
+        | "library_confirmation_mismatch"
+        | "catalog_in_use"
         | "offline_dashboard_sources_conflict"
         | "offline_dashboard_reference_conflict"
         | "offline_dashboard_reference_unresolved"
@@ -204,7 +214,20 @@ fn workcopy_status(code: &str) -> StatusCode {
         | "clone_pattern_target_not_visible"
         | "clone_pattern_preview_truncated"
         | "clone_target_not_visible"
-        | "clone_target_unresolved" => StatusCode::CONFLICT,
+        | "clone_target_unresolved"
+        | "workcopy_revision_conflict"
+        | "portable_conversion_binding_required"
+        | "portable_pattern_review_invalid"
+        | "portable_conversion_reference_required"
+        | "portable_conversion_widget_unsupported"
+        | "portable_conversion_field_unsupported"
+        | "portable_conversion_unsupported_data"
+        | "portable_conversion_scope_unsupported" => StatusCode::CONFLICT,
+        "snapshot_delete_blocked" | "snapshot_references_unknown" | "snapshot_scope_mismatch" => {
+            StatusCode::CONFLICT
+        }
+        "snapshot_delete_not_confirmed" => StatusCode::UNPROCESSABLE_ENTITY,
+        "snapshot_library_not_found" => StatusCode::NOT_FOUND,
         "connection_id_invalid"
         | "dashboard_id_invalid"
         | "page_id_invalid"
@@ -212,6 +235,7 @@ fn workcopy_status(code: &str) -> StatusCode {
         | "list_limit_invalid"
         | "search_invalid"
         | "draft_name_invalid"
+        | "library_name_invalid"
         | "offline_page_invalid"
         | "offline_dashboard_invalid"
         | "clone_intent_target_name_invalid"
@@ -232,6 +256,7 @@ fn workcopy_status(code: &str) -> StatusCode {
         | "storage_file_too_large"
         | "storage_write_failed"
         | "catalog_library_corrupt"
+        | "page_library_corrupt"
         | "offline_pages_corrupt"
         | "offline_dashboards_corrupt"
         | "offline_dashboard_export_failed"
@@ -1089,6 +1114,42 @@ async fn portable_preview(
     let result =
         blocking(move || Ok(drafts.service()?.preview_portable_conversion(&local_id)?)).await;
     respond(StatusCode::OK, result)
+}
+
+async fn dashboard_page_portable_preview(
+    Extension(drafts): Extension<DraftsHandle>,
+    PathParams((local_id, page_id)): PathParams<(String, String)>,
+) -> Response {
+    let result = blocking(move || {
+        Ok(drafts
+            .service()?
+            .preview_dashboard_page_conversion(&local_id, &page_id)?)
+    })
+    .await;
+    respond(StatusCode::OK, result)
+}
+
+#[derive(Serialize)]
+struct MakePortableBody {
+    local_id: String,
+    kind: &'static str,
+}
+
+/// Creates a separate local draft from a ready Workcopy conversion. The
+/// source Workcopy and Base remain unchanged; this performs no Zabbix call.
+async fn make_portable(
+    Extension(drafts): Extension<DraftsHandle>,
+    PathParams(local_id): PathParams<String>,
+) -> Response {
+    let result = blocking(move || {
+        let outcome = drafts.service()?.make_portable(&local_id)?;
+        Ok(MakePortableBody {
+            local_id: outcome.local_id,
+            kind: outcome.kind.as_str(),
+        })
+    })
+    .await;
+    respond(StatusCode::CREATED, result)
 }
 
 #[derive(Serialize)]

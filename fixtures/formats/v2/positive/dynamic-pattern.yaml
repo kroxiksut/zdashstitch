@@ -1,0 +1,21 @@
+format: zdashstitch.project/v2
+project_id: pattern-page
+kind: page
+declared_compatibility: {minimum: 7.4.0}
+provenance: {kind: local}
+catalogs: []
+roles:
+  hosts: {cardinality: many}
+root:
+  id: pattern-page
+  name: Dynamic graph
+  widgets:
+    - id: dynamic-graph
+      type: zabbix
+      widget_type: svggraph
+      name: CPU
+      registry_state: known
+      fields:
+        - {name: ds.0.hosts.0, field_type: 1, registry_state: known, value: {kind: dynamic_pattern, value: 'db-*', role: hosts}}
+        - {name: ds.0.items.0, field_type: 1, registry_state: known, value: {kind: dynamic_pattern, value: 'CPU*', role: hosts}}
+      layout: {mode: fixed, x: 0, y: 0, w: 18, h: 4}

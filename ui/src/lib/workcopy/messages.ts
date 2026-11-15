@@ -24,6 +24,8 @@ const SIMPLE = {
   list_limit_invalid: 'errors.connection.request_invalid',
   workcopy_not_found: 'startup.draft.missing',
   workcopy_corrupt: 'errors.workcopy.corrupt',
+  workcopy_revision_conflict: 'drafts.portable.bindings.stale',
+  portable_conversion_binding_required: 'drafts.portable.blocker.binding_required',
   workcopy_too_large: 'errors.workcopy.too_large',
   workcopy_unsupported_operation: 'errors.workcopy.unsupported_operation',
   snapshot_missing: 'errors.snapshot.missing',

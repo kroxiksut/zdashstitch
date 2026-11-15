@@ -283,6 +283,118 @@
     "message": "A copy from server is exported only after it is made portable.",
     "placeholders": {}
   },
+  "drafts.portable.preview_title": {
+    "message": "Portability check",
+    "placeholders": {}
+  },
+  "drafts.portable.summary": {
+    "message": "{kind}: {pages} pages and {widgets} widgets.",
+    "placeholders": {"kind": "text", "pages": "number", "widgets": "number"}
+  },
+  "drafts.portable.dependencies_title": {
+    "message": "Dependencies in this copy",
+    "placeholders": {}
+  },
+  "drafts.portable.count.item_fields": {
+    "message": "Item fields",
+    "placeholders": {}
+  },
+  "drafts.portable.count.item_pattern_fields": {
+    "message": "Item pattern fields",
+    "placeholders": {}
+  },
+  "drafts.portable.count.host_fields": {
+    "message": "Host fields",
+    "placeholders": {}
+  },
+  "drafts.portable.count.host_pattern_fields": {
+    "message": "Host pattern fields",
+    "placeholders": {}
+  },
+  "drafts.portable.count.graph_fields": {
+    "message": "Graph fields",
+    "placeholders": {}
+  },
+  "drafts.portable.count.unknown_fields": {
+    "message": "Unknown fields",
+    "placeholders": {}
+  },
+  "drafts.portable.count.unclassified_widgets": {
+    "message": "Unclassified widgets",
+    "placeholders": {}
+  },
+  "drafts.portable.count.reference_definitions": {
+    "message": "Reference definitions",
+    "placeholders": {}
+  },
+  "drafts.portable.count.reference_consumers": {
+    "message": "Reference consumers",
+    "placeholders": {}
+  },
+  "drafts.portable.ready": {
+    "message": "No conversion blockers were found. A separate local draft can be created.",
+    "placeholders": {}
+  },
+  "drafts.portable.blocker.item_binding_required": {
+    "message": "Item fields need to be assigned to portable metrics before this copy can be converted.",
+    "placeholders": {}
+  },
+  "drafts.portable.blocker.host_binding_required": {
+    "message": "Host fields need to be assigned to portable roles before this copy can be converted.",
+    "placeholders": {}
+  },
+  "drafts.portable.blocker.graph_binding_required": {
+    "message": "Graph fields need a portable mapping before this copy can be converted.",
+    "placeholders": {}
+  },
+  "drafts.portable.blocker.unknown_data": {
+    "message": "Unknown fields or widgets must be resolved before this copy can be converted.",
+    "placeholders": {}
+  },
+  "drafts.portable.blocker.reference_required": {
+    "message": "Widget references need to be resolved before this copy can be converted.",
+    "placeholders": {}
+  },
+  "drafts.portable.blocker.scope_unsupported": {
+    "message": "This copy scope cannot be converted to a portable draft.",
+    "placeholders": {}
+  },
+  "drafts.portable.blocker.unsupported_data": {
+    "message": "Some copy data cannot be represented in a portable draft.",
+    "placeholders": {}
+  },
+  "drafts.portable.blocker.binding_required": {
+    "message": "Server-bound fields need a portable mapping before this copy can be converted.",
+    "placeholders": {}
+  },
+  "drafts.portable.blocker.widget_unsupported": {
+    "message": "A widget type is not supported for portable conversion.",
+    "placeholders": {}
+  },
+  "drafts.portable.blocker.field_unsupported": {
+    "message": "A widget field is not supported for portable conversion.",
+    "placeholders": {}
+  },
+  "drafts.portable.checking": {
+    "message": "Checking portability…",
+    "placeholders": {}
+  },
+  "drafts.portable.create_action": {
+    "message": "Create separate local draft",
+    "placeholders": {}
+  },
+  "drafts.portable.creating": {
+    "message": "Creating local draft…",
+    "placeholders": {}
+  },
+  "drafts.portable.failed_title": {
+    "message": "The portability check could not be completed",
+    "placeholders": {}
+  },
+  "drafts.portable.create_failed_title": {
+    "message": "The local draft could not be created",
+    "placeholders": {}
+  },
   "draft.structure.page_summary": {
     "message": "{widgets} · {period}",
     "placeholders": {"widgets": "text", "period": "text"}
@@ -467,6 +579,17 @@
     "message": "Draft sections",
     "placeholders": {}
   },
+  "drafts.portable.bindings.open": {"message": "Configure bindings", "placeholders": {}},
+  "drafts.portable.bindings.lld_instance": {"message": "selected LLD instance", "placeholders": {}},
+  "drafts.portable.bindings.pattern_help": {"message": "These dynamic patterns must be checked and confirmed on the target Zabbix before publication.", "placeholders": {}},
+  "drafts.portable.bindings.graphs_unresolved": {"message": "Classic graphs will need to be bound before publication.", "placeholders": {}},
+  "drafts.portable.bindings.stale": {"message": "The copy changed. Load the metric mappings again.", "placeholders": {}},
+  "drafts.portable.bindings.help": {"message": "Choose a catalog metric for each item. Matches are suggestions, not proof of template origin. Assign roles and host slots explicitly.", "placeholders": {}},
+  "drafts.portable.bindings.unavailable": {"message": "Unavailable", "placeholders": {}},
+  "drafts.portable.bindings.metric": {"message": "Catalog metric", "placeholders": {}},
+  "drafts.portable.bindings.select": {"message": "Select a metric", "placeholders": {}},
+  "drafts.portable.bindings.role": {"message": "Role identifier", "placeholders": {}},
+  "drafts.portable.bindings.slot": {"message": "Host slot identifier", "placeholders": {}},
   "draft.overview.step.open_section": {
     "message": "Go to “{section}”",
     "placeholders": {"section": "text"}

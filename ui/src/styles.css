@@ -246,8 +246,15 @@ main:focus {
 .start-cards {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  grid-template-areas: "server local" "recent local";
+  grid-template-rows: auto 1fr;
+  align-items: start;
   gap: var(--space-6);
 }
+
+.start-server { grid-area: server; }
+.start-local { grid-area: local; }
+.start-cards > .recent { grid-area: recent; }
 
 .tiles {
   display: grid;
@@ -812,6 +819,11 @@ td.numeric {
   .drafts-layout,
   .overview-layout {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .start-cards {
+    grid-template-areas: "server" "local" "recent";
+    grid-template-rows: auto;
   }
 }
 

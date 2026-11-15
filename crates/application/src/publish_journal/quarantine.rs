@@ -36,6 +36,8 @@ impl PublishJournal {
     /// (the file replays: use reconciliation or «Закрыть без сверки»),
     /// `quarantine_exists`, storage codes.
     pub fn quarantine(&self, request: &QuarantineRequest) -> Result<String, JournalError> {
+        let _snapshot_guard =
+            crate::snapshot_guard::lock().map_err(|_| JournalError::new("storage_unavailable"))?;
         if !request.confirmed {
             return Err(JournalError::new("quarantine_not_confirmed"));
         }

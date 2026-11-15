@@ -12,6 +12,12 @@ export interface EditorFinding {
   message: LocalizedText;
 }
 
+/** Counts logical graph rows without resolving slots to Zabbix hosts or items. */
+export function graphRowCount(sources: Array<{ hosts: { role: string; selection: string } }>, roles: NewOfflinePage['roles']): number {
+  return sources.reduce((count, source) => count + (source.hosts.selection === 'all'
+    ? (roles[source.hosts.role]?.slots?.length ?? 0) : 1), 0);
+}
+
 /** One UI projection for canvas, outline and Checks; the server revalidates saves. */
 export function compositionFindings(page: NewOfflinePage, metrics: Record<string, CatalogMetric[]>): EditorFinding[] {
   const findings: EditorFinding[] = [];
@@ -37,6 +43,10 @@ export function compositionFindings(page: NewOfflinePage, metrics: Record<string
     if (widget.kind === 'preserved') { add('opaque_read_only', [id], { id: 'offline_editor.opaque' }, []); continue; }
     const sources = widget.kind === 'graph' ? widget.metrics : [{ ...widget.metric, hosts: widget.hosts }];
     if (!sources.length) add('widget_incomplete', [id], { id: 'offline_editor.check.incomplete' });
+    if (widget.kind === 'graph') {
+      const units = new Set(sources.map((source) => metrics[source.catalog_id]?.find((metric) => metric.id === source.metric_id)?.units).filter((unit): unit is string => unit !== undefined));
+      if (units.size > 1) add('graph_mixed_units', [id], { id: 'offline_editor.check.mixed_units' }, []);
+    }
     for (const source of sources) {
       if (!page.catalogs.some((pin) => pin.catalog_id === source.catalog_id)) add('catalog_missing', [id], { id: 'offline_editor.check.catalog', params: { catalog: source.catalog_id } });
       const metric = metrics[source.catalog_id]?.find((metric) => metric.id === source.metric_id);

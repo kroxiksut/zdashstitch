@@ -146,7 +146,9 @@ pub fn import_templates(
             let imported = import_template(
                 template,
                 &keys,
-                has_omitted(root, ROOT_OMITTED),
+                has_omitted(root, ROOT_OMITTED)
+                    || has_unknown(root, ROOT_FIELDS)
+                    || has_unknown(&export, &["zabbix_export"]),
                 &root_thresholds,
             )?;
             if !catalog_ids.insert(imported.catalog.catalog_id.clone()) {
@@ -201,6 +203,69 @@ const METRIC_OMITTED: &[&str] = &[
     "password",
     "headers",
     "triggers",
+    "master_item",
+    "valuemap",
+];
+
+// Fields outside this importer’s understood subset must remain visible as
+// source incompleteness. The source document itself is never persisted.
+fn has_unknown(object: &Value, known: &[&str]) -> bool {
+    object
+        .as_object()
+        .is_some_and(|entries| entries.keys().any(|key| !known.contains(&key.as_str())))
+}
+
+const ROOT_FIELDS: &[&str] = &[
+    "version",
+    "templates",
+    "graphs",
+    "triggers",
+    "hosts",
+    "maps",
+    "media_types",
+];
+const TEMPLATE_FIELDS: &[&str] = &[
+    "uuid",
+    "template",
+    "name",
+    "templates",
+    "items",
+    "discovery_rules",
+    "dashboards",
+    "macros",
+    "valuemaps",
+    "httptests",
+    "graphs",
+    "triggers",
+];
+const RULE_FIELDS: &[&str] = &[
+    "uuid",
+    "key",
+    "item_prototypes",
+    "filter",
+    "preprocessing",
+    "overrides",
+    "lld_macro_paths",
+    "host_prototypes",
+    "graph_prototypes",
+    "trigger_prototypes",
+    "params",
+];
+const METRIC_FIELDS: &[&str] = &[
+    "uuid",
+    "name",
+    "key",
+    "units",
+    "value_type",
+    "delay",
+    "params",
+    "preprocessing",
+    "url",
+    "username",
+    "password",
+    "headers",
+    "triggers",
+    "trigger_prototypes",
     "master_item",
     "valuemap",
 ];
@@ -300,7 +365,7 @@ fn import_metric(raw: &Value, rule: Option<&str>) -> Result<Metric, ImportError>
     } else {
         MetricOrigin::TemplateItem
     };
-    if has_omitted(raw, METRIC_OMITTED) {
+    if has_omitted(raw, METRIC_OMITTED) || has_unknown(raw, METRIC_FIELDS) {
         diagnostics.push(Diagnostic::SourcePartial);
     }
     Ok(Metric {
@@ -343,7 +408,12 @@ fn import_template(
         .collect::<Result<Vec<_>, _>>()?;
     let mut discovery_rules = Vec::new();
     let mut rule_keys = BTreeSet::new();
-    let mut partial = root_partial || has_omitted(raw, TEMPLATE_OMITTED);
+    let mut partial = root_partial
+        || has_omitted(raw, TEMPLATE_OMITTED)
+        || has_unknown(raw, TEMPLATE_FIELDS)
+        || list(raw, "templates")?
+            .iter()
+            .any(|entry| has_unknown(entry, &["name"]));
     for rule in list(raw, "discovery_rules")? {
         let key = required_text(rule, "key")?;
         if !rule_keys.insert(key) {
@@ -367,7 +437,7 @@ fn import_template(
             uuid: rule_uuid.map(str::to_owned),
             prototype_ids,
         });
-        partial |= has_omitted(rule, RULE_OMITTED);
+        partial |= has_omitted(rule, RULE_OMITTED) || has_unknown(rule, RULE_FIELDS);
     }
     metrics.sort_by(|left, right| left.id.cmp(&right.id));
     discovery_rules.sort_by(|left, right| left.key.cmp(&right.key));

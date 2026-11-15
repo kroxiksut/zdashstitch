@@ -110,6 +110,9 @@ pub(crate) struct LocalStore {
 }
 
 impl LocalStore {
+    pub(crate) fn root_path(&self) -> PathBuf {
+        self.root.clone()
+    }
     pub(crate) fn at(root: PathBuf) -> Self {
         Self { root }
     }
@@ -184,6 +187,8 @@ impl LocalStore {
     /// verified snapshot already existed and was reused. An existing file
     /// with this fingerprint that fails verification is never overwritten.
     pub(crate) fn put_snapshot(&self, file: &SnapshotFile) -> Result<bool, WorkcopyError> {
+        let _guard =
+            crate::snapshot_guard::lock().map_err(|_| WorkcopyError::new("storage_unavailable"))?;
         let raw = serde_json::to_vec(file).map_err(|_| WorkcopyError::new("snapshot_corrupt"))?;
         if raw.len() > MAX_SNAPSHOT_FILE_BYTES {
             return Err(WorkcopyError::new("snapshot_too_large"));
@@ -224,9 +229,106 @@ impl LocalStore {
         Ok((file, snapshot))
     }
 
+    /// Enumerate only valid storage keys. Every candidate is verified by
+    /// `load_snapshot`; no raw document is returned to callers.
+    pub(crate) fn snapshot_keys(&self) -> Result<Vec<(String, String, String)>, WorkcopyError> {
+        let Some(root) = self.path(&[SNAPSHOTS], false)? else {
+            return Ok(Vec::new());
+        };
+        let mut keys = Vec::new();
+        for connection in root.entries().map_err(|error| io_error(&error))? {
+            let connection = connection.map_err(|error| io_error(&error))?;
+            let Some(connection_id) = connection.file_name().to_str().map(str::to_owned) else {
+                continue;
+            };
+            if !super::is_connection_id(&connection_id) {
+                continue;
+            }
+            let Some(dashboards) = self.path(&[SNAPSHOTS, &connection_id], false)? else {
+                continue;
+            };
+            for dashboard in dashboards.entries().map_err(|error| io_error(&error))? {
+                let dashboard = dashboard.map_err(|error| io_error(&error))?;
+                let Some(dashboardid) = dashboard.file_name().to_str().map(str::to_owned) else {
+                    continue;
+                };
+                if !zdashstitch_zabbix::is_zabbix_id(&dashboardid) {
+                    continue;
+                }
+                let Some(files) = self.path(&[SNAPSHOTS, &connection_id, &dashboardid], false)?
+                else {
+                    continue;
+                };
+                for entry in files.entries().map_err(|error| io_error(&error))? {
+                    let entry = entry.map_err(|error| io_error(&error))?;
+                    let Some(name) = entry.file_name().to_str().map(str::to_owned) else {
+                        continue;
+                    };
+                    let Some(fingerprint) = name.strip_suffix(".json") else {
+                        continue;
+                    };
+                    if !super::is_fingerprint(fingerprint) {
+                        continue;
+                    }
+                    keys.push((
+                        connection_id.clone(),
+                        dashboardid.clone(),
+                        fingerprint.to_owned(),
+                    ));
+                    if keys.len() > 2_000 {
+                        return Err(WorkcopyError::new("storage_limit_reached"));
+                    }
+                }
+            }
+        }
+        keys.sort_unstable();
+        Ok(keys)
+    }
+
+    /// Caller holds the snapshot guard and has rechecked every reference.
+    pub(crate) fn remove_snapshot(
+        &self,
+        connection: &str,
+        dashboard: &str,
+        fingerprint: &str,
+    ) -> Result<(), WorkcopyError> {
+        self.load_snapshot(connection, dashboard, fingerprint)?;
+        let directory = self
+            .path(&[SNAPSHOTS, connection, dashboard], false)?
+            .ok_or_else(|| WorkcopyError::new("snapshot_missing"))?;
+        directory
+            .remove_file(format!("{fingerprint}.json"))
+            .map_err(|_| WorkcopyError::new("storage_write_failed"))?;
+        sync_dir(&directory);
+        Ok(())
+    }
+
+    /// Saved Clone branches can pin an old Base independently of the source
+    /// Workcopy. Any entry, including a damaged or staging entry, blocks
+    /// deletion until the branch store can be audited more precisely.
+    pub(crate) fn clone_branches_present(&self) -> Result<bool, WorkcopyError> {
+        let Some(directory) = self.path(&["clone-workcopies"], false)? else {
+            return Ok(false);
+        };
+        Ok(directory
+            .entries()
+            .map_err(|error| io_error(&error))?
+            .next()
+            .is_some())
+    }
+
     /// Creates a new workcopy directory atomically: the file is written into
     /// a staging directory, which is then renamed to the workcopy ID.
     pub(crate) fn create_workcopy(&self, file: &WorkcopyFile) -> Result<(), WorkcopyError> {
+        let _guard =
+            crate::snapshot_guard::lock().map_err(|_| WorkcopyError::new("storage_unavailable"))?;
+        // Detect a linked workcopies directory before verifying the Base.
+        let _ = self.path(&[WORKCOPIES], false)?;
+        self.load_snapshot(
+            &file.source.connection_id,
+            &file.source.dashboardid,
+            &file.base.fingerprint,
+        )?;
         let raw = workcopy_bytes(file)?;
         self.create_local_draft(WORKCOPIES, &file.workcopy_id, &raw, None)
     }
@@ -292,6 +394,13 @@ impl LocalStore {
 
     /// Replaces `workcopy.json` of an existing workcopy (temp → sync → rename).
     pub(crate) fn replace_workcopy(&self, file: &WorkcopyFile) -> Result<(), WorkcopyError> {
+        let _guard =
+            crate::snapshot_guard::lock().map_err(|_| WorkcopyError::new("storage_unavailable"))?;
+        self.load_snapshot(
+            &file.source.connection_id,
+            &file.source.dashboardid,
+            &file.base.fingerprint,
+        )?;
         let raw = workcopy_bytes(file)?;
         let directory = self
             .path(&[WORKCOPIES, &file.workcopy_id], false)?

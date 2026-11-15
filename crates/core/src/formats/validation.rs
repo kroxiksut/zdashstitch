@@ -80,6 +80,32 @@ fn validate_project_content(
                 if let Widget::Zabbix { fields, .. } = widget {
                     for field in fields {
                         match &field.value {
+                            ZabbixWidgetFieldValue::DynamicPattern { role, .. } => {
+                                ensure(
+                                    project.roles.contains_key(role),
+                                    "unknown_role",
+                                    "dynamic pattern references an unknown role",
+                                )?;
+                                let Widget::Zabbix { widget_type, .. } = widget else {
+                                    unreachable!()
+                                };
+                                let parts: Vec<_> = field.name.split('.').collect();
+                                let index = |s: &str| {
+                                    !s.is_empty() && s.bytes().all(|b| b.is_ascii_digit())
+                                };
+                                let valid = match parts.as_slice() {
+                                    ["ds" | "or", set, "hosts" | "items", position] => {
+                                        index(set) && index(position)
+                                    }
+                                    ["problemhosts", position] => index(position),
+                                    _ => false,
+                                };
+                                ensure(
+                                    widget_type == "svggraph" && valid,
+                                    "widget_pattern_field",
+                                    "dynamic patterns are limited to known svggraph pattern fields",
+                                )?;
+                            }
                             ZabbixWidgetFieldValue::Host {
                                 role,
                                 selection,
