@@ -11,6 +11,8 @@ use crate::formats::validation::{
 pub enum MetricsFormat {
     #[serde(rename = "zdashstitch.metrics/v1")]
     V1,
+    #[serde(rename = "zdashstitch.metrics/v2")]
+    V2,
 }
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
@@ -93,6 +95,7 @@ pub enum ValueType {
     Text,
     Log,
     Binary,
+    Json,
 }
 
 impl ValueType {
@@ -207,6 +210,15 @@ impl Serialize for CatalogSource {
 
 impl Validate for MetricCatalog {
     fn validate(&self) -> Result<()> {
+        ensure(
+            self.format != MetricsFormat::V1
+                || self
+                    .metrics
+                    .iter()
+                    .all(|metric| metric.value_type != ValueType::Json),
+            "catalog_value_type_version",
+            "JSON metrics require metrics/v2",
+        )?;
         ensure_slug(&self.catalog_id, "catalog id")?;
         self.source.validate()?;
         ensure_unique(

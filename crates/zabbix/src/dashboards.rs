@@ -2,14 +2,14 @@
 
 //! Read-only reads for copying a dashboard from the server (P2-05): a bounded
 //! dashboard list, one dashboard as a [`VersionedDashboardSnapshot`] and the
-//! metadata of referenced items (decision I-4). The Zabbix 7.4 request and
+//! metadata of referenced items (decision I-4). Version-specific request and
 //! response shapes stay in this adapter; the application only sees typed
 //! results. Every call goes through the P1-IN-08 read allowlist.
 
 use serde_json::{Value, json};
 
 use crate::gateway::ReadMethod;
-use crate::{ReadOnlyGateway, Result, VersionedDashboardSnapshot, ZabbixError};
+use crate::{AdapterProfile, ReadOnlyGateway, Result, VersionedDashboardSnapshot, ZabbixError};
 
 /// Largest number of dashboards one list read returns.
 pub const MAX_DASHBOARD_LIST_LIMIT: usize = 1_000;
@@ -66,7 +66,8 @@ pub struct DashboardListPage {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct ItemMetadata {
     pub itemid: String,
-    /// Zabbix `value_type`: 0 float, 1 character, 2 log, 3 unsigned, 4 text, 5 binary.
+    /// Zabbix `value_type`: 0 float, 1 character, 2 log, 3 unsigned, 4 text,
+    /// 5 binary, 6 JSON (8.0).
     pub value_type: u8,
     pub units: String,
     pub value_map: Option<ValueMap>,
@@ -104,6 +105,32 @@ pub(crate) fn snapshot_read_params() -> Value {
 }
 
 impl ReadOnlyGateway {
+    /// Whether the signed-in dashboard writer can edit this visible ID.
+    pub(crate) async fn dashboard_is_editable(&self, dashboardid: &str) -> Result<bool> {
+        if !is_zabbix_id(dashboardid) {
+            return Err(ZabbixError::SnapshotShape(
+                "dashboardid must be a Zabbix ID".to_owned(),
+            ));
+        }
+        let params = json!({
+            "output":["dashboardid"],"dashboardids":[dashboardid],"editable":true,
+        });
+        if crate::dashboard_access::exact_version(&self.capabilities().version) {
+            let rows = self
+                .read_inventory_rows(ReadMethod::DashboardGet, params)
+                .await?;
+            return Ok(
+                matches!(rows.as_slice(), [row] if row["dashboardid"].as_str() == Some(dashboardid)),
+            );
+        }
+        let answer = self.read(ReadMethod::DashboardGet, params).await?;
+        Ok(answer.as_array().is_some_and(|dashboards| {
+            dashboards
+                .iter()
+                .any(|row| row.get("dashboardid").and_then(Value::as_str) == Some(dashboardid))
+        }))
+    }
+
     /// Lists visible dashboards, optionally filtered by a name substring. An
     /// empty result does not mean the server has no dashboards: Zabbix
     /// returns less data instead of an error when permissions hide objects
@@ -136,10 +163,8 @@ impl ReadOnlyGateway {
                 params["search"] = json!({ "name": search });
             }
         }
-        let raw: Vec<Value> = self
-            .session
-            .transport
-            .read(ReadMethod::DashboardGet, params, &self.session.token)
+        let raw = self
+            .read_inventory_rows(ReadMethod::DashboardGet, params)
             .await?;
         let truncated = raw.len() > limit;
         let dashboards = raw
@@ -173,10 +198,8 @@ impl ReadOnlyGateway {
         }
         let mut params = snapshot_read_params();
         params["dashboardids"] = json!([dashboardid]);
-        let mut raw: Vec<Value> = self
-            .session
-            .transport
-            .read(ReadMethod::DashboardGet, params, &self.session.token)
+        let mut raw = self
+            .read_inventory_rows(ReadMethod::DashboardGet, params)
             .await?;
         let Some(document) = raw.pop() else {
             return Ok(None);
@@ -188,12 +211,15 @@ impl ReadOnlyGateway {
                 "dashboard.get returned another dashboard".to_owned(),
             ));
         }
-        VersionedDashboardSnapshot::from_adapter_raw(
+        let snapshot = VersionedDashboardSnapshot::from_adapter_raw(
             connection_id.to_owned(),
             self.session.capabilities.version.clone(),
             document,
-        )
-        .map(Some)
+        )?;
+        if self.adapter_profile()? == AdapterProfile::V8_0 {
+            snapshot.analyze()?;
+        }
+        Ok(Some(snapshot))
     }
 
     /// Reads value type, units and value map of the given items in batches
@@ -205,12 +231,11 @@ impl ReadOnlyGateway {
                 "itemid must be a Zabbix ID".to_owned(),
             ));
         }
+        let profile = self.adapter_profile()?;
         let mut metadata = Vec::with_capacity(itemids.len());
         for batch in itemids.chunks(ITEM_METADATA_BATCH) {
-            let raw: Vec<Value> = self
-                .session
-                .transport
-                .read(
+            let raw = self
+                .read_inventory_rows(
                     ReadMethod::ItemGet,
                     json!({
                         "output": ["itemid", "value_type", "units", "valuemapid"],
@@ -218,11 +243,11 @@ impl ReadOnlyGateway {
                         "itemids": batch,
                         "webitems": true
                     }),
-                    &self.session.token,
                 )
                 .await?;
+            crate::lookups::check_returned_ids(profile, &raw, batch, "itemid")?;
             for item in &raw {
-                metadata.push(parse_item_metadata(item)?);
+                metadata.push(parse_item_metadata(item, profile)?);
             }
         }
         Ok(metadata)
@@ -302,17 +327,14 @@ fn parse_page_listing(page: &Value) -> Result<DashboardPageListing> {
     })
 }
 
-fn parse_item_metadata(item: &Value) -> Result<ItemMetadata> {
+fn parse_item_metadata(item: &Value, profile: AdapterProfile) -> Result<ItemMetadata> {
     let itemid = string_field(item, "itemid", "item")?;
     if !is_zabbix_id(itemid) {
         return Err(ZabbixError::SnapshotShape(
             "item.get returned an invalid itemid".to_owned(),
         ));
     }
-    let value_type = small_number(item.get("value_type"))
-        .and_then(|number| u8::try_from(number).ok())
-        .filter(|number| *number <= 5)
-        .ok_or_else(|| ZabbixError::SnapshotShape("item has no valid value_type".to_owned()))?;
+    let value_type = profile.item_value_type(item.get("value_type"), "item")?;
     let value_map = match item.get("valuemap") {
         Some(map @ Value::Object(_)) if map.get("name").is_some() => Some(parse_value_map(map)?),
         _ => None,
@@ -365,7 +387,13 @@ fn parse_value_map(map: &Value) -> Result<ValueMap> {
 mod tests {
     use serde_json::json;
 
-    use super::{is_zabbix_id, parse_item_metadata, parse_listing};
+    use super::is_zabbix_id;
+    use super::parse_listing;
+    use super::{AdapterProfile, parse_item_metadata as parse_versioned_item_metadata};
+
+    fn parse_item_metadata(item: &serde_json::Value) -> crate::Result<super::ItemMetadata> {
+        parse_versioned_item_metadata(item, AdapterProfile::V7_4)
+    }
 
     #[test]
     fn zabbix_ids_are_bounded_digit_strings() {
@@ -398,6 +426,7 @@ mod tests {
         .unwrap_or_else(|error| panic!("item: {error}"));
         assert_eq!(item.value_map, None);
         assert_eq!(item.value_type, 3);
+        assert!(parse_item_metadata(&json!({"itemid": "5", "value_type": "6"})).is_err());
         assert!(parse_item_metadata(&json!({"itemid": "5", "value_type": "9"})).is_err());
         let mapped = parse_item_metadata(&json!({
             "itemid": "6", "value_type": "3", "units": "",

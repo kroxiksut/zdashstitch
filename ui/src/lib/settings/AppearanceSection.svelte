@@ -4,17 +4,14 @@
   import { DATE_TIME_FORMAT, type I18n } from '../i18n';
   import { THEME_PREFERENCES, type ThemePreference } from '../theme';
   import { LOCALE_PREFERENCES, type AppearanceStore, type LocalePreference } from './appearance.svelte';
+  import { settingsIssueText } from './file-issue';
 
   // «Settings → Appearance» (P2-00G, P1-09C, accepted mockup 06-01; fourth theme — O-038).
   // Language and theme are radio groups (arrow keys move and choose); every change applies at once
   // and is saved to the settings file through the local server.
   let { i18n, store }: { i18n: I18n; store: AppearanceStore } = $props();
   onMount(() => {
-    const focused = (): void => {
-      if (!store.saving && store.sessionOnly !== 'changed' && store.sessionOnly !== 'failed') void store.load();
-    };
-    window.addEventListener('focus', focused);
-    return () => window.removeEventListener('focus', focused);
+    if (store.loaded) store.refreshIfIdle();
   });
 
   const LOCALE_LABEL: Readonly<Record<LocalePreference, LocalizedText>> = {
@@ -63,7 +60,12 @@
   {:else if store.sessionOnly === 'failed'}
     <Banner {i18n} tone="warning" heading={{ id: 'settings.appearance.not_saved.title' }} body={{ id: 'settings.appearance.not_saved.body' }} />
   {/if}
-  {#if store.sessionOnly === 'changed'}<Button {i18n} label={{ id: 'settings.editor.reload' }} onclick={() => void store.load()} />{/if}
+  {#if store.fileState === 'invalid' && store.fileIssue}
+    <p>{resolveText(i18n, settingsIssueText(store.fileIssue))}</p>
+  {/if}
+  {#if store.sessionOnly === 'changed' || store.fileState === 'invalid' || store.fileState === 'unreadable'}
+    <Button {i18n} label={{ id: 'settings.editor.reload' }} disabled={store.saving} onclick={() => void store.load()} />
+  {/if}
 
   <div class="appearance-grid">
     <section class="card appearance-group" aria-labelledby="appearance-locale-title">

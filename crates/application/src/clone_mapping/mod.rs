@@ -32,8 +32,9 @@ pub use lld::{CloneLldDecisionError, TargetMetricDecision};
 pub use patterns::{
     ClonePatternAction, ClonePatternDecision, ClonePatternError, ClonePatternKind,
     ClonePatternLookup, ClonePatternMatch, ClonePatternPreview, ClonePatternRequirement,
-    pattern_requirements, preview_clone_pattern,
+    VisiblePatternMatch, pattern_requirements, preview_clone_pattern,
 };
+pub(crate) use patterns::{preview_clone_pattern_8_0, snapshot_pattern_fields};
 pub(crate) use revalidation::revalidate_clone_mapping_from_source;
 pub use revalidation::{
     CloneBindingCheck, CloneCheckReason, CloneRevalidationContext, CloneRevalidationError,

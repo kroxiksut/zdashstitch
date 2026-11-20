@@ -322,7 +322,9 @@ export const catalogs = {
     "clone.compare.verified": "The current copy matches the verified read-back.",
     "clone.compare.widget": "Widget",
     "clone.confirm_kept": "I confirm this list.",
-    "clone.confirm_title": "Create a private dashboard",
+    "clone.confirm_title": "Create a dashboard copy",
+    "clone.copied_access_visible_part": "The copy includes only recipients visible to your account.",
+    "clone.copy_source_access": "Copy access from the source dashboard",
     "clone.edit": "Change clone settings",
     "clone.error.growth_color": "The sample series needs a saved color before it can be copied.",
     "clone.error.growth_metric": "A target series could not be matched or has a different value type or unit. Check the selected hosts.",
@@ -361,23 +363,27 @@ export const catalogs = {
     "clone.narrow_search": "Narrow the search to see more relevant hosts.",
     "clone.open": "Set up a clone",
     "clone.pattern.choose": "Choose what to do",
-    "clone.pattern.count": "Matches on selected targets: {count}",
+    "clone.pattern.count": "Visible matches on selected targets: {count}",
     "clone.pattern.decision": "Pattern decision",
     "clone.pattern.host_row": "Page {page}, widget {widget} — host mask",
     "clone.pattern.item_row": "Page {page}, widget {widget} — item pattern",
     "clone.pattern.keep": "Keep as is",
     "clone.pattern.preview": "Preview matches",
     "clone.pattern.replace": "Use a new pattern",
-    "clone.pattern.scope": "The preview checks selected target hosts. In Zabbix a mask can also match other hosts.",
+    "clone.pattern.scope": "Matches are checked only on the selected target hosts visible to this account. The same mask may match other hosts in Zabbix.",
     "clone.pattern.title": "Graph patterns",
-    "clone.pattern.truncated": "Only the first matches are shown.",
+    "clone.pattern.truncated": "Only the first matches are shown. Narrow the mask before continuing.",
     "clone.pattern.value": "New pattern",
+    "clone.pattern.visible_scope": "This preview checks this mask against data visible to the connected account. Other graph fields may narrow the result. Hosts hidden by permissions are outside this check.",
     "clone.plan": "Review publication",
     "clone.private_copy": "A new private dashboard will be created on the same connection.",
     "clone.read_only": "Enable read-write mode to publish the clone.",
     "clone.reconcile": "Check publication result",
     "clone.save": "Save clone draft",
     "clone.search": "Search for target hosts",
+    "clone.source_changed": "The source dashboard differs from the snapshot used for the copy.",
+    "clone.source_current": "The source dashboard still matches the snapshot used for the copy.",
+    "clone.source_unavailable": "The source dashboard could not be checked.",
     "clone.summary": "{pages} pages, {widgets} widgets, {changes} mapped references.",
     "clone.target_for": "Target for {host}",
     "clone.targets": "Target hosts",
@@ -560,6 +566,7 @@ export const catalogs = {
     "connection.test.crumb": "Check",
     "connection.test.details.code": "Code",
     "connection.test.details.method": "Method",
+    "connection.test.details.role_api_access": "Current role API flag (not write permission)",
     "connection.test.details.step": "Step",
     "connection.test.details.time": "Time",
     "connection.test.details.title": "Technical details",
@@ -585,6 +592,9 @@ export const catalogs = {
     "connection.test.result.capabilities": "All required read methods are available.",
     "connection.test.result.endpoint": "Connection established, certificate verified.",
     "connection.test.result.identity_matches": "Same server as at the previous connection.",
+    "connection.test.role_api_access.disabled": "Disabled",
+    "connection.test.role_api_access.enabled": "Enabled",
+    "connection.test.role_api_access.unverified": "Could not verify",
     "connection.test.running": "Checking the connection…",
     "connection.test.status.failed": "Error",
     "connection.test.status.not_checked": "Not checked",
@@ -656,7 +666,7 @@ export const catalogs = {
     "diagnostics.title": "Diagnostics",
     "draft.a11y.sections": "Draft sections",
     "draft.action.check_source": "Check source",
-    "draft.compat.label": "Zabbix {min_version}+",
+    "draft.compat.label": "Local format estimate: Zabbix {min_version}+",
     "draft.context.dirty": "Unsaved local changes",
     "draft.context.saved": "Saved locally",
     "draft.context.source": "Source: {source}",
@@ -846,8 +856,9 @@ export const catalogs = {
     "errors.connection.unexpected_response": "The server returned an unexpected response. Check the base path.",
     "errors.connection.unknown": "The operation failed ({code}).",
     "errors.connection.unreachable_or_timeout": "The server is unreachable or did not respond in time.",
-    "errors.connection.version_unsupported": "Zabbix {version} is not supported. You can continue working offline.",
+    "errors.connection.version_unsupported": "This operation is unavailable for Zabbix {version} in this build.",
     "errors.connection.writes_not_confirmed": "Dashboard writes were not confirmed.",
+    "errors.connection.writes_version_unsupported": "Dashboard writes are unavailable for Zabbix {version} in this build.",
     "errors.credential.locked": "The system credential store is locked or access was denied.",
     "errors.credential.missing": "No password or token is stored for this connection.",
     "errors.credential.unavailable": "The system credential store is unavailable on this computer.",
@@ -1017,6 +1028,11 @@ export const catalogs = {
     "offline_builder.opened": "Catalogs: {catalogs}. Logical widgets: {widgets}.",
     "offline_builder.page_name": "Page name",
     "offline_builder.pending_help": "Apply or cancel the role or widget input before saving the page.",
+    "offline_builder.profile": "Widget evaluation profile",
+    "offline_builder.profile_choice": "Zabbix {version}",
+    "offline_builder.profile_current": "Widget evaluation profile for this draft — Zabbix {version}",
+    "offline_builder.profile_help": "This profile is used for local widget checks. Publishing requires separate verification on the target server.",
+    "offline_builder.profile_unavailable": "No local widget registry is available for the version declared in this draft.",
     "offline_builder.reload": "Reload saved version",
     "offline_builder.remove": "Remove",
     "offline_builder.remove_role": "Remove role {role}",
@@ -1092,6 +1108,7 @@ export const catalogs = {
     "offline_editor.check.name": "Enter a page name.",
     "offline_editor.check.overlap": "Widgets overlap.",
     "offline_editor.check.role": "Check role {role} and its source selector.",
+    "offline_editor.check.unrecognized_fields": "Fields with unknown compatibility: {count}. Their values are preserved.",
     "offline_editor.checks_help": "These local composition checks also appear on the canvas and widget list. The server validates every save. Publishing requires separate source assignment and verification.",
     "offline_editor.claiming": "Checking editor ownership…",
     "offline_editor.clipboard.apply": "Paste",
@@ -1116,6 +1133,8 @@ export const catalogs = {
     "offline_editor.clipboard.resolve_sources": "Review explicit source choices below. Exact identities are preselected; different identities require your choice. All choices are rechecked against the current target before insertion.",
     "offline_editor.clipboard.role": "Resolve role {value}: cardinality, slot count and declared order must match.",
     "offline_editor.clipboard.source_changed": "The cut source changed. Select and cut again.",
+    "offline_editor.confirm_removal": "Remove these widgets from the draft?",
+    "offline_editor.confirm_removal_help": "You can undo this change from the editor history.",
     "offline_editor.edit_here": "Edit here",
     "offline_editor.finding_count": "Findings: {count}",
     "offline_editor.geometry_for": "Position and size: {widget}",
@@ -1124,11 +1143,12 @@ export const catalogs = {
     "offline_editor.history_hint": "Opening loads the last successfully saved version. Undo is available for changes since opening; history is kept only in memory.",
     "offline_editor.history_limit": "Only the latest 200 steps are available; earlier steps were removed.",
     "offline_editor.no_history": "no steps",
-    "offline_editor.opaque": "Fields are preserved as is. Only geometry can be changed in this slice; field editing, deletion and duplication are unavailable.",
+    "offline_editor.opaque": "Fields are read-only. You can change the layout or remove the entire widget.",
     "offline_editor.open_elsewhere": "Open for editing in another tab. This tab is read-only; unsaved input remains available for copying.",
     "offline_editor.owner_unavailable": "Editor ownership could not be confirmed. Saving is stopped until ownership is confirmed.",
     "offline_editor.place": "Place in first free space",
     "offline_editor.recovery": "Recent changes may not have been saved. The last successful version from {time} was loaded.",
+    "offline_editor.removal_dependency": "The draft could not be saved because a remaining widget may depend on a removed widget. Undo the removal or remove its dependents together.",
     "offline_editor.remove_selection": "Remove selected widgets",
     "offline_editor.repeat_auto": "Repeated widgets: automatic placement after host binding",
     "offline_editor.resize": "Resize",
@@ -1175,11 +1195,11 @@ export const catalogs = {
     "package_import.page": "Page",
     "package_import.preview": "Check files",
     "package_import.registry_incompatible": "The local registry found no common supported version for these widgets.",
-    "package_import.registry_known": "The local 7.4 registry recognizes the listed widgets and fields. Server support still needs checking.",
-    "package_import.registry_min": "Registry estimate: {version} and later",
+    "package_import.registry_known": "The local 7.4 registry recognizes these widgets and fields for format checks. This does not confirm server support, especially on 8.0.",
+    "package_import.registry_min": "Local format estimate: {version} and later; server support is unverified",
     "package_import.registry_mismatch": "The author-declared range extends beyond the range inferred from the local registry.",
-    "package_import.registry_range": "Registry estimate: {minimum} up to, but not including, {maximum}",
-    "package_import.registry_unknown": "The local 7.4 registry cannot assess every widget or field. Server support is not confirmed.",
+    "package_import.registry_range": "Local format estimate: {minimum} up to, but not including, {maximum}; server support is unverified",
+    "package_import.registry_unknown": "The local 7.4 registry cannot assess every widget or field. Server support, including 8.0, is not confirmed.",
     "package_import.saved": "Imported",
     "package_import.sha256": "SHA-256",
     "package_import.size": "File size: {bytes} bytes",
@@ -1250,10 +1270,56 @@ export const catalogs = {
     "page_library.title": "Pages",
     "page_library.usage_unknown": "Usage details unavailable",
     "page_library.used_by": "Used by {count} local objects",
+    "portable_lld.candidate": "Target item",
+    "portable_lld.choose": "Choose an item",
+    "portable_lld.confirm": "Confirm binding",
+    "portable_lld.confirmed": "Selection saved locally and checked. It must be checked again before publication.",
+    "portable_lld.empty": "No matching items verified.",
+    "portable_lld.failed": "Unable to verify the binding. Check the draft, connection and access to the source.",
+    "portable_lld.field": "Source field",
+    "portable_lld.find": "Check source",
+    "portable_lld.help": "Choose a target host for each slot. For a catalog metric, confirm a matching item on that host.",
+    "portable_lld.reopen": "Reopen saved selection",
+    "portable_lld.saved_host": "Previously selected host",
+    "portable_lld.title": "Source bindings",
+    "portable_review.acknowledge_outside": "I reviewed the visible matches outside the selected hosts.",
+    "portable_review.choose": "Choose a host",
+    "portable_review.confirm": "Confirm reviewed matches",
+    "portable_review.confirmed": "Matches confirmed for this review. They must be checked again before publication.",
+    "portable_review.failed": "Review failed or changed. Check the connection and repeat the preview.",
+    "portable_review.find": "Find hosts",
+    "portable_review.help": "Connect to the target Zabbix, choose visible hosts for the role and review matches. Other hosts may match the mask. Confirmation is temporary and does not authorize publication.",
+    "portable_review.matches": "Matches visible to this account: {count}",
+    "portable_review.outside": "Outside the selected hosts",
+    "portable_review.pattern": "Mask",
+    "portable_review.preview": "Preview matches",
+    "portable_review.search": "Search hosts",
+    "portable_review.title": "Review dynamic masks",
+    "portable_review.truncated": "The host list is incomplete; refine your search.",
     "publication.a11y.steps": "Publication steps",
+    "publication.access.add_group": "Add a user group",
+    "publication.access.add_user": "Add a user",
+    "publication.access.after": "Proposed access",
+    "publication.access.before": "Current access",
+    "publication.access.choices_truncated": "Only the first 500 visible users and groups are available here.",
     "publication.access.copy_private": "The new dashboard is private and you are its owner. Writing sharing is turned on after its laboratory check.",
+    "publication.access.current_account": "Current account",
+    "publication.access.edit": "Edit owner and sharing",
+    "publication.access.groups": "User groups",
+    "publication.access.owner": "Owner",
+    "publication.access.private": "Private",
+    "publication.access.public": "Public",
+    "publication.access.public_warning": "All Zabbix users will be able to see this dashboard.",
+    "publication.access.read_only": "Read-only",
+    "publication.access.read_write": "Read-write",
+    "publication.access.rejected": "The selected owner or access cannot be verified for this connection.",
+    "publication.access.remove": "Remove {name}",
+    "publication.access.restore_source": "Restore access from the source dashboard",
     "publication.access.title": "Owner and sharing",
+    "publication.access.type": "Dashboard access",
     "publication.access.update_not_sent": "This publication does not change the owner or sharing: the request does not contain them.",
+    "publication.access.users": "Users",
+    "publication.access.visible_part": "Only recipients visible to your account are shown.",
     "publication.action.back_changes": "Back: changes",
     "publication.action.back_checks": "Back: checks",
     "publication.action.back_target": "Back: target",
@@ -1434,6 +1500,7 @@ export const catalogs = {
     "publication.finding.kept_on_source_confirmation_stale": "The list changed after confirmation: confirm it again",
     "publication.finding.match_differences": "Matched with differences: {differences}",
     "publication.finding.no_changes": "The draft changes nothing on the server.",
+    "publication.finding.pattern_matches_outside_selection": "The host selectors exclude item matches on other hosts ({count}).",
     "publication.finding.scope_link_crossing.consumer_outside": "A widget link crosses the scope: the receiving widget is outside",
     "publication.finding.scope_link_crossing.provider_outside": "A widget link crosses the scope: the source widget is outside",
     "publication.finding.server_version_mismatch": "The server version differs from the snapshot ({base_version}).",
@@ -1483,6 +1550,48 @@ export const catalogs = {
     "publication.plan.reason.source_changed": "the dashboard on the server changed or must be checked again",
     "publication.plan.reason.target_changed": "the target or action changed",
     "publication.plan.reason.unknown": "unknown reason ({code})",
+    "publication.portable.acknowledge_deletions": "Remove the listed pages and widgets from the Zabbix dashboard",
+    "publication.portable.already_deployed": "A dashboard was already created from this draft on this server.",
+    "publication.portable.append_again": "Add the page again",
+    "publication.portable.append_page": "Append the page to the dashboard",
+    "publication.portable.append_selected": "Add selected graphs",
+    "publication.portable.append_widget": "Add the graph to the page",
+    "publication.portable.changed": "The dashboard changed on the server. Import the current version to review it or explicitly create another dashboard.",
+    "publication.portable.check_link": "Check on the server",
+    "publication.portable.choose_target": "Choose a private dashboard",
+    "publication.portable.create_another": "Create another dashboard from this draft",
+    "publication.portable.created": "Created from this draft",
+    "publication.portable.current": "The dashboard matches the saved version.",
+    "publication.portable.diff_add_field": "In “{widget}” on “{page}”, add {name} with value “{after}”",
+    "publication.portable.diff_dashboard_name": "Dashboard name changes from “{before}” to “{after}”",
+    "publication.portable.diff_field": "In “{widget}” on “{page}”, {name} changes from “{before}” to “{after}”",
+    "publication.portable.diff_geometry": "“{widget}” on “{page}”: X {old_x}, Y {old_y}, {old_w} × {old_h} → X {new_x}, Y {new_y}, {new_w} × {new_h}",
+    "publication.portable.diff_move_page": "Move “{name}” from page {from} to page {to}",
+    "publication.portable.diff_page": "Add “{name}” as page {number}",
+    "publication.portable.diff_page_name": "Page name changes from “{before}” to “{after}”",
+    "publication.portable.diff_remove_page": "Remove page {number} “{name}”",
+    "publication.portable.diff_remove_widget": "Remove “{name}” from “{page}” at X {x}, Y {y}",
+    "publication.portable.diff_unavailable": "The previous or selected item is missing or inaccessible. The change cannot be previewed.",
+    "publication.portable.diff_widget": "Add “{name}” to “{page}” at X {x}, Y {y}",
+    "publication.portable.diff_widget_name": "Widget name changes from “{before}” to “{after}”",
+    "publication.portable.equivalent_page_exists": "The target dashboard already contains an identical page.",
+    "publication.portable.link_pending": "The write was verified. Reconcile the result to finish saving the link.",
+    "publication.portable.location_x": "Column X",
+    "publication.portable.location_y": "Row Y",
+    "publication.portable.missing": "The dashboard is missing or inaccessible.",
+    "publication.portable.other_server": "The link belongs to another server or connection identity.",
+    "publication.portable.page_position": "Position of the added page",
+    "publication.portable.position_after": "After “{name}”",
+    "publication.portable.position_end": "At the end",
+    "publication.portable.preview_source": "Draft “{name}”",
+    "publication.portable.question_update": "Apply the planned change to “{name}”?",
+    "publication.portable.require_connection": "To publish, connect to Zabbix 8.0.0 and enable write mode.",
+    "publication.portable.select": "Select",
+    "publication.portable.source_page": "Source page",
+    "publication.portable.source_widgets": "Graph widgets to add",
+    "publication.portable.summary": "Create a dashboard on {profile} with {pages} pages and {widgets} widgets.",
+    "publication.portable.target_page": "Target page",
+    "publication.portable.update_created": "Update the created dashboard",
     "publication.preflight.blocked": "Publication is blocked",
     "publication.preflight.title": "Preflight checks",
     "publication.preview.read_only_note": "Checks only read; nothing changes on the server until you confirm the write.",
@@ -1566,6 +1675,7 @@ export const catalogs = {
     "publication.target.update_source_hint": "Changes the existing dashboard on the server with one request after confirmation.",
     "publication.target.update_visible_to_all": "Everyone with access to this dashboard will see it changed.",
     "publication.tech.base": "Base fingerprint",
+    "publication.tech.expected": "Expected result fingerprint",
     "publication.tech.fields": "Field codes",
     "publication.tech.local": "Draft fingerprint",
     "publication.tech.pageid": "Page ID",
@@ -1710,6 +1820,7 @@ export const catalogs = {
     "settings.data_not_translated": "Dashboard names, hosts and other Zabbix data are not translated. Terms follow the Zabbix localization.",
     "settings.editor.autosave_after_create": "Autosave starts after the first explicit page save.",
     "settings.editor.autosave_mode": "Autosave mode",
+    "settings.editor.default_zoom": "Zoom when opening",
     "settings.editor.error.changed": "The settings file changed. Reload this section before saving.",
     "settings.editor.error.not_saved": "Editor settings were not saved.",
     "settings.editor.error.unavailable": "Editor settings could not be loaded.",
@@ -1718,11 +1829,20 @@ export const catalogs = {
     "settings.editor.on": "On",
     "settings.editor.reload": "Reload settings",
     "settings.editor.session_only": "This change applies until the application restarts. The invalid settings file was not changed.",
+    "settings.editor.show_grid": "Show grid",
     "settings.editor.title": "Editor",
+    "settings.editor.zoom.actual": "100%",
+    "settings.editor.zoom.fit_width": "Fit width",
     "settings.file.changed.body": "Your choice is visible here but was not saved. Reload the settings before saving again.",
     "settings.file.changed.title": "The settings file changed",
     "settings.file.hint": "Settings are stored in a YAML file that you can edit by hand. An invalid file is not applied.",
     "settings.file.invalid.title": "The settings file has errors and was not applied",
+    "settings.file.issue.file_too_large": "The settings file exceeds the size limit.",
+    "settings.file.issue.interrupted_save": "The main settings file is missing. A settings backup is available.",
+    "settings.file.issue.invalid_format": "The settings format is unsupported or a required setting is missing.",
+    "settings.file.issue.invalid_storage_root": "The storage directory path is invalid.",
+    "settings.file.issue.invalid_yaml": "The YAML contains a syntax error or an invalid setting.",
+    "settings.file.issue.yaml_location": "Check the YAML near line {line}, column {column}.",
     "settings.file.title": "Settings file",
     "settings.file.unreadable": "The settings file cannot be read safely. Changes are unavailable.",
     "settings.file.unreadable.title": "Settings are unavailable",
@@ -1856,7 +1976,7 @@ export const catalogs = {
     "template_import.catalogs": "Metric catalogs",
     "template_import.choose": "Upload through the browser",
     "template_import.empty": "No metric catalogs have been saved yet.",
-    "template_import.help": "Choose Zabbix 7.4 template exports in YAML, JSON or XML. Review the result before saving catalogs on this computer.",
+    "template_import.help": "Choose Zabbix 7.4 or 8.0 template exports in YAML, JSON or XML. Review the result before saving catalogs locally.",
     "template_import.inspect": "Inspect files",
     "template_import.list_failed": "The local metric library could not be read.",
     "template_import.lld_requires_instance": "Discovery prototypes need a concrete discovered item before they can be used.",
@@ -1870,7 +1990,7 @@ export const catalogs = {
     "template_import.saved": "Catalogs saved: {count}.",
     "template_import.selected": "Selected files: {count}",
     "template_import.server_future": "Importing templates directly from a connected Zabbix server will be available in a later step.",
-    "template_import.source_steps": "To get a file, open Zabbix 7.4 → Data collection → Templates, select the templates and click Export. Save the YAML, JSON or XML file, then choose it here.",
+    "template_import.source_steps": "In Zabbix, open Data collection → Templates, select the templates and click Export. Save the YAML, JSON or XML file, then choose it here.",
     "template_import.unresolved_macros": "Some macro values require additional context.",
     "template_import.version": "Catalog version {version} · Zabbix export {export_version}",
     "widget.type.actionlog": "Action log",
@@ -2228,7 +2348,9 @@ export const catalogs = {
     "clone.compare.verified": "Текущая копия совпадает с результатом проверочного чтения.",
     "clone.compare.widget": "Виджет",
     "clone.confirm_kept": "Подтверждаю этот список.",
-    "clone.confirm_title": "Создание личной панели",
+    "clone.confirm_title": "Создание копии панели",
+    "clone.copied_access_visible_part": "В копию попадут только получатели, видимые вашей учётной записи.",
+    "clone.copy_source_access": "Скопировать доступ исходной панели",
     "clone.edit": "Изменить настройки клона",
     "clone.error.growth_color": "Чтобы скопировать ряд-образец, нужен сохранённый цвет этого ряда.",
     "clone.error.growth_metric": "Для одного из целевых рядов не найдено соответствие либо отличается тип данных или единица измерения. Проверьте выбранные узлы сети.",
@@ -2267,23 +2389,27 @@ export const catalogs = {
     "clone.narrow_search": "Уточните запрос, чтобы найти нужный узел.",
     "clone.open": "Настроить клон",
     "clone.pattern.choose": "Выберите действие",
-    "clone.pattern.count": "Число совпадений на выбранных узлах сети — {count}",
+    "clone.pattern.count": "Видимых совпадений на выбранных узлах сети: {count}",
     "clone.pattern.decision": "Действие с шаблоном",
     "clone.pattern.host_row": "Страница {page}, виджет {widget} — маска узлов сети",
     "clone.pattern.item_row": "Страница {page}, виджет {widget} — шаблон элементов данных",
     "clone.pattern.keep": "Оставить как есть",
     "clone.pattern.preview": "Показать совпадения",
     "clone.pattern.replace": "Указать новый шаблон",
-    "clone.pattern.scope": "Предпросмотр проверяет выбранные целевые узлы сети. В Zabbix маска может совпасть и с другими узлами.",
+    "clone.pattern.scope": "Совпадения проверяются только на выбранных целевых узлах сети, видимых этой учётной записи. В Zabbix маска может совпасть и с другими узлами.",
     "clone.pattern.title": "Шаблоны графиков",
-    "clone.pattern.truncated": "Показаны только первые совпадения.",
+    "clone.pattern.truncated": "Показаны только первые совпадения. Уточните маску, чтобы продолжить.",
     "clone.pattern.value": "Новый шаблон",
+    "clone.pattern.visible_scope": "Предпросмотр проверяет эту маску по данным, доступным текущей учётной записи. Другие поля графика могут сузить результат. Скрытые правами узлы сети не входят в проверку.",
     "clone.plan": "К публикации",
     "clone.private_copy": "В том же подключении будет создана новая личная панель.",
     "clone.read_only": "Для публикации клона включите режим чтения и записи.",
     "clone.reconcile": "Проверить результат публикации",
     "clone.save": "Сохранить черновик клона",
     "clone.search": "Поиск целевых узлов сети",
+    "clone.source_changed": "Исходная панель отличается от снимка, использованного для копии.",
+    "clone.source_current": "Исходная панель по-прежнему совпадает со снимком, использованным для копии.",
+    "clone.source_unavailable": "Не удалось проверить исходную панель.",
     "clone.summary": "Число страниц — {pages}, число виджетов — {widgets}. Сопоставлено ссылок — {changes}.",
     "clone.target_for": "Целевой узел для {host}",
     "clone.targets": "Целевые узлы сети",
@@ -2466,6 +2592,7 @@ export const catalogs = {
     "connection.test.crumb": "Проверка",
     "connection.test.details.code": "Код",
     "connection.test.details.method": "Способ",
+    "connection.test.details.role_api_access": "Доступ роли к API (не право записи)",
     "connection.test.details.step": "Шаг",
     "connection.test.details.time": "Время",
     "connection.test.details.title": "Технические сведения",
@@ -2491,6 +2618,9 @@ export const catalogs = {
     "connection.test.result.capabilities": "Все нужные методы чтения доступны.",
     "connection.test.result.endpoint": "Соединение установлено, сертификат проверен.",
     "connection.test.result.identity_matches": "Тот же сервер, что и при прошлом подключении.",
+    "connection.test.role_api_access.disabled": "Выключен",
+    "connection.test.role_api_access.enabled": "Включён",
+    "connection.test.role_api_access.unverified": "Не удалось проверить",
     "connection.test.running": "Проверка подключения…",
     "connection.test.status.failed": "Ошибка",
     "connection.test.status.not_checked": "Не проверялось",
@@ -2562,7 +2692,7 @@ export const catalogs = {
     "diagnostics.title": "Диагностика",
     "draft.a11y.sections": "Разделы черновика",
     "draft.action.check_source": "Проверить источник",
-    "draft.compat.label": "Zabbix {min_version}+",
+    "draft.compat.label": "Локальная оценка формата: Zabbix {min_version}+",
     "draft.context.dirty": "Изменена",
     "draft.context.saved": "Сохранена локально",
     "draft.context.source": "Источник: {source}",
@@ -2752,8 +2882,9 @@ export const catalogs = {
     "errors.connection.unexpected_response": "Сервер вернул неожиданный ответ. Проверьте базовый путь.",
     "errors.connection.unknown": "Операция не выполнена ({code}).",
     "errors.connection.unreachable_or_timeout": "Сервер недоступен или не ответил вовремя.",
-    "errors.connection.version_unsupported": "Zabbix {version} не поддерживается. Можно продолжить работу автономно.",
+    "errors.connection.version_unsupported": "Эта операция для Zabbix {version} недоступна в текущей сборке.",
     "errors.connection.writes_not_confirmed": "Запись панелей не подтверждена.",
+    "errors.connection.writes_version_unsupported": "Запись панелей в Zabbix {version} недоступна в этой сборке.",
     "errors.credential.locked": "Системное хранилище учётных данных заблокировано или доступ запрещён.",
     "errors.credential.missing": "Для этого подключения не сохранены ни пароль, ни токен.",
     "errors.credential.unavailable": "Системное хранилище учётных данных недоступно на этом компьютере.",
@@ -2923,6 +3054,11 @@ export const catalogs = {
     "offline_builder.opened": "Каталогов: {catalogs}. Логических виджетов: {widgets}.",
     "offline_builder.page_name": "Название страницы",
     "offline_builder.pending_help": "Примените или отмените ввод роли или виджета перед сохранением страницы.",
+    "offline_builder.profile": "Профиль проверки виджетов",
+    "offline_builder.profile_choice": "Zabbix {version}",
+    "offline_builder.profile_current": "Профиль проверки виджетов этого черновика — Zabbix {version}",
+    "offline_builder.profile_help": "Профиль используется для локальной проверки виджетов. Для публикации нужна отдельная проверка на целевом сервере.",
+    "offline_builder.profile_unavailable": "Для версии из этого черновика нет локального реестра виджетов.",
     "offline_builder.reload": "Загрузить сохранённую версию",
     "offline_builder.remove": "Удалить",
     "offline_builder.remove_role": "Удалить роль {role}",
@@ -2998,6 +3134,7 @@ export const catalogs = {
     "offline_editor.check.name": "Укажите имя страницы.",
     "offline_editor.check.overlap": "Виджеты перекрываются.",
     "offline_editor.check.role": "Проверьте роль {role} и выбор источников.",
+    "offline_editor.check.unrecognized_fields": "Число полей с неизвестной совместимостью — {count}. Их значения сохранены.",
     "offline_editor.checks_help": "Эти проверки локальной композиции также показаны на холсте и в списке виджетов. Сервер проверяет каждое сохранение. Для публикации отдельно требуются назначение и проверка источников.",
     "offline_editor.claiming": "Проверка владения редактором…",
     "offline_editor.clipboard.apply": "Вставить",
@@ -3022,6 +3159,8 @@ export const catalogs = {
     "offline_editor.clipboard.resolve_sources": "Проверьте явные соответствия источников ниже. Точно совпавшие идентификаторы выбраны заранее; отличающиеся требуют вашего выбора. Перед вставкой все соответствия повторно проверяются по текущей цели.",
     "offline_editor.clipboard.role": "Разрешите роль {value}: кратность, число слотов и объявленный порядок должны совпадать.",
     "offline_editor.clipboard.source_changed": "Источник вырезания изменился. Выделите и вырежьте заново.",
+    "offline_editor.confirm_removal": "Удалить эти виджеты из черновика?",
+    "offline_editor.confirm_removal_help": "Изменение можно отменить через историю редактора.",
     "offline_editor.edit_here": "Редактировать здесь",
     "offline_editor.finding_count": "Замечаний: {count}",
     "offline_editor.geometry_for": "Положение и размер: {widget}",
@@ -3030,11 +3169,12 @@ export const catalogs = {
     "offline_editor.history_hint": "Открытие загружает последнюю успешно сохранённую версию. Отмена доступна для изменений с момента открытия; история хранится только в памяти.",
     "offline_editor.history_limit": "Доступны последние 200 шагов; более ранние шаги удалены.",
     "offline_editor.no_history": "нет шагов",
-    "offline_editor.opaque": "Поля сохраняются как есть. В этом срезе меняется только геометрия; правка полей, удаление и копирование недоступны.",
+    "offline_editor.opaque": "Поля доступны только для просмотра. Можно изменить положение и размер виджета или удалить его целиком.",
     "offline_editor.open_elsewhere": "Открыт для правки в другой вкладке. Эта вкладка доступна только для чтения; несохранённый ввод можно скопировать.",
     "offline_editor.owner_unavailable": "Не удалось подтвердить владение редактором. Сохранение остановлено до подтверждения владения.",
     "offline_editor.place": "Разместить на первом свободном месте",
     "offline_editor.recovery": "Последние изменения могли не сохраниться. Загружена последняя успешная версия от {time}.",
+    "offline_editor.removal_dependency": "Черновик не сохранён: оставшийся виджет может зависеть от удалённого. Отмените удаление или удалите зависимые виджеты вместе с ним.",
     "offline_editor.remove_selection": "Удалить выбранные виджеты",
     "offline_editor.repeat_auto": "Повторяемые виджеты: автоматическое размещение после привязки узлов сети",
     "offline_editor.resize": "Размер",
@@ -3081,11 +3221,11 @@ export const catalogs = {
     "package_import.page": "Страница",
     "package_import.preview": "Проверить файлы",
     "package_import.registry_incompatible": "Локальный реестр не нашёл общей поддерживаемой версии для этих виджетов.",
-    "package_import.registry_known": "Локальный реестр 7.4 распознаёт указанные виджеты и поля. Поддержку сервером ещё нужно проверить.",
-    "package_import.registry_min": "Оценка по реестру: {version} и новее",
+    "package_import.registry_known": "Локальный реестр 7.4 распознаёт эти виджеты и поля для проверки формата. Поддержка сервером, особенно 8.0, этим не подтверждена.",
+    "package_import.registry_min": "Локальная оценка формата: {version} и новее; поддержка сервером не проверена",
     "package_import.registry_mismatch": "Диапазон автора шире диапазона, рассчитанного по локальному реестру.",
-    "package_import.registry_range": "Оценка по реестру: от {minimum} до {maximum}, не включая верхнюю границу",
-    "package_import.registry_unknown": "Локальный реестр 7.4 не может оценить все виджеты или поля. Поддержка сервером не подтверждена.",
+    "package_import.registry_range": "Локальная оценка формата: от {minimum} до {maximum}, не включая верхнюю границу; поддержка сервером не проверена",
+    "package_import.registry_unknown": "Локальный реестр 7.4 не может оценить все виджеты или поля. Поддержка сервером, включая 8.0, не подтверждена.",
     "package_import.saved": "Импортировано",
     "package_import.sha256": "SHA-256",
     "package_import.size": "Размер файла: {bytes} байт",
@@ -3156,10 +3296,56 @@ export const catalogs = {
     "page_library.title": "Страницы",
     "page_library.usage_unknown": "Сведения об использовании недоступны",
     "page_library.used_by": "Используют локальные объекты: {count}",
+    "portable_lld.candidate": "Целевой элемент данных",
+    "portable_lld.choose": "Выберите элемент данных",
+    "portable_lld.confirm": "Подтвердить привязку",
+    "portable_lld.confirmed": "Выбор сохранён на этом компьютере и проверен. Перед публикацией нужна повторная проверка.",
+    "portable_lld.empty": "Подходящие элементы данных не подтверждены.",
+    "portable_lld.failed": "Не удалось проверить привязку. Проверьте черновик, подключение и доступ к источнику.",
+    "portable_lld.field": "Исходное поле",
+    "portable_lld.find": "Проверить источник",
+    "portable_lld.help": "Выберите целевой узел сети для каждого слота. Для метрики каталога подтвердите подходящий элемент данных на этом узле.",
+    "portable_lld.reopen": "Открыть сохранённый выбор",
+    "portable_lld.saved_host": "Ранее выбранный узел сети",
+    "portable_lld.title": "Привязки источников",
+    "portable_review.acknowledge_outside": "Я проверил видимые совпадения вне выбранных узлов сети.",
+    "portable_review.choose": "Выберите узел сети",
+    "portable_review.confirm": "Подтвердить совпадения",
+    "portable_review.confirmed": "Совпадения подтверждены для этого просмотра. Перед публикацией потребуется повторная проверка.",
+    "portable_review.failed": "Проверка не выполнена или данные изменились. Проверьте подключение и повторите просмотр.",
+    "portable_review.find": "Найти узлы",
+    "portable_review.help": "Подключитесь к целевому Zabbix, выберите видимые узлы сети для роли и проверьте совпадения. Маска может совпасть и с другими узлами. Подтверждение временное и не разрешает публикацию.",
+    "portable_review.matches": "Совпадений, видимых этой учётной записи: {count}",
+    "portable_review.outside": "Вне выбранных узлов сети",
+    "portable_review.pattern": "Маска",
+    "portable_review.preview": "Показать совпадения",
+    "portable_review.search": "Поиск узлов сети",
+    "portable_review.title": "Проверка динамических масок",
+    "portable_review.truncated": "Список узлов неполный; уточните поиск.",
     "publication.a11y.steps": "Шаги публикации",
+    "publication.access.add_group": "Добавить группу пользователей",
+    "publication.access.add_user": "Добавить пользователя",
+    "publication.access.after": "Предлагаемый доступ",
+    "publication.access.before": "Текущий доступ",
+    "publication.access.choices_truncated": "Здесь доступны первые 500 видимых пользователей и групп.",
     "publication.access.copy_private": "Новая панель — личная, владелец — вы. Запись доступа включится после её лабораторной проверки.",
+    "publication.access.current_account": "Учётная запись подключения",
+    "publication.access.edit": "Изменить владельца и доступ",
+    "publication.access.groups": "Группы пользователей",
+    "publication.access.owner": "Владелец",
+    "publication.access.private": "Личная",
+    "publication.access.public": "Общая",
+    "publication.access.public_warning": "Панель увидят все пользователи Zabbix.",
+    "publication.access.read_only": "Только чтение",
+    "publication.access.read_write": "Чтение-запись",
+    "publication.access.rejected": "Не удалось подтвердить выбранного владельца или доступ в этом подключении.",
+    "publication.access.remove": "Удалить получателя «{name}»",
+    "publication.access.restore_source": "Восстановить доступ исходной панели",
     "publication.access.title": "Владелец и доступ",
+    "publication.access.type": "Тип доступа к панели",
     "publication.access.update_not_sent": "Эта публикация не меняет владельца и доступ: в запросе их нет.",
+    "publication.access.users": "Пользователи",
+    "publication.access.visible_part": "Показана видимая вашей учётной записи часть списка получателей.",
     "publication.action.back_changes": "Назад: изменения",
     "publication.action.back_checks": "Назад: проверки",
     "publication.action.back_target": "Назад: назначение",
@@ -3340,6 +3526,7 @@ export const catalogs = {
     "publication.finding.kept_on_source_confirmation_stale": "Список изменился после подтверждения: подтвердите его снова",
     "publication.finding.match_differences": "Сопоставлено с отличиями: {differences}",
     "publication.finding.no_changes": "Черновик ничего не меняет на сервере.",
+    "publication.finding.pattern_matches_outside_selection": "Выбор узлов исключает совпадения с элементами данных на других узлах ({count}).",
     "publication.finding.scope_link_crossing.consumer_outside": "Связь виджетов пересекает границу области: виджет-получатель вне области",
     "publication.finding.scope_link_crossing.provider_outside": "Связь виджетов пересекает границу области: виджет-источник вне области",
     "publication.finding.server_version_mismatch": "Версия сервера отличается от снимка ({base_version}).",
@@ -3389,6 +3576,48 @@ export const catalogs = {
     "publication.plan.reason.source_changed": "панель на сервере изменилась или требует повторной проверки",
     "publication.plan.reason.target_changed": "изменились цель или действие",
     "publication.plan.reason.unknown": "неизвестная причина ({code})",
+    "publication.portable.acknowledge_deletions": "Удалить перечисленные страницы и виджеты из панели Zabbix",
+    "publication.portable.already_deployed": "Из этого черновика уже создана панель на этом сервере.",
+    "publication.portable.append_again": "Добавить страницу ещё раз",
+    "publication.portable.append_page": "Добавить страницу в панель",
+    "publication.portable.append_selected": "Добавить выбранные графики",
+    "publication.portable.append_widget": "Добавить график на страницу",
+    "publication.portable.changed": "Панель изменилась на сервере. Импортируйте текущую версию для проверки или явно создайте ещё одну панель.",
+    "publication.portable.check_link": "Проверить на сервере",
+    "publication.portable.choose_target": "Выбрать личную панель",
+    "publication.portable.create_another": "Создать ещё одну панель из этого черновика",
+    "publication.portable.created": "Создано из этого черновика",
+    "publication.portable.current": "Панель совпадает с сохранённой версией.",
+    "publication.portable.diff_add_field": "В виджете «{widget}» на странице «{page}» добавить поле {name} со значением «{after}»",
+    "publication.portable.diff_dashboard_name": "Имя панели изменится с «{before}» на «{after}»",
+    "publication.portable.diff_field": "В виджете «{widget}» на странице «{page}» поле {name} изменится с «{before}» на «{after}»",
+    "publication.portable.diff_geometry": "«{widget}» на странице «{page}»: X {old_x}, Y {old_y}, {old_w} × {old_h} → X {new_x}, Y {new_y}, {new_w} × {new_h}",
+    "publication.portable.diff_move_page": "Переместить «{name}» с позиции {from} на позицию {to}",
+    "publication.portable.diff_page": "Добавить «{name}» как страницу {number}",
+    "publication.portable.diff_page_name": "Имя страницы изменится с «{before}» на «{after}»",
+    "publication.portable.diff_remove_page": "Удалить страницу {number} «{name}»",
+    "publication.portable.diff_remove_widget": "Удалить «{name}» со страницы «{page}», координаты X {x}, Y {y}",
+    "publication.portable.diff_unavailable": "Прежний или выбранный элемент данных отсутствует или недоступен. Изменение нельзя показать.",
+    "publication.portable.diff_widget": "Добавить «{name}» на страницу «{page}», координаты X {x}, Y {y}",
+    "publication.portable.diff_widget_name": "Имя виджета изменится с «{before}» на «{after}»",
+    "publication.portable.equivalent_page_exists": "В целевой панели уже есть такая же страница.",
+    "publication.portable.link_pending": "Запись проверена. Сверьте результат, чтобы сохранить связь с черновиком.",
+    "publication.portable.location_x": "Столбец X",
+    "publication.portable.location_y": "Строка Y",
+    "publication.portable.missing": "Панель отсутствует или недоступна.",
+    "publication.portable.other_server": "Связь относится к другому серверу или учётной записи подключения.",
+    "publication.portable.page_position": "Позиция добавляемой страницы",
+    "publication.portable.position_after": "После «{name}»",
+    "publication.portable.position_end": "В конец",
+    "publication.portable.preview_source": "Черновик «{name}»",
+    "publication.portable.question_update": "Применить запланированное изменение к панели «{name}»?",
+    "publication.portable.require_connection": "Чтобы опубликовать панель, подключитесь к Zabbix 8.0.0 и разрешите запись.",
+    "publication.portable.select": "Выбрать",
+    "publication.portable.source_page": "Исходная страница",
+    "publication.portable.source_widgets": "Графики для добавления",
+    "publication.portable.summary": "Будет создана панель в подключении «{profile}». Страниц: {pages}. Виджетов: {widgets}.",
+    "publication.portable.target_page": "Целевая страница",
+    "publication.portable.update_created": "Обновить созданную панель",
     "publication.preflight.blocked": "Публикация заблокирована",
     "publication.preflight.title": "Предварительные проверки",
     "publication.preview.read_only_note": "Проверки выполняются чтением, на сервере ничего не меняется до подтверждения записи.",
@@ -3472,6 +3701,7 @@ export const catalogs = {
     "publication.target.update_source_hint": "Изменяет существующую панель на сервере одним запросом после подтверждения.",
     "publication.target.update_visible_to_all": "Панель увидят изменённой все, у кого есть к ней доступ.",
     "publication.tech.base": "Отпечаток базы",
+    "publication.tech.expected": "Отпечаток ожидаемого результата",
     "publication.tech.fields": "Коды полей",
     "publication.tech.local": "Отпечаток черновика",
     "publication.tech.pageid": "ID страницы",
@@ -3616,6 +3846,7 @@ export const catalogs = {
     "settings.data_not_translated": "Имена панелей, узлов сети и другие данные из Zabbix не переводятся. Термины — как в русском Zabbix.",
     "settings.editor.autosave_after_create": "Автосохранение начинается после первого явного сохранения страницы.",
     "settings.editor.autosave_mode": "Режим автосохранения",
+    "settings.editor.default_zoom": "Масштаб при открытии",
     "settings.editor.error.changed": "Файл настроек изменился. Перезагрузите этот раздел перед сохранением.",
     "settings.editor.error.not_saved": "Настройки редактора не сохранены.",
     "settings.editor.error.unavailable": "Не удалось загрузить настройки редактора.",
@@ -3624,11 +3855,20 @@ export const catalogs = {
     "settings.editor.on": "Включено",
     "settings.editor.reload": "Перезагрузить настройки",
     "settings.editor.session_only": "Изменение действует до перезапуска приложения. Ошибочный файл настроек не изменён.",
+    "settings.editor.show_grid": "Показывать сетку",
     "settings.editor.title": "Редактор",
+    "settings.editor.zoom.actual": "100 %",
+    "settings.editor.zoom.fit_width": "По ширине",
     "settings.file.changed.body": "Ваш выбор виден здесь, но не сохранён. Перечитайте настройки перед повторным сохранением.",
     "settings.file.changed.title": "Файл настроек изменился",
     "settings.file.hint": "Настройки хранятся в YAML-файле, его можно править вручную. Ошибочный файл не применяется.",
     "settings.file.invalid.title": "Файл настроек содержит ошибки и не применён",
+    "settings.file.issue.file_too_large": "Файл настроек превышает допустимый размер.",
+    "settings.file.issue.interrupted_save": "Основной файл настроек отсутствует. Доступна резервная копия настроек.",
+    "settings.file.issue.invalid_format": "Формат настроек не поддерживается или отсутствует обязательный параметр.",
+    "settings.file.issue.invalid_storage_root": "Недопустимый путь к каталогу хранилища.",
+    "settings.file.issue.invalid_yaml": "В YAML есть синтаксическая ошибка или недопустимый параметр.",
+    "settings.file.issue.yaml_location": "Проверьте YAML около строки {line}, столбец {column}.",
     "settings.file.title": "Файл настроек",
     "settings.file.unreadable": "Невозможно безопасно прочитать файл настроек. Изменения недоступны.",
     "settings.file.unreadable.title": "Настройки недоступны",
@@ -3762,7 +4002,7 @@ export const catalogs = {
     "template_import.catalogs": "Каталоги метрик",
     "template_import.choose": "Загрузить через браузер",
     "template_import.empty": "Пока нет сохранённых каталогов метрик.",
-    "template_import.help": "Выберите экспорт шаблонов Zabbix 7.4 в YAML, JSON или XML. Проверьте результат перед сохранением каталогов на этом компьютере.",
+    "template_import.help": "Выберите экспорт шаблонов Zabbix 7.4 или 8.0 в YAML, JSON или XML. Проверьте результат перед локальным сохранением каталогов.",
     "template_import.inspect": "Проверить файлы",
     "template_import.list_failed": "Не удалось прочитать локальную библиотеку каталогов.",
     "template_import.lld_requires_instance": "Для использования прототипов обнаружения нужен конкретный обнаруженный элемент данных.",
@@ -3776,7 +4016,7 @@ export const catalogs = {
     "template_import.saved": "Сохранено каталогов: {count}.",
     "template_import.selected": "Выбрано файлов: {count}",
     "template_import.server_future": "Импорт шаблонов напрямую с подключённого сервера Zabbix появится на следующем этапе.",
-    "template_import.source_steps": "Чтобы получить файл, откройте в Zabbix 7.4 раздел «Сбор данных → Шаблоны», отметьте шаблоны и нажмите «Экспорт». Сохраните YAML, JSON или XML, затем выберите файл здесь.",
+    "template_import.source_steps": "В Zabbix откройте «Сбор данных → Шаблоны», отметьте шаблоны и нажмите «Экспорт». Сохраните YAML, JSON или XML и выберите файл здесь.",
     "template_import.unresolved_macros": "Для некоторых макросов нужны дополнительные данные.",
     "template_import.version": "Версия каталога {version} · экспорт Zabbix {export_version}",
     "widget.type.actionlog": "Журнал действий",
@@ -4279,6 +4519,8 @@ export const placeholderTypes = {
   "clone.compare.widget": {},
   "clone.confirm_kept": {},
   "clone.confirm_title": {},
+  "clone.copied_access_visible_part": {},
+  "clone.copy_source_access": {},
   "clone.edit": {},
   "clone.error.growth_color": {},
   "clone.error.growth_metric": {},
@@ -4347,12 +4589,16 @@ export const placeholderTypes = {
   "clone.pattern.title": {},
   "clone.pattern.truncated": {},
   "clone.pattern.value": {},
+  "clone.pattern.visible_scope": {},
   "clone.plan": {},
   "clone.private_copy": {},
   "clone.read_only": {},
   "clone.reconcile": {},
   "clone.save": {},
   "clone.search": {},
+  "clone.source_changed": {},
+  "clone.source_current": {},
+  "clone.source_unavailable": {},
   "clone.summary": {
     "pages": "number",
     "widgets": "number",
@@ -4620,6 +4866,7 @@ export const placeholderTypes = {
   "connection.test.crumb": {},
   "connection.test.details.code": {},
   "connection.test.details.method": {},
+  "connection.test.details.role_api_access": {},
   "connection.test.details.step": {},
   "connection.test.details.time": {},
   "connection.test.details.title": {},
@@ -4651,6 +4898,9 @@ export const placeholderTypes = {
   "connection.test.result.capabilities": {},
   "connection.test.result.endpoint": {},
   "connection.test.result.identity_matches": {},
+  "connection.test.role_api_access.disabled": {},
+  "connection.test.role_api_access.enabled": {},
+  "connection.test.role_api_access.unverified": {},
   "connection.test.running": {},
   "connection.test.status.failed": {},
   "connection.test.status.not_checked": {},
@@ -5034,6 +5284,9 @@ export const placeholderTypes = {
     "version": "technical"
   },
   "errors.connection.writes_not_confirmed": {},
+  "errors.connection.writes_version_unsupported": {
+    "version": "technical"
+  },
   "errors.credential.locked": {},
   "errors.credential.missing": {},
   "errors.credential.unavailable": {},
@@ -5252,6 +5505,15 @@ export const placeholderTypes = {
   },
   "offline_builder.page_name": {},
   "offline_builder.pending_help": {},
+  "offline_builder.profile": {},
+  "offline_builder.profile_choice": {
+    "version": "technical"
+  },
+  "offline_builder.profile_current": {
+    "version": "technical"
+  },
+  "offline_builder.profile_help": {},
+  "offline_builder.profile_unavailable": {},
   "offline_builder.reload": {},
   "offline_builder.remove": {},
   "offline_builder.remove_role": {
@@ -5344,6 +5606,9 @@ export const placeholderTypes = {
   "offline_editor.check.role": {
     "role": "text"
   },
+  "offline_editor.check.unrecognized_fields": {
+    "count": "number"
+  },
   "offline_editor.checks_help": {},
   "offline_editor.claiming": {},
   "offline_editor.clipboard.apply": {},
@@ -5378,6 +5643,8 @@ export const placeholderTypes = {
     "value": "text"
   },
   "offline_editor.clipboard.source_changed": {},
+  "offline_editor.confirm_removal": {},
+  "offline_editor.confirm_removal_help": {},
   "offline_editor.edit_here": {},
   "offline_editor.finding_count": {
     "count": "number"
@@ -5397,6 +5664,7 @@ export const placeholderTypes = {
   "offline_editor.recovery": {
     "time": "datetime"
   },
+  "offline_editor.removal_dependency": {},
   "offline_editor.remove_selection": {},
   "offline_editor.repeat_auto": {},
   "offline_editor.resize": {},
@@ -5569,10 +5837,60 @@ export const placeholderTypes = {
   "page_library.used_by": {
     "count": "number"
   },
+  "portable_lld.candidate": {},
+  "portable_lld.choose": {},
+  "portable_lld.confirm": {},
+  "portable_lld.confirmed": {},
+  "portable_lld.empty": {},
+  "portable_lld.failed": {},
+  "portable_lld.field": {},
+  "portable_lld.find": {},
+  "portable_lld.help": {},
+  "portable_lld.reopen": {},
+  "portable_lld.saved_host": {},
+  "portable_lld.title": {},
+  "portable_review.acknowledge_outside": {},
+  "portable_review.choose": {},
+  "portable_review.confirm": {},
+  "portable_review.confirmed": {},
+  "portable_review.failed": {},
+  "portable_review.find": {},
+  "portable_review.help": {},
+  "portable_review.matches": {
+    "count": "number"
+  },
+  "portable_review.outside": {},
+  "portable_review.pattern": {},
+  "portable_review.preview": {},
+  "portable_review.search": {},
+  "portable_review.title": {},
+  "portable_review.truncated": {},
   "publication.a11y.steps": {},
+  "publication.access.add_group": {},
+  "publication.access.add_user": {},
+  "publication.access.after": {},
+  "publication.access.before": {},
+  "publication.access.choices_truncated": {},
   "publication.access.copy_private": {},
+  "publication.access.current_account": {},
+  "publication.access.edit": {},
+  "publication.access.groups": {},
+  "publication.access.owner": {},
+  "publication.access.private": {},
+  "publication.access.public": {},
+  "publication.access.public_warning": {},
+  "publication.access.read_only": {},
+  "publication.access.read_write": {},
+  "publication.access.rejected": {},
+  "publication.access.remove": {
+    "name": "text"
+  },
+  "publication.access.restore_source": {},
   "publication.access.title": {},
+  "publication.access.type": {},
   "publication.access.update_not_sent": {},
+  "publication.access.users": {},
+  "publication.access.visible_part": {},
   "publication.action.back_changes": {},
   "publication.action.back_checks": {},
   "publication.action.back_target": {},
@@ -5851,6 +6169,9 @@ export const placeholderTypes = {
     "differences": "text"
   },
   "publication.finding.no_changes": {},
+  "publication.finding.pattern_matches_outside_selection": {
+    "count": "number"
+  },
   "publication.finding.scope_link_crossing.consumer_outside": {},
   "publication.finding.scope_link_crossing.provider_outside": {},
   "publication.finding.server_version_mismatch": {
@@ -5920,6 +6241,109 @@ export const placeholderTypes = {
   "publication.plan.reason.unknown": {
     "code": "technical"
   },
+  "publication.portable.acknowledge_deletions": {},
+  "publication.portable.already_deployed": {},
+  "publication.portable.append_again": {},
+  "publication.portable.append_page": {},
+  "publication.portable.append_selected": {},
+  "publication.portable.append_widget": {},
+  "publication.portable.changed": {},
+  "publication.portable.check_link": {},
+  "publication.portable.choose_target": {},
+  "publication.portable.create_another": {},
+  "publication.portable.created": {},
+  "publication.portable.current": {},
+  "publication.portable.diff_add_field": {
+    "widget": "text",
+    "page": "text",
+    "name": "text",
+    "after": "text"
+  },
+  "publication.portable.diff_dashboard_name": {
+    "before": "text",
+    "after": "text"
+  },
+  "publication.portable.diff_field": {
+    "widget": "text",
+    "page": "text",
+    "name": "text",
+    "before": "text",
+    "after": "text"
+  },
+  "publication.portable.diff_geometry": {
+    "widget": "text",
+    "page": "text",
+    "old_x": "number",
+    "old_y": "number",
+    "old_w": "number",
+    "old_h": "number",
+    "new_x": "number",
+    "new_y": "number",
+    "new_w": "number",
+    "new_h": "number"
+  },
+  "publication.portable.diff_move_page": {
+    "name": "text",
+    "from": "number",
+    "to": "number"
+  },
+  "publication.portable.diff_page": {
+    "name": "text",
+    "number": "number"
+  },
+  "publication.portable.diff_page_name": {
+    "before": "text",
+    "after": "text"
+  },
+  "publication.portable.diff_remove_page": {
+    "name": "text",
+    "number": "number"
+  },
+  "publication.portable.diff_remove_widget": {
+    "name": "text",
+    "page": "text",
+    "x": "number",
+    "y": "number"
+  },
+  "publication.portable.diff_unavailable": {},
+  "publication.portable.diff_widget": {
+    "name": "text",
+    "page": "text",
+    "x": "number",
+    "y": "number"
+  },
+  "publication.portable.diff_widget_name": {
+    "before": "text",
+    "after": "text"
+  },
+  "publication.portable.equivalent_page_exists": {},
+  "publication.portable.link_pending": {},
+  "publication.portable.location_x": {},
+  "publication.portable.location_y": {},
+  "publication.portable.missing": {},
+  "publication.portable.other_server": {},
+  "publication.portable.page_position": {},
+  "publication.portable.position_after": {
+    "name": "text"
+  },
+  "publication.portable.position_end": {},
+  "publication.portable.preview_source": {
+    "name": "text"
+  },
+  "publication.portable.question_update": {
+    "name": "text"
+  },
+  "publication.portable.require_connection": {},
+  "publication.portable.select": {},
+  "publication.portable.source_page": {},
+  "publication.portable.source_widgets": {},
+  "publication.portable.summary": {
+    "profile": "text",
+    "pages": "number",
+    "widgets": "number"
+  },
+  "publication.portable.target_page": {},
+  "publication.portable.update_created": {},
   "publication.preflight.blocked": {},
   "publication.preflight.title": {},
   "publication.preview.read_only_note": {},
@@ -6013,6 +6437,7 @@ export const placeholderTypes = {
   "publication.target.update_source_hint": {},
   "publication.target.update_visible_to_all": {},
   "publication.tech.base": {},
+  "publication.tech.expected": {},
   "publication.tech.fields": {},
   "publication.tech.local": {},
   "publication.tech.pageid": {},
@@ -6251,6 +6676,7 @@ export const placeholderTypes = {
   "settings.data_not_translated": {},
   "settings.editor.autosave_after_create": {},
   "settings.editor.autosave_mode": {},
+  "settings.editor.default_zoom": {},
   "settings.editor.error.changed": {},
   "settings.editor.error.not_saved": {},
   "settings.editor.error.unavailable": {},
@@ -6259,11 +6685,23 @@ export const placeholderTypes = {
   "settings.editor.on": {},
   "settings.editor.reload": {},
   "settings.editor.session_only": {},
+  "settings.editor.show_grid": {},
   "settings.editor.title": {},
+  "settings.editor.zoom.actual": {},
+  "settings.editor.zoom.fit_width": {},
   "settings.file.changed.body": {},
   "settings.file.changed.title": {},
   "settings.file.hint": {},
   "settings.file.invalid.title": {},
+  "settings.file.issue.file_too_large": {},
+  "settings.file.issue.interrupted_save": {},
+  "settings.file.issue.invalid_format": {},
+  "settings.file.issue.invalid_storage_root": {},
+  "settings.file.issue.invalid_yaml": {},
+  "settings.file.issue.yaml_location": {
+    "line": "number",
+    "column": "number"
+  },
   "settings.file.title": {},
   "settings.file.unreadable": {},
   "settings.file.unreadable.title": {},
@@ -7513,6 +7951,12 @@ export interface MessageParamsById {
   "clone.confirm_title": {
 
   };
+  "clone.copied_access_visible_part": {
+
+  };
+  "clone.copy_source_access": {
+
+  };
   "clone.edit": {
 
   };
@@ -7669,6 +8113,9 @@ export interface MessageParamsById {
   "clone.pattern.value": {
 
   };
+  "clone.pattern.visible_scope": {
+
+  };
   "clone.plan": {
 
   };
@@ -7685,6 +8132,15 @@ export interface MessageParamsById {
 
   };
   "clone.search": {
+
+  };
+  "clone.source_changed": {
+
+  };
+  "clone.source_current": {
+
+  };
+  "clone.source_unavailable": {
 
   };
   "clone.summary": {
@@ -8244,6 +8700,9 @@ export interface MessageParamsById {
   "connection.test.details.method": {
 
   };
+  "connection.test.details.role_api_access": {
+
+  };
   "connection.test.details.step": {
 
   };
@@ -8317,6 +8776,15 @@ export interface MessageParamsById {
 
   };
   "connection.test.result.identity_matches": {
+
+  };
+  "connection.test.role_api_access.disabled": {
+
+  };
+  "connection.test.role_api_access.enabled": {
+
+  };
+  "connection.test.role_api_access.unverified": {
 
   };
   "connection.test.running": {
@@ -9130,6 +9598,9 @@ export interface MessageParamsById {
   "errors.connection.writes_not_confirmed": {
 
   };
+  "errors.connection.writes_version_unsupported": {
+    "version": string;
+  };
   "errors.credential.locked": {
 
   };
@@ -9640,6 +10111,21 @@ export interface MessageParamsById {
   "offline_builder.pending_help": {
 
   };
+  "offline_builder.profile": {
+
+  };
+  "offline_builder.profile_choice": {
+    "version": string;
+  };
+  "offline_builder.profile_current": {
+    "version": string;
+  };
+  "offline_builder.profile_help": {
+
+  };
+  "offline_builder.profile_unavailable": {
+
+  };
   "offline_builder.reload": {
 
   };
@@ -9868,6 +10354,9 @@ export interface MessageParamsById {
   "offline_editor.check.role": {
     "role": string;
   };
+  "offline_editor.check.unrecognized_fields": {
+    "count": number;
+  };
   "offline_editor.checks_help": {
 
   };
@@ -9940,6 +10429,12 @@ export interface MessageParamsById {
   "offline_editor.clipboard.source_changed": {
 
   };
+  "offline_editor.confirm_removal": {
+
+  };
+  "offline_editor.confirm_removal_help": {
+
+  };
   "offline_editor.edit_here": {
 
   };
@@ -9978,6 +10473,9 @@ export interface MessageParamsById {
   };
   "offline_editor.recovery": {
     "time": Date | number;
+  };
+  "offline_editor.removal_dependency": {
+
   };
   "offline_editor.remove_selection": {
 
@@ -10353,16 +10851,154 @@ export interface MessageParamsById {
   "page_library.used_by": {
     "count": number;
   };
+  "portable_lld.candidate": {
+
+  };
+  "portable_lld.choose": {
+
+  };
+  "portable_lld.confirm": {
+
+  };
+  "portable_lld.confirmed": {
+
+  };
+  "portable_lld.empty": {
+
+  };
+  "portable_lld.failed": {
+
+  };
+  "portable_lld.field": {
+
+  };
+  "portable_lld.find": {
+
+  };
+  "portable_lld.help": {
+
+  };
+  "portable_lld.reopen": {
+
+  };
+  "portable_lld.saved_host": {
+
+  };
+  "portable_lld.title": {
+
+  };
+  "portable_review.acknowledge_outside": {
+
+  };
+  "portable_review.choose": {
+
+  };
+  "portable_review.confirm": {
+
+  };
+  "portable_review.confirmed": {
+
+  };
+  "portable_review.failed": {
+
+  };
+  "portable_review.find": {
+
+  };
+  "portable_review.help": {
+
+  };
+  "portable_review.matches": {
+    "count": number;
+  };
+  "portable_review.outside": {
+
+  };
+  "portable_review.pattern": {
+
+  };
+  "portable_review.preview": {
+
+  };
+  "portable_review.search": {
+
+  };
+  "portable_review.title": {
+
+  };
+  "portable_review.truncated": {
+
+  };
   "publication.a11y.steps": {
+
+  };
+  "publication.access.add_group": {
+
+  };
+  "publication.access.add_user": {
+
+  };
+  "publication.access.after": {
+
+  };
+  "publication.access.before": {
+
+  };
+  "publication.access.choices_truncated": {
 
   };
   "publication.access.copy_private": {
 
   };
+  "publication.access.current_account": {
+
+  };
+  "publication.access.edit": {
+
+  };
+  "publication.access.groups": {
+
+  };
+  "publication.access.owner": {
+
+  };
+  "publication.access.private": {
+
+  };
+  "publication.access.public": {
+
+  };
+  "publication.access.public_warning": {
+
+  };
+  "publication.access.read_only": {
+
+  };
+  "publication.access.read_write": {
+
+  };
+  "publication.access.rejected": {
+
+  };
+  "publication.access.remove": {
+    "name": string;
+  };
+  "publication.access.restore_source": {
+
+  };
   "publication.access.title": {
 
   };
+  "publication.access.type": {
+
+  };
   "publication.access.update_not_sent": {
+
+  };
+  "publication.access.users": {
+
+  };
+  "publication.access.visible_part": {
 
   };
   "publication.action.back_changes": {
@@ -10917,6 +11553,9 @@ export interface MessageParamsById {
   "publication.finding.no_changes": {
 
   };
+  "publication.finding.pattern_matches_outside_selection": {
+    "count": number;
+  };
   "publication.finding.scope_link_crossing.consumer_outside": {
 
   };
@@ -11065,6 +11704,163 @@ export interface MessageParamsById {
   };
   "publication.plan.reason.unknown": {
     "code": string;
+  };
+  "publication.portable.acknowledge_deletions": {
+
+  };
+  "publication.portable.already_deployed": {
+
+  };
+  "publication.portable.append_again": {
+
+  };
+  "publication.portable.append_page": {
+
+  };
+  "publication.portable.append_selected": {
+
+  };
+  "publication.portable.append_widget": {
+
+  };
+  "publication.portable.changed": {
+
+  };
+  "publication.portable.check_link": {
+
+  };
+  "publication.portable.choose_target": {
+
+  };
+  "publication.portable.create_another": {
+
+  };
+  "publication.portable.created": {
+
+  };
+  "publication.portable.current": {
+
+  };
+  "publication.portable.diff_add_field": {
+    "widget": string;
+    "page": string;
+    "name": string;
+    "after": string;
+  };
+  "publication.portable.diff_dashboard_name": {
+    "before": string;
+    "after": string;
+  };
+  "publication.portable.diff_field": {
+    "widget": string;
+    "page": string;
+    "name": string;
+    "before": string;
+    "after": string;
+  };
+  "publication.portable.diff_geometry": {
+    "widget": string;
+    "page": string;
+    "old_x": number;
+    "old_y": number;
+    "old_w": number;
+    "old_h": number;
+    "new_x": number;
+    "new_y": number;
+    "new_w": number;
+    "new_h": number;
+  };
+  "publication.portable.diff_move_page": {
+    "name": string;
+    "from": number;
+    "to": number;
+  };
+  "publication.portable.diff_page": {
+    "name": string;
+    "number": number;
+  };
+  "publication.portable.diff_page_name": {
+    "before": string;
+    "after": string;
+  };
+  "publication.portable.diff_remove_page": {
+    "name": string;
+    "number": number;
+  };
+  "publication.portable.diff_remove_widget": {
+    "name": string;
+    "page": string;
+    "x": number;
+    "y": number;
+  };
+  "publication.portable.diff_unavailable": {
+
+  };
+  "publication.portable.diff_widget": {
+    "name": string;
+    "page": string;
+    "x": number;
+    "y": number;
+  };
+  "publication.portable.diff_widget_name": {
+    "before": string;
+    "after": string;
+  };
+  "publication.portable.equivalent_page_exists": {
+
+  };
+  "publication.portable.link_pending": {
+
+  };
+  "publication.portable.location_x": {
+
+  };
+  "publication.portable.location_y": {
+
+  };
+  "publication.portable.missing": {
+
+  };
+  "publication.portable.other_server": {
+
+  };
+  "publication.portable.page_position": {
+
+  };
+  "publication.portable.position_after": {
+    "name": string;
+  };
+  "publication.portable.position_end": {
+
+  };
+  "publication.portable.preview_source": {
+    "name": string;
+  };
+  "publication.portable.question_update": {
+    "name": string;
+  };
+  "publication.portable.require_connection": {
+
+  };
+  "publication.portable.select": {
+
+  };
+  "publication.portable.source_page": {
+
+  };
+  "publication.portable.source_widgets": {
+
+  };
+  "publication.portable.summary": {
+    "profile": string;
+    "pages": number;
+    "widgets": number;
+  };
+  "publication.portable.target_page": {
+
+  };
+  "publication.portable.update_created": {
+
   };
   "publication.preflight.blocked": {
 
@@ -11313,6 +12109,9 @@ export interface MessageParamsById {
 
   };
   "publication.tech.base": {
+
+  };
+  "publication.tech.expected": {
 
   };
   "publication.tech.fields": {
@@ -11769,6 +12568,9 @@ export interface MessageParamsById {
   "settings.editor.autosave_mode": {
 
   };
+  "settings.editor.default_zoom": {
+
+  };
   "settings.editor.error.changed": {
 
   };
@@ -11793,7 +12595,16 @@ export interface MessageParamsById {
   "settings.editor.session_only": {
 
   };
+  "settings.editor.show_grid": {
+
+  };
   "settings.editor.title": {
+
+  };
+  "settings.editor.zoom.actual": {
+
+  };
+  "settings.editor.zoom.fit_width": {
 
   };
   "settings.file.changed.body": {
@@ -11807,6 +12618,25 @@ export interface MessageParamsById {
   };
   "settings.file.invalid.title": {
 
+  };
+  "settings.file.issue.file_too_large": {
+
+  };
+  "settings.file.issue.interrupted_save": {
+
+  };
+  "settings.file.issue.invalid_format": {
+
+  };
+  "settings.file.issue.invalid_storage_root": {
+
+  };
+  "settings.file.issue.invalid_yaml": {
+
+  };
+  "settings.file.issue.yaml_location": {
+    "line": number;
+    "column": number;
   };
   "settings.file.title": {
 

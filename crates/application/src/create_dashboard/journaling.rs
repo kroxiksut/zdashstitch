@@ -82,6 +82,8 @@ pub(crate) fn operation_record(
             local_id: plan.binding.local_id.clone(),
             revision: plan.binding.revision,
         }),
+        planned_deployment: plan.planned_deployment.clone(),
+        portable_update: None,
         source_fingerprint: plan.binding.local_fingerprint.clone(),
         expected_fingerprint: expectation.content_fingerprint.clone(),
         owner_userid: Some(expectation.owner_userid.clone()),
@@ -328,7 +330,19 @@ pub async fn reconcile_create(
             entry.state,
             JournalState::Verified | JournalState::ReconciledVerified
         );
-    if !replay_clone_link {
+    let replay_portable_link = entry.planned_deployment.is_some()
+        && matches!(
+            entry.state,
+            JournalState::Verified | JournalState::ReconciledVerified
+        );
+    let scoped_workcopy =
+        entry.intent == super::SAVE_AS_COPY_OPERATION && entry.server_version == "8.0.0";
+    let replay_workcopy_link = scoped_workcopy
+        && matches!(
+            entry.state,
+            JournalState::Verified | JournalState::ReconciledVerified
+        );
+    if !replay_clone_link && !replay_portable_link && !replay_workcopy_link {
         require_reconciliation(&entry)?;
     }
     if reader.identity().fingerprint() != entry.server_identity {
@@ -337,13 +351,28 @@ pub async fn reconcile_create(
     if reader.capabilities().version.to_string() != entry.server_version {
         return Err(JournalError::new("reconcile_server_changed").with("what", "version"));
     }
-    if replay_clone_link {
+    if replay_clone_link || replay_portable_link || replay_workcopy_link {
         let invalid = || JournalError::new("clone_read_back_unverified");
         let reconciliation = CreateReconciliation::Confirmed {
             dashboardid: entry.created_dashboardid.clone().ok_or_else(invalid)?,
             fingerprint: entry.observed_fingerprint.clone().ok_or_else(invalid)?,
         };
-        let record_error = service.record_clone_read_back(journal, operation_id).err();
+        let record_error = if replay_workcopy_link {
+            let source = entry.source.as_ref().ok_or_else(invalid)?;
+            let expectation = expectation_of(&entry)?;
+            service
+                .record_created_dashboard(
+                    &source.local_id,
+                    &expectation,
+                    entry.created_dashboardid.as_deref().ok_or_else(invalid)?,
+                    entry.observed_fingerprint.as_deref().ok_or_else(invalid)?,
+                )
+                .err()
+        } else if replay_portable_link {
+            service.project_portable_create(reader, &entry).await.err()
+        } else {
+            service.record_clone_read_back(journal, operation_id).err()
+        };
         return Ok(CreateRecovery {
             entry,
             reconciliation,
@@ -361,9 +390,42 @@ pub async fn reconcile_create(
     } else {
         None
     };
-    let reconciliation =
+    let saved_source = if scoped_workcopy {
+        let binding = entry
+            .source
+            .as_ref()
+            .ok_or_else(|| JournalError::new("clone_read_back_unverified"))?;
+        let source = service
+            .eight_zero_copy_source(&binding.local_id)
+            .map_err(|error| JournalError::new(error.code()))?;
+        if source.base.connection_id() != entry.connection_id
+            || (source.base.fingerprint() != entry.source_fingerprint
+                && (source.file.revision != binding.revision
+                    || source.local.fingerprint() != entry.source_fingerprint))
+        {
+            return Err(JournalError::new("clone_read_back_unverified"));
+        }
+        Some(source.base)
+    } else {
+        None
+    };
+    let scoped_source = saved_source
+        .as_ref()
+        .or_else(|| clone_branch.as_ref().map(|branch| branch.draft().base()));
+    let reconciliation = if let Some(source) = scoped_source
+        && expectation.server_version.major == 8
+    {
+        reader
+            .reconcile_clone_dashboard_create(
+                &expectation,
+                entry.reported_dashboardid.as_deref(),
+                source,
+            )
+            .await
+    } else {
         super::reconcile_save_as_copy(reader, &expectation, entry.reported_dashboardid.as_deref())
-            .await;
+            .await
+    };
     let result = match &reconciliation {
         CreateReconciliation::ConnectionMismatch => {
             return Err(JournalError::new("reconcile_server_changed").with("what", "identity"));
@@ -401,13 +463,15 @@ pub async fn reconcile_create(
         },
     };
     let entry = journal.record_reconciliation(operation_id, OperationKind::Create, result)?;
-    let clone_source = match &clone_branch {
-        Some(branch) => {
-            Some(check_snapshot_source(reader, branch.local_id(), branch.draft().base()).await)
-        }
-        None => None,
+    let clone_source = if let Some((source, binding)) = scoped_source.zip(entry.source.as_ref()) {
+        Some(check_snapshot_source(reader, &binding.local_id, source).await)
+    } else {
+        None
     };
     let record_error = match (&reconciliation, &entry.source) {
+        (CreateReconciliation::Confirmed { .. }, _) if entry.intent == "create_dashboard" => {
+            service.project_portable_create(reader, &entry).await.err()
+        }
         (CreateReconciliation::Confirmed { .. }, _) if entry.intent == CLONE_OPERATION => {
             service.record_clone_read_back(journal, operation_id).err()
         }

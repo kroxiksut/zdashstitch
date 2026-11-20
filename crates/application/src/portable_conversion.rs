@@ -1,27 +1,24 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-//! P4-08: content-free inventory and narrow in-memory conversion of
-//! dependency-free Workcopies. Server-bound data still requires explicit
-//! evidence and never passes through these conversion paths.
+//! P4-08: content-free inventory and source-profile conversion of Workcopies.
+//! Server-bound fields require explicit evidence for the selected snapshot.
 
 use std::collections::{BTreeMap, BTreeSet};
 
 use serde::Serialize;
 use serde_json::Value;
-use zdashstitch_core::{
-    Version, VersionRange,
-    formats::{
-        Dashboard, DashboardKind, Layout, Page, ProjectKind, ProjectProvenance, ProjectRoot,
-        RegistryState, TypedPortableBundle, TypedProject, TypedProjectFormat, Widget,
-        ZabbixWidgetField, ZabbixWidgetFieldValue,
-    },
+use zdashstitch_core::formats::{
+    Dashboard, DashboardKind, Layout, Page, ProjectKind, ProjectProvenance, ProjectRoot,
+    RegistryState, TypedPortableBundle, TypedProject, TypedProjectFormat, Widget,
+    ZabbixWidgetField, ZabbixWidgetFieldValue,
 };
 use zdashstitch_zabbix::{
-    DependencyKind, DependencyState, VersionedDashboardSnapshot, WidgetCapabilityRegistry,
+    AdapterProfile, AdapterRegistry, DependencyKind, DependencyState, VersionedDashboardSnapshot,
     WidgetFieldType,
 };
 
 use crate::{
+    portable_bindings::SnapshotBindings,
     replace_host::materialize_local_operations,
     workcopy::{DraftKind, WorkcopyError, WorkcopyService},
 };
@@ -307,8 +304,12 @@ fn convert_dashboard(
 pub(crate) fn convert_dashboard_bound(
     snapshot: &VersionedDashboardSnapshot,
     project_id: String,
-    bindings: Option<&crate::portable_bindings::PortableBindings>,
+    evidence: Option<SnapshotBindings<'_>>,
 ) -> Result<TypedPortableBundle, WorkcopyError> {
+    let profile = conversion_profile(snapshot)?;
+    let bindings = evidence
+        .map(|evidence| evidence.get(snapshot))
+        .transpose()?;
     let raw = snapshot.raw_api_document();
     ensure_only_keys(
         raw,
@@ -324,13 +325,14 @@ pub(crate) fn convert_dashboard_bound(
             "userGroups",
         ],
     )?;
-    // These server defaults have no fields in project/v2. Non-default
-    // behaviour or sharing must not silently disappear during conversion.
-    for (key, expected) in [
-        ("private", "1"),
-        ("display_period", "30"),
-        ("auto_start", "1"),
-    ] {
+    // O-031 permits omitting the validated target-specific access metadata
+    // from the portable project. The local source snapshot still keeps it.
+    let omit_access = snapshot.dashboard_access_state().is_some();
+    let server_defaults = [("display_period", "30"), ("auto_start", "1")];
+    for (key, expected) in server_defaults
+        .into_iter()
+        .chain((!omit_access).then_some(("private", "1")))
+    {
         if raw.get(key).is_some_and(|value| {
             value
                 .as_str()
@@ -342,7 +344,7 @@ pub(crate) fn convert_dashboard_bound(
             return Err(WorkcopyError::new("portable_conversion_unsupported_data"));
         }
     }
-    for key in ["users", "userGroups"] {
+    for key in ["users", "userGroups"].into_iter().filter(|_| !omit_access) {
         if raw
             .get(key)
             .is_some_and(|value| !value.as_array().is_some_and(Vec::is_empty))
@@ -375,7 +377,7 @@ pub(crate) fn convert_dashboard_bound(
         let page_id = raw_page["dashboard_pageid"]
             .as_str()
             .ok_or_else(|| WorkcopyError::new("snapshot_corrupt"))?;
-        let page_bundle = convert_page_bound(snapshot, page_id, project_id.clone(), bindings)?;
+        let page_bundle = convert_page_bound(snapshot, page_id, project_id.clone(), evidence)?;
         let ProjectRoot::Page(mut page) = page_bundle.project.root else {
             return Err(WorkcopyError::new("workcopy_corrupt"));
         };
@@ -389,11 +391,8 @@ pub(crate) fn convert_dashboard_bound(
             format: TypedProjectFormat::V2,
             project_id: project_id.clone(),
             kind: ProjectKind::Dashboard,
-            declared_compatibility: VersionRange {
-                minimum: Version::new(7, 4, 0),
-                maximum_exclusive: None,
-            },
-            provenance: ProjectProvenance::Local,
+            declared_compatibility: profile.widget_version_range(),
+            provenance: ProjectProvenance::ServerSnapshot,
             catalogs: bindings.map_or_else(Vec::new, |b| b.references.clone()),
             roles: bindings.map_or_else(BTreeMap::new, |b| b.roles.clone()),
             root: ProjectRoot::Dashboard(Dashboard {
@@ -426,9 +425,19 @@ pub(crate) fn convert_page_bound(
     snapshot: &VersionedDashboardSnapshot,
     page_id: &str,
     project_id: String,
-    bindings: Option<&crate::portable_bindings::PortableBindings>,
+    evidence: Option<SnapshotBindings<'_>>,
 ) -> Result<TypedPortableBundle, WorkcopyError> {
+    let profile = conversion_profile(snapshot)?;
+    let bindings = evidence
+        .map(|evidence| evidence.get(snapshot))
+        .transpose()?;
     let inventory = inspect(snapshot, DraftKind::Page, Some(page_id))?;
+    if profile == AdapterProfile::V8_0 && inventory.unclassified_widgets > 0 {
+        return Err(WorkcopyError::new("portable_conversion_widget_unsupported"));
+    }
+    if profile == AdapterProfile::V8_0 && inventory.unknown_fields > 0 {
+        return Err(WorkcopyError::new("portable_conversion_field_unsupported"));
+    }
     if (bindings.is_none() && inventory.item_fields > 0)
         || (bindings.is_none() && inventory.host_fields > 0)
         || (bindings.is_none() && inventory.graph_fields > 0)
@@ -467,7 +476,7 @@ pub(crate) fn convert_page_bound(
     let raw_widgets = raw["widgets"]
         .as_array()
         .ok_or_else(|| WorkcopyError::new("snapshot_corrupt"))?;
-    let registry = WidgetCapabilityRegistry::v7_4();
+    let registry = profile.widget_capabilities();
     let mut widgets = Vec::with_capacity(raw_widgets.len());
     for (index, raw_widget) in raw_widgets.iter().enumerate() {
         ensure_only_keys(
@@ -495,8 +504,13 @@ pub(crate) fn convert_page_bound(
             .ok_or_else(|| WorkcopyError::new("snapshot_corrupt"))?;
         let capability = registry
             .find(widget_type)
-            .filter(|capability| {
-                capability.flags.create || (widget_type == "graph" && capability.flags.read)
+            .filter(|capability| match profile {
+                AdapterProfile::V7_4 => {
+                    capability.flags.create || (widget_type == "graph" && capability.flags.read)
+                }
+                // The 8.0 read registry describes the raw fields accepted by
+                // local conversion. Its server capability flags stay intact.
+                AdapterProfile::V8_0 => capability.flags.read,
             })
             .ok_or_else(|| WorkcopyError::new("portable_conversion_widget_unsupported"))?;
         let raw_fields = raw_widget["fields"]
@@ -509,6 +523,11 @@ pub(crate) fn convert_page_bound(
                 .as_str()
                 .ok_or_else(|| WorkcopyError::new("snapshot_corrupt"))?;
             let field_type = number_u16(&field["type"])?;
+            let known_type = WidgetFieldType::try_from(field_type)
+                .map_err(|_| WorkcopyError::new("portable_conversion_field_unsupported"))?;
+            if !capability.knows_field(name, known_type) {
+                return Err(WorkcopyError::new("portable_conversion_field_unsupported"));
+            }
             let value = match field_type {
                 0 => ZabbixWidgetFieldValue::Integer {
                     value: field["value"]
@@ -558,11 +577,6 @@ pub(crate) fn convert_page_bound(
                     .ok_or_else(|| WorkcopyError::new("portable_conversion_binding_required"))?,
                 _ => return Err(WorkcopyError::new("portable_conversion_binding_required")),
             };
-            let known_type = WidgetFieldType::try_from(field_type)
-                .map_err(|_| WorkcopyError::new("portable_conversion_binding_required"))?;
-            if !capability.knows_field(name, known_type) {
-                return Err(WorkcopyError::new("portable_conversion_field_unsupported"));
-            }
             fields.push(ZabbixWidgetField {
                 name: name.to_owned(),
                 field_type,
@@ -608,11 +622,8 @@ pub(crate) fn convert_page_bound(
             format: TypedProjectFormat::V2,
             project_id,
             kind: ProjectKind::Page,
-            declared_compatibility: VersionRange {
-                minimum: Version::new(7, 4, 0),
-                maximum_exclusive: None,
-            },
-            provenance: ProjectProvenance::Local,
+            declared_compatibility: profile.widget_version_range(),
+            provenance: ProjectProvenance::ServerSnapshot,
             catalogs: bindings.map_or_else(Vec::new, |b| b.references.clone()),
             roles: bindings.map_or_else(BTreeMap::new, |b| b.roles.clone()),
             root: ProjectRoot::Page(page),
@@ -623,6 +634,18 @@ pub(crate) fn convert_page_bound(
         .validate()
         .map_err(|_| WorkcopyError::new("portable_conversion_unsupported_data"))?;
     Ok(bundle)
+}
+
+fn conversion_profile(
+    snapshot: &VersionedDashboardSnapshot,
+) -> Result<AdapterProfile, WorkcopyError> {
+    if snapshot.raw_api_document().get("templateid").is_some() {
+        return Err(WorkcopyError::new("portable_conversion_scope_unsupported"));
+    }
+    AdapterRegistry::resolve_profile(snapshot.server_version())
+        .ok()
+        .filter(|profile| profile.adapter_id() == snapshot.adapter_id())
+        .ok_or_else(|| WorkcopyError::new("portable_conversion_widget_unsupported"))
 }
 
 fn ensure_only_keys(value: &Value, allowed: &[&str]) -> Result<(), WorkcopyError> {
@@ -714,7 +737,11 @@ fn inspect(
             DependencyKind::Graph => result.graph_fields += 1,
             DependencyKind::HostPattern => result.host_pattern_fields += 1,
             DependencyKind::ItemPattern => result.item_pattern_fields += 1,
-            DependencyKind::Unknown => result.unknown_fields += 1,
+            DependencyKind::ItemPrototype
+            | DependencyKind::GraphPrototype
+            | DependencyKind::Unknown => {
+                result.unknown_fields += 1;
+            }
             DependencyKind::WidgetReferenceDefinition => result.reference_definitions += 1,
             DependencyKind::WidgetReference => result.reference_consumers += 1,
         }
@@ -725,9 +752,119 @@ fn inspect(
 #[cfg(test)]
 mod tests {
     use serde_json::json;
-    use zdashstitch_zabbix::ZabbixVersion;
+    use zdashstitch_zabbix::{WidgetCapabilityRegistry, ZabbixVersion};
 
     use super::*;
+
+    #[test]
+    fn eight_zero_conversion_carries_its_profile_and_fields() {
+        let raw = json!({"dashboardid":"700", "name":"Dashboard", "pages":[
+            {"dashboard_pageid":"701", "name":"Page", "widgets":[{
+                "widgetid":"7011", "type":"svggraph", "name":"Graph",
+                "x":"0", "y":"0", "width":"12", "height":"4", "fields":[
+                    {"name":"ds.0.item_tags_evaltype","type":0,"value":"0"},
+                    {"name":"ds.0.item_tags.0.tag","type":1,"value":"team"},
+                    {"name":"ds.0.item_tags.0.operator","type":0,"value":"0"},
+                    {"name":"ds.0.item_tags.0.value","type":1,"value":"synthetic"},
+                    {"name":"ds.0.invert_values","type":0,"value":"1"},
+                    {"name":"show_hostnames","type":0,"value":"1"}
+                ]
+            }]}
+        ]});
+        let snapshot = VersionedDashboardSnapshot::from_adapter_raw(
+            "test-connection".to_owned(),
+            "8.0.2"
+                .parse()
+                .unwrap_or_else(|error| panic!("version: {error}")),
+            raw.clone(),
+        )
+        .unwrap_or_else(|error| panic!("snapshot: {error}"));
+        let page = convert_page(&snapshot, "701", "portable-page".into())
+            .unwrap_or_else(|error| panic!("page: {error}"));
+        let dashboard = convert_dashboard(&snapshot, "portable-dashboard".into())
+            .unwrap_or_else(|error| panic!("dashboard: {error}"));
+        assert_eq!(page.project.kind, ProjectKind::Page);
+        assert_eq!(dashboard.project.kind, ProjectKind::Dashboard);
+        for bundle in [page, dashboard] {
+            assert_eq!(
+                bundle.project.declared_compatibility,
+                AdapterProfile::V8_0.widget_version_range()
+            );
+            assert_eq!(bundle.project.provenance, ProjectProvenance::ServerSnapshot);
+            let bytes = zdashstitch_core::formats::build_typed_package_bytes(&bundle)
+                .unwrap_or_else(|error| panic!("package: {error}"));
+            assert_eq!(
+                zdashstitch_core::formats::read_typed_package_bytes(&bytes)
+                    .unwrap_or_else(|error| panic!("reopen: {error}")),
+                bundle
+            );
+            let page = match &bundle.project.root {
+                ProjectRoot::Page(page) => page,
+                ProjectRoot::Dashboard(dashboard) => &dashboard.pages[0],
+            };
+            let Widget::Zabbix { fields, .. } = &page.widgets[0] else {
+                panic!("generic widget")
+            };
+            assert_eq!(fields.len(), 6);
+            assert_eq!(
+                fields[3].value,
+                ZabbixWidgetFieldValue::String {
+                    value: "synthetic".into()
+                }
+            );
+            assert_eq!(
+                fields[4].value,
+                ZabbixWidgetFieldValue::Integer { value: 1 }
+            );
+            assert!(
+                crate::compatibility::validate_portable_widget_for_create(
+                    &page.widgets[0],
+                    &WidgetCapabilityRegistry::v8_0(),
+                )
+                .is_err()
+            );
+            let wire = serde_json::to_string(&bundle).unwrap_or_default();
+            assert!(!wire.contains("7011") && !wire.contains("test-connection"));
+        }
+        assert_eq!(snapshot.raw_api_document(), &raw);
+        let mut unknown = raw.clone();
+        unknown["pages"][0]["widgets"][0]["fields"][0]["name"] = json!("future.unknown");
+        let unknown = VersionedDashboardSnapshot::from_adapter_raw(
+            "test-connection".into(),
+            snapshot.server_version().clone(),
+            unknown,
+        )
+        .unwrap_or_else(|error| panic!("snapshot: {error}"));
+        assert_eq!(
+            convert_page(&unknown, "701", "portable".to_owned())
+                .err()
+                .map(|error| error.code()),
+            Some("portable_conversion_field_unsupported")
+        );
+        let mut template = raw.clone();
+        template["templateid"] = json!("123");
+        let template = VersionedDashboardSnapshot::from_adapter_raw(
+            "test-connection".into(),
+            snapshot.server_version().clone(),
+            template,
+        )
+        .unwrap_or_else(|error| panic!("snapshot: {error}"));
+        assert_eq!(
+            convert_page(&template, "701", "portable".into())
+                .err()
+                .map(|error| error.code()),
+            Some("portable_conversion_scope_unsupported")
+        );
+        let seven = VersionedDashboardSnapshot::from_adapter_raw(
+            "test-connection".into(),
+            "7.4.16"
+                .parse()
+                .unwrap_or_else(|error| panic!("version: {error}")),
+            raw,
+        )
+        .unwrap_or_else(|error| panic!("snapshot: {error}"));
+        assert!(convert_page(&seven, "701", "portable".into()).is_err());
+    }
 
     #[test]
     #[allow(clippy::expect_used)]
@@ -881,7 +1018,7 @@ mod tests {
         let bundle = convert_page(&snapshot, "701", "pr-synthetic".to_owned())
             .unwrap_or_else(|error| panic!("convert: {error}"));
         assert_eq!(bundle.project.kind, ProjectKind::Page);
-        assert_eq!(bundle.project.provenance, ProjectProvenance::Local);
+        assert_eq!(bundle.project.provenance, ProjectProvenance::ServerSnapshot);
         let encoded =
             serde_json::to_string(&bundle).unwrap_or_else(|error| panic!("encode: {error}"));
         for server_id in ["700", "701", "900"] {
@@ -998,8 +1135,13 @@ mod tests {
         );
         crate::portable_bindings::add_pattern_choices(&mut bindings, &model, &choices)
             .unwrap_or_else(|e| panic!("{e}"));
-        let bundle = convert_page_bound(&snapshot, "701", "portable".into(), Some(&bindings))
-            .unwrap_or_else(|e| panic!("{e}"));
+        let bundle = convert_page_bound(
+            &snapshot,
+            "701",
+            "portable".into(),
+            Some(bindings.for_snapshot(&snapshot)),
+        )
+        .unwrap_or_else(|e| panic!("{e}"));
         let ProjectRoot::Page(page) = &bundle.project.root else {
             panic!("page")
         };
@@ -1045,6 +1187,42 @@ mod tests {
                 Some("portable_conversion_unsupported_data")
             );
         }
+    }
+
+    #[test]
+    #[allow(clippy::expect_used)]
+    fn eight_zero_portable_dashboard_excludes_server_access() {
+        let version = "8.0.0".parse().expect("8.0.0 version");
+        let raw = json!({
+            "dashboardid":"700","name":"D","userid":"4242","private":"0",
+            "users":[{"userid":"5345","permission":"2"}],
+            "userGroups":[{"usrgrpid":"6767","permission":"3"}],
+            "pages":[{"dashboard_pageid":"701","name":"Page","widgets":[]}]
+        });
+        let snapshot =
+            VersionedDashboardSnapshot::from_adapter_raw("conn-synthetic".into(), version, raw)
+                .expect("synthetic dashboard");
+        let bundle = convert_dashboard(&snapshot, "portable".into()).expect("portable dashboard");
+        let portable = serde_json::to_string(&bundle).expect("serialized bundle");
+        let yaml = String::from_utf8(
+            zdashstitch_core::formats::build_typed_yaml_bytes(&bundle).expect("portable YAML"),
+        )
+        .expect("UTF-8 YAML");
+        let zip =
+            zdashstitch_core::formats::build_typed_package_bytes(&bundle).expect("portable ZIP");
+        let reopened =
+            zdashstitch_core::formats::read_typed_package_bytes(&zip).expect("read portable ZIP");
+        assert_eq!(reopened, bundle);
+        for private_field in ["userid", "usrgrpid", "userGroups", "4242", "5345", "6767"] {
+            assert!(!portable.contains(private_field));
+            assert!(!yaml.contains(private_field));
+        }
+        assert!(snapshot.dashboard_access_state().is_some_and(|access| {
+            access.owner == "4242"
+                && !access.private
+                && access.users.len() == 1
+                && access.groups.len() == 1
+        }));
     }
 
     #[test]

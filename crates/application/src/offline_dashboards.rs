@@ -14,13 +14,17 @@ use std::{
 use serde::{Deserialize, Serialize};
 use zdashstitch_core::formats::{
     CatalogReference, Dashboard, DashboardKind, MetricCatalog, Page, ProjectKind,
-    ProjectProvenance, ProjectRoot, Role, TypedPortableBundle, TypedProject, TypedProjectFormat,
-    Widget, ZabbixWidgetFieldValue, build_typed_package_bytes, validate_typed_project,
+    ProjectProvenance, ProjectRoot, RegistryState, Role, TypedPortableBundle, TypedProject,
+    TypedProjectFormat, Widget, ZabbixWidgetFieldValue, build_typed_package_bytes,
+    validate_typed_project,
 };
+use zdashstitch_zabbix::{WidgetCapabilityRegistry, WidgetFieldType};
 
 use crate::{
+    compatibility::project_evaluation_profile,
     offline_pages::{
-        self, CatalogChoice, OfflinePage, OfflinePageStore, OfflinePageView, UpdatePage,
+        self, CatalogChoice, OfflinePage, OfflinePageStore, OfflinePageView, RemovedWidgets,
+        UpdatePage,
     },
     page_library::PageLibrary,
     workcopy::{
@@ -109,6 +113,8 @@ impl OfflineDashboard {
 struct DashboardFile {
     format: String,
     dashboards: Vec<OfflineDashboard>,
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    removed_widgets: BTreeMap<String, BTreeMap<String, RemovedWidgets>>,
 }
 
 pub struct OfflineDashboardStore {
@@ -120,7 +126,7 @@ impl OfflineDashboardStore {
         &self,
         bundle: TypedPortableBundle,
     ) -> Result<OfflineDashboard, WorkcopyError> {
-        if bundle.project.provenance != ProjectProvenance::Local {
+        if bundle.project.provenance != ProjectProvenance::ServerSnapshot {
             return Err(WorkcopyError::new("portable_conversion_unsupported_data"));
         }
         self.save_imported(bundle)
@@ -214,6 +220,25 @@ impl OfflineDashboardStore {
                     .catalog_versions
                     .iter()
                     .any(|pin| pin.version == 0)
+            {
+                return Err(corrupt());
+            }
+        }
+        for (id, archived) in &file.removed_widgets {
+            let root = file
+                .dashboards
+                .iter()
+                .find_map(|draft| match &draft.bundle.project.root {
+                    ProjectRoot::Dashboard(dashboard) if &draft.local_id == id => Some(dashboard),
+                    _ => None,
+                })
+                .ok_or_else(corrupt)?;
+            if archived.is_empty()
+                || archived.iter().any(|(page_id, archive)| {
+                    !root.pages.iter().any(|page| {
+                        &page.id == page_id && offline_pages::valid_removed_widgets(archive, page)
+                    })
+                })
             {
                 return Err(corrupt());
             }
@@ -338,8 +363,24 @@ impl OfflineDashboardStore {
         {
             return Err(sources_conflict());
         }
-        let edited =
-            offline_pages::compose(&self.root, page_id.to_owned(), request.page, Some(&old))?;
+        let archived = file
+            .removed_widgets
+            .entry(dashboard_id.to_owned())
+            .or_default();
+        let mut removed = archived.remove(page_id).unwrap_or_default();
+        let edited = offline_pages::compose_edit(
+            &self.root,
+            &old,
+            &dashboard.bundle.project,
+            request,
+            &mut removed,
+        )?;
+        if !removed.is_empty() {
+            archived.insert(page_id.to_owned(), removed);
+        }
+        if archived.is_empty() {
+            file.removed_widgets.remove(dashboard_id);
+        }
         let ProjectRoot::Page(new_page) = edited.project.root else {
             return Err(corrupt());
         };
@@ -425,6 +466,15 @@ impl OfflineDashboardStore {
             .find(|item| item.local_id == id)
             .ok_or_else(corrupt)?;
         dashboard.bundle = bundle;
+        if let Some(archived) = file.removed_widgets.get_mut(id) {
+            let ProjectRoot::Dashboard(root) = &dashboard.bundle.project.root else {
+                return Err(corrupt());
+            };
+            archived.retain(|page_id, _| root.pages.iter().any(|page| &page.id == page_id));
+            if archived.is_empty() {
+                file.removed_widgets.remove(id);
+            }
+        }
         dashboard.catalog_versions = pins;
         dashboard.embedded_catalogs = dashboard
             .bundle
@@ -462,6 +512,8 @@ impl OfflineDashboardStore {
         let mut embedded = BTreeSet::<String>::new();
         let mut roles = BTreeMap::<String, Role>::new();
         let mut compatibility = None;
+        let mut composition_profile = None;
+        let mut registry = None;
         if let Some(existing) = existing {
             let ProjectRoot::Dashboard(root) = &existing.bundle.project.root else {
                 return Err(corrupt());
@@ -489,6 +541,20 @@ impl OfflineDashboardStore {
             embedded.extend(existing.embedded_catalogs.iter().cloned());
             roles.clone_from(&existing.bundle.project.roles);
             compatibility = Some(existing.bundle.project.declared_compatibility.clone());
+            composition_profile = project_evaluation_profile(&existing.bundle.project);
+            if !append.is_empty() || pages.len() != root.pages.len() {
+                let capabilities = composition_profile
+                    .ok_or_else(sources_conflict)?
+                    .widget_capabilities();
+                for page in &mut pages {
+                    ensure_composable_fields(page, &capabilities)?;
+                    // Retained pages must still resolve their own references
+                    // when the set of pages changes. An empty reservation set
+                    // checks each page without renaming its providers.
+                    rewrite_page_references(page, &mut BTreeSet::new())?;
+                }
+                registry = Some(capabilities);
+            }
         } else if !page_order.is_empty() {
             return Err(invalid());
         }
@@ -536,13 +602,25 @@ impl OfflineDashboardStore {
             if !page_ids.insert(appended.id.clone()) {
                 return Err(invalid());
             }
+            let profile =
+                project_evaluation_profile(&bundle.project).ok_or_else(sources_conflict)?;
             if let Some(range) = &compatibility {
-                if range != &bundle.project.declared_compatibility {
+                // A dashboard has one evaluation profile. There is no page-
+                // scoped codec in project/v2, so intersect only within it.
+                if composition_profile != Some(profile) {
                     return Err(sources_conflict());
                 }
+                compatibility = Some(
+                    range
+                        .intersection(&bundle.project.declared_compatibility)
+                        .ok_or_else(sources_conflict)?,
+                );
             } else {
+                composition_profile = Some(profile);
                 compatibility = Some(bundle.project.declared_compatibility.clone());
             }
+            let registry = registry.get_or_insert_with(|| profile.widget_capabilities());
+            ensure_composable_fields(&appended, registry)?;
             for pin in &catalog_versions {
                 if embedded.contains(&pin.catalog_id) {
                     return Err(sources_conflict());
@@ -629,6 +707,7 @@ impl Default for DashboardFile {
         Self {
             format: "zdashstitch.offline-dashboards/v0".to_owned(),
             dashboards: Vec::new(),
+            removed_widgets: BTreeMap::new(),
         }
     }
 }
@@ -670,6 +749,37 @@ fn reference_unresolved() -> WorkcopyError {
     WorkcopyError::new("offline_dashboard_reference_unresolved")
 }
 
+fn ensure_composable_fields(
+    page: &Page,
+    registry: &WidgetCapabilityRegistry,
+) -> Result<(), WorkcopyError> {
+    for widget in &page.widgets {
+        let Widget::Zabbix {
+            widget_type,
+            registry_state,
+            fields,
+            ..
+        } = widget
+        else {
+            continue;
+        };
+        let capability = registry
+            .find(widget_type)
+            .filter(|capability| !capability.fields.is_empty())
+            .ok_or_else(sources_conflict)?;
+        if *registry_state != RegistryState::Known
+            || fields.iter().any(|field| {
+                field.registry_state != RegistryState::Known
+                    || WidgetFieldType::try_from(field.field_type)
+                        .map_or(true, |kind| !capability.knows_field(&field.name, kind))
+            })
+        {
+            return Err(sources_conflict());
+        }
+    }
+    Ok(())
+}
+
 fn page_references(page: &Page) -> Result<BTreeSet<String>, WorkcopyError> {
     let mut references = BTreeSet::new();
     for widget in &page.widgets {
@@ -693,6 +803,26 @@ fn page_references(page: &Page) -> Result<BTreeSet<String>, WorkcopyError> {
         }
     }
     Ok(references)
+}
+
+pub(crate) fn validate_restored_page_links(
+    page: &Page,
+    target: &ProjectRoot,
+) -> Result<(), WorkcopyError> {
+    rewrite_page_references(&mut page.clone(), &mut BTreeSet::new())?;
+    if let ProjectRoot::Dashboard(dashboard) = target {
+        let restored = page_references(page)?;
+        for sibling in dashboard
+            .pages
+            .iter()
+            .filter(|sibling| sibling.id != page.id)
+        {
+            if !restored.is_disjoint(&page_references(sibling)?) {
+                return Err(reference_conflict());
+            }
+        }
+    }
+    Ok(())
 }
 
 /// Keeps each inserted page's links local when its provider code collides with

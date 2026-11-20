@@ -52,15 +52,16 @@ use serde::{Deserialize, Serialize};
 use tokio::sync::Mutex;
 use zdashstitch_application::{
     CloseManuallyRequest, CompatibilityReport, CreatePlanError, CreatePlanPreview,
-    CreatePublishReport, DamagedJournal, JournalEntry, JournalError, JournalState, JournalTarget,
-    LocalSession, OperationKind, PlanError, PlanPreview, PublishJournal, PublishReport,
+    CreatePublishReport, DamagedJournal, DashboardAccessChoices, DashboardAccessSelection,
+    DashboardAccessState, JournalEntry, JournalError, JournalState, JournalTarget, LocalSession,
+    OperationKind, PlanError, PlanPreview, PortableCreateRequest, PublishJournal, PublishReport,
     QuarantineRequest, ReplaceHostPlanRequest, SaveAsCopyRequest, SessionGeneration, TargetKey,
     VerifiedCreatePlan, VerifiedPlan,
     connections::ConnectionService,
-    plan_replace_host,
+    plan_eight_zero_save_as_copy, plan_portable_dashboard_with_access, plan_replace_host,
     publication::{self, RemoteDiff},
-    publish_replace_host_plan, publish_save_as_copy_plan, recheck_replace_host, reconcile_create,
-    reconcile_update,
+    publish_portable_dashboard_plan, publish_replace_host_plan, publish_save_as_copy_plan,
+    recheck_replace_host, reconcile_create, reconcile_update,
     workcopy::{PublishedUpdate, WorkcopyError, WorkcopyService},
 };
 
@@ -80,6 +81,7 @@ pub(super) fn routes() -> Router<LocalSecurity> {
     Router::new()
         .merge(clone_gui::routes())
         .route("/publication/journal", get(journal_list))
+        .route("/publication/access-choices", get(access_choices))
         .route("/publication/journal/{operation_id}", get(journal_entry))
         .route(
             "/publication/journal/{operation_id}/reconcile",
@@ -94,7 +96,28 @@ pub(super) fn routes() -> Router<LocalSecurity> {
             post(journal_quarantine),
         )
         .route("/drafts/{local_id}/publication/check", post(check))
+        .route(
+            "/drafts/{local_id}/publication/copy-source",
+            get(copy_source),
+        )
         .route("/drafts/{local_id}/publication/plan", post(plan))
+        .route(
+            "/drafts/{local_id}/portable-publication/plan",
+            post(plan_portable),
+        )
+        .route(
+            "/drafts/{local_id}/portable-publication/update-plan",
+            post(plan_portable_update),
+        )
+        .route("/drafts/{local_id}/deployments", get(portable_deployments))
+        .route(
+            "/drafts/{local_id}/deployments/{deployment_id}/check",
+            get(portable_deployment_status),
+        )
+        .route(
+            "/drafts/{local_id}/deployments/{deployment_id}/access",
+            get(portable_deployment_access),
+        )
         .route("/drafts/{local_id}/publication/confirm", post(confirm))
         .route("/drafts/{local_id}/publication/discard", post(discard))
         .route("/drafts/{local_id}/publication/refetch", post(refetch))
@@ -103,6 +126,11 @@ pub(super) fn routes() -> Router<LocalSecurity> {
 // ---------------------------------------------------------------- plans
 
 enum HeldPlan {
+    Portable {
+        plan: Box<VerifiedCreatePlan>,
+        name: String,
+    },
+    PortableUpdate(Box<zdashstitch_application::VerifiedPortableUpdatePlan>),
     /// «Обновить исходную панель»: one `dashboard.update`.
     Update {
         plan: Box<VerifiedPlan>,
@@ -662,6 +690,8 @@ enum PlanRequestBody {
         base_fingerprint: String,
         local_fingerprint: String,
         name: String,
+        #[serde(default)]
+        restore_source_access: bool,
     },
 }
 
@@ -699,6 +729,28 @@ enum PlanPreviewBody {
         /// User data.
         target_name: String,
         private: bool,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        access: Option<DashboardAccessState>,
+        access_visible_only: bool,
+        page_count: usize,
+        widget_count: usize,
+        unknown_widgets: usize,
+        contracts: Vec<&'static str>,
+        name_check: &'static str,
+        revision: u64,
+        local_fingerprint: String,
+        content_fingerprint: String,
+        report: ReportBody,
+    },
+    CreateDashboard {
+        plan_id: String,
+        api_method: &'static str,
+        write_requests: u8,
+        created_at: Option<String>,
+        target_name: String,
+        private: bool,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        access: Option<DashboardAccessState>,
         page_count: usize,
         widget_count: usize,
         unknown_widgets: usize,
@@ -741,6 +793,26 @@ impl From<&PlanPreview> for PlanPreviewBody {
 
 impl From<&CreatePlanPreview> for PlanPreviewBody {
     fn from(preview: &CreatePlanPreview) -> Self {
+        if preview.operation == "create_dashboard" {
+            return Self::CreateDashboard {
+                plan_id: preview.plan_id.clone(),
+                api_method: preview.api_method,
+                write_requests: preview.write_requests,
+                created_at: rfc3339_utc_ms(preview.created_at_ms),
+                target_name: preview.target_name.clone(),
+                private: preview.private,
+                access: preview.access.clone(),
+                page_count: preview.page_count,
+                widget_count: preview.widget_count,
+                unknown_widgets: preview.unknown_widgets,
+                contracts: preview.contracts.clone(),
+                name_check: preview.name_check.as_str(),
+                revision: preview.revision,
+                local_fingerprint: preview.local_fingerprint.clone(),
+                content_fingerprint: preview.content_fingerprint.clone(),
+                report: ReportBody::from(&preview.compatibility),
+            };
+        }
         Self::SaveAsCopy {
             plan_id: preview.plan_id.clone(),
             api_method: preview.api_method,
@@ -748,6 +820,8 @@ impl From<&CreatePlanPreview> for PlanPreviewBody {
             created_at: rfc3339_utc_ms(preview.created_at_ms),
             target_name: preview.target_name.clone(),
             private: preview.private,
+            access: preview.access.clone(),
+            access_visible_only: preview.access_visible_only,
             page_count: preview.page_count,
             widget_count: preview.widget_count,
             unknown_widgets: preview.unknown_widgets,
@@ -783,6 +857,12 @@ struct ConfirmBody {
     /// Copy: the new dashboard name the dialog showed.
     #[serde(default)]
     name: Option<String>,
+    #[serde(default)]
+    acknowledge_deletions: bool,
+    #[serde(default)]
+    acknowledge_repeat_append: bool,
+    #[serde(default)]
+    acknowledge_public_access: bool,
 }
 
 #[derive(Deserialize)]
@@ -837,7 +917,19 @@ struct OutcomeBody {
     base_advance_error: Option<CodeBody>,
     /// Create: recording the new dashboard in the draft failed (O-022).
     record_error: Option<CodeBody>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    clone_source_check: Option<&'static str>,
     entry: Option<EntryBody>,
+}
+
+fn clone_source_check(
+    status: &Result<zdashstitch_application::SourceCheck, WorkcopyError>,
+) -> &'static str {
+    match status {
+        Ok(source) if source.is_current() => "current",
+        Ok(_) => "changed",
+        Err(_) => "unavailable",
+    }
 }
 
 impl OutcomeBody {
@@ -858,6 +950,7 @@ impl OutcomeBody {
             base_advanced: None,
             base_advance_error: None,
             record_error: None,
+            clone_source_check: None,
             entry: Some(EntryBody::from(entry)),
         }
     }
@@ -882,6 +975,7 @@ impl OutcomeBody {
                 base_advanced: None,
                 base_advance_error: None,
                 record_error: None,
+                clone_source_check: None,
                 entry: None,
             },
             Self::from_entry,
@@ -912,6 +1006,7 @@ impl OutcomeBody {
                 base_advanced: None,
                 base_advance_error: None,
                 record_error: None,
+                clone_source_check: None,
                 entry: None,
             },
             Self::from_entry,
@@ -920,6 +1015,7 @@ impl OutcomeBody {
         body.invalidated = report.invalidated.map(|reason| reason.as_str());
         body.journal_error = report.journal_error.as_ref().map(CodeBody::journal);
         body.record_error = report.record_error.as_ref().map(CodeBody::workcopy);
+        body.clone_source_check = report.clone_source.as_ref().map(clone_source_check);
         body
     }
 }
@@ -1073,7 +1169,18 @@ async fn journal_reconcile(
                             .await
                             .map_err(|error| journal_failure(&error))?;
                         let mut body = OutcomeBody::from_entry(&entry);
-                        advance(&workcopies, &guard, &entry, &mut body).await;
+                        if entry.is_portable_update() {
+                            if entry.needs_portable_update_projection() {
+                                body.record_error = workcopies
+                                    .project_portable_update(reader, &entry)
+                                    .await
+                                    .err()
+                                    .as_ref()
+                                    .map(CodeBody::workcopy);
+                            }
+                        } else {
+                            advance(&workcopies, &guard, &entry, &mut body).await;
+                        }
                         Ok(body)
                     }
                     OperationKind::Create => {
@@ -1083,6 +1190,8 @@ async fn journal_reconcile(
                                 .map_err(|error| journal_failure(&error))?;
                         let mut body = OutcomeBody::from_entry(&recovery.entry);
                         body.record_error = recovery.record_error.as_ref().map(CodeBody::workcopy);
+                        body.clone_source_check =
+                            recovery.clone_source.as_ref().map(clone_source_check);
                         Ok(body)
                     }
                 }
@@ -1186,7 +1295,7 @@ async fn check(
                 let guard = service.lock().await;
                 ensure_draft_connection(&guard, &draft).map_err(failure)?;
                 let reader = guard.reader().ok_or_else(|| failure(not_connected()))?;
-                let mode = if guard.writer().is_some() {
+                let mode = if guard.replace_host_writer().is_some() {
                     "read_write"
                 } else {
                     "read_only"
@@ -1195,16 +1304,6 @@ async fn check(
                 let recheck = recheck_replace_host(&workcopies, reader, &draft, &local_id, session)
                     .await
                     .map_err(workcopy_failure)?;
-                let remote = if recheck.source.is_current() {
-                    None
-                } else {
-                    let widgets = publication::changed_widgetids(&recheck.preview);
-                    Some(
-                        publication::read_remote_changes(&workcopies, reader, &local_id, &widgets)
-                            .await
-                            .map_err(workcopy_failure)?,
-                    )
-                };
                 let base = workcopies
                     .base_snapshot(&local_id)
                     .map_err(workcopy_failure)?;
@@ -1226,10 +1325,34 @@ async fn check(
                         invalidated: source.invalidated.map(|reason| reason.as_str()),
                     },
                     preview: PreviewBody::from(&recheck.preview),
-                    remote: remote.map(RemoteDiffBody::from),
+                    remote: recheck.remote_diff.map(RemoteDiffBody::from),
                     mode,
                     journal_block,
                 })
+            },
+        )
+        .await,
+    )
+}
+
+async fn copy_source(
+    Extension(connections): Extension<ConnectionsHandle>,
+    Extension(drafts): Extension<DraftsHandle>,
+    PathParams(local_id): PathParams<String>,
+) -> Response {
+    respond(
+        run(
+            connections,
+            drafts,
+            move |workcopies, _, service| async move {
+                let draft = workcopies
+                    .draft_connection_id(&local_id)
+                    .map_err(workcopy_failure)?;
+                let service = service.ok_or_else(|| failure(not_connected()))?;
+                ensure_draft_connection(&*service.lock().await, &draft).map_err(failure)?;
+                workcopies
+                    .eight_zero_save_as_copy_source(&local_id)
+                    .map_err(workcopy_failure)
             },
         )
         .await,
@@ -1265,9 +1388,6 @@ async fn plan(
                 // The draft's own connection, active and in read-write mode.
                 ensure_draft_connection(&guard, &draft).map_err(failure)?;
                 let context_generation = guard.active().map_or(0, |(_, generation, _)| generation);
-                let writer = guard
-                    .writer()
-                    .ok_or_else(|| code(StatusCode::CONFLICT, "write_mode_required"))?;
                 let handle = new_handle()?;
                 let (held, preview) = match request {
                     PlanRequestBody::UpdateSource {
@@ -1276,6 +1396,9 @@ async fn plan(
                         local_fingerprint,
                         kept_digest,
                     } => {
+                        let writer = guard
+                            .replace_host_writer()
+                            .ok_or_else(|| code(StatusCode::CONFLICT, "write_mode_required"))?;
                         let request = ReplaceHostPlanRequest {
                             local_id: local_id.clone(),
                             connection_id: draft.clone(),
@@ -1304,7 +1427,11 @@ async fn plan(
                         base_fingerprint,
                         local_fingerprint,
                         name,
+                        restore_source_access,
                     } => {
+                        let writer = guard
+                            .clone_writer()
+                            .ok_or_else(|| code(StatusCode::CONFLICT, "write_mode_required"))?;
                         let request = SaveAsCopyRequest {
                             local_id: local_id.clone(),
                             connection_id: draft.clone(),
@@ -1314,14 +1441,28 @@ async fn plan(
                             target_name: name,
                             session: admitted,
                         };
-                        let plan = publication::plan_replace_host_copy(
-                            &workcopies,
-                            &journal,
-                            &session,
-                            writer,
-                            &request,
-                        )
-                        .await
+                        let plan = if writer.capabilities().version.major == 8 {
+                            plan_eight_zero_save_as_copy(
+                                &workcopies,
+                                &journal,
+                                &session,
+                                writer,
+                                &request,
+                                restore_source_access,
+                            )
+                            .await
+                        } else if restore_source_access {
+                            return Err(code(StatusCode::CONFLICT, "write_contract_unverified"));
+                        } else {
+                            publication::plan_replace_host_copy(
+                                &workcopies,
+                                &journal,
+                                &session,
+                                writer,
+                                &request,
+                            )
+                            .await
+                        }
                         .map_err(create_plan_failure)?;
                         let preview = plan.preview();
                         let body = PlanPreviewBody::from(&preview);
@@ -1348,6 +1489,280 @@ async fn plan(
                     handle,
                     plan: preview,
                 })
+            },
+        )
+        .await,
+    )
+}
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct PortablePlanBody {
+    connection_id: String,
+    revision: u64,
+    name: String,
+    #[serde(default)]
+    create_another: bool,
+    #[serde(default)]
+    access: Option<DashboardAccessSelection>,
+}
+
+async fn access_choices(Extension(connections): Extension<ConnectionsHandle>) -> Response {
+    let Some(service) = connections.service() else {
+        return respond(Ok(None::<DashboardAccessChoices>));
+    };
+    let guard = service.lock().await;
+    let Some(writer) = guard.portable_writer() else {
+        return respond(Ok(None::<DashboardAccessChoices>));
+    };
+    respond(
+        writer
+            .reader()
+            .dashboard_access_choices()
+            .await
+            .map_err(|error| create_plan_failure(CreatePlanError::Read(error.failure()))),
+    )
+}
+
+async fn portable_deployments(
+    Extension(connections): Extension<ConnectionsHandle>,
+    Extension(drafts): Extension<DraftsHandle>,
+    PathParams(local_id): PathParams<String>,
+) -> Response {
+    #[derive(Serialize)]
+    struct DeploymentsBody {
+        deployments: Vec<zdashstitch_core::formats::DeploymentStateV2>,
+        recovery: Vec<EntryBody>,
+    }
+    respond(
+        run(
+            connections,
+            drafts,
+            move |workcopies, journal, _| async move {
+                let deployments = workcopies
+                    .portable_deployments(&local_id)
+                    .map_err(workcopy_failure)?;
+                let entries = journal
+                    .list()
+                    .map_err(|error| journal_failure(&error))?
+                    .entries;
+                let recovery = entries
+                    .iter()
+                    .filter(|entry| {
+                        (entry.intent == "create_dashboard" || entry.is_portable_update())
+                            && entry
+                                .source
+                                .as_ref()
+                                .is_some_and(|source| source.local_id == local_id)
+                            && (entry.progress.blocks_target()
+                                || (entry.intent == "create_dashboard"
+                                    && entry.server_version == "8.0.0"
+                                    && matches!(
+                                        entry.state,
+                                        JournalState::Verified | JournalState::ReconciledVerified
+                                    )
+                                    && !deployments.iter().any(|deployment| {
+                                        deployment.deployment_id == entry.operation_id
+                                    }))
+                                || entry.portable_update_projection_pending(&deployments))
+                    })
+                    .map(EntryBody::from)
+                    .collect();
+                Ok(DeploymentsBody {
+                    deployments,
+                    recovery,
+                })
+            },
+        )
+        .await,
+    )
+}
+
+async fn plan_portable_update(
+    State(security): State<LocalSecurity>,
+    Extension(admitted): Extension<SessionGeneration>,
+    Extension(connections): Extension<ConnectionsHandle>,
+    Extension(drafts): Extension<DraftsHandle>,
+    Extension(plans): Extension<Arc<PlanRegistry>>,
+    PathParams(local_id): PathParams<String>,
+    body: Bytes,
+) -> Response {
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields)]
+    struct Input {
+        connection_id: String,
+        revision: u64,
+        intent: zdashstitch_application::PortableUpdateIntent,
+    }
+    let input = match parse::<Input>(&body) {
+        Ok(input) => input,
+        Err(response) => return response.into_response(),
+    };
+    let session = security.local_session().clone();
+    respond(run(connections, drafts, move |workcopies, journal, service| async move {
+        let service = service.ok_or_else(|| failure(not_connected()))?;
+        let guard = service.lock().await;
+        let (active, context_generation, _) = guard.active().ok_or_else(|| failure(not_connected()))?;
+        if active != input.connection_id {
+            return Err(plan_invalidated("connection_changed"));
+        }
+        let request = zdashstitch_application::PortableUpdateRequest {
+            local_id: local_id.clone(), connection_id: input.connection_id.clone(), revision: input.revision,
+            session: admitted, intent: input.intent,
+        };
+        let plan = zdashstitch_application::plan_portable_update(&workcopies, &journal, &session, &guard, request)
+            .await.map_err(create_plan_failure)?;
+        let reader = guard.reader().ok_or_else(|| failure(not_connected()))?;
+        let changes = plan.preview_changes(reader).await.map_err(create_plan_failure)?;
+        let handle = new_handle()?;
+        let response = serde_json::json!({
+            "handle": handle, "plan": {
+                "action": plan.action(), "plan_id": plan.id(), "api_method": "dashboard.update",
+                "write_requests": 1, "target_name": plan.target_name(), "dashboardid": plan.dashboardid(),
+                "revision": input.revision, "source_name": plan.source_name(), "changes": changes,
+                "access_change": plan.access_change().map(|(before, after)| serde_json::json!({"before": before, "after": after})),
+                "removes_content": plan.removes_content(), "repeats_append": plan.repeats_append()
+            }
+        });
+        plans.insert(StoredPlan {
+            handle, local_id, generation: admitted, connection_id: input.connection_id, context_generation,
+            plan: HeldPlan::PortableUpdate(Box::new(plan)),
+        });
+        Ok(response)
+    }).await)
+}
+
+async fn portable_deployment_status(
+    Extension(connections): Extension<ConnectionsHandle>,
+    Extension(drafts): Extension<DraftsHandle>,
+    PathParams((local_id, deployment_id)): PathParams<(String, String)>,
+) -> Response {
+    respond(
+        run(
+            connections,
+            drafts,
+            move |workcopies, _, service| async move {
+                let service = service.ok_or_else(|| failure(not_connected()))?;
+                let guard = service.lock().await;
+                let (active, _, _) = guard.active().ok_or_else(|| failure(not_connected()))?;
+                let reader = guard.reader().ok_or_else(|| failure(not_connected()))?;
+                let (state, remote) = workcopies
+                    .portable_deployment_status(reader, active, &local_id, &deployment_id)
+                    .await
+                    .map_err(create_plan_failure)?;
+                Ok(serde_json::json!({"state": state, "remote": remote.map(RemoteDiffBody::from)}))
+            },
+        )
+        .await,
+    )
+}
+
+async fn portable_deployment_access(
+    Extension(connections): Extension<ConnectionsHandle>,
+    Extension(drafts): Extension<DraftsHandle>,
+    PathParams((local_id, deployment_id)): PathParams<(String, String)>,
+) -> Response {
+    respond(
+        run(
+            connections,
+            drafts,
+            move |workcopies, _, service| async move {
+                let stale = || plan_invalidated("target_changed");
+                let service = service.ok_or_else(|| failure(not_connected()))?;
+                let guard = service.lock().await;
+                let (active, _, _) = guard.active().ok_or_else(|| failure(not_connected()))?;
+                let writer = guard
+                    .portable_writer()
+                    .ok_or_else(|| failure(not_connected()))?;
+                let reader = writer.reader();
+                let link = workcopies
+                    .portable_deployments(&local_id)
+                    .map_err(workcopy_failure)?
+                    .into_iter()
+                    .find(|link| {
+                        link.deployment_id == deployment_id
+                            && link.connection_id == active
+                            && link.server_identity_fingerprint == reader.identity().fingerprint()
+                            && link.target_server_version == "8.0.0"
+                            && reader.capabilities().version.to_string()
+                                == link.target_server_version
+                    })
+                    .ok_or_else(stale)?;
+                let access = reader
+                    .dashboard_snapshot(active, &link.dashboard.dashboardid)
+                    .await
+                    .map_err(|error| create_plan_failure(CreatePlanError::Read(error.failure())))?
+                    .filter(|snapshot| snapshot.fingerprint() == link.dashboard.fingerprint)
+                    .and_then(|snapshot| snapshot.dashboard_access_state())
+                    .ok_or_else(stale)?;
+                Ok(access)
+            },
+        )
+        .await,
+    )
+}
+
+/// Plans an offline dashboard against the explicitly selected active connection.
+async fn plan_portable(
+    State(security): State<LocalSecurity>,
+    Extension(admitted): Extension<SessionGeneration>,
+    Extension(connections): Extension<ConnectionsHandle>,
+    Extension(drafts): Extension<DraftsHandle>,
+    Extension(plans): Extension<Arc<PlanRegistry>>,
+    PathParams(local_id): PathParams<String>,
+    body: Bytes,
+) -> Response {
+    let input: PortablePlanBody = match parse(&body) {
+        Ok(input) => input,
+        Err(response) => return response.into_response(),
+    };
+    let session = security.local_session().clone();
+    respond(
+        run(
+            connections,
+            drafts,
+            move |workcopies, journal, service| async move {
+                let service = service.ok_or_else(|| failure(not_connected()))?;
+                let guard = service.lock().await;
+                let (active, context_generation, _) =
+                    guard.active().ok_or_else(|| failure(not_connected()))?;
+                if active != input.connection_id {
+                    return Err(plan_invalidated("connection_changed"));
+                }
+                let request = PortableCreateRequest {
+                    local_id: local_id.clone(),
+                    connection_id: input.connection_id.clone(),
+                    revision: input.revision,
+                    target_name: input.name,
+                    create_another: input.create_another,
+                    session: admitted,
+                };
+                let plan = plan_portable_dashboard_with_access(
+                    &workcopies,
+                    &journal,
+                    &session,
+                    &guard,
+                    &request,
+                    input.access.as_ref(),
+                )
+                .await
+                .map_err(create_plan_failure)?;
+                let preview = plan.preview();
+                let name = preview.target_name.clone();
+                let body = PlanPreviewBody::from(&preview);
+                let handle = new_handle()?;
+                plans.insert(StoredPlan {
+                    handle: handle.clone(),
+                    local_id,
+                    generation: admitted,
+                    connection_id: input.connection_id,
+                    context_generation,
+                    plan: HeldPlan::Portable {
+                        plan: Box::new(plan),
+                        name,
+                    },
+                });
+                Ok(PlanBody { handle, plan: body })
             },
         )
         .await,
@@ -1403,12 +1818,82 @@ async fn confirm(
                 if current != Some((connection_id.as_str(), context_generation)) {
                     return Err(plan_invalidated("connection_changed"));
                 }
-                let writer = guard
-                    .writer()
-                    .ok_or_else(|| plan_invalidated("connection_changed"))?;
+                let writer = if matches!(
+                    &plan,
+                    HeldPlan::Portable { .. } | HeldPlan::PortableUpdate(_)
+                ) {
+                    guard.portable_writer()
+                } else if matches!(&plan, HeldPlan::Create { .. }) {
+                    guard.clone_writer()
+                } else {
+                    guard.replace_host_writer()
+                }
+                .ok_or_else(|| plan_invalidated("connection_changed"))?;
                 match plan {
+                    HeldPlan::PortableUpdate(plan) => {
+                        if request.kept_digest.is_some()
+                            || request.name.is_some()
+                            || request.acknowledge_public_access
+                                != plan.requires_public_acknowledgement()
+                        {
+                            return Err(code(StatusCode::CONFLICT, "plan_mismatch"));
+                        }
+                        let stage = session
+                            .begin_write(admitted)
+                            .map_err(|_| plan_invalidated("session_ended"))?;
+                        let (report, record_error) = plan
+                            .confirm(
+                                zdashstitch_application::PortableUpdateConfirmation {
+                                    plan_id: &request.plan_id,
+                                    acknowledge_deletions: request.acknowledge_deletions,
+                                    acknowledge_repeat_append: request.acknowledge_repeat_append,
+                                },
+                                &workcopies,
+                                writer,
+                                &journal,
+                                &stage,
+                            )
+                            .await
+                            .map_err(create_plan_failure)?;
+                        let entry = journal.entry(&report.plan_id).ok();
+                        let mut body = OutcomeBody::update(&report, entry.as_ref());
+                        body.record_error = record_error.as_ref().map(CodeBody::workcopy);
+                        Ok(body)
+                    }
+                    HeldPlan::Portable { plan, name } => {
+                        if request.acknowledge_deletions
+                            || request.acknowledge_repeat_append
+                            || request.acknowledge_public_access
+                                != plan.requires_public_acknowledgement()
+                            || request.kept_digest.is_some()
+                            || request.name.as_deref() != Some(&name)
+                        {
+                            return Err(code(StatusCode::CONFLICT, "plan_mismatch"));
+                        }
+                        let confirmed = plan
+                            .confirm(&request.plan_id)
+                            .map_err(create_plan_failure)?;
+                        let stage = session
+                            .begin_write(admitted)
+                            .map_err(|_| plan_invalidated("session_ended"))?;
+                        let report = publish_portable_dashboard_plan(
+                            &workcopies,
+                            writer,
+                            &journal,
+                            confirmed,
+                            &stage,
+                        )
+                        .await;
+                        drop(stage);
+                        let entry = journal.entry(&report.plan_id).ok();
+                        Ok(OutcomeBody::create(&report, name, entry.as_ref()))
+                    }
                     HeldPlan::Update { plan, kept_digest } => {
-                        if request.name.is_some() || request.kept_digest != kept_digest {
+                        if request.acknowledge_deletions
+                            || request.acknowledge_repeat_append
+                            || request.name.is_some()
+                            || request.kept_digest != kept_digest
+                        {
                             return Err(code(StatusCode::CONFLICT, "plan_mismatch"));
                         }
                         let confirmed = plan.confirm(&request.plan_id).map_err(plan_failure)?;
@@ -1437,7 +1922,11 @@ async fn confirm(
                         clone,
                         kept_digest,
                     } => {
-                        if request.kept_digest != kept_digest
+                        if request.acknowledge_deletions
+                            || request.acknowledge_repeat_append
+                            || request.acknowledge_public_access
+                                != plan.requires_public_acknowledgement()
+                            || request.kept_digest != kept_digest
                             || request.name.as_deref() != Some(&name)
                         {
                             return Err(code(StatusCode::CONFLICT, "plan_mismatch"));

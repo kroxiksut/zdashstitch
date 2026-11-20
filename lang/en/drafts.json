@@ -96,7 +96,7 @@
     "placeholders": {}
   },
   "draft.compat.label": {
-    "message": "Zabbix {min_version}+",
+    "message": "Local format estimate: Zabbix {min_version}+",
     "placeholders": {"min_version": "technical"}
   },
   "draft.freshness.not_checked": {

@@ -25,6 +25,30 @@ fn version() -> ZabbixVersion {
         .unwrap_or_else(|error| panic!("valid version: {error}"))
 }
 
+#[test]
+fn portable_create_document_fails_closed_on_unsupported_or_ambiguous_data() {
+    let valid = json!({"name":"Portable","display_period":"30","auto_start":"1","pages":[{"name":"Main","display_period":"0","widgets":[{"type":"item","name":"Value","x":"0","y":"0","width":"12","height":"4","view_mode":"0","fields":[{"type":"4","name":"itemid.0","value":"123"}]}]}]});
+    assert!(validate_portable_create_document(&valid, &version()).is_ok());
+    let mut changed = valid.clone();
+    changed["pages"][0]["widgets"][0]["type"] = json!("vendor.unknown");
+    assert!(validate_portable_create_document(&changed, &version()).is_err());
+    let mut changed = valid.clone();
+    changed["pages"][0]["widgets"][0]["fields"][0]["name"] = json!("unsupported");
+    assert!(validate_portable_create_document(&changed, &version()).is_err());
+    let mut changed = valid.clone();
+    changed["pages"][0]["widgets"][0]["fields"][0]["value"] = json!("not-an-id");
+    assert!(validate_portable_create_document(&changed, &version()).is_err());
+    let mut changed = valid.clone();
+    changed["pages"][0]["widgets"][0]["fields"]
+        .as_array_mut()
+        .unwrap_or_else(|| panic!("fields"))
+        .push(json!({"type":"4","name":"itemid.0","value":"124"}));
+    assert!(validate_portable_create_document(&changed, &version()).is_err());
+    let mut changed = valid.clone();
+    changed["pages"][0]["widgets"][0]["widgetid"] = json!("99");
+    assert!(validate_portable_create_document(&changed, &version()).is_err());
+}
+
 fn snapshot(raw: Value) -> VersionedDashboardSnapshot {
     VersionedDashboardSnapshot::from_adapter_raw("mock-connection".to_owned(), version(), raw)
         .unwrap_or_else(|error| panic!("valid snapshot: {error}"))
@@ -147,6 +171,58 @@ fn expectation(create: &VerifiedDashboardCreate) -> CreateExpectation {
 }
 
 // ---------- payload (P2-06B) ----------
+
+#[test]
+fn eight_zero_does_not_use_seven_four_create_or_read_back_codec() {
+    let local = snapshot(source(None));
+    let create = verified(verify_dashboard_create(
+        &local,
+        &context(Some(proven(false))),
+        TARGET,
+    ));
+    let confirmed = stored(&create.create_params, "100", OWNER);
+    assert_eq!(
+        check_created_dashboard(&snapshot(confirmed.clone()), &expectation(&create)),
+        ReadBackVerdict::Matches
+    );
+    let version = "8.0.2"
+        .parse::<ZabbixVersion>()
+        .unwrap_or_else(|error| panic!("version: {error}"));
+    let local_8 = VersionedDashboardSnapshot::from_adapter_raw(
+        local.connection_id().to_owned(),
+        version.clone(),
+        local.raw_api_document().clone(),
+    )
+    .unwrap_or_else(|error| panic!("snapshot: {error}"));
+    assert_eq!(
+        create_requirements(&local_8, TARGET)
+            .err()
+            .map(|error| error.code()),
+        Some(CreateRejectionCode::AdapterUnsupported)
+    );
+    let mut capabilities = AdapterRegistry::resolve_server(version.clone())
+        .unwrap_or_else(|error| panic!("profile: {error}"));
+    capabilities.dashboard_create_contracts = proven(true);
+    let context = PublicationContext::detached_for_testing(capabilities);
+    assert_eq!(
+        rejected(verify_dashboard_create(&local_8, &context, TARGET)).code(),
+        CreateRejectionCode::AdapterUnsupported
+    );
+
+    let confirmed = VersionedDashboardSnapshot::from_adapter_raw(
+        local.connection_id().to_owned(),
+        version.clone(),
+        confirmed,
+    )
+    .unwrap_or_else(|error| panic!("snapshot: {error}"));
+    let mut proposed = expectation(&create);
+    proposed.server_version = version;
+    assert_eq!(dashboard_content_fingerprint(&confirmed), None);
+    assert_eq!(
+        check_created_dashboard(&confirmed, &proposed),
+        ReadBackVerdict::ShapeInvalid
+    );
+}
 
 #[test]
 fn payload_copies_every_page_and_field_without_server_ids() {

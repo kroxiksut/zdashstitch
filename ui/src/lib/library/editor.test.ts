@@ -134,9 +134,11 @@ describe('explicit grid edits', () => {
   it('renders actual geometry and named keyboard controls in both languages', () => {
     for (const locale of ['en', 'ru'] as const) {
       const i18n = createI18n(locale);
-      const { body } = render(EditorCanvas, { props: { i18n, widgets, titles: ['Fixed', 'Automatic'], onchange: () => {}, onremove: () => {}, onduplicate: () => {} } });
+      const showGrid = locale === 'en';
+      const { body } = render(EditorCanvas, { props: { i18n, widgets, showGrid, defaultZoom: 'actual_size', titles: ['Fixed', 'Automatic'], onchange: () => {}, onremove: () => {}, onduplicate: () => {} } });
       expect(body).toContain(i18n.t('offline_editor.widget_box', { widget: 'Fixed', x: 0, y: 0, w: 36, h: 5 }));
       expect(body).toContain('width: 50%'); expect(body).toContain(i18n.t('offline_editor.place'));
+      expect(/class="[^"]*\bshow-grid\b/u.test(body)).toBe(showGrid);
       expect(body).not.toContain('offline_editor.');
     }
   });

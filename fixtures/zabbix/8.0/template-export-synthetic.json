@@ -1,0 +1,51 @@
+{
+  "zabbix_export": {
+    "version": "8.0",
+    "template_groups": [
+      {"uuid": "58f44162b8674563aedaa48863d12836", "name": "Templates/Synthetic"}
+    ],
+    "templates": [
+      {
+        "uuid": "4bd523679faa48778aa59efa07ef9f01",
+        "template": "Synthetic database",
+        "name": "Synthetic DB & counters",
+        "groups": [{"name": "Templates/Synthetic"}],
+        "templates": [{"name": "Synthetic base"}, {"name": "Synthetic external"}],
+        "items": [
+          {"uuid": "4a5e6e43a1034bf7ac73015558dea89e", "name": "Pool size", "key": "synthetic.pool.size"},
+          {
+            "uuid": "84a5e9e8ec46486a9959f4540c3132b8",
+            "name": "Pool state",
+            "key": "synthetic.pool.state",
+            "value_type": "JSON",
+            "delay": "30s"
+          }
+        ],
+        "discovery_rules": [
+          {
+            "uuid": "f7c9f1d51b574c27b59f2a65c9ce4afb",
+            "name": "Discover pools",
+            "key": "synthetic.pool.discovery",
+            "item_prototypes": [
+              {
+                "uuid": "98f0f4eb9edd49acac32200935b4e81a",
+                "name": "State of pool {#POOL}",
+                "key": "synthetic.pool.state[{#POOL}]",
+                "value_type": "JSON"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "uuid": "6ae4106bf58144798313ab832960a70a",
+        "template": "Synthetic base",
+        "name": "Synthetic base",
+        "groups": [{"name": "Templates/Synthetic"}],
+        "items": [
+          {"uuid": "fdc6b807945b4ac08ef0ce5202d0f34a", "name": "Text state", "key": "synthetic.pool.state", "value_type": "TEXT"}
+        ]
+      }
+    ]
+  }
+}

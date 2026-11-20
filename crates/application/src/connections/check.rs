@@ -7,7 +7,8 @@
 
 use zdashstitch_zabbix::{
     AuthMethod, Authentication, CheckStep, Failure, FailureCode, FailureParam, ReadAccess,
-    ReadMethod, ReadOnlyGateway, ServerIdentity, TrustAnchors, ZabbixClient, ZabbixEndpoint,
+    ReadMethod, ReadOnlyGateway, RoleApiAccess, ServerIdentity, TrustAnchors, ZabbixClient,
+    ZabbixEndpoint,
 };
 
 use super::profile::StoredIdentity;
@@ -95,6 +96,8 @@ pub struct ConnectionCheckReport {
     pub server_version: Option<String>,
     pub identity: Option<IdentityMatch>,
     pub read_access: Vec<(ReadMethod, ReadAccess)>,
+    /// Observation of the current role's API flag on 8.0; never write authority.
+    pub role_api_access: Option<RoleApiAccess>,
     /// Unix seconds.
     pub checked_at: u64,
     /// The sign-in passed with the public Zabbix default account
@@ -164,6 +167,7 @@ fn finish(
         server_version,
         identity: None,
         read_access: Vec::new(),
+        role_api_access: None,
         checked_at,
         default_password_warning: false,
     }
@@ -236,7 +240,7 @@ pub(crate) async fn run_check(
         None,
     ));
     let server_version = Some(version.to_string());
-    if let Err(error) = zdashstitch_zabbix::AdapterRegistry::resolve(version.clone()) {
+    if let Err(error) = zdashstitch_zabbix::AdapterRegistry::resolve_server(version.clone()) {
         steps.push(failed(CheckStep::Api, &error.failure()));
         return CheckOutcome {
             report: finish(steps, auth_method, server_version, checked_at),
@@ -348,6 +352,20 @@ pub(crate) async fn run_check(
     let mut report = finish(steps, auth_method, server_version, checked_at);
     report.identity = Some(identity);
     report.read_access = read_access;
+    if report.passed() && gateway.capabilities().version.major == 8 {
+        match gateway.probe_role_api_access().await {
+            Ok(observation) => report.role_api_access = Some(observation),
+            Err(error) => {
+                if let Some(step) = report
+                    .steps
+                    .iter_mut()
+                    .find(|step| step.step == CheckStep::Capabilities)
+                {
+                    *step = failed(CheckStep::Capabilities, &error.failure());
+                }
+            }
+        }
+    }
     CheckOutcome {
         report,
         gateway: Some(gateway),

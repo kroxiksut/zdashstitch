@@ -194,6 +194,78 @@ fn secret(value: &str) -> Option<SecretString> {
     Some(SecretString::from(value.to_owned()))
 }
 
+#[tokio::test]
+async fn eight_zero_connection_check_is_read_only_and_reports_version() {
+    let (address, state, task) = server().await;
+    lock(&state).version = "8.0.0".to_owned();
+    let dir = tempfile::tempdir().unwrap_or_else(|error| panic!("tempdir: {error}"));
+    let (mut connections, _) = service(&dir);
+    for (input, credential) in [
+        (token_input("Token", &address, false), TOKEN),
+        (password_input("Password", &address), PASSWORD),
+    ] {
+        let profile = connections
+            .create_profile(&input)
+            .unwrap_or_else(|error| panic!("profile: {error}"));
+        let report = connections
+            .test_connection(&profile.local_id, secret(credential))
+            .await
+            .unwrap_or_else(|error| panic!("check: {error}"));
+        assert_eq!(report.server_version.as_deref(), Some("8.0.0"));
+        assert!(report.passed());
+        assert_eq!(report.failed_step(), None);
+        let methods = &lock(&state).methods;
+        assert_eq!(methods.first().map(String::as_str), Some("apiinfo.version"));
+        assert!(
+            methods
+                .iter()
+                .all(|method| zdashstitch_zabbix::read_only_allowlist().contains(&method.as_str()))
+        );
+    }
+    task.abort();
+}
+
+#[tokio::test]
+async fn eight_zero_write_confirmation_only_exposes_the_portable_gateway() {
+    let (address, state, task) = server().await;
+    lock(&state).version = "8.0.0".to_owned();
+    let dir = tempfile::tempdir().unwrap_or_else(|error| panic!("tempdir: {error}"));
+    let (mut connections, _) = service(&dir);
+    let profile = connections
+        .create_profile(&token_input("Eight", &address, false))
+        .unwrap_or_else(|error| panic!("profile: {error}"));
+    let outcome = connections
+        .connect(
+            &profile.local_id,
+            ConnectRequest {
+                secret: secret(TOKEN),
+                accept_new_identity: false,
+            },
+        )
+        .await
+        .unwrap_or_else(|error| panic!("connect: {error}"));
+    assert!(outcome.connected);
+    assert_eq!(
+        outcome.report.role_api_access,
+        Some(zdashstitch_zabbix::RoleApiAccess::Unverified)
+    );
+    assert!(connections.reader().is_some());
+    assert!(connections.portable_writer().is_none());
+    assert!(connections.enable_writes(&profile.local_id, false).is_err());
+    assert!(connections.enable_writes(&profile.local_id, true).is_ok());
+    assert!(connections.portable_writer().is_some());
+    assert!(connections.writer().is_none());
+    assert!(connections.set_read_only(&profile.local_id).is_ok());
+    assert!(connections.portable_writer().is_none());
+    assert!(
+        lock(&state)
+            .methods
+            .iter()
+            .all(|method| zdashstitch_zabbix::read_only_allowlist().contains(&method.as_str()))
+    );
+    task.abort();
+}
+
 fn profiles_yaml(dir: &tempfile::TempDir) -> String {
     std::fs::read_to_string(dir.path().join("config").join("connections.yaml"))
         .unwrap_or_else(|error| panic!("profiles file: {error}"))

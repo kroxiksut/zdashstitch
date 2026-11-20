@@ -3,6 +3,7 @@
 // plan, a payload or Zabbix JSON-RPC. Times are epoch milliseconds (parsed from RFC 3339, O-035).
 
 import type { CompatibilityReport, ReplaceHostPreview } from '../bindings/model';
+import type { AccessState } from './client';
 
 /** P1-08E: the action is always chosen explicitly; there is no default. */
 export type PublicationAction = 'update_source' | 'save_as_copy';
@@ -81,6 +82,7 @@ export type PlanRequest =
       readonly local_fingerprint: string;
       /** User data: the new dashboard name. */
       readonly name: string;
+      readonly restore_source_access?: boolean;
     };
 
 export interface FieldKindCount {
@@ -113,6 +115,8 @@ export type PlanPreview =
       readonly created_at: number;
       readonly target_name: string;
       readonly private: boolean;
+      readonly access?: AccessState;
+      readonly access_visible_only?: boolean;
       readonly page_count: number;
       readonly widget_count: number;
       readonly unknown_widgets: number;
@@ -132,6 +136,9 @@ export interface PlanResult {
 }
 
 export interface ConfirmRequest {
+  acknowledge_deletions?: boolean;
+  acknowledge_repeat_append?: boolean;
+  acknowledge_public_access?: boolean;
   readonly handle: string;
   readonly plan_id: string;
   readonly confirmed: true;
@@ -200,6 +207,7 @@ export interface JournalList {
 
 /** Result of a write or of a reconciliation (P1-08G). */
 export interface Outcome {
+  readonly clone_source_check?: 'current' | 'changed' | 'unavailable';
   readonly operation_id: string;
   readonly kind: 'update' | 'create';
   readonly state: JournalState;

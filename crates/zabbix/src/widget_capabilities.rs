@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-use zdashstitch_core::{Version, VersionRange};
+use zdashstitch_core::VersionRange;
+
+use crate::AdapterProfile;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 #[repr(u8)]
@@ -151,10 +153,7 @@ pub struct WidgetCapabilityRegistry {
 impl WidgetCapabilityRegistry {
     #[must_use]
     pub fn v7_4() -> Self {
-        let versions = VersionRange {
-            minimum: Version::new(7, 4, 0),
-            maximum_exclusive: None,
-        };
+        let versions = AdapterProfile::V7_4.widget_version_range();
         let mut capabilities = Vec::with_capacity(32);
         for (widget_type, fields, flags) in DETAILED_WIDGETS {
             capabilities.push(WidgetCapability {
@@ -172,8 +171,32 @@ impl WidgetCapabilityRegistry {
                 flags: READ_ONLY,
             });
         }
+        Self::from_capabilities("7.4", capabilities)
+    }
+
+    /// Documented fields that the experimental 8.0 reader can classify.
+    /// Server lab evidence is still required for preview or mutations.
+    #[must_use]
+    pub fn v8_0() -> Self {
+        let versions = AdapterProfile::V8_0.widget_version_range();
+        let capabilities = V8_0_READ_FIELDS
+            .iter()
+            .map(|(widget_type, fields)| WidgetCapability {
+                widget_type,
+                versions: versions.clone(),
+                fields,
+                flags: WidgetCapabilityFlags {
+                    geometry: false,
+                    ..READ_ONLY
+                },
+            })
+            .collect();
+        Self::from_capabilities("8.0", capabilities)
+    }
+
+    fn from_capabilities(adapter: &'static str, capabilities: Vec<WidgetCapability>) -> Self {
         Self {
-            adapter: "7.4",
+            adapter,
             capabilities,
         }
     }
@@ -237,6 +260,103 @@ const READ_ONLY: WidgetCapabilityFlags = WidgetCapabilityFlags {
 const COMMON_REFERENCE: KnownWidgetField = KnownWidgetField::one("reference", S);
 const OVERRIDE_HOST: KnownWidgetField = KnownWidgetField::one("override_hostid.#", HOST);
 const OVERRIDE_REFERENCE: KnownWidgetField = KnownWidgetField::one("override_hostid._reference", S);
+
+const TIME_REFERENCE: KnownWidgetField = KnownWidgetField::one("time_period._reference", S);
+const ITEM_TAGS_EVALTYPE: KnownWidgetField = KnownWidgetField::one("ds.#.item_tags_evaltype", I);
+const ITEM_TAG_NAME: KnownWidgetField = KnownWidgetField::one("ds.#.item_tags.#.tag", S);
+const ITEM_TAG_OPERATOR: KnownWidgetField = KnownWidgetField::one("ds.#.item_tags.#.operator", I);
+const ITEM_TAG_VALUE: KnownWidgetField = KnownWidgetField::one("ds.#.item_tags.#.value", S);
+const V8_0_ITEM_TAGS: &[KnownWidgetField] = &[
+    ITEM_TAGS_EVALTYPE,
+    ITEM_TAG_NAME,
+    ITEM_TAG_OPERATOR,
+    ITEM_TAG_VALUE,
+];
+
+const V8_0_READ_FIELDS: &[(&str, &[KnownWidgetField])] = &[
+    ("clock", &[KnownWidgetField::one("clock_type", I)]),
+    (
+        "item",
+        &[
+            COMMON_REFERENCE,
+            OVERRIDE_HOST,
+            OVERRIDE_REFERENCE,
+            TIME_REFERENCE,
+            KnownWidgetField::one("itemid.#", ITEM),
+            KnownWidgetField::one("itemid._reference", S),
+        ],
+    ),
+    (
+        "graph",
+        &[
+            COMMON_REFERENCE,
+            OVERRIDE_HOST,
+            OVERRIDE_REFERENCE,
+            TIME_REFERENCE,
+            KnownWidgetField::one("source_type", I),
+            KnownWidgetField::one("graphid.#", GRAPH),
+            KnownWidgetField::one("itemid.#", ITEM),
+        ],
+    ),
+    (
+        "graphprototype",
+        &[
+            COMMON_REFERENCE,
+            OVERRIDE_HOST,
+            OVERRIDE_REFERENCE,
+            TIME_REFERENCE,
+            KnownWidgetField::one("source_type", I),
+            KnownWidgetField::one("graphid.#", WidgetFieldType::GraphPrototype),
+            KnownWidgetField::one("itemid.#", WidgetFieldType::ItemPrototype),
+        ],
+    ),
+    (
+        "svggraph",
+        &[
+            COMMON_REFERENCE,
+            OVERRIDE_HOST,
+            OVERRIDE_REFERENCE,
+            TIME_REFERENCE,
+            KnownWidgetField::one("ds.#.dataset_type", I),
+            KnownWidgetField::one("ds.#.hosts.#", S),
+            KnownWidgetField::one("ds.#.items.#", S),
+            KnownWidgetField::one("ds.#.itemids.#", ITEM),
+            KnownWidgetField::one("ds.#.itemids.#._reference", S),
+            KnownWidgetField::one("ds.#.color", S),
+            KnownWidgetField::one("ds.#.color.#", S),
+            KnownWidgetField::one("ds.#.color_palette", I),
+            KnownWidgetField::one("ds.#.override_hostid._reference", S),
+            KnownWidgetField::one("or.#.hosts.#", S),
+            KnownWidgetField::one("or.#.items.#", S),
+            KnownWidgetField::one("problemhosts.#", S),
+            KnownWidgetField::one("show_problems", I),
+            KnownWidgetField::one("graph_item_problems", I),
+            ITEM_TAGS_EVALTYPE,
+            ITEM_TAG_NAME,
+            ITEM_TAG_OPERATOR,
+            ITEM_TAG_VALUE,
+            KnownWidgetField::one("ds.#.invert_values", I),
+            KnownWidgetField::one("or.#.invert_values", I),
+            KnownWidgetField::one("show_hostnames", I),
+        ],
+    ),
+    ("piechart", V8_0_ITEM_TAGS),
+    (
+        "topitems",
+        &[
+            KnownWidgetField::one("columns.#.aggregate_columns", I),
+            KnownWidgetField::one("columns.#.combined_column_name", S),
+            KnownWidgetField::one("columns.#.column_aggregate_function", I),
+        ],
+    ),
+    (
+        "geomap",
+        &[
+            KnownWidgetField::one("clustering_mode", I),
+            KnownWidgetField::one("clustering_zoom_level", I),
+        ],
+    ),
+];
 
 const PROBLEMS_FIELDS: &[KnownWidgetField] = &[
     COMMON_REFERENCE,
@@ -562,6 +682,21 @@ mod tests {
         assert!(capability(&registry, "graph").flags.edit);
         assert!(!capability(&registry, "graph").flags.create);
         assert!(!capability(&registry, "map").flags.edit);
+    }
+
+    #[test]
+    fn documented_8_0_fields_do_not_enable_visual_changes() {
+        let registry = WidgetCapabilityRegistry::v8_0();
+        let graph = capability(&registry, "svggraph");
+        assert!(graph.knows_field("ds.0.item_tags.0.tag", WidgetFieldType::String));
+        assert!(!graph.field_editable("ds.0.item_tags.0.tag", WidgetFieldType::String));
+        for widget in registry.capabilities() {
+            assert!(widget.flags.read, "{}", widget.widget_type);
+            assert!(!widget.flags.preview, "{}", widget.widget_type);
+            assert!(!widget.flags.edit, "{}", widget.widget_type);
+            assert!(!widget.flags.create, "{}", widget.widget_type);
+            assert!(!widget.flags.geometry, "{}", widget.widget_type);
+        }
     }
 
     #[test]

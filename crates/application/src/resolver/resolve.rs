@@ -26,7 +26,9 @@
 use std::collections::BTreeSet;
 
 use serde::{Deserialize, Serialize};
-use zdashstitch_zabbix::{GraphDetails, HostDetails, ItemDetails, ItemFlags, ItemPrototypeDetails};
+use zdashstitch_zabbix::{
+    AdapterProfile, GraphDetails, HostDetails, ItemDetails, ItemFlags, ItemPrototypeDetails,
+};
 
 use super::ResolverError;
 use super::links::ScopeCrossing;
@@ -40,8 +42,7 @@ use super::status::{Applicability, Difference, MatchStatus, ReasonCode};
 
 /// Item names listed per pattern as coverage candidates.
 pub const MAX_PATTERN_CANDIDATES: usize = 20;
-/// LLD instances listed as candidates per unresolved row.
-pub const MAX_LLD_CANDIDATES: usize = 50;
+pub use zdashstitch_zabbix::MAX_REPLACE_HOST_LLD_CANDIDATES as MAX_LLD_CANDIDATES;
 
 /// Part of Base an operation covers.
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
@@ -295,6 +296,8 @@ pub fn resolve_replace_host(
         return Err(ResolverError::new("resolver_facts_mismatch"));
     }
     let context = Context {
+        profile: model.profile,
+        explicit_lld_choice: model.explicit_lld_choice,
         request,
         source,
         target,
@@ -400,6 +403,8 @@ enum Relation {
 }
 
 struct Context<'a> {
+    profile: AdapterProfile,
+    explicit_lld_choice: bool,
     request: &'a ReplaceHostRequest,
     source: &'a SourceFacts,
     target: &'a TargetFacts,
@@ -418,6 +423,9 @@ impl Context<'_> {
             SourceKind::Graph { graphid } => match self.source.graphs.get(graphid) {
                 Some(graph) if graph.hostids.iter().any(|id| id == source_hostid) => {
                     Relation::SourceHost
+                }
+                Some(graph) if self.profile == AdapterProfile::V8_0 && graph.hostids.is_empty() => {
+                    Relation::Unknown(ReasonCode::NotFoundOrNoAccess)
                 }
                 Some(_) => Relation::Unrelated,
                 None => Relation::Unknown(ReasonCode::NotFoundOrNoAccess),
@@ -440,6 +448,11 @@ impl Context<'_> {
                 match self.source.graph_prototypes.get(graphid) {
                     Some(prototype) if prototype.hostids.iter().any(|id| id == source_hostid) => {
                         Relation::SourceHost
+                    }
+                    Some(prototype)
+                        if self.profile == AdapterProfile::V8_0 && prototype.hostids.is_empty() =>
+                    {
+                        Relation::Unknown(ReasonCode::PrototypeOwnerUnknown)
                     }
                     Some(_) => Relation::Unrelated,
                     None => Relation::Unknown(ReasonCode::PrototypeOwnerUnknown),
@@ -567,18 +580,48 @@ impl Context<'_> {
             row.reasons.push(ReasonCode::NotFoundOrNoAccess);
             return;
         }
+        if self.explicit_lld_choice && item.flags == ItemFlags::Discovered {
+            if !current_discovery(item) {
+                row.match_status = MatchStatus::Denied;
+                return;
+            }
+            row.match_status = MatchStatus::UnresolvedLld;
+            row.candidates = self.lld_candidates(item);
+            if row.candidates.len() > 1 {
+                row.reasons.push(ReasonCode::SeveralTargetCandidates);
+            } else if row
+                .candidates
+                .first()
+                .is_none_or(|candidate| candidate.key != item.key)
+            {
+                row.reasons.push(ReasonCode::LldInstanceMissing);
+            }
+            return;
+        }
         let same_key: Vec<&ItemDetails> = self
             .target
             .target_items
             .iter()
-            .filter(|candidate| candidate.key == item.key)
+            .filter(|candidate| {
+                candidate.key == item.key
+                    && (!self.explicit_lld_choice || candidate.flags != ItemFlags::Discovered)
+            })
             .collect();
         match same_key.as_slice() {
             [found] => {
+                row.target_evidence = Some(Evidence::Item(self.item_evidence(found)));
+                if self.profile == AdapterProfile::V8_0
+                    && (item.flags == ItemFlags::Discovered || found.flags == ItemFlags::Discovered)
+                    && !self.same_lld_origin(item, found)
+                {
+                    row.match_status = MatchStatus::UnresolvedLld;
+                    row.reasons.push(ReasonCode::PrototypeOwnerUnknown);
+                    row.candidates = self.lld_candidates(item);
+                    return;
+                }
                 row.target = Some(TargetValue::Item {
                     itemid: found.itemid.clone(),
                 });
-                row.target_evidence = Some(Evidence::Item(self.item_evidence(found)));
                 compare_items(row, item, found);
             }
             [] => {
@@ -600,12 +643,41 @@ impl Context<'_> {
                     .collect();
             }
         }
-        if row.widget_type == "svggraph"
-            && let Some(Evidence::Item(target)) = &row.target_evidence
-            && !is_numeric(target.value_type)
+        if let Some(Evidence::Item(target)) = &row.target_evidence
+            && ((row.widget_type == "svggraph" && !is_numeric(target.value_type))
+                || (matches!(row.widget_type.as_str(), "item" | "graph") && target.value_type == 6))
+            && !row.reasons.contains(&ReasonCode::ValueTypeIncompatible)
         {
             row.reasons.push(ReasonCode::ValueTypeIncompatible);
         }
+    }
+
+    fn same_lld_origin(&self, source: &ItemDetails, target: &ItemDetails) -> bool {
+        let (Some(source_link), Some(target_link)) = (&source.discovery, &target.discovery) else {
+            return false;
+        };
+        let (Some(source_prototype), Some(target_prototype)) = (
+            self.source.item_prototypes.get(&source_link.parent_itemid),
+            self.target
+                .target_item_prototypes
+                .get(&target_link.parent_itemid),
+        ) else {
+            return false;
+        };
+        let source_origin = source_prototype
+            .templateid
+            .as_ref()
+            .unwrap_or(&source_prototype.itemid);
+        let target_origin = target_prototype
+            .templateid
+            .as_ref()
+            .unwrap_or(&target_prototype.itemid);
+        source_prototype.hostid == source.hostid
+            && target_prototype.hostid == target.hostid
+            && source_prototype.key == source_link.prototype_key
+            && target_prototype.key == target_link.prototype_key
+            && source_prototype.key == target_prototype.key
+            && source_origin == target_origin
     }
 
     /// Discovered items of the target created from the same template
@@ -628,6 +700,11 @@ impl Context<'_> {
             .target_items
             .iter()
             .filter(|candidate| {
+                if self.profile == AdapterProfile::V8_0 {
+                    return candidate.flags == ItemFlags::Discovered
+                        && (!self.explicit_lld_choice || current_discovery(candidate))
+                        && self.same_lld_origin(item, candidate);
+                }
                 let Some(other) = candidate.discovery.as_ref() else {
                     return false;
                 };
@@ -806,6 +883,13 @@ impl Context<'_> {
             (None, Some(link)) if item.flags == ItemFlags::Discovered => ItemOrigin::Discovered {
                 prototype_key: link.prototype_key.clone(),
             },
+            (None, None)
+                if self.profile == AdapterProfile::V8_0 && item.flags == ItemFlags::Discovered =>
+            {
+                ItemOrigin::Discovered {
+                    prototype_key: String::new(),
+                }
+            }
             _ => ItemOrigin::Own,
         };
         ItemEvidence {
@@ -819,6 +903,14 @@ impl Context<'_> {
     }
 }
 
+fn current_discovery(item: &ItemDetails) -> bool {
+    item.enabled == Some(true)
+        && item
+            .discovery
+            .as_ref()
+            .is_some_and(|link| link.currently_discovered == Some(true))
+}
+
 fn graph_evidence(graph: &GraphDetails) -> GraphEvidence {
     GraphEvidence {
         graphid: graph.graphid.clone(),
@@ -829,12 +921,14 @@ fn graph_evidence(graph: &GraphDetails) -> GraphEvidence {
 }
 
 /// `value_type` class: 0 float and 3 unsigned are numeric; 1 character,
-/// 2 log and 4 text are text; 5 binary stands alone.
+/// 2 log and 4 text are text. Binary and JSON are distinct classes.
 const fn value_class(value_type: u8) -> u8 {
     match value_type {
         0 | 3 => 0,
         1 | 2 | 4 => 1,
-        _ => 2,
+        5 => 2,
+        6 => 3,
+        _ => 4,
     }
 }
 

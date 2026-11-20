@@ -205,9 +205,44 @@ pub struct JournalEntry {
     pub progress: JournalProgress,
     pub(crate) endpoint_fingerprint: String,
     pub(crate) server_identity: String,
+    pub(crate) planned_deployment: Option<crate::portable_deployment::PlannedDeployment>,
+    pub(crate) portable_update: Option<crate::portable_update::PortableUpdateRecord>,
 }
 
 impl JournalEntry {
+    pub fn is_portable_update(&self) -> bool {
+        self.portable_update.is_some()
+    }
+
+    pub fn needs_portable_update_projection(&self) -> bool {
+        self.portable_update
+            .as_ref()
+            .is_some_and(|operation| operation.deployment_id.is_some())
+            && matches!(
+                self.state,
+                JournalState::Verified | JournalState::ReconciledVerified
+            )
+    }
+
+    /// A verified update remains recoverable until its durable link advances.
+    pub fn portable_update_projection_pending(
+        &self,
+        deployments: &[zdashstitch_core::formats::DeploymentStateV2],
+    ) -> bool {
+        self.needs_portable_update_projection()
+            && self
+                .portable_update
+                .as_ref()
+                .and_then(|update| update.deployment_id.as_deref())
+                .is_some_and(|deployment_id| {
+                    deployments.iter().any(|deployment| {
+                        deployment.deployment_id == deployment_id
+                            && deployment.last_operation_id != self.operation_id
+                            && deployment.dashboard.fingerprint == self.source_fingerprint
+                    })
+                })
+    }
+
     /// Time the `submitting` record was committed.
     #[must_use]
     pub fn submitted_at_ms(&self) -> Option<u64> {
@@ -463,6 +498,8 @@ pub(crate) struct OperationRecord {
     pub server_identity: String,
     pub target: JournalTarget,
     pub source: Option<JournalSource>,
+    pub planned_deployment: Option<crate::portable_deployment::PlannedDeployment>,
+    pub portable_update: Option<crate::portable_update::PortableUpdateRecord>,
     pub source_fingerprint: String,
     pub expected_fingerprint: String,
     /// Create only (required there): the expected owner `userid`.
@@ -497,6 +534,8 @@ impl OperationRecord {
                 local_id: source.local_id.clone(),
                 revision: source.revision,
             }),
+            planned_deployment: self.planned_deployment.clone(),
+            portable_update: self.portable_update.clone(),
             source_fingerprint: self.source_fingerprint.clone(),
             expected_fingerprint: self.expected_fingerprint.clone(),
             owner_userid: self.owner_userid.clone(),
@@ -675,7 +714,88 @@ impl PublishJournal {
     /// `journal_damaged` (param `operation_id`).
     pub fn check_target(&self, key: &TargetKey) -> Result<(), JournalError> {
         let listing = self.list()?;
-        check_listing(&listing, key)
+        check_listing(&listing, key)?;
+        self.check_pending_portable_update(&listing, key)
+    }
+
+    fn check_pending_portable_update(
+        &self,
+        listing: &JournalListing,
+        key: &TargetKey,
+    ) -> Result<(), JournalError> {
+        let mut pending = listing
+            .entries
+            .iter()
+            .filter(|entry| entry.matches(key) && entry.needs_portable_update_projection())
+            .peekable();
+        if pending.peek().is_none() {
+            return Ok(());
+        }
+        let dependencies: Vec<_> = crate::portable_deployment::load(&self.store)
+            .map_err(|error| JournalError::new(error.code()))?
+            .into_iter()
+            .map(|stored| stored.state)
+            .collect();
+        if let Some(entry) =
+            pending.find(|entry| entry.portable_update_projection_pending(&dependencies))
+        {
+            return Err(JournalError::new("target_blocked")
+                .with("operation_id", &entry.operation_id)
+                .with("state", entry.state.as_str()));
+        }
+        Ok(())
+    }
+
+    pub(crate) fn check_portable_create(
+        &self,
+        key: &TargetKey,
+        mapping: &crate::portable_deployment::PlannedDeployment,
+    ) -> Result<(), JournalError> {
+        let listing = self.list()?;
+        check_listing(&listing, key)?;
+        self.check_previous_portable_create(&listing, key, mapping)
+    }
+
+    fn check_previous_portable_create(
+        &self,
+        listing: &JournalListing,
+        key: &TargetKey,
+        mapping: &crate::portable_deployment::PlannedDeployment,
+    ) -> Result<(), JournalError> {
+        let deployments = crate::portable_deployment::load(&self.store)
+            .map_err(|error| JournalError::new(error.code()))?;
+        if mapping.create_another {
+            return Ok(());
+        }
+        let same_server = |connection: &str, endpoint: &str| {
+            connection == key.connection_id || key.endpoint_fingerprint.as_deref() == Some(endpoint)
+        };
+        if let Some(previous) = deployments.iter().find(|entry| {
+            entry.state.root_id == mapping.root_id
+                && same_server(&entry.state.connection_id, &entry.endpoint_fingerprint)
+        }) {
+            return Err(JournalError::new("portable_already_deployed")
+                .with("operation_id", &previous.state.last_operation_id));
+        }
+        if let Some(previous) = listing.entries.iter().find(|entry| {
+            entry.intent == "create_dashboard"
+                && entry.sends == 1
+                && matches!(
+                    entry.state,
+                    JournalState::Verified
+                        | JournalState::ReconciledVerified
+                        | JournalState::ClosedManually
+                )
+                && same_server(&entry.connection_id, &entry.endpoint_fingerprint)
+                && entry
+                    .source
+                    .as_ref()
+                    .is_some_and(|source| source.local_id == mapping.root_id)
+        }) {
+            return Err(JournalError::new("portable_already_deployed")
+                .with("operation_id", &previous.operation_id));
+        }
+        Ok(())
     }
 
     /// Records that the user confirmed operation `operation_id` and opens
@@ -709,7 +829,12 @@ impl PublishJournal {
                 Err(damage) => listing.damaged.push(damaged(&id, damage)),
             }
         }
-        check_listing(&listing, &record.key())?;
+        let key = record.key();
+        check_listing(&listing, &key)?;
+        self.check_pending_portable_update(&listing, &key)?;
+        if let Some(mapping) = &record.planned_deployment {
+            self.check_previous_portable_create(&listing, &key, mapping)?;
+        }
         let mut line = LineFile::transition(
             operation_id,
             0,
@@ -945,8 +1070,23 @@ impl JournalHandle {
     /// Commits `submitting` (fsync) right before the write request.
     /// `false` forbids the send; the error is kept for the report.
     pub(crate) fn admit_send(&mut self) -> bool {
-        match self.append(JournalState::Submitting, |_| {}) {
-            Ok(()) => true,
+        self.admit_send_if(|| true)
+    }
+
+    /// Recheck local state and durably admit the write under the same lock
+    /// used by workcopy mutations. The condition must only read local data.
+    pub(crate) fn admit_send_if(&mut self, current: impl FnOnce() -> bool) -> bool {
+        let result = (|| {
+            let guard = crate::snapshot_guard::lock()
+                .map_err(|_| JournalError::new("storage_unavailable"))?;
+            if !current() {
+                return Ok(false);
+            }
+            self.append_locked(&guard, JournalState::Submitting, |_| {})?;
+            Ok(true)
+        })();
+        match result {
+            Ok(admitted) => admitted,
             Err(error) => {
                 self.submit_error = Some(error);
                 false
@@ -993,8 +1133,17 @@ impl JournalHandle {
         state: JournalState,
         fill: F,
     ) -> Result<(), JournalError> {
-        let _snapshot_guard =
+        let snapshot_guard =
             crate::snapshot_guard::lock().map_err(|_| JournalError::new("storage_unavailable"))?;
+        self.append_locked(&snapshot_guard, state, fill)
+    }
+
+    fn append_locked<F: FnOnce(&mut LineFile)>(
+        &mut self,
+        _guard: &std::sync::MutexGuard<'_, ()>,
+        state: JournalState,
+        fill: F,
+    ) -> Result<(), JournalError> {
         let expected = self.state;
         let operation_id = self.operation_id.clone();
         let directory = file::directory(&self.journal.store, false)?

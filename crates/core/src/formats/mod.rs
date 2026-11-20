@@ -16,8 +16,8 @@ pub mod strict;
 mod validation;
 
 pub use deployment_state::{
-    DeployedDashboard, DeployedPage, DeployedWidget, DeploymentFormat, DeploymentState,
-    DeploymentStatus, DeploymentStorageScope,
+    DeployedDashboard, DeployedPage, DeployedWidget, DeploymentFormat, DeploymentFormatV2,
+    DeploymentState, DeploymentStateV2, DeploymentStatus, DeploymentStorageScope,
 };
 pub use error::{FormatError, Result};
 pub use io::{from_json_str, from_yaml_str, to_json_string, to_yaml_string};

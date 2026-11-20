@@ -55,6 +55,12 @@ enum Account {
     NoTemplateRead,
     ExpiredToken,
     UnsupportedVersion,
+    PrereleaseVersion,
+    EightZero,
+    EightZeroApiDisabled,
+    EightZeroRoleMismatch,
+    EightZeroRoleTypeMismatch,
+    EightZeroRoleDenied,
 }
 
 type Calls = Arc<Mutex<Vec<(String, Option<String>, Value)>>>;
@@ -93,6 +99,21 @@ async fn rpc(State(mock): State<Mock>, headers: HeaderMap, Json(body): Json<Valu
         || authorization.as_deref() == Some(&format!("Bearer {SESSION}"));
     match method.as_str() {
         "apiinfo.version" if mock.account == Account::UnsupportedVersion => ok(id, json!("7.0.19")),
+        "apiinfo.version" if mock.account == Account::PrereleaseVersion => {
+            ok(id, json!("8.0.0rc1"))
+        }
+        "apiinfo.version"
+            if matches!(
+                mock.account,
+                Account::EightZero
+                    | Account::EightZeroApiDisabled
+                    | Account::EightZeroRoleMismatch
+                    | Account::EightZeroRoleTypeMismatch
+                    | Account::EightZeroRoleDenied
+            ) =>
+        {
+            ok(id, json!("8.0.0"))
+        }
         "apiinfo.version" => ok(id, json!("7.4.16")),
         "user.login" => {
             if body["params"]["password"] == "right-password" {
@@ -119,9 +140,17 @@ async fn rpc(State(mock): State<Mock>, headers: HeaderMap, Json(body): Json<Valu
                 return err(id, -32500, "Application error.", "API token expired.");
             }
             if body["params"]["token"] == ADMIN_TOKEN || body["params"]["sessionid"] == SESSION {
+                let user_type = if matches!(
+                    mock.account,
+                    Account::EightZero | Account::EightZeroRoleTypeMismatch
+                ) {
+                    json!(3)
+                } else {
+                    json!("3")
+                };
                 ok(
                     id,
-                    json!({"userid": "1", "username": "Admin", "type": "3",
+                    json!({"userid": "1", "username": "Admin", "roleid": "3", "type": user_type,
                            "sessionid": SESSION, "secret": "server-side-secret"}),
                 )
             } else {
@@ -130,6 +159,28 @@ async fn rpc(State(mock): State<Mock>, headers: HeaderMap, Json(body): Json<Valu
         }
         _ if !bearer_ok => err(id, -32602, "Invalid params.", "Not authorized."),
         "user.logout" => ok(id, json!(true)),
+        "role.get" if mock.account == Account::EightZeroRoleDenied => err(
+            id,
+            -32500,
+            "Application error.",
+            "No permissions to call role.get.",
+        ),
+        "role.get" if mock.account == Account::EightZeroRoleMismatch => ok(
+            id,
+            json!([{"roleid":"4","type":"3","rules":{"api.access":"1"}}]),
+        ),
+        "role.get" if mock.account == Account::EightZeroRoleTypeMismatch => ok(
+            id,
+            json!([{"roleid":"3","type":"2","rules":{"api.access":"1"}}]),
+        ),
+        "role.get" if mock.account == Account::EightZeroApiDisabled => ok(
+            id,
+            json!([{"roleid":"3","type":"3","rules":{"api.access":"0"}}]),
+        ),
+        "role.get" if mock.account == Account::EightZero => ok(
+            id,
+            json!([{"roleid":"3","type":"3","rules":{"api.access":"1"}}]),
+        ),
         _ if mock.account == Account::Mfa => err(
             id,
             -32602,
@@ -427,6 +478,155 @@ async fn unsupported_version_is_refused_before_credentials_are_sent() {
     assert_eq!(failure.code, FailureCode::UnsupportedVersion);
     assert_eq!(failure.param("version"), Some("7.0.19"));
     assert_eq!(methods(&calls), ["apiinfo.version"]);
+    task.abort();
+
+    let (base, calls, task) = mock(Account::PrereleaseVersion).await;
+    let error = client(&format!("{base}/zabbix"))
+        .authenticate(password("right-password"))
+        .await
+        .err()
+        .unwrap_or_else(|| panic!("prerelease must be refused"));
+    assert_eq!(error.failure().code, FailureCode::NotJsonrpc);
+    assert_eq!(methods(&calls), ["apiinfo.version"]);
+    task.abort();
+}
+
+#[tokio::test]
+async fn eight_zero_connects_read_only_without_generic_inventory_or_write_authority() {
+    let (base, calls, task) = mock(Account::EightZero).await;
+    let gateway = client(&format!("{base}/zabbix"))
+        .authenticate(password("right-password"))
+        .await
+        .unwrap_or_else(|error| panic!("8.0 password connection: {error}"));
+    assert_eq!(gateway.mode(), AccessMode::ReadOnly);
+    assert_eq!(gateway.identity().version().to_string(), "8.0.0");
+    assert_eq!(
+        gateway.capabilities().read_inventory,
+        zdashstitch_zabbix::CapabilityState::Experimental
+    );
+    assert_eq!(
+        gateway
+            .inventory()
+            .await
+            .err()
+            .map(|error| error.failure().code),
+        Some(FailureCode::UnsupportedVersion)
+    );
+    assert_eq!(
+        gateway
+            .dashboard_snapshots("synthetic-connection")
+            .await
+            .err()
+            .map(|error| error.failure().code),
+        Some(FailureCode::UnsupportedVersion)
+    );
+    assert_eq!(
+        gateway
+            .read(ReadMethod::DashboardGet, json!({"output": ["dashboardid"]}))
+            .await
+            .err()
+            .map(|error| error.failure().code),
+        Some(FailureCode::UnsupportedVersion)
+    );
+    assert_eq!(
+        methods(&calls),
+        [
+            "apiinfo.version",
+            "user.login",
+            "user.get",
+            "user.checkAuthentication"
+        ]
+    );
+    task.abort();
+
+    let (base, calls, task) = mock(Account::EightZero).await;
+    let gateway = client(&format!("{base}/zabbix"))
+        .authenticate(token(ADMIN_TOKEN))
+        .await
+        .unwrap_or_else(|error| panic!("8.0 token connection: {error}"));
+    assert_eq!(gateway.mode(), AccessMode::ReadOnly);
+    assert_eq!(
+        methods(&calls),
+        ["apiinfo.version", "user.checkAuthentication"]
+    );
+    task.abort();
+}
+
+#[tokio::test]
+async fn eight_zero_role_rules_are_diagnostic_only_and_bound_to_current_identity() {
+    for (account, expected) in [
+        (
+            Account::EightZero,
+            zdashstitch_zabbix::RoleApiAccess::Enabled,
+        ),
+        (
+            Account::EightZeroApiDisabled,
+            zdashstitch_zabbix::RoleApiAccess::Disabled,
+        ),
+        (
+            Account::EightZeroRoleMismatch,
+            zdashstitch_zabbix::RoleApiAccess::Unverified,
+        ),
+        (
+            Account::EightZeroRoleTypeMismatch,
+            zdashstitch_zabbix::RoleApiAccess::Unverified,
+        ),
+        (
+            Account::EightZeroRoleDenied,
+            zdashstitch_zabbix::RoleApiAccess::Unverified,
+        ),
+    ] {
+        let (base, calls, task) = mock(account).await;
+        let gateway = client(&format!("{base}/zabbix"))
+            .authenticate(token(ADMIN_TOKEN))
+            .await
+            .unwrap_or_else(|error| panic!("8.0 token connection: {error}"));
+        assert_eq!(
+            gateway
+                .probe_role_api_access()
+                .await
+                .unwrap_or_else(|error| panic!("role probe: {error}")),
+            expected
+        );
+        assert_eq!(
+            gateway.capabilities().dashboard_write,
+            zdashstitch_zabbix::CapabilityState::Unsupported
+        );
+        let seen = methods(&calls);
+        assert_eq!(
+            seen,
+            [
+                "apiinfo.version",
+                "user.checkAuthentication",
+                "user.checkAuthentication",
+                "role.get"
+            ]
+        );
+        assert!(
+            seen.iter()
+                .all(|method| read_only_allowlist().contains(&method.as_str()))
+        );
+        task.abort();
+    }
+}
+
+#[tokio::test]
+async fn eight_zero_auth_errors_keep_structured_code_without_74_cause_guess() {
+    let (base, calls, task) = mock(Account::EightZero).await;
+    let error = client(&format!("{base}/zabbix"))
+        .authenticate(token("wrong-token-secret"))
+        .await
+        .err()
+        .unwrap_or_else(|| panic!("invalid token must fail"));
+    let failure = error.failure();
+    assert_eq!(failure.code, FailureCode::ApiError);
+    assert_eq!(failure.param("auth_method"), Some("api_token"));
+    assert_eq!(failure.param("api_code"), Some("-32602"));
+    assert!(!format!("{error:?}").contains("wrong-token-secret"));
+    assert_eq!(
+        methods(&calls),
+        ["apiinfo.version", "user.checkAuthentication"]
+    );
     task.abort();
 }
 

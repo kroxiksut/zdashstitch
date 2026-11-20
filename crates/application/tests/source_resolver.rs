@@ -9,13 +9,20 @@ use axum::{Json, Router, extract::State, routing::post};
 use secrecy::SecretString;
 use serde_json::{Value, json};
 use tokio::task::JoinHandle;
+use zdashstitch_application::replace_host::{ChangeState, SessionContext};
 use zdashstitch_application::resolver::{
-    Evidence, ItemOrigin, MatchStatus, ReasonCode, ReplaceHostRequest, ResolveScope, SourceValue,
-    TargetValue, resolve_replace_host_with, source_model,
+    Applicability, Evidence, ItemOrigin, MatchStatus, ReasonCode, ReplaceHostRequest, ResolveScope,
+    SourceValue, TargetValue, collect_source_facts, host_inventory, resolve_replace_host_with,
+    source_model,
 };
+use zdashstitch_application::workcopy::{
+    DraftFreshnessState, ImportRequest, ImportScope, WorkcopyService,
+};
+use zdashstitch_application::{FindingCode, PlanInvalidReason, recheck_replace_host};
 use zdashstitch_zabbix::{
-    Authentication, ReadOnlyGateway, VersionedDashboardSnapshot, WidgetCapabilityRegistry,
-    ZabbixClient, ZabbixEndpoint, dashboard_write_allowlist, read_only_allowlist,
+    AccessMode, AdapterRegistry, Authentication, ReadOnlyGateway, VersionedDashboardSnapshot,
+    WidgetCapabilityRegistry, ZabbixClient, ZabbixEndpoint, dashboard_write_allowlist,
+    read_only_allowlist,
 };
 
 type Calls = Arc<Mutex<Vec<Value>>>;
@@ -76,7 +83,76 @@ fn ids(params: &Value, key: &str) -> Option<Vec<String>> {
     })
 }
 
-async fn rpc(State(calls): State<Calls>, Json(body): Json<Value>) -> Json<Value> {
+fn eight_zero_fixture(raw: &str) -> Value {
+    serde_json::from_str(raw).unwrap_or_else(|error| panic!("8.0 fixture: {error}"))
+}
+
+fn inventory8() -> Value {
+    eight_zero_fixture(include_str!(
+        "../../../fixtures/zabbix/8.0/item-inventory-synthetic.json"
+    ))
+}
+
+fn dashboard8() -> Value {
+    eight_zero_fixture(include_str!(
+        "../../../fixtures/zabbix/8.0/dashboard-get-synthetic.json"
+    ))
+}
+
+fn eight_zero_read(method: &str, params: &Value) -> Value {
+    let inventory = inventory8();
+    let filter = |collection: &str, key: &str| {
+        let requested = ids(params, &format!("{key}s"));
+        Value::Array(
+            inventory[collection]
+                .as_array()
+                .into_iter()
+                .flatten()
+                .filter(|row| {
+                    requested.as_ref().is_none_or(|ids| {
+                        row[key]
+                            .as_str()
+                            .is_some_and(|id| ids.iter().any(|requested| requested == id))
+                    })
+                })
+                .cloned()
+                .collect(),
+        )
+    };
+    match method {
+        "dashboard.get" if params["dashboardids"] == json!(["8001"]) => json!([dashboard8()]),
+        "dashboard.get" if params["dashboardids"] == json!(["8002"]) => json!([{
+            "dashboardid":"8002", "pages":[{"widgets":[{"type":"item", "fields":{}}]}]
+        }]),
+        "host.get" if params["hostids"].is_array() => {
+            let requested = ids(params, "hostids").unwrap_or_default();
+            Value::Array(
+                [
+                    json!({"hostid":"8501", "host":"source", "name":"Synthetic source"}),
+                    json!({"hostid":"8502", "host":"target", "name":"Synthetic target"}),
+                ]
+                .into_iter()
+                .filter(|host| requested.iter().any(|id| host["hostid"] == id.as_str()))
+                .collect(),
+            )
+        }
+        "item.get" if params["itemids"] == json!(["8999"]) => filter("items", "hostid"),
+        "item.get" if params["itemids"].is_array() => filter("items", "itemid"),
+        "item.get" if params["hostids"] == json!(["8502"]) => json!([
+                {"itemid":"8304", "hostid":"8502", "key_":"synthetic.json", "name":"Target binary", "value_type":"5", "flags":"0"},
+                {"itemid":"8305", "hostid":"8502", "key_":"synthetic.discovery[alpha]", "name":"Target without visible prototype", "value_type":"6", "flags":"4", "discoveryData":{"parent_itemid":"8602", "key_":"synthetic.discovery[{#KEY}]"}}
+        ]),
+        "graph.get" if params["graphids"].is_array() => filter("graphs", "graphid"),
+        "itemprototype.get" => filter("itemprototypes", "itemid"),
+        "graphprototype.get" => filter("graphprototypes", "graphid"),
+        _ => json!([]),
+    }
+}
+
+async fn rpc(
+    State((calls, version)): State<(Calls, &'static str)>,
+    Json(body): Json<Value>,
+) -> Json<Value> {
     let id = body.get("id").cloned().unwrap_or(Value::Null);
     calls
         .lock()
@@ -84,8 +160,15 @@ async fn rpc(State(calls): State<Calls>, Json(body): Json<Value>) -> Json<Value>
         .push(body.clone());
     let params = &body["params"];
     let result = match body["method"].as_str().unwrap_or_default() {
-        "apiinfo.version" => json!("7.4.16"),
+        "apiinfo.version" => json!(version),
         "user.checkAuthentication" => json!({"userid": "3", "username": "synthetic"}),
+        "item.get" if version == "8.0.2" && params["itemids"] == json!(["8998"]) => {
+            return Json(json!({"jsonrpc": "2.0", "id": id, "error": {
+                "code": -32500, "message": "Application error.",
+                "data": "No permissions to call item.get."
+            }}));
+        }
+        method if version == "8.0.2" => eight_zero_read(method, params),
         "host.get" => {
             let by_id = ids(params, "hostids");
             let by_name = params["search"]["name"].as_array().cloned();
@@ -161,10 +244,14 @@ async fn rpc(State(calls): State<Calls>, Json(body): Json<Value>) -> Json<Value>
 }
 
 async fn start() -> (ReadOnlyGateway, Calls, JoinHandle<()>) {
+    start_version("7.4.16").await
+}
+
+async fn start_version(version: &'static str) -> (ReadOnlyGateway, Calls, JoinHandle<()>) {
     let calls: Calls = Arc::default();
     let app = Router::new()
         .route("/api_jsonrpc.php", post(rpc))
-        .with_state(Arc::clone(&calls));
+        .with_state((Arc::clone(&calls), version));
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0")
         .await
         .unwrap_or_else(|error| panic!("bind: {error}"));
@@ -190,6 +277,263 @@ async fn start() -> (ReadOnlyGateway, Calls, JoinHandle<()>) {
         .unwrap_or_else(std::sync::PoisonError::into_inner)
         .clear();
     (reader, calls, task)
+}
+
+#[tokio::test]
+async fn eight_zero_replace_host_reopens_and_refetches_without_editing_source_fields() {
+    const CONNECTION: &str = "conn-00000000000000000000000000000080";
+    let root = tempfile::tempdir().unwrap_or_else(|error| panic!("tempdir: {error}"));
+    let service = WorkcopyService::new(root.path().to_path_buf());
+    let (reader, calls, task) = start_version("8.0.2").await;
+    let session = SessionContext::Connected {
+        access_mode: AccessMode::ReadOnly,
+        capabilities: reader.capabilities(),
+    };
+    let imported = service
+        .import(
+            &reader,
+            CONNECTION,
+            &ImportRequest {
+                dashboardid: "8001".to_owned(),
+                scope: ImportScope::Dashboard,
+                name: None,
+            },
+        )
+        .await
+        .unwrap_or_else(|error| panic!("import: {error}"));
+    let local_id = &imported.local_id;
+    let request = ReplaceHostRequest {
+        source_hostid: "8501".to_owned(),
+        target_hostid: "8502".to_owned(),
+        scope: ResolveScope::Dashboard,
+    };
+    let preview = service
+        .calculate_replace_host(&reader, local_id, &request, session)
+        .await
+        .unwrap_or_else(|error| panic!("calculate: {error}"));
+    assert!(preview.changes.is_empty());
+    assert_eq!(preview.base_fingerprint, preview.local_fingerprint);
+    assert!(!preview.report.allows_publication());
+    assert!(
+        preview
+            .rows
+            .iter()
+            .any(|row| row.key.field == "itemid.0" && row.state == ChangeState::KeptOnSource)
+    );
+    assert!(
+        preview
+            .report
+            .with_code(FindingCode::SourceUnverified)
+            .any(|finding| finding
+                .subject
+                .as_ref()
+                .and_then(|subject| subject.field.as_deref())
+                == Some("opaque_item"))
+    );
+    assert!(preview.diff.summary.fields.unresolved > 0);
+
+    let reopened = WorkcopyService::new(root.path().to_path_buf());
+    let fresh = recheck_replace_host(&reopened, &reader, CONNECTION, local_id, session)
+        .await
+        .unwrap_or_else(|error| panic!("recheck: {error}"));
+    assert!(fresh.source.is_current());
+    assert!(fresh.remote_diff.is_none());
+    assert!(!fresh.allows_plan());
+    let copy = reopened
+        .refetch_replace_host(
+            &reader,
+            CONNECTION,
+            local_id,
+            Some("Synthetic refetch".to_owned()),
+            session,
+        )
+        .await
+        .unwrap_or_else(|error| panic!("refetch: {error}"));
+    assert!(copy.replayed);
+    assert_ne!(copy.import.local_id, *local_id);
+    for draft in [local_id, &copy.import.local_id] {
+        assert_eq!(
+            reopened
+                .local_snapshot(draft)
+                .unwrap_or_else(|error| panic!("local snapshot: {error}"))
+                .raw_api_document(),
+            &dashboard8()
+        );
+    }
+
+    // A new patch makes the preview stale before reading any old IDs.
+    let (upgraded, upgraded_calls, upgraded_task) = start_version("8.0.3").await;
+    let upgraded_session = SessionContext::Connected {
+        access_mode: AccessMode::ReadOnly,
+        capabilities: upgraded.capabilities(),
+    };
+    let stale = recheck_replace_host(&reopened, &upgraded, CONNECTION, local_id, upgraded_session)
+        .await
+        .unwrap_or_else(|error| panic!("stale: {error}"));
+    assert_eq!(stale.source.freshness.state, DraftFreshnessState::Stale);
+    assert_eq!(
+        stale.source.invalidated,
+        Some(PlanInvalidReason::ConnectionChanged)
+    );
+    assert!(stale.remote_diff.is_none());
+    assert!(stale.preview.checked_at_ms.is_none());
+    assert!(!stale.allows_plan());
+    assert_eq!(
+        reopened
+            .calculate_replace_host(&upgraded, local_id, &request, upgraded_session)
+            .await
+            .err()
+            .map(|error| error.code()),
+        Some("unsupported_version")
+    );
+    assert!(
+        upgraded_calls
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .is_empty()
+    );
+
+    let calls = calls
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner);
+    assert!(calls.iter().all(|call| {
+        call["method"].as_str().is_some_and(|method| {
+            read_only_allowlist().contains(&method)
+                && !dashboard_write_allowlist().contains(&method)
+        })
+    }));
+    task.abort();
+    upgraded_task.abort();
+}
+
+#[tokio::test]
+async fn experimental_eight_zero_resolver_keeps_json_and_restricted_lld_evidence_separate() {
+    let (reader, calls, task) = start_version("8.0.2").await;
+    let snapshot = reader
+        .dashboard_snapshot("synthetic-connection", "8001")
+        .await
+        .unwrap_or_else(|error| panic!("8.0 read: {error}"))
+        .unwrap_or_else(|| panic!("visible dashboard"));
+    assert_eq!(snapshot.server_version().to_string(), "8.0.2");
+    assert_eq!(snapshot.adapter_id(), "zabbix-8.0");
+    assert_eq!(snapshot.raw_api_document(), &dashboard8());
+    let registry = AdapterRegistry::widget_capabilities(snapshot.server_version())
+        .unwrap_or_else(|error| panic!("8.0 registry: {error}"));
+    assert!(source_model(&snapshot, &WidgetCapabilityRegistry::v7_4()).is_err());
+    let model = source_model(&snapshot, &registry).unwrap_or_else(|error| panic!("model: {error}"));
+    assert_eq!(
+        model.itemids().into_iter().collect::<Vec<_>>(),
+        ["8301", "8302", "8303", "8399"]
+    );
+    let facts = collect_source_facts(&reader, &model)
+        .await
+        .unwrap_or_else(|error| panic!("source inventory: {error}"));
+    assert_eq!(facts.items["8302"].value_type, 6);
+    assert_eq!(
+        facts.items["8303"]
+            .discovery
+            .as_ref()
+            .map(|link| link.parent_itemid.as_str()),
+        Some("8601")
+    );
+    assert_eq!(facts.item_prototypes["8601"].value_type, 6);
+    assert_eq!(
+        facts.item_prototypes["8601"].rule_itemid.as_deref(),
+        Some("8701")
+    );
+    assert_eq!(
+        facts.graph_prototypes["8402"].rule_itemid.as_deref(),
+        Some("8701")
+    );
+    assert_eq!(facts.graphs["8401"].hostids, ["8501"]);
+    assert!(!facts.items.contains_key("8399"));
+    assert!(
+        host_inventory(&model, &facts)
+            .unattributed
+            .iter()
+            .any(|source| { source.field.field_name == "ds.0.itemids.2" })
+    );
+
+    let report = resolve_replace_host_with(
+        &reader,
+        &model,
+        &ReplaceHostRequest {
+            source_hostid: "8501".to_owned(),
+            target_hostid: "8502".to_owned(),
+            scope: ResolveScope::Dashboard,
+        },
+    )
+    .await
+    .unwrap_or_else(|error| panic!("resolve: {error}"));
+    assert!(
+        report
+            .rows
+            .iter()
+            .all(|row| row.applicability != Applicability::Editable)
+    );
+    let json_row = report
+        .rows
+        .iter()
+        .find(|row| row.field.field_name == "ds.0.itemids.0")
+        .unwrap_or_else(|| panic!("JSON row"));
+    assert!(
+        json_row
+            .reasons
+            .contains(&ReasonCode::ValueTypeIncompatible)
+    );
+    assert!(!json_row.reasons.contains(&ReasonCode::ValueTypeDiffers));
+    let lld_row = report
+        .rows
+        .iter()
+        .find(|row| row.field.field_name == "ds.0.itemids.1")
+        .unwrap_or_else(|| panic!("LLD row"));
+    assert_eq!(lld_row.match_status, MatchStatus::UnresolvedLld);
+    assert!(lld_row.reasons.contains(&ReasonCode::PrototypeOwnerUnknown));
+    assert!(lld_row.target.is_none());
+    assert!(
+        reader
+            .dashboard_snapshot("synthetic-connection", "8003")
+            .await
+            .unwrap_or_else(|error| panic!("hidden read: {error}"))
+            .is_none()
+    );
+    assert!(matches!(
+        reader
+            .dashboard_snapshot("synthetic-connection", "8002")
+            .await,
+        Err(zdashstitch_zabbix::ZabbixError::SnapshotShape(_))
+    ));
+    assert!(matches!(
+        reader.items_by_ids(&["8999".to_owned()]).await,
+        Err(zdashstitch_zabbix::ZabbixError::SnapshotShape(_))
+    ));
+    let denied = reader.items_by_ids(&["8998".to_owned()]).await;
+    assert!(
+        denied
+            .err()
+            .is_some_and(|error| error.is_permission_denied())
+    );
+    let calls = calls
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner);
+    assert!(
+        calls
+            .iter()
+            .filter(|call| call["method"] == "item.get")
+            .all(|call| {
+                call["params"]["selectDiscoveryData"] == json!(["parent_itemid", "key_", "status"])
+                    && call["params"].get("selectItemDiscovery").is_none()
+                    && call["params"]["output"]
+                        .as_array()
+                        .is_some_and(|fields| fields.contains(&json!("status")))
+            })
+    );
+    assert!(calls.iter().all(|call| {
+        call["method"]
+            .as_str()
+            .is_some_and(|method| !dashboard_write_allowlist().contains(&method))
+    }));
+    task.abort();
 }
 
 #[tokio::test]

@@ -374,6 +374,16 @@ fn unsafe_and_invalid_documents_are_rejected_without_echoing_content() {
             r#"{"zabbix_export":{"version":"7.4","templates":[{"template":"x","items":[{"key":"x","name":"x","value_type":"unknown-sensitive-sentinel"}]}]}}"#,
             "template_export_value_type",
         ),
+        (
+            Json,
+            r#"{"zabbix_export":{"version":"7.4","templates":[{"template":"x","items":[{"key":"a","name":"A","value_type":"FLOAT"},{"key":"b","name":"B","value_type":"JSON"}]}]}}"#,
+            "template_export_value_type",
+        ),
+        (
+            Json,
+            r#"{"zabbix_export":{"version":"8.2","templates":[{"template":"x","items":[{"key":"a","name":"A","value_type":"FLOAT"},{"key":"b","name":"B","value_type":"JSON"}]}]}}"#,
+            "template_export_version",
+        ),
         (Xml, "<!DOCTYPE zabbix_export><zabbix_export/>", "xml_dtd"),
         (
             Xml,

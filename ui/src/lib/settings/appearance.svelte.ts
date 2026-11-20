@@ -7,6 +7,7 @@ import { ApiFailure, apiFailure } from '../api';
 import { detectLocale, type Locale } from '../i18n';
 import { CSRF_HEADER, loadCsrfToken } from '../session';
 import { applyMotion, createThemeController, type MotionPreference, type ThemePreference } from '../theme';
+import { settingsFileIssue, type SettingsFileIssue } from './file-issue';
 
 export const APPEARANCE_ENDPOINT = '/api/settings/appearance' as const;
 
@@ -26,7 +27,7 @@ export interface AppearancePreferences {
 export const DEFAULT_APPEARANCE: AppearancePreferences = { locale: 'system', theme: 'system', reduced_motion: 'system' };
 
 export type AppearanceResult =
-  | { readonly status: 'ready'; readonly preferences: AppearancePreferences; readonly file_state: SettingsFileState; readonly session_only?: boolean; readonly fingerprint?: string }
+  | { readonly status: 'ready'; readonly preferences: AppearancePreferences; readonly file_state: SettingsFileState; readonly session_only?: boolean; readonly fingerprint?: string; readonly issue?: SettingsFileIssue | null }
   /** The settings file has errors; it is not overwritten. */
   | { readonly status: 'file_invalid' }
   | { readonly status: 'changed' }
@@ -50,6 +51,7 @@ interface WireAppearance {
   file_state: string;
   fingerprint: string;
   session_only: boolean;
+  issue?: unknown;
 }
 
 /** Values from the server outside the closed sets are a failed answer, not a guess. */
@@ -67,7 +69,8 @@ function fromWire(wire: WireAppearance): AppearanceResult {
     },
     file_state: wire.file_state as SettingsFileState,
     fingerprint: wire.fingerprint,
-    session_only: wire.session_only
+    session_only: wire.session_only,
+    ...(wire.issue === undefined ? {} : { issue: settingsFileIssue(wire.issue) })
   };
 }
 
@@ -158,6 +161,7 @@ export class AppearanceStore {
   preferences = $state<AppearancePreferences>(DEFAULT_APPEARANCE);
   /** `null` until the first answer of the local server. */
   fileState = $state<SettingsFileState | null>(null);
+  fileIssue = $state<SettingsFileIssue | null>(null);
   loaded = $state(false);
   saving = $state(false);
   sessionOnly = $state<SessionOnlyReason | null>(null);
@@ -206,9 +210,14 @@ export class AppearanceStore {
     this.loaded = true;
     if (result.status === 'ready') {
       this.fileState = result.file_state;
+      this.fileIssue = result.issue ?? null;
       this.#apply(result.preferences);
       this.sessionOnly = result.session_only ? 'file_invalid' : null;
     }
+  }
+
+  refreshIfIdle(): void {
+    if (!this.saving && this.sessionOnly !== 'changed' && this.sessionOnly !== 'failed') void this.load();
   }
 
   /** Applies a change at once, then saves it; a refused or failed save keeps it until restart. */
@@ -228,6 +237,7 @@ export class AppearanceStore {
     this.loaded = true;
     if (result.status === 'ready') {
       this.fileState = result.file_state;
+      this.fileIssue = result.issue ?? null;
       this.sessionOnly = result.session_only ? 'file_invalid' : null;
       this.justSaved = !result.session_only;
     } else {

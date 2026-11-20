@@ -1,0 +1,51 @@
+{
+  "dashboardid": "8001",
+  "name": "Synthetic 8.0 dashboard",
+  "userid": "801",
+  "private": "1",
+  "pages": [
+    {
+      "dashboard_pageid": "8101",
+      "name": "Synthetic page",
+      "widgets": [
+        {"widgetid": "8201", "type": "item", "name": "Item value", "fields": [
+          {"type": "4", "name": "itemid.0", "value": "8301"},
+          {"type": "1", "name": "reference", "value": "ABCDE"}
+        ]},
+        {"widgetid": "8202", "type": "svggraph", "name": "Graph with item tags", "fields": [
+          {"type": "4", "name": "ds.0.itemids.0", "value": "8302"},
+          {"type": "1", "name": "ds.0.hosts.0", "value": "synthetic-host-*"},
+          {"type": "0", "name": "ds.0.item_tags_evaltype", "value": "0"},
+          {"type": "1", "name": "ds.0.item_tags.0.tag", "value": "component"},
+          {"type": "0", "name": "ds.0.item_tags.0.operator", "value": "0"},
+          {"type": "1", "name": "ds.0.item_tags.0.value", "value": "synthetic"},
+          {"type": "0", "name": "ds.0.invert_values", "value": "1"},
+          {"type": "0", "name": "show_hostnames", "value": "1"},
+          {"type": "4", "name": "ds.0.itemids.1", "value": "8303"},
+          {"type": "4", "name": "ds.0.itemids.2", "value": "8399"}
+        ]},
+        {"widgetid": "8203", "type": "graph", "name": "Classic graph", "fields": [
+          {"type": "6", "name": "graphid.0", "value": "8401"}
+        ]},
+        {"widgetid": "8204", "type": "scatterplot", "name": "Scatter plot", "fields": [
+          {"type": "1", "name": "ds.0.hosts.0", "value": "synthetic-host-*"},
+          {"type": "1", "name": "ds.0.items.0", "value": "synthetic.metric[*]"},
+          {"type": "1", "name": "itemid._reference", "value": "ABCDE._itemid"}
+        ]},
+        {"widgetid": "8205", "type": "vendor.synthetic", "name": "Opaque widget", "fields": [
+          {"type": "4", "name": "opaque_item", "value": "8303"},
+          {"type": "99", "name": "opaque_payload", "value": {"safe": true}}
+        ], "vendor_extension": {"must_survive": true}},
+        {"widgetid": "8206", "type": "graphprototype", "name": "LLD graph", "fields": [
+          {"type": "0", "name": "source_type", "value": "2"},
+          {"type": "7", "name": "graphid.0", "value": "8402"}
+        ]},
+        {"widgetid": "8207", "type": "graphprototype", "name": "LLD simple graph", "fields": [
+          {"type": "0", "name": "source_type", "value": "3"},
+          {"type": "5", "name": "itemid.0", "value": "8601"}
+        ]}
+      ]
+    }
+  ],
+  "unknown_dashboard_property": {"must_survive": true}
+}

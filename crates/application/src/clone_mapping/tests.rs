@@ -163,7 +163,7 @@ fn storage_setup_with_snapshot(
             storage_scope: LOCAL_ONLY.to_owned(),
             connection_id: CONNECTION.to_owned(),
             adapter_id: snapshot.adapter_id().to_owned(),
-            server_version: "7.4.16".to_owned(),
+            server_version: snapshot.server_version().to_string(),
             dashboardid: dashboardid.clone(),
             scope: SnapshotScope::Dashboard,
             first_read_at_ms: 1,
@@ -185,12 +185,13 @@ fn storage_setup_with_snapshot(
             updated_at_ms: 1,
             revision: 0,
             source: WorkcopySource {
+                server_identity_fingerprint: None,
                 connection_id: CONNECTION.to_owned(),
                 dashboardid,
                 dashboard_name: name,
                 page: None,
                 adapter_id: snapshot.adapter_id().to_owned(),
-                server_version: "7.4.16".to_owned(),
+                server_version: snapshot.server_version().to_string(),
             },
             base: BaseReference {
                 fingerprint,
@@ -505,6 +506,62 @@ fn mapping_revisions_survive_reopen_and_undo_redo_preserve_order() {
 }
 
 #[test]
+fn legacy_mapping_reopen_rejects_cross_version_state_without_rewriting() {
+    let (directory, service) = storage_setup();
+    service
+        .save_clone_mapping(LOCAL, save_request(0, vec![mapped(&[("slot-a", "101")])]))
+        .unwrap_or_else(|error| panic!("mapping: {error}"));
+    let path = directory
+        .path()
+        .join("workcopies")
+        .join(LOCAL)
+        .join("workcopy.json");
+    let original = std::fs::read(&path).unwrap_or_else(|error| panic!("read: {error}"));
+    for (field, value) in [
+        ("server_version", "8.0.0"),
+        ("connection_id", "conn-ffffffffffffffffffffffffffffffff"),
+    ] {
+        let mut changed: Value =
+            serde_json::from_slice(&original).unwrap_or_else(|error| panic!("json: {error}"));
+        changed["operations"][0]["state"][field] = json!(value);
+        let bytes = serde_json::to_vec(&changed).unwrap_or_else(|error| panic!("json: {error}"));
+        std::fs::write(&path, &bytes).unwrap_or_else(|error| panic!("write: {error}"));
+        let reopened = WorkcopyService::new(directory.path().to_path_buf());
+        assert_eq!(
+            reopened
+                .clone_mapping(LOCAL)
+                .err()
+                .map(|error| error.code()),
+            Some("workcopy_corrupt")
+        );
+        assert_eq!(
+            std::fs::read(&path).unwrap_or_else(|error| panic!("read: {error}")),
+            bytes
+        );
+    }
+    let mut legacy: Value =
+        serde_json::from_slice(&original).unwrap_or_else(|error| panic!("json: {error}"));
+    let state = legacy["operations"][0]["state"]
+        .as_object_mut()
+        .unwrap_or_else(|| panic!("mapping state"));
+    for optional in ["base_fingerprint", "local_fingerprint", "pattern_decisions"] {
+        state.remove(optional);
+    }
+    let legacy = serde_json::to_vec(&legacy).unwrap_or_else(|error| panic!("json: {error}"));
+    std::fs::write(&path, &legacy).unwrap_or_else(|error| panic!("write: {error}"));
+    let reopened = WorkcopyService::new(directory.path().to_path_buf());
+    let mapping = reopened
+        .clone_mapping(LOCAL)
+        .unwrap_or_else(|error| panic!("legacy mapping: {error}"))
+        .unwrap_or_else(|| panic!("legacy mapping missing"));
+    assert_eq!(mapping.state.server_version, "7.4.16");
+    assert_eq!(
+        std::fs::read(&path).unwrap_or_else(|error| panic!("read: {error}")),
+        legacy
+    );
+}
+
+#[test]
 fn stale_or_invalid_mapping_is_rejected_without_changing_the_workcopy() {
     let (directory, service) = storage_setup();
     let first = service
@@ -515,6 +572,37 @@ fn stale_or_invalid_mapping_is_rejected_without_changing_the_workcopy() {
         .join(LOCAL)
         .join("workcopy.json");
     let before = std::fs::read(&path).unwrap_or_else(|error| panic!("read before: {error}"));
+
+    for request in [
+        {
+            let mut request =
+                save_request(first.workcopy_revision, vec![mapped(&[("slot-b", "102")])]);
+            request.server_version = "8.0.0".to_owned();
+            request
+        },
+        {
+            let mut request =
+                save_request(first.workcopy_revision, vec![mapped(&[("slot-b", "102")])]);
+            request.connection_id = "conn-ffffffffffffffffffffffffffffffff".to_owned();
+            request
+        },
+        {
+            let mut request =
+                save_request(first.workcopy_revision, vec![mapped(&[("slot-b", "102")])]);
+            request.server_identity_fingerprint = "f".repeat(64);
+            request
+        },
+    ] {
+        let error = service
+            .save_clone_mapping(LOCAL, request)
+            .err()
+            .unwrap_or_else(|| panic!("cross-identity mapping accepted"));
+        assert_eq!(error.code(), "clone_mapping_invalid");
+        assert_eq!(
+            std::fs::read(&path).unwrap_or_else(|error| panic!("read after: {error}")),
+            before
+        );
+    }
 
     let stale = service
         .save_clone_mapping(LOCAL, save_request(0, vec![mapped(&[("slot-b", "102")])]))
@@ -533,6 +621,127 @@ fn stale_or_invalid_mapping_is_rejected_without_changing_the_workcopy() {
         std::fs::read(&path).unwrap_or_else(|error| panic!("read after: {error}")),
         before
     );
+}
+
+#[test]
+fn clone_mapping_and_branch_reopen_on_the_explicit_8_0_profile() {
+    let original = clone_snapshot(json!([crate::resolver::tests::widget(
+        "20",
+        "future-widget",
+        vec![json!({"type":"1", "name":"future.setting", "value":"opaque"})],
+    )]));
+    let base = VersionedDashboardSnapshot::from_adapter_raw(
+        CONNECTION.to_owned(),
+        "8.0.2"
+            .parse()
+            .unwrap_or_else(|error| panic!("version: {error}")),
+        original.raw_api_document().clone(),
+    )
+    .unwrap_or_else(|error| panic!("snapshot: {error}"));
+    let (directory, service) = storage_setup_with_snapshot(base.clone());
+    let source_path = directory
+        .path()
+        .join("workcopies")
+        .join(LOCAL)
+        .join("workcopy.json");
+    let snapshot_path = directory
+        .path()
+        .join("snapshots")
+        .join(CONNECTION)
+        .join(base.dashboard_id())
+        .join(format!("{}.json", base.storage_fingerprint()));
+    let read = |path: &Path| std::fs::read(path).unwrap_or_else(|error| panic!("read: {error}"));
+    let base_bytes = read(&snapshot_path);
+    let mut mapping = mapped(&[("slot", "101")]);
+    mapping.references.clear();
+    let mut request = save_request(0, vec![mapping]);
+    request.local_fingerprint = Some(base.fingerprint().to_owned());
+    let initial_bytes = read(&source_path);
+    for invalid_version in ["7.4.16", "8.0.3", "8.0.2rc1", "8.2.0"] {
+        request.server_version = invalid_version.to_owned();
+        assert_eq!(
+            service
+                .save_clone_mapping(LOCAL, request.clone())
+                .err()
+                .map(|error| error.code()),
+            Some("clone_mapping_invalid")
+        );
+        assert_eq!(read(&source_path), initial_bytes);
+    }
+    request.server_version = "8.0.2".to_owned();
+    let stored = service
+        .save_clone_mapping(LOCAL, request)
+        .unwrap_or_else(|error| panic!("save: {error}"));
+    let before_branch = read(&source_path);
+    let reopened = WorkcopyService::new(directory.path().to_path_buf());
+    assert_eq!(
+        reopened
+            .clone_mapping(LOCAL)
+            .unwrap_or_else(|error| panic!("mapping: {error}")),
+        Some(stored.clone())
+    );
+    let intent = reopened
+        .prepare_clone_intent(PrepareCloneIntentRequest {
+            source_workcopy_id: LOCAL.to_owned(),
+            target_connection_id: CONNECTION.to_owned(),
+            target_name: "Synthetic copy".to_owned(),
+            target_selection: FrozenTargetSelection::new(vec![listing("101", &[])])
+                .unwrap_or_else(|error| panic!("selection: {error}")),
+            expected_mapping_revision: stored.state.mapping_revision,
+        })
+        .unwrap_or_else(|error| panic!("intent: {error}"));
+    let branch = reopened
+        .begin_clone_workcopy(intent.clone())
+        .and_then(|branch| reopened.save_clone_workcopy(branch, &[]))
+        .unwrap_or_else(|error| panic!("branch: {error}"));
+    let reopened = WorkcopyService::new(directory.path().to_path_buf());
+    let branch = reopened
+        .open_clone_workcopy(branch.local_id())
+        .unwrap_or_else(|error| panic!("reopen branch: {error}"));
+    assert_eq!(branch.draft().intent(), &intent);
+    assert_eq!(branch.local().adapter_id(), "zabbix-8.0");
+    assert_eq!(branch.local().raw_api_document(), base.raw_api_document());
+    assert!(reopened.preview_clone_local(branch.local_id()).is_err());
+    assert_eq!(read(&source_path), before_branch);
+    assert_eq!(read(&snapshot_path), base_bytes);
+
+    let branch_path = directory
+        .path()
+        .join("clone-workcopies")
+        .join(branch.local_id())
+        .join("workcopy.json");
+    let branch_bytes = read(&branch_path);
+    for (section, field, value) in [
+        ("mapping", "server_version", json!("8.0.3")),
+        (
+            "mapping",
+            "connection_id",
+            json!("conn-ffffffffffffffffffffffffffffffff"),
+        ),
+        (
+            "source",
+            "source_workcopy_revision",
+            json!(stored.workcopy_revision + 1),
+        ),
+    ] {
+        let mut changed: Value = serde_json::from_slice(&branch_bytes)
+            .unwrap_or_else(|error| panic!("branch JSON: {error}"));
+        changed[section][field] = value;
+        let changed =
+            serde_json::to_vec(&changed).unwrap_or_else(|error| panic!("encode: {error}"));
+        std::fs::write(&branch_path, &changed)
+            .unwrap_or_else(|error| panic!("write branch: {error}"));
+        assert_eq!(
+            reopened
+                .open_clone_workcopy(branch.local_id())
+                .err()
+                .map(|error| error.code()),
+            Some("clone_workcopy_corrupt")
+        );
+        assert_eq!(read(&branch_path), changed);
+        assert_eq!(read(&source_path), before_branch);
+        assert_eq!(read(&snapshot_path), base_bytes);
+    }
 }
 
 #[test]
@@ -735,6 +944,8 @@ fn clone_workcopy_reopens_and_only_verified_read_back_links_the_source() {
     let journal = PublishJournal::new(directory.path().to_path_buf());
     let operation = "zds-0123456789abcdef0123456789abcdef";
     let record = OperationRecord {
+        planned_deployment: None,
+        portable_update: None,
         kind: OperationKind::Create,
         intent: crate::clone_dashboard::CLONE_OPERATION,
         connection_id: CONNECTION.to_owned(),
@@ -1830,6 +2041,7 @@ fn pattern_item(itemid: &str, hostid: &str, name: &str) -> ItemDetails {
         value_type: 0,
         units: String::new(),
         flags: ItemFlags::Plain,
+        enabled: None,
         templateid: None,
         discovery: None,
         owner_name: None,
@@ -2225,17 +2437,39 @@ async fn clone_revalidation_marks_disappeared_lld_and_changed_pattern_in_a_new_r
         server_version: "7.4.16".to_owned(),
         local_fingerprint: IDENTITY.to_owned(),
     };
-    let wrong_identity = CloneRevalidationContext {
-        server_identity_fingerprint:
-            "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff".to_owned(),
-        ..context.clone()
-    };
-    let rejected = service
-        .revalidate_clone_mapping(&fixture, LOCAL, &wrong_identity)
-        .await
-        .err()
-        .unwrap_or_else(|| panic!("another server identity accepted"));
-    assert_eq!(rejected.code(), "clone_server_identity_changed");
+    let path = directory
+        .path()
+        .join("workcopies")
+        .join(LOCAL)
+        .join("workcopy.json");
+    let before = std::fs::read(&path).unwrap_or_else(|error| panic!("read: {error}"));
+    for (mismatch, code) in [
+        (
+            CloneRevalidationContext {
+                server_identity_fingerprint: "f".repeat(64),
+                ..context.clone()
+            },
+            "clone_server_identity_changed",
+        ),
+        (
+            CloneRevalidationContext {
+                server_version: "7.4.17".to_owned(),
+                ..context.clone()
+            },
+            "clone_intent_server_changed",
+        ),
+    ] {
+        let rejected = service
+            .revalidate_clone_mapping(&fixture, LOCAL, &mismatch)
+            .await
+            .err()
+            .unwrap_or_else(|| panic!("mismatched server accepted"));
+        assert_eq!(rejected.code(), code);
+        assert_eq!(
+            std::fs::read(&path).unwrap_or_else(|error| panic!("read: {error}")),
+            before
+        );
+    }
     assert_eq!(
         service
             .clone_mapping(LOCAL)

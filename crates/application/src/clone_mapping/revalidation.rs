@@ -6,16 +6,16 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::fmt;
 
 use serde::{Deserialize, Serialize};
-use zdashstitch_zabbix::{AdapterRegistry, VersionedDashboardSnapshot};
+use zdashstitch_zabbix::{AdapterProfile, AdapterRegistry, VersionedDashboardSnapshot};
 
 use super::{
     CloneMappingState, ClonePatternAction, ClonePatternDecision, ClonePatternLookup,
     SourceHostDecision, TargetMetricDecision, TargetMetricResolution, TargetSlot,
-    preview_clone_pattern,
+    preview_clone_pattern, preview_clone_pattern_8_0, snapshot_pattern_fields,
 };
 use crate::resolver::{
-    ReplaceHostRequest, ResolutionRow, ResolveScope, ResolverLookup, resolve_replace_host_with,
-    source_model,
+    ReplaceHostRequest, ResolutionRow, ResolveScope, ResolverLookup, clone_source_model,
+    resolve_replace_host_with,
 };
 use crate::workcopy::{is_connection_id, is_fingerprint};
 
@@ -236,7 +236,7 @@ pub(crate) async fn revalidate_clone_mapping_from_source<L: ResolverLookup + Clo
 
     let registry = AdapterRegistry::widget_capabilities(source.server_version())
         .map_err(|_| CloneRevalidationError::new("clone_revalidation_adapter_missing"))?;
-    let model = source_model(source, &registry)
+    let model = clone_source_model(source, &registry)
         .map_err(|_| CloneRevalidationError::new("clone_revalidation_source_invalid"))?;
 
     for mapping in &mut fresh_state.mappings {
@@ -323,15 +323,34 @@ pub(crate) async fn revalidate_clone_mapping_from_source<L: ResolverLookup + Clo
             ClonePatternAction::Replace { preview } => preview.target_pattern.clone(),
             ClonePatternAction::KeepAsIs => decision.requirement.source_pattern.clone(),
         };
-        let preview = match preview_clone_pattern(
-            lookup,
-            decision.requirement.clone(),
-            target_pattern,
-            &checked_slots,
-        )
-        .await
-        {
-            Ok(preview) => preview,
+        let reviewed = if model.profile == AdapterProfile::V8_0 {
+            let fields = snapshot_pattern_fields(source, &decision.requirement)
+                .map_err(|error| CloneRevalidationError::new(error.code()))?;
+            preview_clone_pattern_8_0(
+                lookup,
+                decision.requirement.clone(),
+                target_pattern,
+                &checked_slots,
+                fields,
+            )
+            .await
+            .map(|(preview, _)| preview)
+        } else {
+            preview_clone_pattern(
+                lookup,
+                decision.requirement.clone(),
+                target_pattern,
+                &checked_slots,
+            )
+            .await
+        };
+        let preview = match reviewed {
+            Ok(preview) if !preview.truncated => preview,
+            Ok(_) => {
+                return Err(CloneRevalidationError::new(
+                    "clone_pattern_preview_truncated",
+                ));
+            }
             Err(error) if error.code() == "clone_pattern_target_not_visible" => {
                 mark_pattern(
                     decision,
@@ -344,6 +363,14 @@ pub(crate) async fn revalidate_clone_mapping_from_source<L: ResolverLookup + Clo
         };
         if let ClonePatternAction::Replace { preview: stored } = &decision.action
             && **stored != preview
+        {
+            mark_pattern(
+                decision,
+                CloneBindingCheck::Stale,
+                CloneCheckReason::PatternChanged,
+            );
+        }
+        if model.profile == AdapterProfile::V8_0 && decision.action == ClonePatternAction::KeepAsIs
         {
             mark_pattern(
                 decision,

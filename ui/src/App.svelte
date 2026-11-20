@@ -234,7 +234,9 @@
       event.preventDefault();
       if (path !== location.pathname) navigate(path);
     };
+    const onFocus = (): void => appearance.refreshIfIdle();
     window.addEventListener('popstate', onPopState);
+    window.addEventListener('focus', onFocus);
     document.addEventListener('click', onClick);
     loadHealth().catch(() => {
       backendUnavailable = true;
@@ -244,6 +246,7 @@
     void recovery.load();
     return () => {
       window.removeEventListener('popstate', onPopState);
+      window.removeEventListener('focus', onFocus);
       document.removeEventListener('click', onClick);
     };
   });
@@ -287,7 +290,7 @@
       {:else}<div class="screen">
         <a href="/drafts">{i18n.t('drafts.title')}</a>
         <p>{i18n.t('object.kind.dashboard')} · {i18n.t('object.origin.local')}</p>
-        {#key route.localId}<OfflineDashboardBuilder {i18n} initialDashboard={namedLoad.dashboard} onchanged={(dashboard) => { draftLoad = { localId: dashboard.local_id, result: { status: 'offline_dashboard', dashboard } }; }} />{/key}
+        {#key route.localId}<OfflineDashboardBuilder {i18n} initialDashboard={namedLoad.dashboard} active={connections.list?.active ?? null} profile={activeId ? connections.profile(activeId) : null} onchanged={(dashboard) => { draftLoad = { localId: dashboard.local_id, result: { status: 'offline_dashboard', dashboard } }; }} />{/key}
       </div>{/if}
     </main>
   {:else if namedLoad?.status === 'offline_page' && draftLoad?.localId === route.localId}
@@ -299,7 +302,7 @@
           <a href={draftPath(route.localId, 'structure')}>{i18n.t('draft.nav.structure')}</a>
           <a href={draftPath(route.localId, 'checks')}>{i18n.t('draft.nav.checks')}</a>
         </nav>
-        {#key route.localId}<OfflinePageBuilder {i18n} clipboard={pageClipboard} view={route.section === 'checks' ? 'checks' : 'edit'} initialPage={namedLoad.page} onchanged={(page) => { draftLoad = { localId: page.local_id, result: { status: 'offline_page', page } }; }} />{/key}
+        {#key route.localId}<OfflinePageBuilder {i18n} clipboard={pageClipboard} view={route.section === 'checks' ? 'checks' : 'edit'} initialPage={namedLoad.page} active={connections.list?.active ?? null} profile={activeId ? connections.profile(activeId) : null} onchanged={(page) => { draftLoad = { localId: page.local_id, result: { status: 'offline_page', page } }; }} />{/key}
       </div>
     </main>
   {:else}

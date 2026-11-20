@@ -3,8 +3,8 @@
 use axum::{extract::Query, http::Uri};
 use zdashstitch_application::{
     CloneLldRow, ClonePatternReviewRequest, ClonePublicationRequest, CloneSeriesOption,
-    CloneSetupRequest, SavedCloneWorkcopy, clone_mapping::ClonePatternRequirement,
-    plan_clone_dashboard,
+    CloneSetupRequest, DashboardAccessState, SavedCloneWorkcopy,
+    clone_mapping::ClonePatternRequirement, plan_clone_dashboard_with_access,
 };
 
 use super::*;
@@ -20,6 +20,31 @@ pub(super) fn routes() -> Router<LocalSecurity> {
             "/drafts/{local_id}/portable-pattern-review",
             post(review_portable_pattern),
         )
+        .route(
+            "/drafts/{local_id}/portable-pattern-confirm",
+            post(confirm_portable_pattern),
+        )
+        .route(
+            "/drafts/{local_id}/portable-pattern-reopen",
+            post(reopen_portable_pattern),
+        )
+        .route(
+            "/drafts/{local_id}/portable-pattern-hosts",
+            get(portable_pattern_hosts),
+        )
+        .route(
+            "/drafts/{local_id}/portable-lld-review",
+            post(review_portable_lld),
+        )
+        .route(
+            "/drafts/{local_id}/portable-lld-confirm",
+            post(confirm_portable_lld),
+        )
+        .route(
+            "/drafts/{local_id}/portable-lld-reopen",
+            post(reopen_portable_lld),
+        )
+        .route("/drafts/{local_id}/portable-sources", get(portable_sources))
         .route("/drafts/{local_id}/clone/hosts", get(hosts))
         .route(
             "/drafts/{local_id}/clone/review-bindings",
@@ -39,6 +64,213 @@ pub(super) fn routes() -> Router<LocalSecurity> {
             get(comparison),
         )
         .route("/drafts/{local_id}/clone/{clone_id}/plan", post(plan_clone))
+}
+
+#[derive(serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+struct PortableSourcesQuery {
+    revision: u64,
+}
+
+async fn portable_sources(
+    Extension(connections): Extension<ConnectionsHandle>,
+    Extension(drafts): Extension<DraftsHandle>,
+    PathParams(local_id): PathParams<String>,
+    Query(query): Query<PortableSourcesQuery>,
+) -> Response {
+    respond(
+        run(connections, drafts, move |service, _, _| async move {
+            service
+                .portable_source_entries(&local_id, query.revision)
+                .map_err(workcopy_failure)
+        })
+        .await,
+    )
+}
+
+async fn reopen_portable_lld(
+    Extension(connections): Extension<ConnectionsHandle>,
+    Extension(drafts): Extension<DraftsHandle>,
+    PathParams(local_id): PathParams<String>,
+    body: Bytes,
+) -> Response {
+    let request: zdashstitch_application::portable_lld_review::PortableLldReopenRequest =
+        match parse(&body) {
+            Ok(value) => value,
+            Err(error) => return error.into_response(),
+        };
+    respond(
+        run(
+            connections,
+            drafts,
+            move |service, _, connections| async move {
+                let connections = connections.ok_or_else(|| failure(not_connected()))?;
+                let guard = connections.lock().await;
+                let reader = guard.reader().ok_or_else(|| failure(not_connected()))?;
+                service
+                    .reopen_portable_lld(reader, &local_id, &request)
+                    .await
+                    .map_err(workcopy_failure)
+            },
+        )
+        .await,
+    )
+}
+
+async fn review_portable_lld(
+    Extension(connections): Extension<ConnectionsHandle>,
+    Extension(drafts): Extension<DraftsHandle>,
+    PathParams(local_id): PathParams<String>,
+    body: Bytes,
+) -> Response {
+    let request: zdashstitch_application::portable_lld_review::PortableLldReviewRequest =
+        match parse(&body) {
+            Ok(value) => value,
+            Err(error) => return error.into_response(),
+        };
+    respond(
+        run(
+            connections,
+            drafts,
+            move |service, _, connections| async move {
+                let connections = connections.ok_or_else(|| failure(not_connected()))?;
+                let guard = connections.lock().await;
+                let reader = guard.reader().ok_or_else(|| failure(not_connected()))?;
+                service
+                    .review_portable_lld(reader, &local_id, &request)
+                    .await
+                    .map_err(workcopy_failure)
+            },
+        )
+        .await,
+    )
+}
+async fn confirm_portable_lld(
+    Extension(connections): Extension<ConnectionsHandle>,
+    Extension(drafts): Extension<DraftsHandle>,
+    PathParams(local_id): PathParams<String>,
+    body: Bytes,
+) -> Response {
+    let request: zdashstitch_application::portable_lld_review::PortableLldConfirmRequest =
+        match parse(&body) {
+            Ok(value) => value,
+            Err(error) => return error.into_response(),
+        };
+    respond(
+        run(
+            connections,
+            drafts,
+            move |service, _, connections| async move {
+                let connections = connections.ok_or_else(|| failure(not_connected()))?;
+                let guard = connections.lock().await;
+                let reader = guard.reader().ok_or_else(|| failure(not_connected()))?;
+                service
+                    .confirm_portable_lld(reader, &local_id, &request)
+                    .await
+                    .map_err(workcopy_failure)
+            },
+        )
+        .await,
+    )
+}
+
+async fn confirm_portable_pattern(
+    Extension(connections): Extension<ConnectionsHandle>,
+    Extension(drafts): Extension<DraftsHandle>,
+    PathParams(local_id): PathParams<String>,
+    body: Bytes,
+) -> Response {
+    let request: zdashstitch_application::portable_pattern_review::PortablePatternConfirmRequest =
+        match parse(&body) {
+            Ok(request) => request,
+            Err(error) => return error.into_response(),
+        };
+    respond(
+        run(
+            connections,
+            drafts,
+            move |service, _, connections| async move {
+                let connections = connections.ok_or_else(|| failure(not_connected()))?;
+                let guard = connections.lock().await;
+                let reader = guard.reader().ok_or_else(|| failure(not_connected()))?;
+                service
+                    .confirm_saved_portable_pattern(reader, &local_id, &request)
+                    .await
+                    .map_err(workcopy_failure)
+            },
+        )
+        .await,
+    )
+}
+
+async fn reopen_portable_pattern(
+    Extension(connections): Extension<ConnectionsHandle>,
+    Extension(drafts): Extension<DraftsHandle>,
+    PathParams(local_id): PathParams<String>,
+    body: Bytes,
+) -> Response {
+    let request: zdashstitch_application::portable_pattern_review::PortablePatternReopenRequest =
+        match parse(&body) {
+            Ok(request) => request,
+            Err(error) => return error.into_response(),
+        };
+    respond(
+        run(
+            connections,
+            drafts,
+            move |service, _, connections| async move {
+                let connections = connections.ok_or_else(|| failure(not_connected()))?;
+                let guard = connections.lock().await;
+                let reader = guard.reader().ok_or_else(|| failure(not_connected()))?;
+                service
+                    .reopen_saved_portable_pattern(reader, &local_id, &request)
+                    .await
+                    .map_err(workcopy_failure)
+            },
+        )
+        .await,
+    )
+}
+
+async fn portable_pattern_hosts(
+    Extension(connections): Extension<ConnectionsHandle>,
+    Extension(drafts): Extension<DraftsHandle>,
+    PathParams(_local_id): PathParams<String>,
+    uri: Uri,
+) -> Response {
+    let Ok(Query(query)) = Query::<HostQuery>::try_from_uri(&uri) else {
+        return code(StatusCode::BAD_REQUEST, "request_invalid").into_response();
+    };
+    if query.search.chars().count() > 128 {
+        return code(StatusCode::BAD_REQUEST, "request_invalid").into_response();
+    }
+    respond(
+        run(
+            connections,
+            drafts,
+            move |service, _, connections| async move {
+                let connections = connections.ok_or_else(|| failure(not_connected()))?;
+                let guard = connections.lock().await;
+                let reader = guard.reader().ok_or_else(|| failure(not_connected()))?;
+                let found = service
+                    .clone_target_hosts(reader, &query.search)
+                    .await
+                    .map_err(workcopy_failure)?;
+                Ok(HostList {
+                    hosts: found
+                        .objects
+                        .into_iter()
+                        .map(|host| Host {
+                            hostid: host.hostid,
+                            name: host.name,
+                        })
+                        .collect(),
+                    truncated: found.truncated,
+                })
+            },
+        )
+        .await,
+    )
 }
 
 async fn review_portable_pattern(
@@ -202,6 +434,7 @@ struct SetupBody {
     patterns: Vec<ClonePatternRequirement>,
     unattributed: usize,
     growth_samples: Vec<CloneSeriesOption>,
+    review_visible_patterns: bool,
 }
 
 async fn setup(
@@ -240,6 +473,7 @@ async fn setup(
                     patterns: setup.patterns,
                     unattributed: setup.inventory.unattributed.len(),
                     growth_samples: setup.growth_samples,
+                    review_visible_patterns: setup.review_visible_patterns,
                 })
             },
         )
@@ -380,6 +614,7 @@ struct DraftBody {
     kept_fields: Vec<String>,
     kept_digest: Option<String>,
     missing_contracts: Vec<&'static str>,
+    can_copy_source_access: bool,
     blocked: Option<&'static str>,
     last_outcome: Option<OutcomeBody>,
 }
@@ -445,6 +680,7 @@ fn draft_body(
         kept_fields,
         kept_digest,
         missing_contracts,
+        can_copy_source_access: branch.draft().base().dashboard_access_state().is_some(),
         blocked,
         last_outcome,
     })
@@ -549,6 +785,7 @@ async fn comparison(
 #[serde(deny_unknown_fields)]
 struct ClonePlanRequest {
     kept_digest: Option<String>,
+    copy_source_access: Option<bool>,
 }
 
 #[derive(Serialize)]
@@ -558,6 +795,8 @@ struct ClonePlan {
     name: String,
     pages: usize,
     widgets: usize,
+    access: Option<DashboardAccessState>,
+    access_visible_only: bool,
 }
 
 async fn plan_clone(
@@ -596,10 +835,18 @@ async fn plan_clone(
                     kept_digest: input.kept_digest,
                     session: admitted,
                 };
-                let plan = plan_clone_dashboard(&service, &journal, &session, &guard, &request)
-                    .await
-                    .map_err(create_plan_failure)?;
+                let plan = plan_clone_dashboard_with_access(
+                    &service,
+                    &journal,
+                    &session,
+                    &guard,
+                    &request,
+                    input.copy_source_access.unwrap_or(true),
+                )
+                .await
+                .map_err(create_plan_failure)?;
                 let preview = plan.preview();
+                let access_visible_only = plan.copies_visible_access_only();
                 let handle = new_handle()?;
                 plans.insert(StoredPlan {
                     handle: handle.clone(),
@@ -620,6 +867,8 @@ async fn plan_clone(
                     name: preview.target_name,
                     pages: preview.page_count,
                     widgets: preview.widget_count,
+                    access: preview.access,
+                    access_visible_only,
                 })
             },
         )

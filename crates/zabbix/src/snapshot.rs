@@ -6,7 +6,10 @@ use std::fmt::Write as _;
 use serde_json::Value;
 use sha2::{Digest, Sha256};
 
-use crate::{Result, ZabbixError, ZabbixVersion};
+use crate::{
+    AdapterProfile, AdapterRegistry, Result, WidgetCapabilityRegistry, WidgetFieldType,
+    ZabbixError, ZabbixVersion, is_zabbix_id,
+};
 
 pub const ADAPTER_ID_7_4: &str = "zabbix-7.4";
 
@@ -20,14 +23,14 @@ const STORAGE_FINGERPRINT_DOMAIN: &[u8] = b"zdashstitch-dashboard-snapshot-v1\0"
 /// tag, so a value of one kind never equals a value of the other kind.
 const CANONICAL_FINGERPRINT_DOMAIN: &[u8] = b"zdashstitch-dashboard-canonical-v2\0";
 
-/// A dashboard as read through the 7.4 adapter, with two fingerprints of
+/// A dashboard at a selected adapter boundary, with two fingerprints of
 /// different purpose:
 ///
 /// - [`Self::fingerprint`] compares **server state**: Remote with Base,
 ///   the source before send, the expected document with the read-back and
-///   the reconciliation read. It is computed over [`canonical_document`],
-///   because Zabbix 7.4 returns widgets and widget fields in no defined
-///   order.
+///   the reconciliation read. The 7.4 profile uses [`canonical_document`]
+///   with proven ordering rules. Other profiles keep array order until
+///   independently verified read contracts define normalization.
 /// - [`Self::storage_fingerprint`] identifies the **stored bytes** of the
 ///   raw document: the local snapshot store names and verifies files with
 ///   it, and a workcopy refers to its Base with it. It never decides
@@ -36,7 +39,7 @@ const CANONICAL_FINGERPRINT_DOMAIN: &[u8] = b"zdashstitch-dashboard-canonical-v2
 pub struct VersionedDashboardSnapshot {
     connection_id: String,
     server_version: ZabbixVersion,
-    adapter_id: &'static str,
+    profile: AdapterProfile,
     raw_api_document: Value,
     fingerprint: String,
     storage_fingerprint: String,
@@ -51,6 +54,7 @@ impl VersionedDashboardSnapshot {
         server_version: ZabbixVersion,
         raw_api_document: Value,
     ) -> Result<Self> {
+        let profile = AdapterRegistry::resolve_profile(&server_version)?;
         require_string(&raw_api_document, "dashboardid", "dashboard")?;
         require_array(&raw_api_document, "pages", "dashboard")?;
         let raw = serde_json::to_vec(&raw_api_document).map_err(ZabbixError::InvalidResponse)?;
@@ -61,7 +65,11 @@ impl VersionedDashboardSnapshot {
             &raw,
         )?;
         let mut canonical = Vec::with_capacity(raw.len());
-        write_canonical(&canonical_document(&raw_api_document), &mut canonical)?;
+        let comparison_document = match profile {
+            AdapterProfile::V7_4 => canonical_document(&raw_api_document),
+            AdapterProfile::V8_0 => raw_api_document.clone(),
+        };
+        write_canonical(&comparison_document, &mut canonical)?;
         let fingerprint = digest(
             CANONICAL_FINGERPRINT_DOMAIN,
             &connection_id,
@@ -71,7 +79,7 @@ impl VersionedDashboardSnapshot {
         Ok(Self {
             connection_id,
             server_version,
-            adapter_id: ADAPTER_ID_7_4,
+            profile,
             raw_api_document,
             fingerprint,
             storage_fingerprint,
@@ -93,16 +101,15 @@ impl VersionedDashboardSnapshot {
     }
 
     pub const fn adapter_id(&self) -> &'static str {
-        self.adapter_id
+        self.profile.adapter_id()
     }
 
     pub fn raw_api_document(&self) -> &Value {
         &self.raw_api_document
     }
 
-    /// Canonical fingerprint (64 lowercase hex): equal for two reads of
-    /// the same server state whatever order Zabbix returned widgets and
-    /// fields in. Use it for every comparison of server state.
+    /// Comparison fingerprint (64 lowercase hex). Order normalization of
+    /// widgets and fields is specific to the proven 7.4 contract.
     pub fn fingerprint(&self) -> &str {
         &self.fingerprint
     }
@@ -116,7 +123,7 @@ impl VersionedDashboardSnapshot {
     }
 
     pub fn analyze(&self) -> Result<DashboardSnapshotAnalysis> {
-        analyze(&self.raw_api_document)
+        analyze(&self.raw_api_document, self.profile)
     }
 }
 
@@ -124,6 +131,8 @@ impl VersionedDashboardSnapshot {
 pub enum DependencyKind {
     Item,
     Graph,
+    ItemPrototype,
+    GraphPrototype,
     Host,
     /// Host name or mask stored as a string, e.g. `svggraph` `ds.N.hosts.N`.
     HostPattern,
@@ -281,9 +290,10 @@ fn name_chars(value: &Value) -> usize {
         .map_or(0, |name| name.chars().count())
 }
 
-fn analyze(dashboard: &Value) -> Result<DashboardSnapshotAnalysis> {
+fn analyze(dashboard: &Value, profile: AdapterProfile) -> Result<DashboardSnapshotAnalysis> {
     let dashboardid = require_string(dashboard, "dashboardid", "dashboard")?.to_owned();
     let pages = require_array(dashboard, "pages", "dashboard")?;
+    let read_fields = (profile == AdapterProfile::V8_0).then(WidgetCapabilityRegistry::v8_0);
     let mut widgets_out = Vec::new();
     let mut dependencies = Vec::new();
     let mut widget_count = 0usize;
@@ -298,7 +308,14 @@ fn analyze(dashboard: &Value) -> Result<DashboardSnapshotAnalysis> {
         max_page_name_chars = max_page_name_chars.max(name_chars(page));
         for (widget_index, widget) in widgets.iter().enumerate() {
             let widget_type = require_string(widget, "type", "dashboard widget")?.to_owned();
-            let known_widget = matches!(widget_type.as_str(), "item" | "svggraph" | "graph");
+            let capability = read_fields
+                .as_ref()
+                .and_then(|registry| registry.find(&widget_type));
+            let known_widget = if read_fields.is_some() {
+                capability.is_some()
+            } else {
+                matches!(widget_type.as_str(), "item" | "svggraph" | "graph")
+            };
             let widget_state = if known_widget {
                 DependencyState::DiscoveredReadOnly
             } else {
@@ -336,7 +353,32 @@ fn analyze(dashboard: &Value) -> Result<DashboardSnapshotAnalysis> {
                 };
                 let field_type = field.get("type").and_then(value_as_i64);
                 let value = field.get("value").cloned().unwrap_or(Value::Null);
-                let kind = classify_field(&widget_type, field_name, field_type, &value);
+                if read_fields.is_some()
+                    && !capability.is_some_and(|capability| {
+                        field_type
+                            .and_then(|number| u16::try_from(number).ok())
+                            .and_then(|number| WidgetFieldType::try_from(number).ok())
+                            .is_some_and(|kind| {
+                                capability.knows_field(field_name, kind)
+                                    && match kind {
+                                        WidgetFieldType::Integer => value_as_i64(&value).is_some(),
+                                        WidgetFieldType::String => value.is_string(),
+                                        _ => value.as_str().is_some_and(is_zabbix_id),
+                                    }
+                            })
+                    })
+                {
+                    dependencies.push(unknown_dependency(
+                        page_index,
+                        widget_index,
+                        &widget_type,
+                        field_name,
+                        field_type,
+                        value,
+                    ));
+                    continue;
+                }
+                let kind = classify_field(profile, &widget_type, field_name, field_type, &value);
                 let Some(kind) = kind else { continue };
                 let state = if known_widget && kind != DependencyKind::Unknown {
                     DependencyState::DiscoveredReadOnly
@@ -371,6 +413,7 @@ fn analyze(dashboard: &Value) -> Result<DashboardSnapshotAnalysis> {
 }
 
 fn classify_field(
+    profile: AdapterProfile,
     widget_type: &str,
     name: &str,
     field_type: Option<i64>,
@@ -385,13 +428,18 @@ fn classify_field(
     {
         return Some(kind);
     }
-    if name.ends_with("._reference") || value.as_str().is_some_and(is_widget_reference_value) {
+    if name.ends_with("._reference")
+        || (profile == AdapterProfile::V7_4
+            && value.as_str().is_some_and(is_widget_reference_value))
+    {
         return Some(DependencyKind::WidgetReference);
     }
     match field_type {
         Some(3) => Some(DependencyKind::Host),
         Some(4) => Some(DependencyKind::Item),
         Some(6) => Some(DependencyKind::Graph),
+        Some(5) if profile == AdapterProfile::V8_0 => Some(DependencyKind::ItemPrototype),
+        Some(7) if profile == AdapterProfile::V8_0 => Some(DependencyKind::GraphPrototype),
         Some(5 | 7) => Some(DependencyKind::Unknown),
         _ => None,
     }
@@ -611,7 +659,9 @@ mod tests {
     use serde_json::{Value, json};
     use sha2::{Digest, Sha256};
 
-    use super::{DependencyKind, DependencyState, VersionedDashboardSnapshot, analyze};
+    use super::{
+        AdapterProfile, DependencyKind, DependencyState, VersionedDashboardSnapshot, analyze,
+    };
 
     fn snapshot(raw: Value) -> VersionedDashboardSnapshot {
         VersionedDashboardSnapshot::from_adapter_raw(
@@ -651,6 +701,58 @@ mod tests {
         raw["pages"][page]["widgets"][widget]["fields"]
             .as_array_mut()
             .unwrap_or_else(|| panic!("fields"))
+    }
+
+    #[test]
+    fn legacy_fingerprint_values_remain_stable() {
+        let raw = json!({"dashboardid":"7","pages":[{"widgets":[
+            {"widgetid":"2","fields":[{"name":"b","type":"1","value":"x"},{"name":"a","type":"1","value":"y"}]},
+            {"widgetid":"1","fields":[]}
+        ]}]});
+        let snapshot = snapshot(raw);
+        assert_eq!(snapshot.adapter_id(), "zabbix-7.4");
+        assert_eq!(
+            snapshot.storage_fingerprint(),
+            "b264deee3d7f29cf9acc16c00e3029ee6c7b98843a1af58ae96d1f86008dfd48"
+        );
+        assert_eq!(
+            snapshot.fingerprint(),
+            "b254fea19efea25dda534dadb7a69d34d666d44ea8084dd687006f8e87181c10"
+        );
+    }
+
+    #[test]
+    fn eight_zero_has_separate_identity_without_unproven_array_normalization() {
+        let raw = dashboard();
+        let version = "8.0.0"
+            .parse()
+            .unwrap_or_else(|error| panic!("version: {error}"));
+        let first =
+            VersionedDashboardSnapshot::from_adapter_raw("c".to_owned(), version, raw.clone())
+                .unwrap_or_else(|error| panic!("snapshot: {error}"));
+        let mut reordered = raw;
+        fields(&mut reordered, 0, 0).reverse();
+        let second = VersionedDashboardSnapshot::from_adapter_raw(
+            "c".to_owned(),
+            "8.0.0"
+                .parse()
+                .unwrap_or_else(|error| panic!("version: {error}")),
+            reordered,
+        )
+        .unwrap_or_else(|error| panic!("snapshot: {error}"));
+        assert_eq!(first.adapter_id(), "zabbix-8.0");
+        assert_ne!(first.fingerprint(), second.fingerprint());
+        assert_ne!(first.storage_fingerprint(), second.storage_fingerprint());
+        assert!(
+            VersionedDashboardSnapshot::from_adapter_raw(
+                "c".to_owned(),
+                "7.0.19"
+                    .parse()
+                    .unwrap_or_else(|error| panic!("version: {error}")),
+                dashboard(),
+            )
+            .is_err()
+        );
     }
 
     #[test]
@@ -806,8 +908,8 @@ mod tests {
                 ]
             }]}]
         });
-        let analysis =
-            analyze(&dashboard).unwrap_or_else(|error| panic!("analysis must succeed: {error}"));
+        let analysis = analyze(&dashboard, AdapterProfile::V7_4)
+            .unwrap_or_else(|error| panic!("analysis must succeed: {error}"));
         let kinds: Vec<_> = analysis
             .dependencies
             .iter()
@@ -840,8 +942,8 @@ mod tests {
                 "fields": [{"type": "1", "name": "ds.0.hosts.0", "value": "x"}]
             }]}]
         });
-        let analysis =
-            analyze(&dashboard).unwrap_or_else(|error| panic!("analysis must succeed: {error}"));
+        let analysis = analyze(&dashboard, AdapterProfile::V7_4)
+            .unwrap_or_else(|error| panic!("analysis must succeed: {error}"));
         assert!(analysis.dependencies.is_empty());
     }
 }

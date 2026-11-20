@@ -18,7 +18,7 @@
     draft: DraftDetail;
     /** «… (копия N)» for the new local copy (P2-08A). */
     copyName: string;
-    onsavecopy: () => void;
+    onsavecopy?: () => void;
   } = $props();
 
   const dashboardName = $derived(draft.source?.dashboard_name ?? draft.name);
@@ -87,10 +87,12 @@
 
     <aside class="card" aria-labelledby="publication-conflict-next">
       <h3 id="publication-conflict-next" class="eyebrow">{i18n.t('publication.conflict.next_title')}</h3>
-      <div class="exit">
-        <Button {i18n} variant="primary" label={{ id: 'publication.target.save_copy' }} onclick={onsavecopy} />
-        <p class="muted">{i18n.t('publication.conflict.save_copy_hint')}</p>
-      </div>
+      {#if onsavecopy}
+        <div class="exit">
+          <Button {i18n} variant="primary" label={{ id: 'publication.target.save_copy' }} onclick={onsavecopy} />
+          <p class="muted">{i18n.t('publication.conflict.save_copy_hint')}</p>
+        </div>
+      {/if}
       {#if state !== 'source_missing'}
         <div class="exit">
           <Button {i18n} label={{ id: 'workcopy.refetch.action' }} busy={store.refetching} disabled={store.refetching} onclick={() => void store.refetch(copyName)}>

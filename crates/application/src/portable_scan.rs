@@ -5,7 +5,9 @@ use serde::Serialize;
 use serde_json::Value;
 use std::net::IpAddr;
 use zdashstitch_core::formats::{ProjectRoot, RegistryState, TypedPortableBundle, Widget};
-use zdashstitch_zabbix::{WidgetCapabilityRegistry, WidgetFieldType};
+use zdashstitch_zabbix::{AdapterProfile, WidgetFieldType};
+
+use crate::compatibility::project_evaluation_profile;
 
 const LIMIT: usize = 256;
 
@@ -33,7 +35,8 @@ pub fn scan(bundle: &TypedPortableBundle) -> Result<CandidateScan, serde_json::E
         credential_candidates: 0,
     };
     visit(&value, "", &mut result);
-    let registry = WidgetCapabilityRegistry::v7_4();
+    let registry =
+        project_evaluation_profile(&bundle.project).map(AdapterProfile::widget_capabilities);
     let pages: Vec<_> = match &bundle.project.root {
         ProjectRoot::Page(page) => vec![page],
         ProjectRoot::Dashboard(dashboard) => dashboard.pages.iter().collect(),
@@ -49,7 +52,9 @@ pub fn scan(bundle: &TypedPortableBundle) -> Result<CandidateScan, serde_json::E
             else {
                 continue;
             };
-            let capability = registry.find(widget_type);
+            let capability = registry
+                .as_ref()
+                .and_then(|registry| registry.find(widget_type));
             let unverified = capability.is_none_or(|capability| {
                 capability.fields.is_empty()
                     || fields.iter().any(|field| {
@@ -146,6 +151,11 @@ fn visit(value: &Value, path: &str, result: &mut CandidateScan) {
                 && fields.get("value").is_some_and(Value::is_string)
             {
                 add(result, "metric_key", &format!("{path}/value"));
+            }
+            if fields.get("kind").and_then(Value::as_str) == Some("lld_instance")
+                && fields.get("source_key").is_some_and(Value::is_string)
+            {
+                add(result, "metric_key", &format!("{path}/source_key"));
             }
             if fields.get("kind").and_then(Value::as_str) == Some("alias")
                 && fields.get("value").is_some_and(Value::is_string)
@@ -315,6 +325,31 @@ fn visit(value: &Value, path: &str, result: &mut CandidateScan) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn lld_source_key_is_reported_without_disclosing_its_value() {
+        let mut result = CandidateScan {
+            findings: Vec::new(),
+            truncated: false,
+            unknown_objects: 0,
+            credential_candidates: 0,
+        };
+        visit(
+            &serde_json::json!({"kind":"lld_instance","source_key":"private.key[instance]"}),
+            "/field",
+            &mut result,
+        );
+        assert!(
+            result
+                .findings
+                .iter()
+                .any(|entry| entry.kind == "metric_key" && entry.location == "/field/source_key")
+        );
+        assert!(
+            !serde_json::to_string(&result)
+                .unwrap_or_default()
+                .contains("private.key")
+        );
+    }
     #[test]
     fn candidates_do_not_return_values_and_limit_is_bounded() {
         assert!(has_credential_marker(r#"{"password":"synthetic"}"#));

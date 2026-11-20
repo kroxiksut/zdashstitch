@@ -163,6 +163,12 @@
               </div>
               <div><dt>{i18n.t('connection.test.details.time')}</dt><dd>{i18n.date(parseTimestamp(report.checked_at), DATE_TIME_FORMAT)}</dd></div>
               <div><dt>{i18n.t('connection.test.details.version')}</dt><dd class="technical">{report.server_version ?? '—'}</dd></div>
+              {#if report.role_api_access}
+                <div>
+                  <dt>{i18n.t('connection.test.details.role_api_access')}</dt>
+                  <dd>{i18n.t(report.role_api_access === 'enabled' ? 'connection.test.role_api_access.enabled' : report.role_api_access === 'disabled' ? 'connection.test.role_api_access.disabled' : 'connection.test.role_api_access.unverified')}</dd>
+                </div>
+              {/if}
             </dl>
             <Checkbox {i18n} id="connection-report-address" label={{ id: 'connection.test.report.include_address' }} bind:checked={includeAddress} />
             <Button {i18n} label={{ id: 'connection.test.report.copy' }} onclick={() => void copyReport()} />

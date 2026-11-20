@@ -1,0 +1,16 @@
+{
+  "items": [
+    {"itemid": "8301", "hostid": "8501", "key_": "synthetic.numeric", "name": "Numeric", "value_type": "0", "flags": "0"},
+    {"itemid": "8302", "hostid": "8501", "key_": "synthetic.json", "name": "JSON", "value_type": "6", "flags": "0"},
+    {"itemid": "8303", "hostid": "8501", "key_": "synthetic.discovery[alpha]", "name": "Discovered JSON", "value_type": "6", "flags": "4", "discoveryData": {"parent_itemid": "8601", "key_": "synthetic.discovery[{#KEY}]"}}
+  ],
+  "itemprototypes": [
+    {"itemid": "8601", "hostid": "8501", "key_": "synthetic.discovery[{#KEY}]", "name": "JSON prototype", "value_type": "6", "flags": "2", "discoveryRule": {"itemid": "8701"}}
+  ],
+  "graphs": [
+    {"graphid": "8401", "name": "Classic graph", "templateid": "0", "flags": "0", "hosts": [{"hostid": "8501"}]}
+  ],
+  "graphprototypes": [
+    {"graphid": "8402", "name": "Graph prototype", "templateid": "0", "hosts": [{"hostid": "8501"}], "discoveryRule": {"itemid": "8701"}}
+  ]
+}

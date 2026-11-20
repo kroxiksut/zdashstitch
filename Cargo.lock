@@ -4761,12 +4761,14 @@ dependencies = [
  "cap-std",
  "getrandom 0.4.3",
  "keyring",
+ "reqwest",
  "secrecy",
  "serde",
  "serde_json",
  "sha2 0.10.9",
  "tempfile",
  "thiserror 2.0.21",
+ "time",
  "tokio",
  "zdashstitch-core",
  "zdashstitch-template-import",
@@ -4811,6 +4813,7 @@ dependencies = [
  "cap-std",
  "getrandom 0.4.3",
  "http-body-util",
+ "reqwest",
  "rfd",
  "serde",
  "serde_json",
@@ -4824,6 +4827,7 @@ dependencies = [
  "unicode-normalization",
  "zdashstitch-application",
  "zdashstitch-core",
+ "zdashstitch-zabbix",
 ]
 
 [[package]]

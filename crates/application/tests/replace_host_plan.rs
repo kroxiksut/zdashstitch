@@ -1775,7 +1775,11 @@ async fn remote_is_re_read_on_open_on_command_and_before_preview() {
     .unwrap_or_else(|error| panic!("recheck: {error}"));
     assert!(recheck.allows_plan(), "{:?}", recheck.preview.report);
 
-    lock(&mock.data).dashboard["pages"][2]["name"] = json!("Concurrent edit");
+    {
+        let mut data = lock(&mock.data);
+        data.dashboard["pages"][2]["name"] = json!("Concurrent edit");
+        data.calls.clear();
+    }
     let conflict = recheck_replace_host(
         &mock.service,
         reader,
@@ -1792,6 +1796,23 @@ async fn remote_is_re_read_on_open_on_command_and_before_preview() {
     assert_eq!(
         conflict.source.invalidated,
         Some(PlanInvalidReason::SourceChanged)
+    );
+    let diff = conflict
+        .remote_diff
+        .as_ref()
+        .unwrap_or_else(|| panic!("conflict diff"));
+    assert!(
+        diff.changes
+            .iter()
+            .any(|change| change.page_name.as_deref() == Some("Concurrent edit"))
+    );
+    assert_eq!(
+        lock(&mock.data)
+            .calls
+            .iter()
+            .filter(|call| call["method"] == "dashboard.get")
+            .count(),
+        1
     );
     assert!(!conflict.allows_plan());
     assert!(matches!(

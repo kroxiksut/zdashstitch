@@ -7,7 +7,8 @@ use zdashstitch_zabbix::ReadOnlyGateway;
 
 use crate::clone_mapping::{
     ClonePatternDecision, ClonePatternPreview, ClonePatternRequirement, SourceHostDecision,
-    TargetSlot, preview_clone_pattern,
+    TargetSlot, VisiblePatternMatch, preview_clone_pattern, preview_clone_pattern_8_0,
+    snapshot_pattern_fields,
 };
 use crate::resolver::FieldAddress;
 use crate::workcopy::WorkcopyError;
@@ -28,6 +29,8 @@ enum PatternAction {
     Replace {
         target_pattern: String,
         fingerprint: String,
+        #[serde(default)]
+        acknowledge_visible_outside: bool,
     },
 }
 
@@ -51,6 +54,7 @@ pub struct ClonePatternReview {
 struct NamedMatch {
     host: String,
     name: String,
+    outside: bool,
 }
 
 fn selected_slots(setup: &SetupMappings) -> Vec<TargetSlot> {
@@ -71,10 +75,27 @@ async fn fresh_preview(
     requirement: &ClonePatternRequirement,
     proposed: &str,
     slots: &[TargetSlot],
-) -> Result<(ClonePatternPreview, String), WorkcopyError> {
-    let preview = preview_clone_pattern(reader, requirement.clone(), proposed.to_owned(), slots)
+    source: &zdashstitch_zabbix::VersionedDashboardSnapshot,
+) -> Result<(ClonePatternPreview, Vec<VisiblePatternMatch>, String), WorkcopyError> {
+    let error = |error: crate::clone_mapping::ClonePatternError| WorkcopyError::new(error.code());
+    let (preview, visible) = if source.server_version().major == 8 {
+        preview_clone_pattern_8_0(
+            reader,
+            requirement.clone(),
+            proposed.to_owned(),
+            slots,
+            snapshot_pattern_fields(source, requirement).map_err(error)?,
+        )
         .await
-        .map_err(|error| WorkcopyError::new(error.code()))?;
+        .map_err(error)?
+    } else {
+        (
+            preview_clone_pattern(reader, requirement.clone(), proposed.to_owned(), slots)
+                .await
+                .map_err(error)?,
+            Vec::new(),
+        )
+    };
     let digest = fingerprint(&(
         reader.identity().fingerprint(),
         request.revision,
@@ -82,7 +103,7 @@ async fn fresh_preview(
         slots,
         &preview,
     ))?;
-    Ok((preview, digest))
+    Ok((preview, visible, digest))
 }
 
 pub(super) async fn review(
@@ -96,34 +117,51 @@ pub(super) async fn review(
         .find(|row| row.field == request.field)
         .ok_or_else(|| WorkcopyError::new("clone_pattern_decision_invalid"))?;
     let slots = selected_slots(setup);
-    let (preview, fingerprint) = fresh_preview(
+    let (preview, visible, fingerprint) = fresh_preview(
         reader,
         &request.setup,
         requirement,
         &request.target_pattern,
         &slots,
+        &setup.source,
     )
     .await?;
     let names = slots
         .iter()
         .map(|slot| (&slot.slot_id, &slot.host.name))
         .collect::<BTreeMap<_, _>>();
-    let matches = preview
-        .matches
-        .into_iter()
-        .map(|item| {
-            let host = names
-                .get(&item.slot_id)
-                .ok_or_else(|| WorkcopyError::new("clone_pattern_decision_invalid"))?;
-            Ok(NamedMatch {
-                host: (*host).clone(),
-                name: item.name,
+    let matches = if preview.visible_fingerprint.is_some() {
+        visible
+            .into_iter()
+            .map(|item| NamedMatch {
+                host: item.host_name,
+                name: item.item_name.unwrap_or_default(),
+                outside: !item.selected,
             })
-        })
-        .collect::<Result<_, _>>()?;
+            .collect()
+    } else {
+        preview
+            .matches
+            .into_iter()
+            .map(|item| {
+                let host = names
+                    .get(&item.slot_id)
+                    .ok_or_else(|| WorkcopyError::new("clone_pattern_decision_invalid"))?;
+                Ok(NamedMatch {
+                    host: (*host).clone(),
+                    name: item.name,
+                    outside: false,
+                })
+            })
+            .collect::<Result<Vec<_>, _>>()?
+    };
     Ok(ClonePatternReview {
         fingerprint,
-        match_count: preview.match_count,
+        match_count: if preview.visible_fingerprint.is_some() {
+            matches.len() as u32
+        } else {
+            preview.match_count
+        },
         matches,
         truncated: preview.truncated,
     })
@@ -135,8 +173,9 @@ pub(super) async fn apply(
     setup: &SetupMappings,
 ) -> Result<Vec<ClonePatternDecision>, WorkcopyError> {
     let invalid = || WorkcopyError::new("clone_pattern_decision_invalid");
+    let visible_review = setup.source.server_version().major == 8;
     if request.keep_patterns {
-        if !request.pattern_choices.is_empty() {
+        if !request.pattern_choices.is_empty() || (visible_review && !setup.patterns.is_empty()) {
             return Err(invalid());
         }
         return Ok(setup
@@ -159,15 +198,31 @@ pub(super) async fn apply(
             .remove(&requirement.field)
             .ok_or_else(|| WorkcopyError::new("clone_pattern_decision_required"))?;
         let decision = match action {
-            PatternAction::Keep => ClonePatternDecision::keep_as_is(requirement.clone()),
+            PatternAction::Keep if !visible_review => {
+                ClonePatternDecision::keep_as_is(requirement.clone())
+            }
+            PatternAction::Keep => {
+                return Err(WorkcopyError::new("clone_pattern_decision_required"));
+            }
             PatternAction::Replace {
                 target_pattern,
                 fingerprint,
+                acknowledge_visible_outside,
             } => {
-                let (preview, fresh) =
-                    fresh_preview(reader, request, requirement, target_pattern, &slots).await?;
+                let (preview, visible, fresh) = fresh_preview(
+                    reader,
+                    request,
+                    requirement,
+                    target_pattern,
+                    &slots,
+                    &setup.source,
+                )
+                .await?;
                 if &fresh != fingerprint {
                     return Err(WorkcopyError::new("clone_pattern_preview_stale"));
+                }
+                if visible.iter().any(|item| !item.selected) && !acknowledge_visible_outside {
+                    return Err(WorkcopyError::new("clone_pattern_decision_required"));
                 }
                 ClonePatternDecision::replace(preview)
                     .map_err(|error| WorkcopyError::new(error.code()))?

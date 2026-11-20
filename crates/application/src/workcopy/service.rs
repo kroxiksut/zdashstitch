@@ -273,7 +273,6 @@ fn draft_name(name: &str) -> Result<String, WorkcopyError> {
 #[derive(Clone, Debug)]
 pub struct WorkcopyService {
     pub(crate) store: LocalStore,
-    pub(crate) registry: WidgetCapabilityRegistry,
 }
 
 /// A workcopy ID with its load result; damaged files are reported, not hidden.
@@ -357,8 +356,14 @@ impl WorkcopyService {
     pub fn new(storage_root: PathBuf) -> Self {
         Self {
             store: LocalStore::at(storage_root),
-            registry: WidgetCapabilityRegistry::v7_4(),
         }
+    }
+
+    pub(crate) fn registry_for_version(
+        version: &zdashstitch_zabbix::ZabbixVersion,
+    ) -> Result<WidgetCapabilityRegistry, WorkcopyError> {
+        zdashstitch_zabbix::AdapterRegistry::widget_capabilities(version)
+            .map_err(|_| WorkcopyError::new("snapshot_unsupported_adapter"))
     }
 
     #[must_use]
@@ -397,6 +402,7 @@ impl WorkcopyService {
             .list_dashboards(search, MAX_DASHBOARD_LIST_LIMIT)
             .await
             .map_err(|error| zabbix_error(&error))?;
+        let registry = Self::registry_for_version(&reader.capabilities().version)?;
         let (copies, existing_copies_known) = match self.copies_by_source() {
             Ok(copies) => (copies, true),
             Err(_) => (HashMap::new(), false),
@@ -448,7 +454,7 @@ impl WorkcopyService {
                     widget_count: count(widgets.clone().count()),
                     editable_widget_count: count(
                         widgets
-                            .filter(|widget| listed_editable(widget, &self.registry))
+                            .filter(|widget| listed_editable(widget, &registry))
                             .count(),
                     ),
                     existing_copies: copies
@@ -483,6 +489,7 @@ impl WorkcopyService {
             .await
             .map_err(|error| zabbix_error(&error))?
             .ok_or_else(|| WorkcopyError::new("not_visible_or_denied"))?;
+        let registry = Self::registry_for_version(snapshot.server_version())?;
         let raw = snapshot.raw_api_document();
         let analysis = snapshot.analyze().map_err(|error| zabbix_error(&error))?;
         let mut distinct: BTreeMap<DependencyKind, BTreeSet<String>> = BTreeMap::new();
@@ -512,7 +519,7 @@ impl WorkcopyService {
                     .get("type")
                     .and_then(Value::as_str)
                     .unwrap_or_default();
-                let capability = self.registry.find(widget_type);
+                let capability = registry.find(widget_type);
                 if capability.is_none() {
                     unknown_widget_types.insert(widget_type.to_owned());
                 }
@@ -540,7 +547,7 @@ impl WorkcopyService {
                     .count();
             }
             // The same structure view as a draft («Структура», P2-05E).
-            let page_view = view::page_view(page, &self.registry);
+            let page_view = view::page_view(page, &registry);
             let page_widgets: Vec<PreviewWidget> = page_view
                 .widgets
                 .into_iter()
@@ -650,6 +657,7 @@ impl WorkcopyService {
                 Some(last) if last.fingerprint() == first.fingerprint() => {
                     return self.commit(
                         connection_id,
+                        reader.identity().fingerprint(),
                         request,
                         &last,
                         first_read_at_ms,
@@ -692,6 +700,7 @@ impl WorkcopyService {
     fn commit(
         &self,
         connection_id: &str,
+        server_identity_fingerprint: &str,
         request: &ImportRequest,
         snapshot: &VersionedDashboardSnapshot,
         first_read_at_ms: u64,
@@ -769,6 +778,7 @@ impl WorkcopyService {
             revision: 0,
             source: WorkcopySource {
                 connection_id: connection_id.to_owned(),
+                server_identity_fingerprint: Some(server_identity_fingerprint.to_owned()),
                 dashboardid: request.dashboardid.clone(),
                 dashboard_name,
                 page,
@@ -824,7 +834,8 @@ impl WorkcopyService {
     /// One draft with pages and widgets materialized from the verified Base.
     pub fn draft(&self, local_id: &str) -> Result<DraftDetail, WorkcopyError> {
         let (file, snapshot) = self.load_with_base(local_id)?;
-        view::materialize(&file, snapshot.raw_api_document(), &self.registry)
+        let registry = Self::registry_for_version(snapshot.server_version())?;
+        view::materialize(&file, snapshot.raw_api_document(), &registry)
     }
 
     /// «Переименовать» (P1-03F): changes the local draft name only. Base,
@@ -884,7 +895,7 @@ impl WorkcopyService {
             .workcopy_ids()?
             .into_iter()
             .map(|local_id| {
-                let loaded = self.store.load_workcopy(&local_id);
+                let loaded = self.load_with_base(&local_id).map(|(file, _)| file);
                 (local_id, loaded)
             })
             .collect())

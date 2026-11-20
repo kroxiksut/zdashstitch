@@ -82,6 +82,27 @@ def test_page_source_provenance_is_not_target_intent():
     assert not any(key.startswith('target') for key in page)
 
 
+def test_lld_instance_requires_prototype_and_round_trips(tmp_path):
+    import yaml
+    project = load(ROOT / 'examples/page-v2.yaml')
+    catalog = load(ROOT / 'examples/metrics/linux.yaml')
+    catalog['metrics'][0]['origin'] = 'lld_prototype'
+    metric = catalog['metrics'][0]['id']
+    project['roles'] = {'system_nodes': {'cardinality': 'one'}}
+    project['root']['widgets'] = [{'id': 'lld-widget', 'type': 'zabbix', 'widget_type': 'item', 'name': 'Value', 'registry_state': 'known', 'layout': {'mode': 'auto', 'w': 12, 'h': 4}, 'fields': [{'name': 'itemid.0', 'field_type': 4, 'registry_state': 'known', 'value': {'kind': 'lld_instance', 'catalog': 'linux', 'metric': metric, 'hosts': {'role': 'system_nodes', 'selection': 'one'}, 'source_key': 'example[one]'}}]}]
+    (tmp_path / 'metrics').mkdir()
+    catalog_path = tmp_path / 'metrics/linux.yaml'
+    catalog_path.write_text(yaml.safe_dump(catalog), encoding='utf8')
+    source = tmp_path / 'page.yaml'
+    source.write_text(yaml.safe_dump(project), encoding='utf8')
+    assert validate_package(build_package(source, tmp_path / 'lld.zip')) == validate_project(source)
+    catalog['metrics'][0]['origin'] = 'template_item'
+    catalog_path.write_text(yaml.safe_dump(catalog), encoding='utf8')
+    with pytest.raises(ProjectValidationError) as failure:
+        validate_project(source)
+    assert failure.value.code == 'widget_lld_prototype'
+
+
 def test_explicit_legacy_migration_selects_one_dashboard_or_page():
     legacy = load(ROOT / 'examples/db-pilot.yaml')
     dashboard = migrate_legacy_project(legacy, 'dashboard', 'db-pilot')

@@ -12,12 +12,14 @@
 //! Objects hidden by permissions are simply absent from the answers; Zabbix
 //! does not tell them apart from missing objects (P1-IN-08).
 
+use std::collections::{BTreeMap, HashSet};
+
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 
 use crate::dashboards::is_zabbix_id;
 use crate::gateway::ReadMethod;
-use crate::{ReadOnlyGateway, Result, ZabbixError};
+use crate::{AdapterProfile, ReadOnlyGateway, Result, ZabbixError};
 
 /// IDs or names sent in one lookup call.
 pub const LOOKUP_BATCH: usize = 500;
@@ -31,6 +33,7 @@ pub const MAX_HOST_SEARCH_CHARS: usize = 128;
 pub const MAX_HOST_GROUP_SEARCH: usize = 100;
 /// Longest group search text or exact tag component.
 pub const MAX_FILTER_CHARS: usize = 255;
+pub const MAX_SVGGRAPH_PATTERN_MATCHES: usize = 500;
 
 /// One exact `tag=value` host filter. Several entries are ANDed. Duplicate
 /// tag names are refused so Zabbix's AND/OR evaluation cannot weaken AND.
@@ -110,13 +113,15 @@ impl ItemFlags {
     }
 }
 
-/// Link of a discovered item to its item prototype (`itemDiscovery`).
+/// Link of a discovered item to its item prototype.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct ItemDiscoveryLink {
     /// Item prototype on the same host.
     pub parent_itemid: String,
     /// Key of the item prototype, with LLD macros.
     pub prototype_key: String,
+    /// A fresh discovery status, when the read requested it.
+    pub currently_discovered: Option<bool>,
 }
 
 /// Item evidence for matching. No values, no history.
@@ -127,10 +132,12 @@ pub struct ItemDetails {
     pub hostid: String,
     pub key: String,
     pub name: String,
-    /// 0 float, 1 character, 2 log, 3 unsigned, 4 text, 5 binary.
+    /// 0 float, 1 character, 2 log, 3 unsigned, 4 text, 5 binary, 6 JSON (8.0).
     pub value_type: u8,
     pub units: String,
     pub flags: ItemFlags,
+    /// Whether the item itself is enabled, when the adapter read its status.
+    pub enabled: Option<bool>,
     /// Parent template item, `None` for an own or discovered item.
     pub templateid: Option<String>,
     pub discovery: Option<ItemDiscoveryLink>,
@@ -138,12 +145,127 @@ pub struct ItemDetails {
     pub owner_name: Option<String>,
 }
 
-/// Result of a per-host list read; `truncated` means more objects exist than
-/// [`MAX_HOST_OBJECTS`].
+/// Account-visible results of a per-host list read. `truncated` means more
+/// visible objects matched than the requested limit.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct HostObjects<T> {
     pub objects: Vec<T>,
     pub truncated: bool,
+}
+
+/// Selection fields for one 8.0 data set. Zabbix evaluates these filters
+/// against its own tag inventory, including inherited tags.
+#[derive(Debug, Default, Eq, PartialEq, Serialize)]
+pub struct SvgGraphItemTagFilter {
+    evaltype: u64,
+    tags: Vec<SvgGraphItemTag>,
+}
+
+#[derive(Debug, Eq, PartialEq, Serialize)]
+struct SvgGraphItemTag {
+    tag: String,
+    operator: u64,
+    value: String,
+}
+
+#[derive(Debug, Default)]
+struct SvgGraphItemTagFields {
+    tag: Option<String>,
+    operator: Option<u64>,
+    value: Option<String>,
+}
+
+impl SvgGraphItemTagFilter {
+    /// Decode the flattened dashboard fields of the addressed 8.0 set.
+    pub fn from_widget_fields(fields: &[Value], dataset_index: u32) -> Result<Self> {
+        let invalid = || ZabbixError::SnapshotShape("Invalid svggraph item tag fields".to_owned());
+        let prefix = format!("ds.{dataset_index}.");
+        let mut evaltype = None;
+        let mut rows = BTreeMap::<u32, SvgGraphItemTagFields>::new();
+        for field in fields {
+            let Some(name) = field["name"]
+                .as_str()
+                .and_then(|name| name.strip_prefix(&prefix))
+            else {
+                continue;
+            };
+            let field_type = number(field.get("type"));
+            if name == "item_tags_evaltype" {
+                let value = number(field.get("value"))
+                    .filter(|value| matches!(*value, 0 | 2))
+                    .ok_or_else(invalid)?;
+                if field_type != Some(0) || evaltype.replace(value).is_some() {
+                    return Err(invalid());
+                }
+                continue;
+            }
+            let Some(name) = name.strip_prefix("item_tags.") else {
+                continue;
+            };
+            let (index, member) = name.split_once('.').ok_or_else(invalid)?;
+            let index: u32 = index.parse().map_err(|_| invalid())?;
+            let row = rows.entry(index).or_default();
+            let repeated = match (member, field_type) {
+                ("tag", Some(1)) => row
+                    .tag
+                    .replace(string_field(field, "value", "item tag name")?.to_owned())
+                    .is_some(),
+                ("operator", Some(0)) => row
+                    .operator
+                    .replace(
+                        number(field.get("value"))
+                            .filter(|value| *value <= 5)
+                            .ok_or_else(invalid)?,
+                    )
+                    .is_some(),
+                ("value", Some(1)) => row
+                    .value
+                    .replace(string_field(field, "value", "item tag value")?.to_owned())
+                    .is_some(),
+                _ => return Err(invalid()),
+            };
+            if repeated {
+                return Err(invalid());
+            }
+        }
+        let tags = rows
+            .into_values()
+            .map(|row| {
+                let (Some(tag), Some(operator), Some(value)) = (row.tag, row.operator, row.value)
+                else {
+                    return Err(invalid());
+                };
+                // Empty form rows are ignored by Zabbix. A nonempty condition
+                // without a name is outside the supported preview.
+                if tag.is_empty() && value.is_empty() {
+                    return Ok(None);
+                }
+                if tag.is_empty() {
+                    return Err(invalid());
+                }
+                Ok(Some(SvgGraphItemTag {
+                    tag,
+                    operator,
+                    value,
+                }))
+            })
+            .collect::<Result<Vec<_>>>()?
+            .into_iter()
+            .flatten()
+            .collect();
+        Ok(Self {
+            evaltype: evaltype.unwrap_or_default(),
+            tags,
+        })
+    }
+}
+
+/// An account-visible item matching a single 8.0 graph pattern.
+#[derive(Debug, Eq, PartialEq)]
+pub struct SvgGraphItemMatch {
+    pub hostid: String,
+    pub itemid: String,
+    pub name: String,
 }
 
 /// A classic graph (`graph.get`), not a prototype.
@@ -169,7 +291,7 @@ pub struct ItemPrototypeDetails {
     /// Key with LLD macros.
     pub key: String,
     pub name: String,
-    /// 0 float, 1 character, 2 log, 3 unsigned, 4 text, 5 binary.
+    /// 0 float, 1 character, 2 log, 3 unsigned, 4 text, 5 binary, 6 JSON (8.0).
     pub value_type: u8,
     pub units: String,
     /// Parent template prototype, `None` for an own prototype.
@@ -226,18 +348,150 @@ fn check_ids(ids: &[String], what: &str) -> Result<()> {
     Ok(())
 }
 
+/// Missing IDs are allowed because the server scopes results to the account.
+pub(crate) fn check_returned_ids(
+    profile: AdapterProfile,
+    rows: &[Value],
+    requested: &[String],
+    key: &str,
+) -> Result<()> {
+    if profile == AdapterProfile::V7_4 {
+        return Ok(());
+    }
+    let requested: HashSet<&str> = requested.iter().map(String::as_str).collect();
+    let mut seen = HashSet::with_capacity(rows.len());
+    for row in rows {
+        let id = string_field(row, key, "inventory row")?;
+        if !requested.contains(id) || !seen.insert(id) {
+            return Err(ZabbixError::SnapshotShape(format!(
+                "inventory returned an unexpected or duplicate {key}"
+            )));
+        }
+    }
+    Ok(())
+}
+
+fn discovery_fields(profile: AdapterProfile) -> (&'static str, &'static str) {
+    match profile {
+        AdapterProfile::V7_4 => ("selectItemDiscovery", "itemDiscovery"),
+        AdapterProfile::V8_0 => ("selectDiscoveryData", "discoveryData"),
+    }
+}
+
+fn item_discovery_output(profile: AdapterProfile) -> &'static [&'static str] {
+    match profile {
+        AdapterProfile::V7_4 => &["parent_itemid", "key_"],
+        AdapterProfile::V8_0 => &["parent_itemid", "key_", "status"],
+    }
+}
+
+fn item_output(profile: AdapterProfile) -> Vec<&'static str> {
+    let mut fields = ITEM_OUTPUT.to_vec();
+    if profile == AdapterProfile::V8_0 {
+        fields.push("status");
+    }
+    fields
+}
+
 impl ReadOnlyGateway {
+    /// Follow a host prototype to its template prototype, without treating
+    /// server-local IDs or names as portable identity. Missing UUIDs fail closed.
+    pub async fn portable_prototype_identity(
+        &self,
+        prototype_id: &str,
+    ) -> Result<Option<(String, String)>> {
+        self.portable_template_item_identity(prototype_id, ReadMethod::ItemPrototypeGet)
+            .await
+    }
+
+    /// Follow an inherited ordinary item to the UUIDs of its template and item.
+    pub async fn portable_item_identity(&self, item_id: &str) -> Result<Option<(String, String)>> {
+        self.portable_template_item_identity(item_id, ReadMethod::ItemGet)
+            .await
+    }
+
+    async fn portable_template_item_identity(
+        &self,
+        item_id: &str,
+        method: ReadMethod,
+    ) -> Result<Option<(String, String)>> {
+        check_ids(&[item_id.to_owned()], "itemid")?;
+        let mut current = item_id.to_owned();
+        let mut seen = std::collections::HashSet::new();
+        for _ in 0..16 {
+            if !seen.insert(current.clone()) {
+                return Ok(None);
+            }
+            let rows = self
+                .read_inventory_rows(
+                    method,
+                    json!({
+                        "output": ["itemid", "hostid", "templateid", "uuid"], "itemids": [current]
+                    }),
+                )
+                .await?;
+            if rows.len() != 1 {
+                return Ok(None);
+            }
+            let row = &rows[0];
+            if id_field(row, "itemid", "item prototype")? != current {
+                return Ok(None);
+            }
+            let parent = string_field(row, "templateid", "item prototype")?;
+            if parent != "0" {
+                if !is_zabbix_id(parent) {
+                    return Ok(None);
+                }
+                current = parent.to_owned();
+                continue;
+            }
+            let Some(uuid) = row
+                .get("uuid")
+                .and_then(Value::as_str)
+                .filter(|s| s.len() == 32 && s.bytes().all(|b| b.is_ascii_hexdigit()))
+            else {
+                return Ok(None);
+            };
+            let owner = id_field(row, "hostid", "item prototype")?;
+            let templates = self
+                .read_inventory_rows(
+                    ReadMethod::TemplateGet,
+                    json!({"output": ["templateid", "uuid"], "templateids": [owner]}),
+                )
+                .await?;
+            if templates.len() != 1 {
+                return Ok(None);
+            }
+            if id_field(&templates[0], "templateid", "template")? != owner {
+                return Ok(None);
+            }
+            let Some(template_uuid) = templates[0]
+                .get("uuid")
+                .and_then(Value::as_str)
+                .filter(|s| s.len() == 32 && s.bytes().all(|b| b.is_ascii_hexdigit()))
+            else {
+                return Ok(None);
+            };
+            return Ok(Some((
+                template_uuid.to_ascii_lowercase(),
+                uuid.to_ascii_lowercase(),
+            )));
+        }
+        Ok(None)
+    }
     /// Hosts by ID (`host.get`). Hidden and missing hosts are absent.
     pub async fn hosts_by_ids(&self, hostids: &[String]) -> Result<Vec<HostDetails>> {
         check_ids(hostids, "hostid")?;
+        let profile = self.adapter_profile()?;
         let mut hosts = Vec::with_capacity(hostids.len());
         for batch in hostids.chunks(LOOKUP_BATCH) {
             let raw: Vec<Value> = self
-                .read_typed(
+                .read_inventory_rows(
                     ReadMethod::HostGet,
                     json!({"output": ["hostid", "host", "name"], "hostids": batch}),
                 )
                 .await?;
+            check_returned_ids(profile, &raw, batch, "hostid")?;
             for host in &raw {
                 hosts.push(parse_host(host)?);
             }
@@ -262,7 +516,7 @@ impl ReadOnlyGateway {
         let mut hosts = Vec::new();
         for batch in names.chunks(LOOKUP_BATCH) {
             let raw: Vec<Value> = self
-                .read_typed(
+                .read_inventory_rows(
                     ReadMethod::HostGet,
                     json!({
                         "output": ["hostid", "host", "name"],
@@ -309,7 +563,9 @@ impl ReadOnlyGateway {
         limit: usize,
     ) -> Result<HostObjects<HostListing>> {
         let params = host_search_params(filter, limit)?;
-        let raw: Vec<Value> = self.read_typed(ReadMethod::HostGet, params).await?;
+        let raw: Vec<Value> = self
+            .read_inventory_rows(ReadMethod::HostGet, params)
+            .await?;
         let truncated = raw.len() > limit;
         let objects = raw
             .iter()
@@ -328,7 +584,9 @@ impl ReadOnlyGateway {
         limit: usize,
     ) -> Result<HostObjects<HostGroupListing>> {
         let params = host_group_search_params(search, limit)?;
-        let raw: Vec<Value> = self.read_typed(ReadMethod::HostgroupGet, params).await?;
+        let raw: Vec<Value> = self
+            .read_inventory_rows(ReadMethod::HostgroupGet, params)
+            .await?;
         let truncated = raw.len() > limit;
         let objects = raw
             .iter()
@@ -345,7 +603,7 @@ impl ReadOnlyGateway {
         let mut hosts = Vec::with_capacity(hostids.len());
         for batch in hostids.chunks(LOOKUP_BATCH) {
             let raw: Vec<Value> = self
-                .read_typed(
+                .read_inventory_rows(
                     ReadMethod::HostGet,
                     json!({
                         "output": ["hostid", "host", "name"],
@@ -365,22 +623,25 @@ impl ReadOnlyGateway {
     /// Items by ID with matching evidence and the owner's visible name.
     pub async fn items_by_ids(&self, itemids: &[String]) -> Result<Vec<ItemDetails>> {
         check_ids(itemids, "itemid")?;
+        let profile = self.adapter_profile()?;
+        let (select_discovery, _) = discovery_fields(profile);
         let mut items = Vec::with_capacity(itemids.len());
         for batch in itemids.chunks(LOOKUP_BATCH) {
             let raw: Vec<Value> = self
-                .read_typed(
+                .read_inventory_rows(
                     ReadMethod::ItemGet,
                     json!({
-                        "output": ITEM_OUTPUT,
-                        "selectItemDiscovery": ["parent_itemid", "key_"],
+                        "output": item_output(profile),
+                        (select_discovery): item_discovery_output(profile),
                         "selectHosts": ["hostid", "name"],
                         "itemids": batch,
                         "webitems": true
                     }),
                 )
                 .await?;
+            check_returned_ids(profile, &raw, batch, "itemid")?;
             for item in &raw {
-                items.push(parse_item(item)?);
+                items.push(parse_item(item, profile)?);
             }
         }
         Ok(items)
@@ -388,36 +649,327 @@ impl ReadOnlyGateway {
 
     /// All items of one host (plain and discovered) with matching evidence.
     pub async fn host_items(&self, hostid: &str) -> Result<HostObjects<ItemDetails>> {
+        self.host_items_with_count(hostid, false).await
+    }
+
+    /// Complete item inventory of a visible 8.0 target host for portable
+    /// source review. Compare the bounded rows with a separate count.
+    pub async fn portable_host_items(&self, hostid: &str) -> Result<HostObjects<ItemDetails>> {
+        self.host_items_with_count(hostid, self.adapter_profile()? == AdapterProfile::V8_0)
+            .await
+    }
+
+    async fn host_items_with_count(
+        &self,
+        hostid: &str,
+        verify_count: bool,
+    ) -> Result<HostObjects<ItemDetails>> {
         check_ids(&[hostid.to_owned()], "hostid")?;
-        let raw: Vec<Value> = self
-            .read_typed(
+        let profile = self.adapter_profile()?;
+        let (select_discovery, _) = discovery_fields(profile);
+        let raw = self
+            .bounded_inventory_rows(
                 ReadMethod::ItemGet,
                 json!({
-                    "output": ITEM_OUTPUT,
-                    "selectItemDiscovery": ["parent_itemid", "key_"],
+                    "output": item_output(profile),
+                    (select_discovery): item_discovery_output(profile),
                     "hostids": [hostid],
                     "webitems": true,
                     "sortfield": "itemid",
                     "limit": MAX_HOST_OBJECTS + 1
                 }),
+                MAX_HOST_OBJECTS,
+                verify_count,
             )
             .await?;
         let truncated = raw.len() > MAX_HOST_OBJECTS;
+        if verify_count
+            && raw.iter().take(MAX_HOST_OBJECTS).any(|item| {
+                item.get("units").and_then(Value::as_str).is_none()
+                    || item.get("templateid").and_then(Value::as_str).is_none()
+            })
+        {
+            return Err(ZabbixError::SnapshotShape(
+                "Incomplete portable item inventory".to_owned(),
+            ));
+        }
         let objects = raw
             .iter()
             .take(MAX_HOST_OBJECTS)
-            .map(parse_item)
-            .collect::<Result<_>>()?;
+            .map(|item| parse_item(item, profile))
+            .collect::<Result<Vec<_>>>()?;
+        if profile == AdapterProfile::V8_0 && objects.iter().any(|item| item.hostid != hostid) {
+            return Err(ZabbixError::SnapshotShape(
+                "item.get returned an item from another host".to_owned(),
+            ));
+        }
         Ok(HostObjects { objects, truncated })
+    }
+
+    /// Ask 8.0 to apply its Graph host mask rules to account-visible hosts.
+    pub async fn svggraph_host_matches(&self, pattern: &str) -> Result<HostObjects<HostDetails>> {
+        self.svggraph_host_matches_with_count(pattern, MAX_SVGGRAPH_PATTERN_MATCHES, false)
+            .await
+    }
+
+    /// Review every matching host, checking for an incomplete 8.0 response.
+    pub async fn portable_svggraph_host_matches(
+        &self,
+        pattern: &str,
+    ) -> Result<HostObjects<HostDetails>> {
+        let limit = if pattern == "*" {
+            MAX_HOST_SEARCH
+        } else {
+            MAX_SVGGRAPH_PATTERN_MATCHES
+        };
+        self.svggraph_host_matches_with_count(pattern, limit, true)
+            .await
+    }
+
+    /// Exact Clone inventory. Keep the complete role and list/count proof
+    /// while allowing a bounded review beyond the 100-host selector page.
+    pub async fn clone_svggraph_host_matches(
+        &self,
+        pattern: &str,
+    ) -> Result<HostObjects<HostDetails>> {
+        let role = self.require_complete_clone_inventory().await?;
+        let hosts = self
+            .svggraph_host_matches_with_count(pattern, MAX_SVGGRAPH_PATTERN_MATCHES, true)
+            .await?;
+        if self.require_complete_clone_inventory().await? != role {
+            return Err(ZabbixError::SnapshotShape(
+                "Clone inventory role changed".to_owned(),
+            ));
+        }
+        Ok(hosts)
+    }
+
+    /// Read the full visible Clone match set without expanding any hostids
+    /// request beyond the regular API bound. The aggregate stays bounded.
+    pub async fn clone_svggraph_item_matches(
+        &self,
+        hostids: &[String],
+        pattern: &str,
+        filter: &SvgGraphItemTagFilter,
+    ) -> Result<HostObjects<SvgGraphItemMatch>> {
+        let role = self.require_complete_clone_inventory().await?;
+        if hostids.is_empty()
+            || hostids.len() > MAX_SVGGRAPH_PATTERN_MATCHES
+            || hostids
+                .iter()
+                .collect::<std::collections::BTreeSet<_>>()
+                .len()
+                != hostids.len()
+        {
+            return Err(ZabbixError::SnapshotShape(
+                "Invalid complete Clone host inventory".to_owned(),
+            ));
+        }
+        let mut objects = Vec::new();
+        for batch in hostids.chunks(MAX_HOST_SEARCH) {
+            let mut rows = self
+                .portable_svggraph_item_matches(batch, pattern, filter)
+                .await?;
+            if rows.truncated || rows.objects.len() > MAX_SVGGRAPH_PATTERN_MATCHES - objects.len() {
+                return Ok(HostObjects {
+                    objects: Vec::new(),
+                    truncated: true,
+                });
+            }
+            objects.append(&mut rows.objects);
+        }
+        if self.require_complete_clone_inventory().await? != role {
+            return Err(ZabbixError::SnapshotShape(
+                "Clone inventory role changed".to_owned(),
+            ));
+        }
+        Ok(HostObjects {
+            objects,
+            truncated: false,
+        })
+    }
+
+    async fn require_complete_clone_inventory(&self) -> Result<String> {
+        self.portable_pattern_inventory_role()
+            .await?
+            .ok_or_else(|| {
+                ZabbixError::SnapshotShape(
+                    "Complete Clone pattern inventory is unavailable".to_owned(),
+                )
+            })
+    }
+
+    async fn svggraph_host_matches_with_count(
+        &self,
+        pattern: &str,
+        limit: usize,
+        verify_count: bool,
+    ) -> Result<HostObjects<HostDetails>> {
+        self.require_svggraph_pattern(pattern)?;
+        let search = (pattern != "*").then(|| json!({ "name": [pattern] }));
+        let raw = self
+            .bounded_inventory_rows(
+                ReadMethod::HostGet,
+                json!({
+                    "output": ["hostid", "host", "name"],
+                    "search": search,
+                    "searchWildcardsEnabled": true,
+                    "searchByAny": true,
+                    "sortfield": "hostid",
+                    "limit": limit + 1
+                }),
+                limit,
+                verify_count,
+            )
+            .await?;
+        let truncated = raw.len() > limit;
+        let objects = raw
+            .iter()
+            .take(limit)
+            .map(parse_host)
+            .collect::<Result<Vec<_>>>()?;
+        Ok(HostObjects { objects, truncated })
+    }
+
+    /// Ask 8.0 to match resolved names and inherited item tags, as in a
+    /// global Graph data set. The caller supplies the visible host scope.
+    pub async fn svggraph_item_matches(
+        &self,
+        hostids: &[String],
+        pattern: &str,
+        filter: &SvgGraphItemTagFilter,
+    ) -> Result<HostObjects<SvgGraphItemMatch>> {
+        self.svggraph_item_matches_with_count(hostids, pattern, filter, false)
+            .await
+    }
+
+    /// Review every matching numeric item, checking for an incomplete result.
+    pub async fn portable_svggraph_item_matches(
+        &self,
+        hostids: &[String],
+        pattern: &str,
+        filter: &SvgGraphItemTagFilter,
+    ) -> Result<HostObjects<SvgGraphItemMatch>> {
+        self.svggraph_item_matches_with_count(hostids, pattern, filter, true)
+            .await
+    }
+
+    async fn svggraph_item_matches_with_count(
+        &self,
+        hostids: &[String],
+        pattern: &str,
+        filter: &SvgGraphItemTagFilter,
+        verify_count: bool,
+    ) -> Result<HostObjects<SvgGraphItemMatch>> {
+        self.require_svggraph_pattern(pattern)?;
+        check_ids(hostids, "hostid")?;
+        if hostids.is_empty() || hostids.len() > MAX_HOST_SEARCH {
+            return Err(ZabbixError::SnapshotShape(
+                "Invalid svggraph host scope".to_owned(),
+            ));
+        }
+        let search = (pattern != "*").then(|| json!({ "name_resolved": [pattern] }));
+        let raw = self
+            .bounded_inventory_rows(
+                ReadMethod::ItemGet,
+                json!({
+                    "output": ["itemid", "hostid", "name_resolved", "value_type"],
+                    "hostids": hostids,
+                    "search": search,
+                    "searchWildcardsEnabled": true,
+                    "searchByAny": true,
+                    "filter": { "value_type": [0, 3] },
+                    "webitems": true,
+                    "inheritedTags": true,
+                    "evaltype": filter.evaltype,
+                    "tags": (!filter.tags.is_empty()).then_some(&filter.tags),
+                    "sortfield": "itemid",
+                    "limit": MAX_SVGGRAPH_PATTERN_MATCHES + 1
+                }),
+                MAX_SVGGRAPH_PATTERN_MATCHES,
+                verify_count,
+            )
+            .await?;
+        let truncated = raw.len() > MAX_SVGGRAPH_PATTERN_MATCHES;
+        let mut seen = HashSet::new();
+        let objects = raw
+            .iter()
+            .take(MAX_SVGGRAPH_PATTERN_MATCHES)
+            .map(|item| {
+                let hostid = id_field(item, "hostid", "svggraph item")?;
+                let itemid = id_field(item, "itemid", "svggraph item")?;
+                let name = string_field(item, "name_resolved", "svggraph item")?;
+                if !hostids.contains(&hostid)
+                    || !seen.insert(itemid.clone())
+                    || !matches!(number(item.get("value_type")), Some(0 | 3))
+                    || name.is_empty()
+                {
+                    return Err(ZabbixError::SnapshotShape(
+                        "Invalid svggraph item match".to_owned(),
+                    ));
+                }
+                Ok(SvgGraphItemMatch {
+                    hostid,
+                    itemid,
+                    name: name.to_owned(),
+                })
+            })
+            .collect::<Result<Vec<_>>>()?;
+        Ok(HostObjects { objects, truncated })
+    }
+
+    async fn bounded_inventory_rows(
+        &self,
+        method: ReadMethod,
+        mut params: Value,
+        limit: usize,
+        verify_count: bool,
+    ) -> Result<Vec<Value>> {
+        let rows = self.read_inventory_rows(method, params.clone()).await?;
+        if verify_count && rows.len() <= limit {
+            let query = params.as_object_mut().ok_or_else(|| {
+                ZabbixError::SnapshotShape("Invalid inventory count parameters".to_owned())
+            })?;
+            for field in ["output", "limit", "sortfield", "selectDiscoveryData"] {
+                query.remove(field);
+            }
+            query.insert("countOutput".to_owned(), json!(true));
+            let count: Value = self
+                .session
+                .transport
+                .read(method, params, &self.session.token)
+                .await?;
+            if number(Some(&count)) != u64::try_from(rows.len()).ok() {
+                return Err(ZabbixError::SnapshotShape(
+                    "Inventory count does not match returned rows".to_owned(),
+                ));
+            }
+        }
+        Ok(rows)
+    }
+
+    fn require_svggraph_pattern(&self, pattern: &str) -> Result<()> {
+        if self.adapter_profile()? != AdapterProfile::V8_0 {
+            return Err(ZabbixError::UnsupportedVersion(
+                self.capabilities().version.to_string(),
+            ));
+        }
+        if pattern.is_empty() || !valid_filter_text(pattern, MAX_FILTER_CHARS) {
+            return Err(ZabbixError::SnapshotShape(
+                "Invalid svggraph pattern".to_owned(),
+            ));
+        }
+        Ok(())
     }
 
     /// Classic graphs by ID (`graph.get`). Prototypes are not returned.
     pub async fn graphs_by_ids(&self, graphids: &[String]) -> Result<Vec<GraphDetails>> {
         check_ids(graphids, "graphid")?;
+        let profile = self.adapter_profile()?;
         let mut graphs = Vec::with_capacity(graphids.len());
         for batch in graphids.chunks(LOOKUP_BATCH) {
             let raw: Vec<Value> = self
-                .read_typed(
+                .read_inventory_rows(
                     ReadMethod::GraphGet,
                     json!({
                         "output": ["graphid", "name", "templateid", "flags"],
@@ -426,6 +978,7 @@ impl ReadOnlyGateway {
                     }),
                 )
                 .await?;
+            check_returned_ids(profile, &raw, batch, "graphid")?;
             for graph in &raw {
                 graphs.push(parse_graph(graph)?);
             }
@@ -437,7 +990,7 @@ impl ReadOnlyGateway {
     pub async fn host_graphs(&self, hostid: &str) -> Result<HostObjects<GraphDetails>> {
         check_ids(&[hostid.to_owned()], "hostid")?;
         let raw: Vec<Value> = self
-            .read_typed(
+            .read_inventory_rows(
                 ReadMethod::GraphGet,
                 json!({
                     "output": ["graphid", "name", "templateid", "flags"],
@@ -464,10 +1017,11 @@ impl ReadOnlyGateway {
         itemids: &[String],
     ) -> Result<Vec<ItemPrototypeDetails>> {
         check_ids(itemids, "itemid")?;
+        let profile = self.adapter_profile()?;
         let mut prototypes = Vec::with_capacity(itemids.len());
         for batch in itemids.chunks(LOOKUP_BATCH) {
             let raw: Vec<Value> = self
-                .read_typed(
+                .read_inventory_rows(
                     ReadMethod::ItemPrototypeGet,
                     json!({
                         "output": ITEM_PROTOTYPE_OUTPUT,
@@ -477,8 +1031,9 @@ impl ReadOnlyGateway {
                     }),
                 )
                 .await?;
+            check_returned_ids(profile, &raw, batch, "itemid")?;
             for prototype in &raw {
-                prototypes.push(parse_item_prototype(prototype)?);
+                prototypes.push(parse_item_prototype(prototype, profile)?);
             }
         }
         Ok(prototypes)
@@ -491,10 +1046,11 @@ impl ReadOnlyGateway {
         graphids: &[String],
     ) -> Result<Vec<GraphPrototypeDetails>> {
         check_ids(graphids, "graphid")?;
+        let profile = self.adapter_profile()?;
         let mut prototypes = Vec::with_capacity(graphids.len());
         for batch in graphids.chunks(LOOKUP_BATCH) {
             let raw: Vec<Value> = self
-                .read_typed(
+                .read_inventory_rows(
                     ReadMethod::GraphPrototypeGet,
                     json!({
                         "output": ["graphid", "name", "templateid"],
@@ -504,18 +1060,12 @@ impl ReadOnlyGateway {
                     }),
                 )
                 .await?;
+            check_returned_ids(profile, &raw, batch, "graphid")?;
             for prototype in &raw {
                 prototypes.push(parse_graph_prototype(prototype)?);
             }
         }
         Ok(prototypes)
-    }
-
-    async fn read_typed(&self, method: ReadMethod, params: Value) -> Result<Vec<Value>> {
-        self.session
-            .transport
-            .read(method, params, &self.session.token)
-            .await
     }
 }
 
@@ -696,16 +1246,17 @@ fn parse_host_listing(host: &Value) -> Result<HostListing> {
     })
 }
 
-fn parse_item(item: &Value) -> Result<ItemDetails> {
-    let value_type = number(item.get("value_type"))
-        .and_then(|number| u8::try_from(number).ok())
-        .filter(|number| *number <= 5)
-        .ok_or_else(|| ZabbixError::SnapshotShape("item has no valid value_type".to_owned()))?;
+fn parse_item(item: &Value, profile: AdapterProfile) -> Result<ItemDetails> {
+    let value_type = profile.item_value_type(item.get("value_type"), "item")?;
     let flags = number(item.get("flags"))
         .map(ItemFlags::from_number)
         .ok_or_else(|| ZabbixError::SnapshotShape("item has no numeric flags".to_owned()))?;
-    let discovery = match item.get("itemDiscovery") {
-        Some(link @ Value::Object(_)) if link.get("parent_itemid").is_some() => {
+    let (_, discovery_key) = discovery_fields(profile);
+    let discovery = match item.get(discovery_key) {
+        Some(link @ Value::Object(_))
+            if link.get("parent_itemid").is_some()
+                && (profile == AdapterProfile::V7_4 || flags == ItemFlags::Discovered) =>
+        {
             Some(ItemDiscoveryLink {
                 parent_itemid: id_field(link, "parent_itemid", "item discovery")?,
                 prototype_key: link
@@ -713,6 +1264,9 @@ fn parse_item(item: &Value) -> Result<ItemDetails> {
                     .and_then(Value::as_str)
                     .unwrap_or_default()
                     .to_owned(),
+                currently_discovered: number(link.get("status"))
+                    .filter(|status| matches!(status, 0 | 1))
+                    .map(|status| status == 0),
             })
         }
         _ => None,
@@ -736,6 +1290,12 @@ fn parse_item(item: &Value) -> Result<ItemDetails> {
             .unwrap_or_default()
             .to_owned(),
         flags,
+        enabled: match profile {
+            AdapterProfile::V8_0 => number(item.get("status"))
+                .filter(|status| *status <= 1)
+                .map(|status| status == 0),
+            AdapterProfile::V7_4 => None,
+        },
         templateid: parent_id(item, "templateid", "item")?,
         discovery,
         owner_name,
@@ -781,13 +1341,11 @@ fn first_host_name(value: &Value) -> Option<String> {
         .map(str::to_owned)
 }
 
-fn parse_item_prototype(prototype: &Value) -> Result<ItemPrototypeDetails> {
-    let value_type = number(prototype.get("value_type"))
-        .and_then(|number| u8::try_from(number).ok())
-        .filter(|number| *number <= 5)
-        .ok_or_else(|| {
-            ZabbixError::SnapshotShape("item prototype has no valid value_type".to_owned())
-        })?;
+fn parse_item_prototype(
+    prototype: &Value,
+    profile: AdapterProfile,
+) -> Result<ItemPrototypeDetails> {
+    let value_type = profile.item_value_type(prototype.get("value_type"), "item prototype")?;
     Ok(ItemPrototypeDetails {
         itemid: id_field(prototype, "itemid", "item prototype")?,
         hostid: id_field(prototype, "hostid", "item prototype")?,
@@ -832,10 +1390,47 @@ mod tests {
     use serde_json::json;
 
     use super::{
-        ExactHostTag, HostSearchFilter, ItemFlags, host_group_search_params, host_search_params,
+        AdapterProfile, ExactHostTag, HostSearchFilter, ItemDetails, ItemFlags,
+        ItemPrototypeDetails, SvgGraphItemTagFilter, host_group_search_params, host_search_params,
         parse_graph, parse_graph_prototype, parse_host, parse_host_group, parse_host_listing,
-        parse_item, parse_item_prototype,
     };
+
+    fn parse_item(item: &serde_json::Value) -> crate::Result<ItemDetails> {
+        super::parse_item(item, AdapterProfile::V7_4)
+    }
+
+    fn parse_item_prototype(item: &serde_json::Value) -> crate::Result<ItemPrototypeDetails> {
+        super::parse_item_prototype(item, AdapterProfile::V7_4)
+    }
+
+    #[test]
+    fn graph_item_tag_decoder_uses_dataset_and_rejects_invalid_shape() {
+        let valid = vec![
+            json!({"type":"0","name":"ds.0.item_tags_evaltype","value":"2"}),
+            json!({"type":"1","name":"ds.0.item_tags.0.tag","value":"Component"}),
+            json!({"type":0,"name":"ds.0.item_tags.0.operator","value":5}),
+            json!({"type":1,"name":"ds.0.item_tags.0.value","value":""}),
+            json!({"type":1,"name":"ds.1.item_tags.0.tag","value":"other"}),
+        ];
+        let filter = SvgGraphItemTagFilter::from_widget_fields(&valid, 0)
+            .unwrap_or_else(|error| panic!("item tags: {error}"));
+        assert_eq!(
+            json!(filter),
+            json!({"evaltype":2,"tags":[
+                {"tag":"Component","operator":5,"value":""}
+            ]})
+        );
+        let defaults = SvgGraphItemTagFilter::from_widget_fields(&valid, 2)
+            .unwrap_or_else(|error| panic!("item tags: {error}"));
+        assert_eq!(json!(defaults), json!({"evaltype":0,"tags":[]}));
+        assert!(SvgGraphItemTagFilter::from_widget_fields(&valid, 1).is_err());
+        let mut duplicate = valid.clone();
+        duplicate.push(valid[3].clone());
+        assert!(SvgGraphItemTagFilter::from_widget_fields(&duplicate, 0).is_err());
+        let mut invalid = valid;
+        invalid[2]["value"] = json!(6);
+        assert!(SvgGraphItemTagFilter::from_widget_fields(&invalid, 0).is_err());
+    }
 
     #[test]
     fn target_filters_use_allowlisted_exact_and_semantics() {

@@ -328,6 +328,8 @@ impl MessageId {
     pub const CLONE_COMPARE_WIDGET: Self = Self("clone.compare.widget");
     pub const CLONE_CONFIRM_KEPT: Self = Self("clone.confirm_kept");
     pub const CLONE_CONFIRM_TITLE: Self = Self("clone.confirm_title");
+    pub const CLONE_COPIED_ACCESS_VISIBLE_PART: Self = Self("clone.copied_access_visible_part");
+    pub const CLONE_COPY_SOURCE_ACCESS: Self = Self("clone.copy_source_access");
     pub const CLONE_EDIT: Self = Self("clone.edit");
     pub const CLONE_ERROR_GROWTH_COLOR: Self = Self("clone.error.growth_color");
     pub const CLONE_ERROR_GROWTH_METRIC: Self = Self("clone.error.growth_metric");
@@ -377,12 +379,16 @@ impl MessageId {
     pub const CLONE_PATTERN_TITLE: Self = Self("clone.pattern.title");
     pub const CLONE_PATTERN_TRUNCATED: Self = Self("clone.pattern.truncated");
     pub const CLONE_PATTERN_VALUE: Self = Self("clone.pattern.value");
+    pub const CLONE_PATTERN_VISIBLE_SCOPE: Self = Self("clone.pattern.visible_scope");
     pub const CLONE_PLAN: Self = Self("clone.plan");
     pub const CLONE_PRIVATE_COPY: Self = Self("clone.private_copy");
     pub const CLONE_READ_ONLY: Self = Self("clone.read_only");
     pub const CLONE_RECONCILE: Self = Self("clone.reconcile");
     pub const CLONE_SAVE: Self = Self("clone.save");
     pub const CLONE_SEARCH: Self = Self("clone.search");
+    pub const CLONE_SOURCE_CHANGED: Self = Self("clone.source_changed");
+    pub const CLONE_SOURCE_CURRENT: Self = Self("clone.source_current");
+    pub const CLONE_SOURCE_UNAVAILABLE: Self = Self("clone.source_unavailable");
     pub const CLONE_SUMMARY: Self = Self("clone.summary");
     pub const CLONE_TARGET_FOR: Self = Self("clone.target_for");
     pub const CLONE_TARGETS: Self = Self("clone.targets");
@@ -565,6 +571,7 @@ impl MessageId {
     pub const CONNECTION_TEST_CRUMB: Self = Self("connection.test.crumb");
     pub const CONNECTION_TEST_DETAILS_CODE: Self = Self("connection.test.details.code");
     pub const CONNECTION_TEST_DETAILS_METHOD: Self = Self("connection.test.details.method");
+    pub const CONNECTION_TEST_DETAILS_ROLE_API_ACCESS: Self = Self("connection.test.details.role_api_access");
     pub const CONNECTION_TEST_DETAILS_STEP: Self = Self("connection.test.details.step");
     pub const CONNECTION_TEST_DETAILS_TIME: Self = Self("connection.test.details.time");
     pub const CONNECTION_TEST_DETAILS_TITLE: Self = Self("connection.test.details.title");
@@ -590,6 +597,9 @@ impl MessageId {
     pub const CONNECTION_TEST_RESULT_CAPABILITIES: Self = Self("connection.test.result.capabilities");
     pub const CONNECTION_TEST_RESULT_ENDPOINT: Self = Self("connection.test.result.endpoint");
     pub const CONNECTION_TEST_RESULT_IDENTITY_MATCHES: Self = Self("connection.test.result.identity_matches");
+    pub const CONNECTION_TEST_ROLE_API_ACCESS_DISABLED: Self = Self("connection.test.role_api_access.disabled");
+    pub const CONNECTION_TEST_ROLE_API_ACCESS_ENABLED: Self = Self("connection.test.role_api_access.enabled");
+    pub const CONNECTION_TEST_ROLE_API_ACCESS_UNVERIFIED: Self = Self("connection.test.role_api_access.unverified");
     pub const CONNECTION_TEST_RUNNING: Self = Self("connection.test.running");
     pub const CONNECTION_TEST_STATUS_FAILED: Self = Self("connection.test.status.failed");
     pub const CONNECTION_TEST_STATUS_NOT_CHECKED: Self = Self("connection.test.status.not_checked");
@@ -853,6 +863,7 @@ impl MessageId {
     pub const ERRORS_CONNECTION_UNREACHABLE_OR_TIMEOUT: Self = Self("errors.connection.unreachable_or_timeout");
     pub const ERRORS_CONNECTION_VERSION_UNSUPPORTED: Self = Self("errors.connection.version_unsupported");
     pub const ERRORS_CONNECTION_WRITES_NOT_CONFIRMED: Self = Self("errors.connection.writes_not_confirmed");
+    pub const ERRORS_CONNECTION_WRITES_VERSION_UNSUPPORTED: Self = Self("errors.connection.writes_version_unsupported");
     pub const ERRORS_CREDENTIAL_LOCKED: Self = Self("errors.credential.locked");
     pub const ERRORS_CREDENTIAL_MISSING: Self = Self("errors.credential.missing");
     pub const ERRORS_CREDENTIAL_UNAVAILABLE: Self = Self("errors.credential.unavailable");
@@ -1022,6 +1033,11 @@ impl MessageId {
     pub const OFFLINE_BUILDER_OPENED: Self = Self("offline_builder.opened");
     pub const OFFLINE_BUILDER_PAGE_NAME: Self = Self("offline_builder.page_name");
     pub const OFFLINE_BUILDER_PENDING_HELP: Self = Self("offline_builder.pending_help");
+    pub const OFFLINE_BUILDER_PROFILE: Self = Self("offline_builder.profile");
+    pub const OFFLINE_BUILDER_PROFILE_CHOICE: Self = Self("offline_builder.profile_choice");
+    pub const OFFLINE_BUILDER_PROFILE_CURRENT: Self = Self("offline_builder.profile_current");
+    pub const OFFLINE_BUILDER_PROFILE_HELP: Self = Self("offline_builder.profile_help");
+    pub const OFFLINE_BUILDER_PROFILE_UNAVAILABLE: Self = Self("offline_builder.profile_unavailable");
     pub const OFFLINE_BUILDER_RELOAD: Self = Self("offline_builder.reload");
     pub const OFFLINE_BUILDER_REMOVE: Self = Self("offline_builder.remove");
     pub const OFFLINE_BUILDER_REMOVE_ROLE: Self = Self("offline_builder.remove_role");
@@ -1097,6 +1113,7 @@ impl MessageId {
     pub const OFFLINE_EDITOR_CHECK_NAME: Self = Self("offline_editor.check.name");
     pub const OFFLINE_EDITOR_CHECK_OVERLAP: Self = Self("offline_editor.check.overlap");
     pub const OFFLINE_EDITOR_CHECK_ROLE: Self = Self("offline_editor.check.role");
+    pub const OFFLINE_EDITOR_CHECK_UNRECOGNIZED_FIELDS: Self = Self("offline_editor.check.unrecognized_fields");
     pub const OFFLINE_EDITOR_CHECKS_HELP: Self = Self("offline_editor.checks_help");
     pub const OFFLINE_EDITOR_CLAIMING: Self = Self("offline_editor.claiming");
     pub const OFFLINE_EDITOR_CLIPBOARD_APPLY: Self = Self("offline_editor.clipboard.apply");
@@ -1121,6 +1138,8 @@ impl MessageId {
     pub const OFFLINE_EDITOR_CLIPBOARD_RESOLVE_SOURCES: Self = Self("offline_editor.clipboard.resolve_sources");
     pub const OFFLINE_EDITOR_CLIPBOARD_ROLE: Self = Self("offline_editor.clipboard.role");
     pub const OFFLINE_EDITOR_CLIPBOARD_SOURCE_CHANGED: Self = Self("offline_editor.clipboard.source_changed");
+    pub const OFFLINE_EDITOR_CONFIRM_REMOVAL: Self = Self("offline_editor.confirm_removal");
+    pub const OFFLINE_EDITOR_CONFIRM_REMOVAL_HELP: Self = Self("offline_editor.confirm_removal_help");
     pub const OFFLINE_EDITOR_EDIT_HERE: Self = Self("offline_editor.edit_here");
     pub const OFFLINE_EDITOR_FINDING_COUNT: Self = Self("offline_editor.finding_count");
     pub const OFFLINE_EDITOR_GEOMETRY_FOR: Self = Self("offline_editor.geometry_for");
@@ -1134,6 +1153,7 @@ impl MessageId {
     pub const OFFLINE_EDITOR_OWNER_UNAVAILABLE: Self = Self("offline_editor.owner_unavailable");
     pub const OFFLINE_EDITOR_PLACE: Self = Self("offline_editor.place");
     pub const OFFLINE_EDITOR_RECOVERY: Self = Self("offline_editor.recovery");
+    pub const OFFLINE_EDITOR_REMOVAL_DEPENDENCY: Self = Self("offline_editor.removal_dependency");
     pub const OFFLINE_EDITOR_REMOVE_SELECTION: Self = Self("offline_editor.remove_selection");
     pub const OFFLINE_EDITOR_REPEAT_AUTO: Self = Self("offline_editor.repeat_auto");
     pub const OFFLINE_EDITOR_RESIZE: Self = Self("offline_editor.resize");
@@ -1255,10 +1275,56 @@ impl MessageId {
     pub const PAGE_LIBRARY_TITLE: Self = Self("page_library.title");
     pub const PAGE_LIBRARY_USAGE_UNKNOWN: Self = Self("page_library.usage_unknown");
     pub const PAGE_LIBRARY_USED_BY: Self = Self("page_library.used_by");
+    pub const PORTABLE_LLD_CANDIDATE: Self = Self("portable_lld.candidate");
+    pub const PORTABLE_LLD_CHOOSE: Self = Self("portable_lld.choose");
+    pub const PORTABLE_LLD_CONFIRM: Self = Self("portable_lld.confirm");
+    pub const PORTABLE_LLD_CONFIRMED: Self = Self("portable_lld.confirmed");
+    pub const PORTABLE_LLD_EMPTY: Self = Self("portable_lld.empty");
+    pub const PORTABLE_LLD_FAILED: Self = Self("portable_lld.failed");
+    pub const PORTABLE_LLD_FIELD: Self = Self("portable_lld.field");
+    pub const PORTABLE_LLD_FIND: Self = Self("portable_lld.find");
+    pub const PORTABLE_LLD_HELP: Self = Self("portable_lld.help");
+    pub const PORTABLE_LLD_REOPEN: Self = Self("portable_lld.reopen");
+    pub const PORTABLE_LLD_SAVED_HOST: Self = Self("portable_lld.saved_host");
+    pub const PORTABLE_LLD_TITLE: Self = Self("portable_lld.title");
+    pub const PORTABLE_REVIEW_ACKNOWLEDGE_OUTSIDE: Self = Self("portable_review.acknowledge_outside");
+    pub const PORTABLE_REVIEW_CHOOSE: Self = Self("portable_review.choose");
+    pub const PORTABLE_REVIEW_CONFIRM: Self = Self("portable_review.confirm");
+    pub const PORTABLE_REVIEW_CONFIRMED: Self = Self("portable_review.confirmed");
+    pub const PORTABLE_REVIEW_FAILED: Self = Self("portable_review.failed");
+    pub const PORTABLE_REVIEW_FIND: Self = Self("portable_review.find");
+    pub const PORTABLE_REVIEW_HELP: Self = Self("portable_review.help");
+    pub const PORTABLE_REVIEW_MATCHES: Self = Self("portable_review.matches");
+    pub const PORTABLE_REVIEW_OUTSIDE: Self = Self("portable_review.outside");
+    pub const PORTABLE_REVIEW_PATTERN: Self = Self("portable_review.pattern");
+    pub const PORTABLE_REVIEW_PREVIEW: Self = Self("portable_review.preview");
+    pub const PORTABLE_REVIEW_SEARCH: Self = Self("portable_review.search");
+    pub const PORTABLE_REVIEW_TITLE: Self = Self("portable_review.title");
+    pub const PORTABLE_REVIEW_TRUNCATED: Self = Self("portable_review.truncated");
     pub const PUBLICATION_A11Y_STEPS: Self = Self("publication.a11y.steps");
+    pub const PUBLICATION_ACCESS_ADD_GROUP: Self = Self("publication.access.add_group");
+    pub const PUBLICATION_ACCESS_ADD_USER: Self = Self("publication.access.add_user");
+    pub const PUBLICATION_ACCESS_AFTER: Self = Self("publication.access.after");
+    pub const PUBLICATION_ACCESS_BEFORE: Self = Self("publication.access.before");
+    pub const PUBLICATION_ACCESS_CHOICES_TRUNCATED: Self = Self("publication.access.choices_truncated");
     pub const PUBLICATION_ACCESS_COPY_PRIVATE: Self = Self("publication.access.copy_private");
+    pub const PUBLICATION_ACCESS_CURRENT_ACCOUNT: Self = Self("publication.access.current_account");
+    pub const PUBLICATION_ACCESS_EDIT: Self = Self("publication.access.edit");
+    pub const PUBLICATION_ACCESS_GROUPS: Self = Self("publication.access.groups");
+    pub const PUBLICATION_ACCESS_OWNER: Self = Self("publication.access.owner");
+    pub const PUBLICATION_ACCESS_PRIVATE: Self = Self("publication.access.private");
+    pub const PUBLICATION_ACCESS_PUBLIC: Self = Self("publication.access.public");
+    pub const PUBLICATION_ACCESS_PUBLIC_WARNING: Self = Self("publication.access.public_warning");
+    pub const PUBLICATION_ACCESS_READ_ONLY: Self = Self("publication.access.read_only");
+    pub const PUBLICATION_ACCESS_READ_WRITE: Self = Self("publication.access.read_write");
+    pub const PUBLICATION_ACCESS_REJECTED: Self = Self("publication.access.rejected");
+    pub const PUBLICATION_ACCESS_REMOVE: Self = Self("publication.access.remove");
+    pub const PUBLICATION_ACCESS_RESTORE_SOURCE: Self = Self("publication.access.restore_source");
     pub const PUBLICATION_ACCESS_TITLE: Self = Self("publication.access.title");
+    pub const PUBLICATION_ACCESS_TYPE: Self = Self("publication.access.type");
     pub const PUBLICATION_ACCESS_UPDATE_NOT_SENT: Self = Self("publication.access.update_not_sent");
+    pub const PUBLICATION_ACCESS_USERS: Self = Self("publication.access.users");
+    pub const PUBLICATION_ACCESS_VISIBLE_PART: Self = Self("publication.access.visible_part");
     pub const PUBLICATION_ACTION_BACK_CHANGES: Self = Self("publication.action.back_changes");
     pub const PUBLICATION_ACTION_BACK_CHECKS: Self = Self("publication.action.back_checks");
     pub const PUBLICATION_ACTION_BACK_TARGET: Self = Self("publication.action.back_target");
@@ -1439,6 +1505,7 @@ impl MessageId {
     pub const PUBLICATION_FINDING_KEPT_ON_SOURCE_CONFIRMATION_STALE: Self = Self("publication.finding.kept_on_source_confirmation_stale");
     pub const PUBLICATION_FINDING_MATCH_DIFFERENCES: Self = Self("publication.finding.match_differences");
     pub const PUBLICATION_FINDING_NO_CHANGES: Self = Self("publication.finding.no_changes");
+    pub const PUBLICATION_FINDING_PATTERN_MATCHES_OUTSIDE_SELECTION: Self = Self("publication.finding.pattern_matches_outside_selection");
     pub const PUBLICATION_FINDING_SCOPE_LINK_CROSSING_CONSUMER_OUTSIDE: Self = Self("publication.finding.scope_link_crossing.consumer_outside");
     pub const PUBLICATION_FINDING_SCOPE_LINK_CROSSING_PROVIDER_OUTSIDE: Self = Self("publication.finding.scope_link_crossing.provider_outside");
     pub const PUBLICATION_FINDING_SERVER_VERSION_MISMATCH: Self = Self("publication.finding.server_version_mismatch");
@@ -1488,6 +1555,48 @@ impl MessageId {
     pub const PUBLICATION_PLAN_REASON_SOURCE_CHANGED: Self = Self("publication.plan.reason.source_changed");
     pub const PUBLICATION_PLAN_REASON_TARGET_CHANGED: Self = Self("publication.plan.reason.target_changed");
     pub const PUBLICATION_PLAN_REASON_UNKNOWN: Self = Self("publication.plan.reason.unknown");
+    pub const PUBLICATION_PORTABLE_ACKNOWLEDGE_DELETIONS: Self = Self("publication.portable.acknowledge_deletions");
+    pub const PUBLICATION_PORTABLE_ALREADY_DEPLOYED: Self = Self("publication.portable.already_deployed");
+    pub const PUBLICATION_PORTABLE_APPEND_AGAIN: Self = Self("publication.portable.append_again");
+    pub const PUBLICATION_PORTABLE_APPEND_PAGE: Self = Self("publication.portable.append_page");
+    pub const PUBLICATION_PORTABLE_APPEND_SELECTED: Self = Self("publication.portable.append_selected");
+    pub const PUBLICATION_PORTABLE_APPEND_WIDGET: Self = Self("publication.portable.append_widget");
+    pub const PUBLICATION_PORTABLE_CHANGED: Self = Self("publication.portable.changed");
+    pub const PUBLICATION_PORTABLE_CHECK_LINK: Self = Self("publication.portable.check_link");
+    pub const PUBLICATION_PORTABLE_CHOOSE_TARGET: Self = Self("publication.portable.choose_target");
+    pub const PUBLICATION_PORTABLE_CREATE_ANOTHER: Self = Self("publication.portable.create_another");
+    pub const PUBLICATION_PORTABLE_CREATED: Self = Self("publication.portable.created");
+    pub const PUBLICATION_PORTABLE_CURRENT: Self = Self("publication.portable.current");
+    pub const PUBLICATION_PORTABLE_DIFF_ADD_FIELD: Self = Self("publication.portable.diff_add_field");
+    pub const PUBLICATION_PORTABLE_DIFF_DASHBOARD_NAME: Self = Self("publication.portable.diff_dashboard_name");
+    pub const PUBLICATION_PORTABLE_DIFF_FIELD: Self = Self("publication.portable.diff_field");
+    pub const PUBLICATION_PORTABLE_DIFF_GEOMETRY: Self = Self("publication.portable.diff_geometry");
+    pub const PUBLICATION_PORTABLE_DIFF_MOVE_PAGE: Self = Self("publication.portable.diff_move_page");
+    pub const PUBLICATION_PORTABLE_DIFF_PAGE: Self = Self("publication.portable.diff_page");
+    pub const PUBLICATION_PORTABLE_DIFF_PAGE_NAME: Self = Self("publication.portable.diff_page_name");
+    pub const PUBLICATION_PORTABLE_DIFF_REMOVE_PAGE: Self = Self("publication.portable.diff_remove_page");
+    pub const PUBLICATION_PORTABLE_DIFF_REMOVE_WIDGET: Self = Self("publication.portable.diff_remove_widget");
+    pub const PUBLICATION_PORTABLE_DIFF_UNAVAILABLE: Self = Self("publication.portable.diff_unavailable");
+    pub const PUBLICATION_PORTABLE_DIFF_WIDGET: Self = Self("publication.portable.diff_widget");
+    pub const PUBLICATION_PORTABLE_DIFF_WIDGET_NAME: Self = Self("publication.portable.diff_widget_name");
+    pub const PUBLICATION_PORTABLE_EQUIVALENT_PAGE_EXISTS: Self = Self("publication.portable.equivalent_page_exists");
+    pub const PUBLICATION_PORTABLE_LINK_PENDING: Self = Self("publication.portable.link_pending");
+    pub const PUBLICATION_PORTABLE_LOCATION_X: Self = Self("publication.portable.location_x");
+    pub const PUBLICATION_PORTABLE_LOCATION_Y: Self = Self("publication.portable.location_y");
+    pub const PUBLICATION_PORTABLE_MISSING: Self = Self("publication.portable.missing");
+    pub const PUBLICATION_PORTABLE_OTHER_SERVER: Self = Self("publication.portable.other_server");
+    pub const PUBLICATION_PORTABLE_PAGE_POSITION: Self = Self("publication.portable.page_position");
+    pub const PUBLICATION_PORTABLE_POSITION_AFTER: Self = Self("publication.portable.position_after");
+    pub const PUBLICATION_PORTABLE_POSITION_END: Self = Self("publication.portable.position_end");
+    pub const PUBLICATION_PORTABLE_PREVIEW_SOURCE: Self = Self("publication.portable.preview_source");
+    pub const PUBLICATION_PORTABLE_QUESTION_UPDATE: Self = Self("publication.portable.question_update");
+    pub const PUBLICATION_PORTABLE_REQUIRE_CONNECTION: Self = Self("publication.portable.require_connection");
+    pub const PUBLICATION_PORTABLE_SELECT: Self = Self("publication.portable.select");
+    pub const PUBLICATION_PORTABLE_SOURCE_PAGE: Self = Self("publication.portable.source_page");
+    pub const PUBLICATION_PORTABLE_SOURCE_WIDGETS: Self = Self("publication.portable.source_widgets");
+    pub const PUBLICATION_PORTABLE_SUMMARY: Self = Self("publication.portable.summary");
+    pub const PUBLICATION_PORTABLE_TARGET_PAGE: Self = Self("publication.portable.target_page");
+    pub const PUBLICATION_PORTABLE_UPDATE_CREATED: Self = Self("publication.portable.update_created");
     pub const PUBLICATION_PREFLIGHT_BLOCKED: Self = Self("publication.preflight.blocked");
     pub const PUBLICATION_PREFLIGHT_TITLE: Self = Self("publication.preflight.title");
     pub const PUBLICATION_PREVIEW_READ_ONLY_NOTE: Self = Self("publication.preview.read_only_note");
@@ -1571,6 +1680,7 @@ impl MessageId {
     pub const PUBLICATION_TARGET_UPDATE_SOURCE_HINT: Self = Self("publication.target.update_source_hint");
     pub const PUBLICATION_TARGET_UPDATE_VISIBLE_TO_ALL: Self = Self("publication.target.update_visible_to_all");
     pub const PUBLICATION_TECH_BASE: Self = Self("publication.tech.base");
+    pub const PUBLICATION_TECH_EXPECTED: Self = Self("publication.tech.expected");
     pub const PUBLICATION_TECH_FIELDS: Self = Self("publication.tech.fields");
     pub const PUBLICATION_TECH_LOCAL: Self = Self("publication.tech.local");
     pub const PUBLICATION_TECH_PAGEID: Self = Self("publication.tech.pageid");
@@ -1715,6 +1825,7 @@ impl MessageId {
     pub const SETTINGS_DATA_NOT_TRANSLATED: Self = Self("settings.data_not_translated");
     pub const SETTINGS_EDITOR_AUTOSAVE_AFTER_CREATE: Self = Self("settings.editor.autosave_after_create");
     pub const SETTINGS_EDITOR_AUTOSAVE_MODE: Self = Self("settings.editor.autosave_mode");
+    pub const SETTINGS_EDITOR_DEFAULT_ZOOM: Self = Self("settings.editor.default_zoom");
     pub const SETTINGS_EDITOR_ERROR_CHANGED: Self = Self("settings.editor.error.changed");
     pub const SETTINGS_EDITOR_ERROR_NOT_SAVED: Self = Self("settings.editor.error.not_saved");
     pub const SETTINGS_EDITOR_ERROR_UNAVAILABLE: Self = Self("settings.editor.error.unavailable");
@@ -1723,11 +1834,20 @@ impl MessageId {
     pub const SETTINGS_EDITOR_ON: Self = Self("settings.editor.on");
     pub const SETTINGS_EDITOR_RELOAD: Self = Self("settings.editor.reload");
     pub const SETTINGS_EDITOR_SESSION_ONLY: Self = Self("settings.editor.session_only");
+    pub const SETTINGS_EDITOR_SHOW_GRID: Self = Self("settings.editor.show_grid");
     pub const SETTINGS_EDITOR_TITLE: Self = Self("settings.editor.title");
+    pub const SETTINGS_EDITOR_ZOOM_ACTUAL: Self = Self("settings.editor.zoom.actual");
+    pub const SETTINGS_EDITOR_ZOOM_FIT_WIDTH: Self = Self("settings.editor.zoom.fit_width");
     pub const SETTINGS_FILE_CHANGED_BODY: Self = Self("settings.file.changed.body");
     pub const SETTINGS_FILE_CHANGED_TITLE: Self = Self("settings.file.changed.title");
     pub const SETTINGS_FILE_HINT: Self = Self("settings.file.hint");
     pub const SETTINGS_FILE_INVALID_TITLE: Self = Self("settings.file.invalid.title");
+    pub const SETTINGS_FILE_ISSUE_FILE_TOO_LARGE: Self = Self("settings.file.issue.file_too_large");
+    pub const SETTINGS_FILE_ISSUE_INTERRUPTED_SAVE: Self = Self("settings.file.issue.interrupted_save");
+    pub const SETTINGS_FILE_ISSUE_INVALID_FORMAT: Self = Self("settings.file.issue.invalid_format");
+    pub const SETTINGS_FILE_ISSUE_INVALID_STORAGE_ROOT: Self = Self("settings.file.issue.invalid_storage_root");
+    pub const SETTINGS_FILE_ISSUE_INVALID_YAML: Self = Self("settings.file.issue.invalid_yaml");
+    pub const SETTINGS_FILE_ISSUE_YAML_LOCATION: Self = Self("settings.file.issue.yaml_location");
     pub const SETTINGS_FILE_TITLE: Self = Self("settings.file.title");
     pub const SETTINGS_FILE_UNREADABLE: Self = Self("settings.file.unreadable");
     pub const SETTINGS_FILE_UNREADABLE_TITLE: Self = Self("settings.file.unreadable.title");
@@ -2235,6 +2355,8 @@ impl MessageId {
         Self::CLONE_COMPARE_WIDGET,
         Self::CLONE_CONFIRM_KEPT,
         Self::CLONE_CONFIRM_TITLE,
+        Self::CLONE_COPIED_ACCESS_VISIBLE_PART,
+        Self::CLONE_COPY_SOURCE_ACCESS,
         Self::CLONE_EDIT,
         Self::CLONE_ERROR_GROWTH_COLOR,
         Self::CLONE_ERROR_GROWTH_METRIC,
@@ -2284,12 +2406,16 @@ impl MessageId {
         Self::CLONE_PATTERN_TITLE,
         Self::CLONE_PATTERN_TRUNCATED,
         Self::CLONE_PATTERN_VALUE,
+        Self::CLONE_PATTERN_VISIBLE_SCOPE,
         Self::CLONE_PLAN,
         Self::CLONE_PRIVATE_COPY,
         Self::CLONE_READ_ONLY,
         Self::CLONE_RECONCILE,
         Self::CLONE_SAVE,
         Self::CLONE_SEARCH,
+        Self::CLONE_SOURCE_CHANGED,
+        Self::CLONE_SOURCE_CURRENT,
+        Self::CLONE_SOURCE_UNAVAILABLE,
         Self::CLONE_SUMMARY,
         Self::CLONE_TARGET_FOR,
         Self::CLONE_TARGETS,
@@ -2472,6 +2598,7 @@ impl MessageId {
         Self::CONNECTION_TEST_CRUMB,
         Self::CONNECTION_TEST_DETAILS_CODE,
         Self::CONNECTION_TEST_DETAILS_METHOD,
+        Self::CONNECTION_TEST_DETAILS_ROLE_API_ACCESS,
         Self::CONNECTION_TEST_DETAILS_STEP,
         Self::CONNECTION_TEST_DETAILS_TIME,
         Self::CONNECTION_TEST_DETAILS_TITLE,
@@ -2497,6 +2624,9 @@ impl MessageId {
         Self::CONNECTION_TEST_RESULT_CAPABILITIES,
         Self::CONNECTION_TEST_RESULT_ENDPOINT,
         Self::CONNECTION_TEST_RESULT_IDENTITY_MATCHES,
+        Self::CONNECTION_TEST_ROLE_API_ACCESS_DISABLED,
+        Self::CONNECTION_TEST_ROLE_API_ACCESS_ENABLED,
+        Self::CONNECTION_TEST_ROLE_API_ACCESS_UNVERIFIED,
         Self::CONNECTION_TEST_RUNNING,
         Self::CONNECTION_TEST_STATUS_FAILED,
         Self::CONNECTION_TEST_STATUS_NOT_CHECKED,
@@ -2760,6 +2890,7 @@ impl MessageId {
         Self::ERRORS_CONNECTION_UNREACHABLE_OR_TIMEOUT,
         Self::ERRORS_CONNECTION_VERSION_UNSUPPORTED,
         Self::ERRORS_CONNECTION_WRITES_NOT_CONFIRMED,
+        Self::ERRORS_CONNECTION_WRITES_VERSION_UNSUPPORTED,
         Self::ERRORS_CREDENTIAL_LOCKED,
         Self::ERRORS_CREDENTIAL_MISSING,
         Self::ERRORS_CREDENTIAL_UNAVAILABLE,
@@ -2929,6 +3060,11 @@ impl MessageId {
         Self::OFFLINE_BUILDER_OPENED,
         Self::OFFLINE_BUILDER_PAGE_NAME,
         Self::OFFLINE_BUILDER_PENDING_HELP,
+        Self::OFFLINE_BUILDER_PROFILE,
+        Self::OFFLINE_BUILDER_PROFILE_CHOICE,
+        Self::OFFLINE_BUILDER_PROFILE_CURRENT,
+        Self::OFFLINE_BUILDER_PROFILE_HELP,
+        Self::OFFLINE_BUILDER_PROFILE_UNAVAILABLE,
         Self::OFFLINE_BUILDER_RELOAD,
         Self::OFFLINE_BUILDER_REMOVE,
         Self::OFFLINE_BUILDER_REMOVE_ROLE,
@@ -3004,6 +3140,7 @@ impl MessageId {
         Self::OFFLINE_EDITOR_CHECK_NAME,
         Self::OFFLINE_EDITOR_CHECK_OVERLAP,
         Self::OFFLINE_EDITOR_CHECK_ROLE,
+        Self::OFFLINE_EDITOR_CHECK_UNRECOGNIZED_FIELDS,
         Self::OFFLINE_EDITOR_CHECKS_HELP,
         Self::OFFLINE_EDITOR_CLAIMING,
         Self::OFFLINE_EDITOR_CLIPBOARD_APPLY,
@@ -3028,6 +3165,8 @@ impl MessageId {
         Self::OFFLINE_EDITOR_CLIPBOARD_RESOLVE_SOURCES,
         Self::OFFLINE_EDITOR_CLIPBOARD_ROLE,
         Self::OFFLINE_EDITOR_CLIPBOARD_SOURCE_CHANGED,
+        Self::OFFLINE_EDITOR_CONFIRM_REMOVAL,
+        Self::OFFLINE_EDITOR_CONFIRM_REMOVAL_HELP,
         Self::OFFLINE_EDITOR_EDIT_HERE,
         Self::OFFLINE_EDITOR_FINDING_COUNT,
         Self::OFFLINE_EDITOR_GEOMETRY_FOR,
@@ -3041,6 +3180,7 @@ impl MessageId {
         Self::OFFLINE_EDITOR_OWNER_UNAVAILABLE,
         Self::OFFLINE_EDITOR_PLACE,
         Self::OFFLINE_EDITOR_RECOVERY,
+        Self::OFFLINE_EDITOR_REMOVAL_DEPENDENCY,
         Self::OFFLINE_EDITOR_REMOVE_SELECTION,
         Self::OFFLINE_EDITOR_REPEAT_AUTO,
         Self::OFFLINE_EDITOR_RESIZE,
@@ -3162,10 +3302,56 @@ impl MessageId {
         Self::PAGE_LIBRARY_TITLE,
         Self::PAGE_LIBRARY_USAGE_UNKNOWN,
         Self::PAGE_LIBRARY_USED_BY,
+        Self::PORTABLE_LLD_CANDIDATE,
+        Self::PORTABLE_LLD_CHOOSE,
+        Self::PORTABLE_LLD_CONFIRM,
+        Self::PORTABLE_LLD_CONFIRMED,
+        Self::PORTABLE_LLD_EMPTY,
+        Self::PORTABLE_LLD_FAILED,
+        Self::PORTABLE_LLD_FIELD,
+        Self::PORTABLE_LLD_FIND,
+        Self::PORTABLE_LLD_HELP,
+        Self::PORTABLE_LLD_REOPEN,
+        Self::PORTABLE_LLD_SAVED_HOST,
+        Self::PORTABLE_LLD_TITLE,
+        Self::PORTABLE_REVIEW_ACKNOWLEDGE_OUTSIDE,
+        Self::PORTABLE_REVIEW_CHOOSE,
+        Self::PORTABLE_REVIEW_CONFIRM,
+        Self::PORTABLE_REVIEW_CONFIRMED,
+        Self::PORTABLE_REVIEW_FAILED,
+        Self::PORTABLE_REVIEW_FIND,
+        Self::PORTABLE_REVIEW_HELP,
+        Self::PORTABLE_REVIEW_MATCHES,
+        Self::PORTABLE_REVIEW_OUTSIDE,
+        Self::PORTABLE_REVIEW_PATTERN,
+        Self::PORTABLE_REVIEW_PREVIEW,
+        Self::PORTABLE_REVIEW_SEARCH,
+        Self::PORTABLE_REVIEW_TITLE,
+        Self::PORTABLE_REVIEW_TRUNCATED,
         Self::PUBLICATION_A11Y_STEPS,
+        Self::PUBLICATION_ACCESS_ADD_GROUP,
+        Self::PUBLICATION_ACCESS_ADD_USER,
+        Self::PUBLICATION_ACCESS_AFTER,
+        Self::PUBLICATION_ACCESS_BEFORE,
+        Self::PUBLICATION_ACCESS_CHOICES_TRUNCATED,
         Self::PUBLICATION_ACCESS_COPY_PRIVATE,
+        Self::PUBLICATION_ACCESS_CURRENT_ACCOUNT,
+        Self::PUBLICATION_ACCESS_EDIT,
+        Self::PUBLICATION_ACCESS_GROUPS,
+        Self::PUBLICATION_ACCESS_OWNER,
+        Self::PUBLICATION_ACCESS_PRIVATE,
+        Self::PUBLICATION_ACCESS_PUBLIC,
+        Self::PUBLICATION_ACCESS_PUBLIC_WARNING,
+        Self::PUBLICATION_ACCESS_READ_ONLY,
+        Self::PUBLICATION_ACCESS_READ_WRITE,
+        Self::PUBLICATION_ACCESS_REJECTED,
+        Self::PUBLICATION_ACCESS_REMOVE,
+        Self::PUBLICATION_ACCESS_RESTORE_SOURCE,
         Self::PUBLICATION_ACCESS_TITLE,
+        Self::PUBLICATION_ACCESS_TYPE,
         Self::PUBLICATION_ACCESS_UPDATE_NOT_SENT,
+        Self::PUBLICATION_ACCESS_USERS,
+        Self::PUBLICATION_ACCESS_VISIBLE_PART,
         Self::PUBLICATION_ACTION_BACK_CHANGES,
         Self::PUBLICATION_ACTION_BACK_CHECKS,
         Self::PUBLICATION_ACTION_BACK_TARGET,
@@ -3346,6 +3532,7 @@ impl MessageId {
         Self::PUBLICATION_FINDING_KEPT_ON_SOURCE_CONFIRMATION_STALE,
         Self::PUBLICATION_FINDING_MATCH_DIFFERENCES,
         Self::PUBLICATION_FINDING_NO_CHANGES,
+        Self::PUBLICATION_FINDING_PATTERN_MATCHES_OUTSIDE_SELECTION,
         Self::PUBLICATION_FINDING_SCOPE_LINK_CROSSING_CONSUMER_OUTSIDE,
         Self::PUBLICATION_FINDING_SCOPE_LINK_CROSSING_PROVIDER_OUTSIDE,
         Self::PUBLICATION_FINDING_SERVER_VERSION_MISMATCH,
@@ -3395,6 +3582,48 @@ impl MessageId {
         Self::PUBLICATION_PLAN_REASON_SOURCE_CHANGED,
         Self::PUBLICATION_PLAN_REASON_TARGET_CHANGED,
         Self::PUBLICATION_PLAN_REASON_UNKNOWN,
+        Self::PUBLICATION_PORTABLE_ACKNOWLEDGE_DELETIONS,
+        Self::PUBLICATION_PORTABLE_ALREADY_DEPLOYED,
+        Self::PUBLICATION_PORTABLE_APPEND_AGAIN,
+        Self::PUBLICATION_PORTABLE_APPEND_PAGE,
+        Self::PUBLICATION_PORTABLE_APPEND_SELECTED,
+        Self::PUBLICATION_PORTABLE_APPEND_WIDGET,
+        Self::PUBLICATION_PORTABLE_CHANGED,
+        Self::PUBLICATION_PORTABLE_CHECK_LINK,
+        Self::PUBLICATION_PORTABLE_CHOOSE_TARGET,
+        Self::PUBLICATION_PORTABLE_CREATE_ANOTHER,
+        Self::PUBLICATION_PORTABLE_CREATED,
+        Self::PUBLICATION_PORTABLE_CURRENT,
+        Self::PUBLICATION_PORTABLE_DIFF_ADD_FIELD,
+        Self::PUBLICATION_PORTABLE_DIFF_DASHBOARD_NAME,
+        Self::PUBLICATION_PORTABLE_DIFF_FIELD,
+        Self::PUBLICATION_PORTABLE_DIFF_GEOMETRY,
+        Self::PUBLICATION_PORTABLE_DIFF_MOVE_PAGE,
+        Self::PUBLICATION_PORTABLE_DIFF_PAGE,
+        Self::PUBLICATION_PORTABLE_DIFF_PAGE_NAME,
+        Self::PUBLICATION_PORTABLE_DIFF_REMOVE_PAGE,
+        Self::PUBLICATION_PORTABLE_DIFF_REMOVE_WIDGET,
+        Self::PUBLICATION_PORTABLE_DIFF_UNAVAILABLE,
+        Self::PUBLICATION_PORTABLE_DIFF_WIDGET,
+        Self::PUBLICATION_PORTABLE_DIFF_WIDGET_NAME,
+        Self::PUBLICATION_PORTABLE_EQUIVALENT_PAGE_EXISTS,
+        Self::PUBLICATION_PORTABLE_LINK_PENDING,
+        Self::PUBLICATION_PORTABLE_LOCATION_X,
+        Self::PUBLICATION_PORTABLE_LOCATION_Y,
+        Self::PUBLICATION_PORTABLE_MISSING,
+        Self::PUBLICATION_PORTABLE_OTHER_SERVER,
+        Self::PUBLICATION_PORTABLE_PAGE_POSITION,
+        Self::PUBLICATION_PORTABLE_POSITION_AFTER,
+        Self::PUBLICATION_PORTABLE_POSITION_END,
+        Self::PUBLICATION_PORTABLE_PREVIEW_SOURCE,
+        Self::PUBLICATION_PORTABLE_QUESTION_UPDATE,
+        Self::PUBLICATION_PORTABLE_REQUIRE_CONNECTION,
+        Self::PUBLICATION_PORTABLE_SELECT,
+        Self::PUBLICATION_PORTABLE_SOURCE_PAGE,
+        Self::PUBLICATION_PORTABLE_SOURCE_WIDGETS,
+        Self::PUBLICATION_PORTABLE_SUMMARY,
+        Self::PUBLICATION_PORTABLE_TARGET_PAGE,
+        Self::PUBLICATION_PORTABLE_UPDATE_CREATED,
         Self::PUBLICATION_PREFLIGHT_BLOCKED,
         Self::PUBLICATION_PREFLIGHT_TITLE,
         Self::PUBLICATION_PREVIEW_READ_ONLY_NOTE,
@@ -3478,6 +3707,7 @@ impl MessageId {
         Self::PUBLICATION_TARGET_UPDATE_SOURCE_HINT,
         Self::PUBLICATION_TARGET_UPDATE_VISIBLE_TO_ALL,
         Self::PUBLICATION_TECH_BASE,
+        Self::PUBLICATION_TECH_EXPECTED,
         Self::PUBLICATION_TECH_FIELDS,
         Self::PUBLICATION_TECH_LOCAL,
         Self::PUBLICATION_TECH_PAGEID,
@@ -3622,6 +3852,7 @@ impl MessageId {
         Self::SETTINGS_DATA_NOT_TRANSLATED,
         Self::SETTINGS_EDITOR_AUTOSAVE_AFTER_CREATE,
         Self::SETTINGS_EDITOR_AUTOSAVE_MODE,
+        Self::SETTINGS_EDITOR_DEFAULT_ZOOM,
         Self::SETTINGS_EDITOR_ERROR_CHANGED,
         Self::SETTINGS_EDITOR_ERROR_NOT_SAVED,
         Self::SETTINGS_EDITOR_ERROR_UNAVAILABLE,
@@ -3630,11 +3861,20 @@ impl MessageId {
         Self::SETTINGS_EDITOR_ON,
         Self::SETTINGS_EDITOR_RELOAD,
         Self::SETTINGS_EDITOR_SESSION_ONLY,
+        Self::SETTINGS_EDITOR_SHOW_GRID,
         Self::SETTINGS_EDITOR_TITLE,
+        Self::SETTINGS_EDITOR_ZOOM_ACTUAL,
+        Self::SETTINGS_EDITOR_ZOOM_FIT_WIDTH,
         Self::SETTINGS_FILE_CHANGED_BODY,
         Self::SETTINGS_FILE_CHANGED_TITLE,
         Self::SETTINGS_FILE_HINT,
         Self::SETTINGS_FILE_INVALID_TITLE,
+        Self::SETTINGS_FILE_ISSUE_FILE_TOO_LARGE,
+        Self::SETTINGS_FILE_ISSUE_INTERRUPTED_SAVE,
+        Self::SETTINGS_FILE_ISSUE_INVALID_FORMAT,
+        Self::SETTINGS_FILE_ISSUE_INVALID_STORAGE_ROOT,
+        Self::SETTINGS_FILE_ISSUE_INVALID_YAML,
+        Self::SETTINGS_FILE_ISSUE_YAML_LOCATION,
         Self::SETTINGS_FILE_TITLE,
         Self::SETTINGS_FILE_UNREADABLE,
         Self::SETTINGS_FILE_UNREADABLE_TITLE,

@@ -93,7 +93,7 @@ impl WorkcopyService {
         if local.server_version() != &reader.capabilities().version {
             return Err(WorkcopyError::new("clone_intent_server_changed"));
         }
-        let fingerprint = local.fingerprint().to_owned();
+        let fingerprint = local.storage_fingerprint().to_owned();
         let scoped = if file.kind == DraftKind::Page {
             let page_id = &file
                 .source
@@ -173,7 +173,7 @@ impl WorkcopyService {
         }
         let (current, base, operations) = self.load_log(local_id)?;
         if current.revision != file.revision
-            || materialize_local_operations(base, &operations)?.fingerprint() != fingerprint
+            || materialize_local_operations(base, &operations)?.storage_fingerprint() != fingerprint
         {
             return Err(WorkcopyError::new("workcopy_revision_conflict"));
         }
@@ -239,7 +239,7 @@ impl WorkcopyService {
         if local.server_version() != &reader.capabilities().version {
             return Err(WorkcopyError::new("clone_intent_server_changed"));
         }
-        let fingerprint = local.fingerprint().to_owned();
+        let fingerprint = local.storage_fingerprint().to_owned();
         let page_id = match file.kind {
             DraftKind::Dashboard => None,
             DraftKind::Page => Some(
@@ -285,14 +285,17 @@ impl WorkcopyService {
             &facts,
         )?;
         add_pattern_choices(&mut bindings, &model, pattern_choices)?;
+        let evidence = bindings.for_snapshot(&scoped);
         let mut bundle = match &page_id {
-            Some(id) => convert_page_bound(&scoped, id, "portable".to_owned(), Some(&bindings))?,
-            None => convert_dashboard_bound(&scoped, "portable".to_owned(), Some(&bindings))?,
+            Some(id) => convert_page_bound(&scoped, id, "portable".to_owned(), Some(evidence))?,
+            None => convert_dashboard_bound(&scoped, "portable".to_owned(), Some(evidence))?,
         };
         apply_workcopy_name(&mut bundle, &file.name)?;
         let (current, current_base, current_operations) = self.load_log(local_id)?;
         let current_local = materialize_local_operations(current_base, &current_operations)?;
-        if current.revision != expected_revision || current_local.fingerprint() != fingerprint {
+        if current.revision != expected_revision
+            || current_local.storage_fingerprint() != fingerprint
+        {
             return Err(WorkcopyError::new("workcopy_revision_conflict"));
         }
         let root = self.store.root_path();
@@ -325,7 +328,7 @@ impl WorkcopyService {
         if local.server_version() != &reader.capabilities().version {
             return Err(WorkcopyError::new("clone_intent_server_changed"));
         }
-        let local_fingerprint = local.fingerprint().to_owned();
+        let local_fingerprint = local.storage_fingerprint().to_owned();
         let scoped = match file.kind {
             DraftKind::Dashboard => local,
             DraftKind::Page => {
@@ -361,7 +364,9 @@ impl WorkcopyService {
         // The workcopy can change while the network request is in flight.
         let (current, current_base, current_operations) = self.load_log(local_id)?;
         let current_local = materialize_local_operations(current_base, &current_operations)?;
-        if current.revision != file.revision || current_local.fingerprint() != local_fingerprint {
+        if current.revision != file.revision
+            || current_local.storage_fingerprint() != local_fingerprint
+        {
             return Err(WorkcopyError::new("workcopy_revision_conflict"));
         }
         Ok(summarize(file.revision, &model.itemids(), &facts))
@@ -432,6 +437,7 @@ mod tests {
                 value_type: 0,
                 units: "".into(),
                 flags: ItemFlags::Plain,
+                enabled: None,
                 templateid: Some("30".into()),
                 discovery: None,
                 owner_name: None,

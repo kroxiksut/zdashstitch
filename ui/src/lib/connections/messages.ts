@@ -81,6 +81,7 @@ export const KNOWN_CODES: ReadonlyArray<string> = [
   'invalid_address',
   'trust_material_invalid',
   'unsupported_version',
+  'writes_version_unsupported',
   'api_method_denied',
   'api_error',
   'server_version_changed',
@@ -107,6 +108,8 @@ export function codeText(code: string, params: Params = {}): LocalizedText {
     }
     case 'unsupported_version':
       return { id: 'errors.connection.version_unsupported', params: { version: params.version ?? '' } };
+    case 'writes_version_unsupported':
+      return { id: 'errors.connection.writes_version_unsupported', params: { version: params.version ?? '' } };
     case 'api_method_denied':
       return { id: 'errors.permission.api_method', params: { method: params.method ?? '' } };
     case 'api_error':

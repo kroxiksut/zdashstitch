@@ -1,4 +1,46 @@
 {
+  "publication.portable.source_page": {"message":"Исходная страница","placeholders":{}},
+  "publication.portable.source_widgets": {"message":"Графики для добавления","placeholders":{}},
+  "publication.portable.append_selected": {"message":"Добавить выбранные графики","placeholders":{}},
+  "publication.portable.check_link": {"message":"Проверить на сервере","placeholders":{}},
+  "publication.portable.current": {"message":"Панель совпадает с сохранённой версией.","placeholders":{}},
+  "publication.portable.changed": {"message":"Панель изменилась на сервере. Импортируйте текущую версию для проверки или явно создайте ещё одну панель.","placeholders":{}},
+  "publication.portable.missing": {"message":"Панель отсутствует или недоступна.","placeholders":{}},
+  "publication.portable.other_server": {"message":"Связь относится к другому серверу или учётной записи подключения.","placeholders":{}},
+  "publication.portable.page_position": {"message":"Позиция добавляемой страницы","placeholders":{}},
+  "publication.portable.position_end": {"message":"В конец","placeholders":{}},
+  "publication.portable.position_after": {"message":"После «{name}»","placeholders":{"name":"text"}},
+  "publication.portable.preview_source": {"message":"Черновик «{name}»","placeholders":{"name":"text"}},
+  "publication.portable.diff_page": {"message":"Добавить «{name}» как страницу {number}","placeholders":{"name":"text","number":"number"}},
+  "publication.portable.diff_widget": {"message":"Добавить «{name}» на страницу «{page}», координаты X {x}, Y {y}","placeholders":{"name":"text","page":"text","x":"number","y":"number"}},
+  "publication.portable.diff_remove_page": {"message":"Удалить страницу {number} «{name}»","placeholders":{"name":"text","number":"number"}},
+  "publication.portable.diff_remove_widget": {"message":"Удалить «{name}» со страницы «{page}», координаты X {x}, Y {y}","placeholders":{"name":"text","page":"text","x":"number","y":"number"}},
+  "publication.portable.diff_move_page": {"message":"Переместить «{name}» с позиции {from} на позицию {to}","placeholders":{"name":"text","from":"number","to":"number"}},
+  "publication.portable.diff_geometry": {"message":"«{widget}» на странице «{page}»: X {old_x}, Y {old_y}, {old_w} × {old_h} → X {new_x}, Y {new_y}, {new_w} × {new_h}","placeholders":{"widget":"text","page":"text","old_x":"number","old_y":"number","old_w":"number","old_h":"number","new_x":"number","new_y":"number","new_w":"number","new_h":"number"}},
+  "publication.portable.acknowledge_deletions": {"message":"Удалить перечисленные страницы и виджеты из панели Zabbix","placeholders":{}},
+  "publication.portable.equivalent_page_exists": {"message":"В целевой панели уже есть такая же страница.","placeholders":{}},
+  "publication.portable.append_again": {"message":"Добавить страницу ещё раз","placeholders":{}},
+  "publication.portable.diff_dashboard_name": {"message":"Имя панели изменится с «{before}» на «{after}»","placeholders":{"before":"text","after":"text"}},
+  "publication.portable.diff_page_name": {"message":"Имя страницы изменится с «{before}» на «{after}»","placeholders":{"before":"text","after":"text"}},
+  "publication.portable.diff_widget_name": {"message":"Имя виджета изменится с «{before}» на «{after}»","placeholders":{"before":"text","after":"text"}},
+  "publication.portable.diff_add_field": {"message":"В виджете «{widget}» на странице «{page}» добавить поле {name} со значением «{after}»","placeholders":{"widget":"text","page":"text","name":"text","after":"text"}},
+  "publication.portable.diff_field": {"message":"В виджете «{widget}» на странице «{page}» поле {name} изменится с «{before}» на «{after}»","placeholders":{"widget":"text","page":"text","name":"text","before":"text","after":"text"}},
+  "publication.portable.diff_unavailable": {"message":"Прежний или выбранный элемент данных отсутствует или недоступен. Изменение нельзя показать.","placeholders":{}},
+  "publication.portable.update_created": {"message":"Обновить созданную панель","placeholders":{}},
+  "publication.portable.choose_target": {"message":"Выбрать личную панель","placeholders":{}},
+  "publication.portable.select": {"message":"Выбрать","placeholders":{}},
+  "publication.portable.target_page": {"message":"Целевая страница","placeholders":{}},
+  "publication.portable.location_x": {"message":"Столбец X","placeholders":{}},
+  "publication.portable.location_y": {"message":"Строка Y","placeholders":{}},
+  "publication.portable.append_page": {"message":"Добавить страницу в панель","placeholders":{}},
+  "publication.portable.append_widget": {"message":"Добавить график на страницу","placeholders":{}},
+  "publication.portable.question_update": {"message":"Применить запланированное изменение к панели «{name}»?","placeholders":{"name":"text"}},
+  "publication.portable.already_deployed": {"message":"Из этого черновика уже создана панель на этом сервере.","placeholders":{}},
+  "publication.portable.created": {"message":"Создано из этого черновика","placeholders":{}},
+  "publication.portable.require_connection": {"message":"Чтобы опубликовать панель, подключитесь к Zabbix 8.0.0 и разрешите запись.","placeholders":{}},
+  "publication.portable.create_another": {"message":"Создать ещё одну панель из этого черновика","placeholders":{}},
+  "publication.portable.link_pending": {"message":"Запись проверена. Сверьте результат, чтобы сохранить связь с черновиком.","placeholders":{}},
+  "publication.portable.summary": {"message":"Будет создана панель в подключении «{profile}». Страниц: {pages}. Виджетов: {widgets}.","placeholders":{"profile":"text","pages":"number","widgets":"number"}},
   "publication.title": {
     "message": "Предпросмотр и публикация",
     "placeholders": {}
@@ -429,6 +471,14 @@
     "message": "Отпечаток черновика",
     "placeholders": {}
   },
+  "publication.tech.expected": {
+    "message": "Отпечаток ожидаемого результата",
+    "placeholders": {}
+  },
+  "publication.finding.pattern_matches_outside_selection": {
+    "message": "Выбор узлов исключает совпадения с элементами данных на других узлах ({count}).",
+    "placeholders": {"count": "number"}
+  },
   "publication.tech.revision": {
     "message": "Ревизия черновика",
     "placeholders": {}
@@ -619,6 +669,26 @@
       "dashboard_name": "text"
     }
   },
+  "publication.access.owner": {"message":"Владелец","placeholders":{}},
+  "publication.access.current_account": {"message":"Учётная запись подключения","placeholders":{}},
+  "publication.access.type": {"message":"Тип доступа к панели","placeholders":{}},
+  "publication.access.private": {"message":"Личная","placeholders":{}},
+  "publication.access.public": {"message":"Общая","placeholders":{}},
+  "publication.access.public_warning": {"message":"Панель увидят все пользователи Zabbix.","placeholders":{}},
+  "publication.access.visible_part": {"message":"Показана видимая вашей учётной записи часть списка получателей.","placeholders":{}},
+  "publication.access.choices_truncated": {"message":"Здесь доступны первые 500 видимых пользователей и групп.","placeholders":{}},
+  "publication.access.users": {"message":"Пользователи","placeholders":{}},
+  "publication.access.groups": {"message":"Группы пользователей","placeholders":{}},
+  "publication.access.read_only": {"message":"Только чтение","placeholders":{}},
+  "publication.access.read_write": {"message":"Чтение-запись","placeholders":{}},
+  "publication.access.add_user": {"message":"Добавить пользователя","placeholders":{}},
+  "publication.access.add_group": {"message":"Добавить группу пользователей","placeholders":{}},
+  "publication.access.remove": {"message":"Удалить получателя «{name}»","placeholders":{"name":"text"}},
+  "publication.access.edit": {"message":"Изменить владельца и доступ","placeholders":{}},
+  "publication.access.before": {"message":"Текущий доступ","placeholders":{}},
+  "publication.access.rejected": {"message":"Не удалось подтвердить выбранного владельца или доступ в этом подключении.","placeholders":{}},
+  "publication.access.after": {"message":"Предлагаемый доступ","placeholders":{}},
+  "publication.access.restore_source": {"message":"Восстановить доступ исходной панели","placeholders":{}},
   "publication.access.title": {
     "message": "Владелец и доступ",
     "placeholders": {}

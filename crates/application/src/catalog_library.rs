@@ -751,6 +751,56 @@ mod tests {
     }
 
     #[test]
+    fn file_import_saves_and_reopens_mixed_8_0_catalogs() {
+        use zdashstitch_core::formats::MetricsFormat;
+
+        let root = tempfile::tempdir().unwrap_or_else(|error| panic!("{error}"));
+        let library = CatalogLibrary::new(root.path().to_owned());
+        let filename = "template-export-synthetic.json";
+        let old_input = br#"{"zabbix_export":{"version":"7.4","templates":[{"uuid":"4bd523679faa48778aa59efa07ef9f01","template":"Synthetic database","items":[{"name":"Pool size","key":"synthetic.pool.size"}]}]}}"#;
+        let old = inspect_template_file(filename, old_input)
+            .unwrap_or_else(|| panic!("known extension"))
+            .unwrap_or_else(|error| panic!("{error}"));
+        library
+            .save(old.clone())
+            .unwrap_or_else(|error| panic!("{error}"));
+
+        let input = include_bytes!("../../../fixtures/zabbix/8.0/template-export-synthetic.json");
+        let templates = inspect_template_file(filename, input)
+            .unwrap_or_else(|| panic!("known extension"))
+            .unwrap_or_else(|error| panic!("{error}"));
+        let saved = library
+            .save(templates.clone())
+            .unwrap_or_else(|error| panic!("{error}"));
+        assert_eq!(saved.len(), 2);
+        assert!(
+            saved
+                .iter()
+                .all(|summary| { summary.export_format_version.as_deref() == Some("8.0") })
+        );
+        assert_eq!(saved[0].catalog_id, old[0].catalog.catalog_id);
+        assert_eq!(saved[0].version, 2);
+        assert_eq!(saved[1].version, 1);
+
+        let reopened = CatalogLibrary::new(root.path().to_owned());
+        assert_eq!(templates[0].catalog.format, MetricsFormat::V2);
+        assert_eq!(templates[1].catalog.format, MetricsFormat::V1);
+        assert_eq!(
+            reopened
+                .get(&old[0].catalog.catalog_id, 1)
+                .unwrap_or_else(|error| panic!("{error}"))
+                .as_ref(),
+            old.first(),
+        );
+        for (template, summary) in templates.into_iter().zip(saved) {
+            let actual = reopened
+                .get(&template.catalog.catalog_id, summary.version)
+                .unwrap_or_else(|error| panic!("{error}"));
+            assert_eq!(actual, Some(template));
+        }
+    }
+
+    #[test]
     fn interrupted_batch_preserves_previous_version_and_hints() {
         let root = tempfile::tempdir().unwrap_or_else(|error| panic!("{error}"));
         let library = CatalogLibrary::new(root.path().to_owned());

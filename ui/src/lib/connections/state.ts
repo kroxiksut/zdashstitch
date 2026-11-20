@@ -270,6 +270,7 @@ export function checkReportText(report: CheckReport, profile: ConnectionProfile 
     `result: ${report.passed ? 'passed' : `failed ${report.result_code ?? 'unknown'}`}`
   ];
   const failed = failedStep(report);
+  if (report.role_api_access) lines.push(`role_api_access: ${report.role_api_access}`);
   if (failed) lines.push(`failed_step: ${failed}`);
   for (const step of report.steps) {
     lines.push(`step ${step.step}: ${step.status}${step.code ? ` ${step.code}` : ''}${paramText(step.params)}`);

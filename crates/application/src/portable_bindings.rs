@@ -6,11 +6,10 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use serde::Deserialize;
 use zdashstitch_core::formats::{
-    Cardinality, CatalogReference, CatalogSource, ExportProfile, HostSelection, MetricCatalog,
-    MetricOrigin, MetricSelector, Role, Selection, SourceKind, ValueType, ZabbixObjectKind,
-    ZabbixWidgetFieldValue,
+    Cardinality, CatalogReference, HostSelection, MetricCatalog, MetricOrigin, MetricSelector,
+    Role, Selection, ValueType, ZabbixObjectKind, ZabbixWidgetFieldValue,
 };
-use zdashstitch_zabbix::ItemFlags;
+use zdashstitch_zabbix::{ItemFlags, VersionedDashboardSnapshot};
 
 use crate::{
     resolver::{SourceFacts, SourceKind as ResolverSourceKind, SourceModel},
@@ -53,6 +52,38 @@ pub(crate) struct PortableBindings {
     pub roles: BTreeMap<String, Role>,
     pub catalogs: BTreeMap<String, MetricCatalog>,
     pub references: Vec<CatalogReference>,
+}
+
+/// Evidence is scoped to the exact source bytes. The snapshot digest covers
+/// the source connection and version as well as positional field addresses.
+#[derive(Clone, Copy)]
+pub(crate) struct SnapshotBindings<'a> {
+    bindings: &'a PortableBindings,
+    source_fingerprint: &'a str,
+}
+
+impl PortableBindings {
+    pub(crate) fn for_snapshot<'a>(
+        &'a self,
+        snapshot: &'a VersionedDashboardSnapshot,
+    ) -> SnapshotBindings<'a> {
+        SnapshotBindings {
+            bindings: self,
+            source_fingerprint: snapshot.storage_fingerprint(),
+        }
+    }
+}
+
+impl<'a> SnapshotBindings<'a> {
+    pub(crate) fn get(
+        self,
+        snapshot: &VersionedDashboardSnapshot,
+    ) -> Result<&'a PortableBindings, WorkcopyError> {
+        if self.source_fingerprint != snapshot.storage_fingerprint() {
+            return Err(WorkcopyError::new("portable_conversion_binding_required"));
+        }
+        Ok(self.bindings)
+    }
 }
 
 pub(crate) fn add_pattern_choices(
@@ -204,32 +235,33 @@ pub(crate) fn metric_matches(
     facts: &SourceFacts,
 ) -> bool {
     let expected_key = match item.flags {
-        ItemFlags::Plain if metric.origin != MetricOrigin::LldPrototype => &item.key,
+        ItemFlags::Plain
+            if !matches!(
+                metric.origin,
+                MetricOrigin::LldPrototype | MetricOrigin::DiscoveredItem
+            ) =>
+        {
+            &item.key
+        }
         ItemFlags::Plain => return false,
         ItemFlags::Discovered => {
             let Some(link) = &item.discovery else {
                 return false;
             };
-            if !matches!(
-                metric.origin,
-                MetricOrigin::DiscoveredItem | MetricOrigin::LldPrototype
-            ) || facts
-                .item_prototypes
-                .get(&link.parent_itemid)
-                .is_none_or(|proto| {
-                    proto.itemid != link.parent_itemid
-                        || proto.hostid != item.hostid
-                        || proto.key != link.prototype_key
-                        || proto.value_type != item.value_type
-                })
+            if metric.origin != MetricOrigin::LldPrototype
+                || facts
+                    .item_prototypes
+                    .get(&link.parent_itemid)
+                    .is_none_or(|proto| {
+                        proto.itemid != link.parent_itemid
+                            || proto.hostid != item.hostid
+                            || proto.key != link.prototype_key
+                            || proto.value_type != item.value_type
+                    })
             {
                 return false;
             }
-            if metric.origin == MetricOrigin::LldPrototype {
-                &link.prototype_key
-            } else {
-                &item.key
-            }
+            &link.prototype_key
         }
         ItemFlags::Other(_) => return false,
     };
@@ -240,6 +272,8 @@ pub(crate) fn metric_matches(
         3 => ValueType::NumericUnsigned,
         4 => ValueType::Text,
         5 => ValueType::Binary,
+        // JSON catalogs are readable, but portable binding/publication has no
+        // independently verified widget contract for value_type 6.
         _ => return false,
     };
     matches!(&metric.selector, MetricSelector::Key(key) if key == expected_key)
@@ -311,57 +345,28 @@ pub(crate) fn validate_choices(
         if !slots.contains(&choice.slot) {
             slots.push(choice.slot.clone());
         }
-        let (catalog_id, metric_id) =
+        used_catalogs.insert(choice.catalog.clone(), catalog.clone());
+        let hosts = HostSelection {
+            role: choice.role.clone(),
+            selection: Selection::Slot,
+            slot_id: Some(choice.slot.clone()),
+        };
+        let value =
             if item.flags == ItemFlags::Discovered && metric.origin == MetricOrigin::LldPrototype {
-                // Store this explicitly selected instance by its observed key,
-                // not the prototype's potentially ambiguous macro-bearing key.
-                let mut serial = used_catalogs.len() + 1;
-                let derived_id = loop {
-                    let id = format!("lld-instance-{serial}");
-                    if !catalogs.contains_key(&id) && !used_catalogs.contains_key(&id) {
-                        break id;
-                    }
-                    serial += 1;
-                };
-                let mut concrete = metric.clone();
-                concrete.id = "instance".into();
-                concrete.name.clone_from(&item.name);
-                concrete.selector = MetricSelector::Key(item.key.clone());
-                concrete.origin = MetricOrigin::DiscoveredItem;
-                concrete.uuid = None;
-                concrete.units.clone_from(&item.units);
-                let derived = MetricCatalog {
-                    format: catalog.format,
-                    catalog_id: derived_id.clone(),
-                    export_profile: ExportProfile::PortableWithPublicKeys,
-                    source: CatalogSource {
-                        kind: SourceKind::Manual,
-                        export_format_version: None,
-                        source_server_version: None,
-                        template_name: None,
-                        template_uuid: None,
-                    },
-                    diagnostics: Vec::new(),
-                    metrics: vec![concrete],
-                };
-                used_catalogs.insert(derived_id.clone(), derived);
-                (derived_id, "instance".to_owned())
+                ZabbixWidgetFieldValue::LldInstance {
+                    catalog: choice.catalog.clone(),
+                    metric: choice.metric.clone(),
+                    hosts,
+                    source_key: item.key.clone(),
+                }
             } else {
-                used_catalogs.insert(choice.catalog.clone(), catalog.clone());
-                (choice.catalog.clone(), choice.metric.clone())
+                ZabbixWidgetFieldValue::Metric {
+                    catalog: choice.catalog.clone(),
+                    metric: choice.metric.clone(),
+                    hosts,
+                }
             };
-        fields.insert(
-            choice.itemid.clone(),
-            ZabbixWidgetFieldValue::Metric {
-                catalog: catalog_id,
-                metric: metric_id,
-                hosts: HostSelection {
-                    role: choice.role.clone(),
-                    selection: Selection::Slot,
-                    slot_id: Some(choice.slot.clone()),
-                },
-            },
-        );
+        fields.insert(choice.itemid.clone(), value);
     }
     let references = used_catalogs
         .keys()
@@ -429,8 +434,13 @@ mod tests {
         let raw = json!({"dashboardid":"7","name":"D","pages":[{"dashboard_pageid":"8","name":"P","widgets":[{"widgetid":"9","type":"graph","name":"CPU","x":"0","y":"0","width":"12","height":"4","fields":[{"name":"graphid.0","type":6,"value":"60001"}]}]}]});
         let snapshot = VersionedDashboardSnapshot::from_adapter_raw("test".into(), version, raw)
             .unwrap_or_else(|e| panic!("{e}"));
-        let bundle = convert_page_bound(&snapshot, "8", "portable".into(), Some(&bindings))
-            .unwrap_or_else(|e| panic!("{e}"));
+        let bundle = convert_page_bound(
+            &snapshot,
+            "8",
+            "portable".into(),
+            Some(bindings.for_snapshot(&snapshot)),
+        )
+        .unwrap_or_else(|e| panic!("{e}"));
         let value = serde_json::to_value(&bundle).unwrap_or_default();
         let zdashstitch_core::formats::ProjectRoot::Page(page) = &bundle.project.root else {
             panic!("page")
@@ -464,6 +474,7 @@ mod tests {
                 value_type: 3,
                 units: "B".into(),
                 flags: ItemFlags::Plain,
+                enabled: None,
                 templateid: None,
                 discovery: None,
                 owner_name: None,
@@ -545,8 +556,13 @@ mod tests {
         let snapshot =
             VersionedDashboardSnapshot::from_adapter_raw("test".into(), version, raw.clone())
                 .unwrap_or_else(|e| panic!("{e}"));
-        let bundle = convert_page_bound(&snapshot, "8", "portable".into(), Some(&bindings))
-            .unwrap_or_else(|e| panic!("{e}"));
+        let bundle = convert_page_bound(
+            &snapshot,
+            "8",
+            "portable".into(),
+            Some(bindings.for_snapshot(&snapshot)),
+        )
+        .unwrap_or_else(|e| panic!("{e}"));
         let wire = serde_json::to_string(&bundle).unwrap_or_default();
         assert!(!wire.contains("30001") && !wire.contains("40001"));
         assert!(wire.contains("hostids.0") && wire.contains("\"slot_id\":\"first\""));
@@ -562,9 +578,13 @@ mod tests {
         let graph_snapshot =
             VersionedDashboardSnapshot::from_adapter_raw("test".into(), version, graph_raw)
                 .unwrap_or_else(|e| panic!("{e}"));
-        let graph_bundle =
-            convert_page_bound(&graph_snapshot, "8", "portable".into(), Some(&bindings))
-                .unwrap_or_else(|e| panic!("{e}"));
+        let graph_bundle = convert_page_bound(
+            &graph_snapshot,
+            "8",
+            "portable".into(),
+            Some(bindings.for_snapshot(&graph_snapshot)),
+        )
+        .unwrap_or_else(|e| panic!("{e}"));
         let graph_doc = serde_json::to_value(graph_bundle).unwrap_or_default();
         assert_eq!(
             graph_doc["project"]["root"]["widgets"][0]["fields"][0]["value"]["kind"],
@@ -576,7 +596,66 @@ mod tests {
         let unmatched =
             VersionedDashboardSnapshot::from_adapter_raw("test".into(), version, unmatched)
                 .unwrap_or_else(|e| panic!("{e}"));
-        assert!(convert_page_bound(&unmatched, "8", "portable".into(), Some(&bindings)).is_err());
+        assert!(
+            convert_page_bound(
+                &unmatched,
+                "8",
+                "portable".into(),
+                Some(bindings.for_snapshot(&unmatched))
+            )
+            .is_err()
+        );
+        let mut eight_raw = raw.clone();
+        eight_raw["pages"][0]["widgets"][1]["type"] = json!("svggraph");
+        eight_raw["pages"][0]["widgets"][1]["fields"] = json!([
+            {"name":"override_hostid.0","type":3,"value":"40001"},
+            {"name":"show_hostnames","type":0,"value":"1"}
+        ]);
+        let eight = VersionedDashboardSnapshot::from_adapter_raw(
+            "test".into(),
+            "8.0.2".parse().unwrap_or_else(|e| panic!("{e}")),
+            eight_raw.clone(),
+        )
+        .unwrap_or_else(|e| panic!("{e}"));
+        let other_connection = VersionedDashboardSnapshot::from_adapter_raw(
+            "other-test".into(),
+            eight.server_version().clone(),
+            eight_raw,
+        )
+        .unwrap_or_else(|e| panic!("{e}"));
+        for (mismatched, source) in [(&eight, &snapshot), (&other_connection, &eight)] {
+            assert_eq!(
+                convert_page_bound(
+                    mismatched,
+                    "8",
+                    "portable".into(),
+                    Some(bindings.for_snapshot(source))
+                )
+                .err()
+                .map(|error| error.code()),
+                Some("portable_conversion_binding_required")
+            );
+        }
+        let eight_bundle = convert_page_bound(
+            &eight,
+            "8",
+            "portable".into(),
+            Some(bindings.for_snapshot(&eight)),
+        )
+        .unwrap_or_else(|e| panic!("{e}"));
+        assert_eq!(eight_bundle.catalogs, bundle.catalogs);
+        assert_eq!(eight_bundle.project.roles, bundle.project.roles);
+        let eight_doc = serde_json::to_value(&eight_bundle).unwrap_or_default();
+        assert_eq!(
+            eight_doc["project"]["root"]["widgets"][0]["fields"][0]["value"]["kind"],
+            "metric"
+        );
+        assert_eq!(
+            eight_doc["project"]["root"]["widgets"][1]["fields"][0]["value"]["slot_id"],
+            "first"
+        );
+        let eight_wire = eight_doc.to_string();
+        assert!(!eight_wire.contains("30001") && !eight_wire.contains("40001"));
         let root = tempfile::tempdir().unwrap_or_else(|e| panic!("{e}"));
         let store = OfflinePageStore::new(root.path().to_path_buf());
         let saved = store
@@ -595,9 +674,12 @@ mod tests {
             reopened.bundle
         );
         assert_eq!(snapshot.raw_api_document(), &raw);
-        let dashboard_bundle =
-            convert_dashboard_bound(&snapshot, "portable".into(), Some(&bindings))
-                .unwrap_or_else(|e| panic!("{e}"));
+        let dashboard_bundle = convert_dashboard_bound(
+            &snapshot,
+            "portable".into(),
+            Some(bindings.for_snapshot(&snapshot)),
+        )
+        .unwrap_or_else(|e| panic!("{e}"));
         let dashboards =
             crate::offline_dashboards::OfflineDashboardStore::new(root.path().to_path_buf());
         let saved_dashboard = dashboards
@@ -627,6 +709,7 @@ mod tests {
             .discovery = Some(zdashstitch_zabbix::ItemDiscoveryLink {
             parent_itemid: "50001".into(),
             prototype_key: "vm.memory.size[{#TYPE}]".into(),
+            currently_discovered: None,
         });
         discovered.item_prototypes.insert(
             "50001".into(),
@@ -655,7 +738,7 @@ mod tests {
                 &lld_catalogs,
                 std::slice::from_ref(&choice)
             )
-            .is_ok()
+            .is_err()
         );
         let prototype_metric = &mut lld_catalogs
             .get_mut("memory")
@@ -677,18 +760,36 @@ mod tests {
             .unwrap_or_else(|| panic!("missing derived catalog"));
         assert_eq!(
             instance.metrics[0].selector,
-            MetricSelector::Key("vm.memory.size[available]".into())
+            MetricSelector::Key("vm.memory.size[{#TYPE}]".into())
         );
-        assert_eq!(instance.metrics[0].origin, MetricOrigin::DiscoveredItem);
-        assert_eq!(instance.source.kind, SourceKind::Manual);
-        let bundle = convert_page_bound(&snapshot, "8", "portable".into(), Some(&derived))
-            .unwrap_or_else(|e| panic!("{e}"));
+        assert_eq!(instance.metrics[0].origin, MetricOrigin::LldPrototype);
+        assert!(
+            matches!(&derived.fields["30001"], ZabbixWidgetFieldValue::LldInstance { catalog, metric, source_key, .. } if catalog == "memory" && metric == "available" && source_key == "vm.memory.size[available]")
+        );
+        let bundle = convert_page_bound(
+            &snapshot,
+            "8",
+            "portable".into(),
+            Some(derived.for_snapshot(&snapshot)),
+        )
+        .unwrap_or_else(|e| panic!("{e}"));
         let bytes = zdashstitch_core::formats::build_typed_package_bytes(&bundle)
             .unwrap_or_else(|e| panic!("{e}"));
         assert_eq!(
             zdashstitch_core::formats::read_typed_package_bytes(&bytes)
                 .unwrap_or_else(|e| panic!("{e}")),
             bundle
+        );
+        let mut bad_prototype = bundle.clone();
+        bad_prototype
+            .catalogs
+            .get_mut("memory")
+            .unwrap_or_else(|| panic!("catalog"))
+            .metrics[0]
+            .origin = MetricOrigin::TemplateItem;
+        assert_eq!(
+            bad_prototype.validate().err().map(|error| error.code()),
+            Some("widget_lld_prototype")
         );
         assert!(
             !serde_json::to_string(&bundle)
@@ -716,7 +817,7 @@ mod tests {
             &[choice.clone(), second_choice],
         )
         .unwrap_or_else(|e| panic!("{e}"));
-        assert_eq!(two.catalogs.len(), 2);
+        assert_eq!(two.catalogs.len(), 1);
         assert_ne!(two.fields["30001"], two.fields["30002"]);
         discovered
             .item_prototypes

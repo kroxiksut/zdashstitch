@@ -1130,6 +1130,8 @@ async fn clone_recovery_after_restart_links_only_the_verified_copy() {
         .begin(
             id,
             &OperationRecord {
+                planned_deployment: None,
+                portable_update: None,
                 kind: OperationKind::Create,
                 intent: CLONE_OPERATION,
                 connection_id: CONNECTION.to_owned(),

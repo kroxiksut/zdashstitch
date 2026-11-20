@@ -2,6 +2,7 @@ import type { CatalogMetric, PageRole, PageHostSelection } from './client';
 import { PageClipboard, applyPaste, inspectPaste, type ClipboardContent, type ClipboardContext, type ClipboardIssue } from './editor-clipboard';
 import { canonicalEditorState } from './offline-edit';
 import { validSource } from './offline-roles';
+import { acceptsMetricType } from './editor-composition';
 
 export interface PasteResolution {
   catalogs: Record<string, { catalog_id: string; version: number }>;
@@ -12,7 +13,7 @@ export const emptyResolution = (): PasteResolution => ({ catalogs: {}, metrics: 
 export const metricKey = (catalog: string, metric: string): string => `${catalog}/${metric}`;
 const same = (a: unknown, b: unknown) => canonicalEditorState(a) === canonicalEditorState(b);
 export function compatibleMetric(source: CatalogMetric, candidate: CatalogMetric): boolean {
-  return source.value_type !== 'binary' && source.value_type === candidate.value_type && source.units === candidate.units;
+  return acceptsMetricType('item_value', source.value_type) && source.value_type === candidate.value_type && source.units === candidate.units;
 }
 export function compatibleRole(source: PageRole, target: PageRole): boolean {
   return source.cardinality === target.cardinality && !!source.slots?.length && source.slots.length === target.slots?.length;

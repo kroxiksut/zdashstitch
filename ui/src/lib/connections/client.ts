@@ -72,6 +72,8 @@ export interface CheckReport {
   readonly server_version: string | null;
   readonly identity: string | null;
   readonly read_access: ReadonlyArray<{ readonly method: string; readonly access: 'available' | 'denied' }>;
+  /** Current role API flag on 8.0, if it could be read. This never grants write access. */
+  readonly role_api_access?: 'enabled' | 'disabled' | 'unverified' | null;
   /** RFC 3339 UTC (O-035); parse with `parseTimestamp`. */
   readonly checked_at: string | null;
   readonly result_code: string | null;

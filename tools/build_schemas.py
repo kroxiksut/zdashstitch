@@ -1,4 +1,5 @@
 import json
+import copy
 from pathlib import Path
 root=Path(__file__).resolve().parent.parent
 slug={'type':'string','pattern':'^[a-z][a-z0-9_-]{1,63}$'}
@@ -41,6 +42,7 @@ widget_field_value={'oneOf':[
  {'type':'object','required':['kind','value','role'],'properties':{'kind':{'const':'dynamic_pattern'},'value':{'type':'string','minLength':1,'maxLength':255},'role':slug},'additionalProperties':False},
  {'type':'object','required':['kind','role','selection'],'properties':{'kind':{'const':'host'},**role_ref['properties']},'allOf':role_ref['allOf'],'additionalProperties':False},
  {'type':'object','required':['kind','catalog','metric','hosts'],'properties':{'kind':{'const':'metric'},'catalog':slug,'metric':slug,'hosts':role_ref},'additionalProperties':False},
+ {'type':'object','required':['kind','catalog','metric','hosts','source_key'],'properties':{'kind':{'const':'lld_instance'},'catalog':slug,'metric':slug,'hosts':role_ref,'source_key':{'type':'string','minLength':1,'maxLength':2048}},'additionalProperties':False},
  {'type':'object','required':['kind','object_kind','display_name'],'properties':{'kind':{'const':'unresolved'},'object_kind':widget_object_kind,'display_name':{'type':'string','maxLength':500}},'additionalProperties':False}
 ]}
 zabbix_field={'type':'object','required':['name','field_type','registry_state','value'],'properties':{
@@ -102,6 +104,11 @@ metric_schema={'$schema':'https://json-schema.org/draft/2020-12/schema','$id':'h
   {'if':{'properties':{'export_profile':{'const':'redacted_aliases'}},'required':['export_profile']},'then':{'properties':{'metrics':{'items':{'properties':{'selector':{'properties':{'kind':{'const':'alias'}}}}}}}}},
   {'if':{'properties':{'export_profile':{'const':'portable_with_public_keys'}},'required':['export_profile']},'then':{'properties':{'metrics':{'items':{'properties':{'selector':{'properties':{'kind':{'const':'key'}}}}}}}}}
  ],'additionalProperties':False}
+metric_schema_v2=copy.deepcopy(metric_schema)
+metric_schema_v2['$id']='https://zdashstitch.example/schemas/metrics-v2.schema.json'
+metric_schema_v2['title']='ZDashstitch metric catalog v2'
+metric_schema_v2['properties']['format']['const']='zdashstitch.metrics/v2'
+metric_schema_v2['properties']['metrics']['items']['properties']['value_type']['enum'].append('json')
 
 # Local private bindings: shape generated here; semantic uniqueness + referential integrity
 # require the validator because JSON Schema does not express property-wise uniqueness.
@@ -132,6 +139,17 @@ deployment={'$schema':'https://json-schema.org/draft/2020-12/schema','title':'Pr
  'additionalProperties':False}}},
  'additionalProperties':False}
 
-for filename,obj in [('project-v1.schema.json',project),('project-v2.schema.json',project_v2),('metrics-v1.schema.json',metric_schema),('local-bindings-v1.schema.json',local),('deployment-state-v1.schema.json',deployment)]:
+deployment_v2=copy.deepcopy(deployment)
+deployment_v2['title']='Private typed dashboard deployment — last verified state only'
+deployment_v2['properties']['format']['const']='zdashstitch.deployment-state/v2'
+deployment_v2['required'].remove('dashboards')
+deployment_v2['required'].extend(['root_id','source_revision','last_operation_id','dashboard_name','dashboard'])
+deployment_v2['properties']['dashboard']=deployment_v2['properties'].pop('dashboards')['items']
+deployment_v2['properties']['dashboard']['properties']['pages']['maxItems']=50
+deployment_v2['properties'].update({'root_id':slug,'source_revision':{'type':'integer','minimum':1},
+    'adapter_id':{'type':'string','pattern':'^[a-z][a-z0-9._-]{1,63}$'},
+ 'dashboard_name':{'type':'string','minLength':1,'maxLength':255}})
+
+for filename,obj in [('project-v1.schema.json',project),('project-v2.schema.json',project_v2),('metrics-v1.schema.json',metric_schema),('metrics-v2.schema.json',metric_schema_v2),('local-bindings-v1.schema.json',local),('deployment-state-v1.schema.json',deployment),('deployment-state-v2.schema.json',deployment_v2)]:
  (root/'schemas'/filename).write_bytes((json.dumps(obj,ensure_ascii=False,indent=2)+'\n').encode('utf-8'))
  print(filename)

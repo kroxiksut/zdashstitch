@@ -1,0 +1,28 @@
+format: zdashstitch.metrics/v2
+catalog_id: linux
+export_profile: portable_with_public_keys
+source:
+  kind: template_export
+  export_format_version: '8.0'
+  template_name: Synthetic mixed template
+diagnostics: [lld_requires_instance]
+metrics:
+  - id: memory_used
+    name: Memory used
+    selector: {kind: key, value: example.linux.memused}
+    value_type: numeric_unsigned
+    units: B
+    origin: template_item
+  - id: structured_status
+    name: Structured status
+    selector: {kind: key, value: example.status.json}
+    value_type: json
+    units: ''
+    origin: template_item
+  - id: discovered_document
+    name: Discovered document
+    selector: {kind: key, value: 'example.document[{#NAME}]'}
+    value_type: json
+    units: ''
+    origin: lld_prototype
+    diagnostics: [lld_requires_instance]

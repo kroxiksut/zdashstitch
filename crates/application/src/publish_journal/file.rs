@@ -14,7 +14,7 @@ use std::io::{Read, Seek, SeekFrom, Write};
 use cap_fs_ext::{FollowSymlinks, OpenOptionsFollowExt};
 use cap_std::fs::{Dir, File, OpenOptions};
 
-use super::record::{Committed, Damage, LineFile, MAX_JOURNAL_FILE_BYTES, split};
+use super::record::{Committed, Damage, LineFile, MAX_PORTABLE_JOURNAL_FILE_BYTES, split};
 use super::{JournalError, JournalState};
 use crate::settings::cap_metadata_is_reparse;
 use crate::workcopy::store::{LocalStore, restrict_file, sync_dir};
@@ -73,13 +73,13 @@ fn open_existing(directory: &Dir, name: &str, write: bool) -> Result<Option<File
 }
 
 fn read_all(file: &mut File) -> Result<Vec<u8>, JournalError> {
-    let limit = u64::try_from(MAX_JOURNAL_FILE_BYTES).unwrap_or(u64::MAX);
+    let limit = u64::try_from(MAX_PORTABLE_JOURNAL_FILE_BYTES).unwrap_or(u64::MAX);
     let mut raw = Vec::new();
     Read::by_ref(file)
         .take(limit.saturating_add(1))
         .read_to_end(&mut raw)
         .map_err(|_| JournalError::new("storage_unavailable"))?;
-    if raw.len() > MAX_JOURNAL_FILE_BYTES {
+    if raw.len() > MAX_PORTABLE_JOURNAL_FILE_BYTES {
         return Err(JournalError::new("storage_file_too_large"));
     }
     Ok(raw)
@@ -159,7 +159,12 @@ where
     let committed = split(&raw).map_err(|damage| damage.error)?;
     let line = check(&committed.lines)?;
     let bytes = line.to_bytes()?;
-    if raw.len().saturating_add(bytes.len()) > MAX_JOURNAL_FILE_BYTES {
+    let limit = committed
+        .lines
+        .first()
+        .ok_or_else(|| JournalError::new("journal_corrupt"))?
+        .file_limit();
+    if committed.committed_len.saturating_add(bytes.len()) > limit {
         return Err(JournalError::new("storage_file_too_large"));
     }
     if committed.committed_len != raw.len() {

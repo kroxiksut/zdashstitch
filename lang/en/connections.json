@@ -625,6 +625,22 @@
     "message": "Zabbix version",
     "placeholders": {}
   },
+  "connection.test.details.role_api_access": {
+    "message": "Current role API flag (not write permission)",
+    "placeholders": {}
+  },
+  "connection.test.role_api_access.enabled": {
+    "message": "Enabled",
+    "placeholders": {}
+  },
+  "connection.test.role_api_access.disabled": {
+    "message": "Disabled",
+    "placeholders": {}
+  },
+  "connection.test.role_api_access.unverified": {
+    "message": "Could not verify",
+    "placeholders": {}
+  },
   "connection.test.report.scope": {
     "message": "The report contains no password, token, server responses or file paths; the address only if selected.",
     "placeholders": {}
@@ -797,7 +813,7 @@
     "placeholders": {}
   },
   "errors.connection.version_unsupported": {
-    "message": "Zabbix {version} is not supported. You can continue working offline.",
+    "message": "This operation is unavailable for Zabbix {version} in this build.",
     "placeholders": {
       "version": "technical"
     }
@@ -929,6 +945,10 @@
   "errors.connection.writes_not_confirmed": {
     "message": "Dashboard writes were not confirmed.",
     "placeholders": {}
+  },
+  "errors.connection.writes_version_unsupported": {
+    "message": "Dashboard writes are unavailable for Zabbix {version} in this build.",
+    "placeholders": {"version": "technical"}
   },
   "errors.connection.random_unavailable": {
     "message": "The system random number source is unavailable.",

@@ -8,8 +8,8 @@
 //!
 //! Only when everything still matches the published plan: the workcopy is
 //! at the published revision, its Base is the plan's source, and the
-//! dashboard read now has exactly the expected fingerprint (equal to the
-//! published Local). Otherwise nothing changes and the draft keeps its old
+//! dashboard read now has exactly the expected fingerprint after the
+//! adapter's read-back projection. Otherwise the draft keeps its old
 //! Base (a later check shows the conflict). Reads only, through a
 //! [`ReadOnlyGateway`]; the old snapshot stays on disk.
 
@@ -30,7 +30,7 @@ pub struct PublishedUpdate {
     pub revision: u64,
     /// Canonical fingerprint of Base the plan was built on.
     pub source_fingerprint: String,
-    /// Canonical fingerprint the write leaves (equals the published Local).
+    /// Fingerprint of the expected server read-back.
     pub expected_fingerprint: String,
 }
 
@@ -124,6 +124,10 @@ impl WorkcopyService {
         let mut current = self.load(&published.local_id)?;
         if current.revision != published.revision
             || current.base.fingerprint != file.base.fingerprint
+            || current.source.connection_id != file.source.connection_id
+            || current.source.dashboardid != file.source.dashboardid
+            || current.source.adapter_id != file.source.adapter_id
+            || current.source.server_version != file.source.server_version
         {
             return Err(WorkcopyError::new("workcopy_changed_concurrently"));
         }

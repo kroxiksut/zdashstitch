@@ -7,8 +7,8 @@ use std::{
 
 use super::{
     Cardinality, Dashboard, DashboardKind, FormatError, ItemExpansion, Layout, MetricCatalog,
-    PortableProject, ProjectFormat, ProjectRoot, Result, Selection, TypedProject, ValueType,
-    Widget, ZabbixWidgetFieldValue,
+    MetricOrigin, PortableProject, ProjectFormat, ProjectRoot, Result, Selection, TypedProject,
+    ValueType, Widget, ZabbixWidgetFieldValue,
 };
 
 pub trait Validate {
@@ -123,6 +123,12 @@ fn validate_project_content(
                                 catalog,
                                 metric,
                                 hosts,
+                            }
+                            | ZabbixWidgetFieldValue::LldInstance {
+                                catalog,
+                                metric,
+                                hosts,
+                                ..
                             } => {
                                 validate_host_relationship(
                                     &project.roles,
@@ -145,12 +151,32 @@ fn validate_project_content(
                                             format!("unknown metric {catalog}/{metric}"),
                                         )
                                     })?;
+                                if matches!(field.value, ZabbixWidgetFieldValue::LldInstance { .. })
+                                {
+                                    ensure(
+                                        catalogs
+                                            .get(catalog)
+                                            .and_then(|c| {
+                                                c.metrics.iter().find(|m| m.id == *metric)
+                                            })
+                                            .is_some_and(|m| {
+                                                m.origin == MetricOrigin::LldPrototype
+                                            }),
+                                        "widget_lld_prototype",
+                                        "LLD reference requires a prototype",
+                                    )?;
+                                }
                                 // Zabbix item fields (type 4) render one item value; binary
                                 // items are unsupported there, as for item_value widgets.
                                 ensure(
                                     field.field_type != 4 || value_type != ValueType::Binary,
                                     "binary_item_value",
                                     "binary metrics are unsupported in item fields",
+                                )?;
+                                ensure(
+                                    field.field_type != 4 || value_type != ValueType::Json,
+                                    "json_item_value",
+                                    "JSON metrics are unsupported in item fields",
                                 )?;
                             }
                             _ => {}
@@ -180,11 +206,18 @@ fn validate_project_content(
                             "nonnumeric_graph",
                             "graph series must use numeric metrics",
                         )?,
-                        Widget::ItemValue { .. } => ensure(
-                            value_type != ValueType::Binary,
-                            "binary_item_value",
-                            "binary item_value is unsupported by MVP",
-                        )?,
+                        Widget::ItemValue { .. } => {
+                            ensure(
+                                value_type != ValueType::Binary,
+                                "binary_item_value",
+                                "binary item_value is unsupported by MVP",
+                            )?;
+                            ensure(
+                                value_type != ValueType::Json,
+                                "json_item_value",
+                                "JSON item_value is unsupported",
+                            )?;
+                        }
                         Widget::Zabbix { .. } => {}
                     }
                 }

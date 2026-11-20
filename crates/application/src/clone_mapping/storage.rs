@@ -3,6 +3,7 @@
 //! Atomic local-only persistence of P3 clone mappings (P3-02D).
 
 use serde::{Deserialize, Serialize};
+use zdashstitch_zabbix::{AdapterProfile, AdapterRegistry, ZabbixVersion};
 
 use super::{
     ClonePatternDecision, ClonePatternLookup, CloneRevalidationContext, SourceHostMapping,
@@ -36,15 +37,30 @@ pub struct CloneMappingState {
 }
 
 impl CloneMappingState {
+    fn profile(&self) -> Option<AdapterProfile> {
+        let version = self.server_version.parse::<ZabbixVersion>().ok()?;
+        AdapterRegistry::resolve_profile(&version).ok()
+    }
+
+    pub(crate) fn matches_source(
+        &self,
+        connection_id: &str,
+        server_version: &str,
+        adapter_id: &str,
+    ) -> bool {
+        self.connection_id == connection_id
+            && self.server_version == server_version
+            && self
+                .profile()
+                .is_some_and(|profile| profile.adapter_id() == adapter_id)
+    }
+
     pub(crate) fn is_well_formed(&self) -> bool {
         let mut pattern_fields = std::collections::BTreeSet::new();
         self.mapping_revision > 0
             && is_connection_id(&self.connection_id)
             && crate::workcopy::is_fingerprint(&self.server_identity_fingerprint)
-            && self
-                .server_version
-                .parse::<zdashstitch_zabbix::ZabbixVersion>()
-                .is_ok_and(|version| version.is_supported_7_4())
+            && self.profile().is_some()
             && self
                 .base_fingerprint
                 .as_ref()
@@ -136,6 +152,11 @@ impl WorkcopyService {
         if file.revision != request.expected_workcopy_revision {
             return Err(WorkcopyError::new("workcopy_changed_concurrently"));
         }
+        if latest(&operations, file.revision).is_some_and(|previous| {
+            previous.state.server_identity_fingerprint != request.server_identity_fingerprint
+        }) {
+            return Err(WorkcopyError::new("clone_mapping_invalid"));
+        }
         // The workcopy revision never goes backwards, including after undo,
         // so a mapping revision is never reused by a later redo.
         let mapping_revision = file.revision.saturating_add(1);
@@ -149,7 +170,13 @@ impl WorkcopyService {
             mappings: request.mappings,
             pattern_decisions: request.pattern_decisions,
         };
-        if !state.is_well_formed() {
+        if !state.is_well_formed()
+            || !state.matches_source(
+                &file.source.connection_id,
+                &file.source.server_version,
+                base.adapter_id(),
+            )
+        {
             return Err(WorkcopyError::new("clone_mapping_invalid"));
         }
         let seq = operations
@@ -193,6 +220,13 @@ impl WorkcopyService {
         let (file, base, operations) = self.load_log(local_id)?;
         let stored = latest(&operations, file.revision)
             .ok_or_else(|| WorkcopyError::new("clone_mapping_not_found"))?;
+        if context.server_version != stored.state.server_version
+            || lookup
+                .server_version()
+                .is_some_and(|version| version != base.server_version())
+        {
+            return Err(WorkcopyError::new("clone_intent_server_changed"));
+        }
         let source = crate::replace_host::materialize_local_operations(base.clone(), &operations)?;
         let fresh =
             revalidate_clone_mapping_from_source(lookup, &base, &source, &stored.state, context)

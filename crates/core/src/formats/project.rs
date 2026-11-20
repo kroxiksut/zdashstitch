@@ -249,6 +249,13 @@ pub enum ZabbixWidgetFieldValue {
         metric: String,
         hosts: HostSelection,
     },
+    /// An explicitly chosen discovered item. The key is a hint, not target proof.
+    LldInstance {
+        catalog: String,
+        metric: String,
+        hosts: HostSelection,
+        source_key: String,
+    },
     Unresolved {
         object_kind: ZabbixObjectKind,
         display_name: String,
@@ -720,7 +727,8 @@ impl Validate for ZabbixWidgetField {
             | (ZabbixWidgetFieldValue::String { .. }, 1)
             | (ZabbixWidgetFieldValue::DynamicPattern { .. }, 1) => {}
             (ZabbixWidgetFieldValue::Host { .. }, 2 | 3) => {}
-            (ZabbixWidgetFieldValue::Metric { .. }, 4 | 5) => {}
+            (ZabbixWidgetFieldValue::Metric { .. }, 4 | 5)
+            | (ZabbixWidgetFieldValue::LldInstance { .. }, 4) => {}
             (ZabbixWidgetFieldValue::Unresolved { object_kind, .. }, 2..=13) => ensure(
                 object_kind.field_type() == Some(self.field_type),
                 "widget_field_object_kind",
@@ -778,6 +786,31 @@ impl Validate for ZabbixWidgetField {
                 }
                 .validate()?;
                 hosts.validate()
+            }
+            ZabbixWidgetFieldValue::LldInstance {
+                catalog,
+                metric,
+                hosts,
+                source_key,
+            } => {
+                MetricReference {
+                    catalog: catalog.clone(),
+                    metric: metric.clone(),
+                }
+                .validate()?;
+                hosts.validate()?;
+                ensure_len(
+                    source_key,
+                    1,
+                    2048,
+                    "widget_lld_source_key",
+                    "LLD source key",
+                )?;
+                ensure(
+                    !source_key.chars().any(char::is_control),
+                    "widget_lld_source_key",
+                    "LLD source key cannot contain control characters",
+                )
             }
             ZabbixWidgetFieldValue::Unresolved { display_name, .. } => ensure_len(
                 display_name,

@@ -25,16 +25,7 @@ fn method_component(part: &str) -> bool {
                 .all(|byte| byte.is_ascii_alphanumeric() || byte == b'_'))
 }
 
-fn allows_create(rules: &Value) -> bool {
-    if integer(&rules["api.access"]) != Some(1) {
-        return false;
-    }
-    let Some(mode @ (0 | 1)) = integer(&rules["api.mode"]) else {
-        return false;
-    };
-    let Some(methods) = rules["api"].as_array() else {
-        return false;
-    };
+fn can_edit_dashboards(rules: &Value) -> bool {
     let Some(actions) = rules["actions"].as_array() else {
         return false;
     };
@@ -50,9 +41,19 @@ fn allows_create(rules: &Value) -> bool {
             return false;
         }
     }
-    if edit != Some(1) {
+    edit == Some(1)
+}
+
+fn allows_create(rules: &Value) -> bool {
+    if integer(&rules["api.access"]) != Some(1) || !can_edit_dashboards(rules) {
         return false;
     }
+    let Some(mode @ (0 | 1)) = integer(&rules["api.mode"]) else {
+        return false;
+    };
+    let Some(methods) = rules["api"].as_array() else {
+        return false;
+    };
     let mut matches = false;
     for entry in methods {
         let Some(entry) = entry.as_str() else {
@@ -76,6 +77,28 @@ fn allows_create(rules: &Value) -> bool {
 }
 
 impl ReadOnlyGateway {
+    pub(crate) async fn eight_zero_sharing_role(
+        &self,
+    ) -> Result<Option<crate::dashboard_access::SharingRole>> {
+        use crate::dashboard_access::SharingRole;
+
+        if !crate::dashboard_access::exact_version(&self.capabilities().version) {
+            return Ok(None);
+        }
+        let Some(role) = self.own_role().await? else {
+            return Ok(None);
+        };
+        if !matches!(role.kind, 2 | 3)
+            || self.eight_zero_dashboard_role(role.kind).await?.as_deref() != Some(&role.id)
+        {
+            return Ok(None);
+        }
+        Ok(Some(SharingRole {
+            roleid: role.id,
+            super_admin: role.kind == 3,
+        }))
+    }
+
     async fn own_role(&self) -> Result<Option<OwnRole>> {
         let credential = self.session.token.expose_secret();
         let params = if self.session.login_session {
@@ -88,6 +111,20 @@ impl ReadOnlyGateway {
             .transport
             .session(SessionMethod::UserCheckAuthentication, params, None)
             .await?;
+        if crate::dashboard_access::exact_version(&self.capabilities().version)
+            && !identity["userid"]
+                .as_str()
+                .zip(identity["username"].as_str())
+                .is_some_and(|(userid, username)| {
+                    self.identity().matches_account(
+                        self.session.transport.endpoint_identity(),
+                        userid,
+                        username,
+                    )
+                })
+        {
+            return Ok(None);
+        }
         Ok(identity["roleid"]
             .as_str()
             .filter(|id| is_zabbix_id(id))
@@ -100,6 +137,78 @@ impl ReadOnlyGateway {
                     kind,
                 })
             }))
+    }
+
+    /// Role evidence for a complete portable Graph pattern inventory. On
+    /// 8.0.0 only Super admins can rule out hidden host/template groups.
+    /// This check does not confer any publication authority.
+    pub async fn portable_pattern_inventory_role(&self) -> Result<Option<String>> {
+        if self.capabilities().version.to_string() != "8.0.0" {
+            return Ok(None);
+        }
+        let Some(role) = self.own_role().await?.filter(|role| role.kind == 3) else {
+            return Ok(None);
+        };
+        let rows = self
+            .session
+            .transport
+            .read_current_role_rules(&self.session.token)
+            .await?;
+        let [row] = rows.as_slice() else {
+            return Ok(None);
+        };
+        let rules = &row["rules"];
+        if row["roleid"].as_str() != Some(&role.id)
+            || integer(&row["type"]) != Some(role.kind)
+            || integer(&rules["api.access"]) != Some(1)
+            || integer(&rules["api.mode"]) != Some(0)
+            || !rules["api"].as_array().is_some_and(Vec::is_empty)
+            || self.own_role().await?.as_ref() != Some(&role)
+        {
+            return Ok(None);
+        }
+        Ok(Some(role.id))
+    }
+
+    /// Live role evidence for the 8.0.0 item update. Only the independently
+    /// verified Admin role with an empty API deny list is accepted.
+    pub(crate) async fn eight_zero_update_role(&self) -> Result<Option<String>> {
+        self.eight_zero_dashboard_role(2).await
+    }
+
+    pub(crate) async fn eight_zero_pattern_create_role(&self) -> Result<Option<String>> {
+        self.eight_zero_dashboard_role(3).await
+    }
+
+    async fn eight_zero_dashboard_role(&self, kind: u64) -> Result<Option<String>> {
+        if !crate::capabilities::is_eight_zero_item_update_version(&self.capabilities().version)
+            || !self.matches_live_version().await?
+        {
+            return Ok(None);
+        }
+        let Some(role) = self.own_role().await?.filter(|role| role.kind == kind) else {
+            return Ok(None);
+        };
+        let rows = self
+            .session
+            .transport
+            .read_current_dashboard_role_rules(&self.session.token)
+            .await?;
+        let [row] = rows.as_slice() else {
+            return Ok(None);
+        };
+        let rules = &row["rules"];
+        if row["roleid"].as_str() != Some(&role.id)
+            || integer(&row["type"]) != Some(role.kind)
+            || integer(&rules["api.access"]) != Some(1)
+            || integer(&rules["api.mode"]) != Some(0)
+            || !rules["api"].as_array().is_some_and(Vec::is_empty)
+            || !can_edit_dashboards(rules)
+            || self.own_role().await?.as_ref() != Some(&role)
+        {
+            return Ok(None);
+        }
+        Ok(Some(role.id))
     }
 
     /// Reads only the current credential's own role. A positive result

@@ -11,15 +11,15 @@ use std::{
 };
 
 use serde::{Deserialize, Serialize};
-use zdashstitch_core::{
-    Version, VersionRange,
-    formats::{
-        Cardinality, CatalogReference, GraphExpansion, GraphSeries, HostSelection, ItemExpansion,
-        Layout, MetricCatalog, MetricReference, Page, ProjectKind, ProjectProvenance, ProjectRoot,
-        Role, Selection, TypedPortableBundle, TypedProject, TypedProjectFormat, Widget,
-        validate_typed_project,
-    },
+use zdashstitch_core::formats::{
+    Cardinality, CatalogReference, GraphExpansion, GraphSeries, HostSelection, ItemExpansion,
+    Layout, MetricCatalog, MetricReference, Page, ProjectKind, ProjectProvenance, ProjectRoot,
+    RegistryState, Role, Selection, TypedPortableBundle, TypedProject, TypedProjectFormat, Widget,
+    validate_typed_project,
 };
+use zdashstitch_zabbix::{AdapterProfile, WidgetFieldType};
+
+use crate::compatibility::project_evaluation_profile;
 
 use crate::{
     catalog_library::CatalogLibrary,
@@ -33,6 +33,7 @@ const PATH: &[&str] = &["drafts", "offline-pages"];
 const FILE: &str = "pages.json";
 const MAX_BYTES: usize = 32 * 1024 * 1024;
 const MAX_PAGES: usize = 2_000;
+const MAX_WIDGETS_PER_PAGE: usize = 256;
 const RECOVERY_FILE: &str = "save-attempts.json";
 static WRITE_LOCK: Mutex<()> = Mutex::new(());
 
@@ -96,6 +97,8 @@ pub struct SeriesChoice {
 #[serde(deny_unknown_fields)]
 pub struct CreatePage {
     pub name: String,
+    #[serde(default)]
+    pub evaluation_profile: Option<AdapterProfile>,
     pub catalogs: Vec<CatalogChoice>,
     pub roles: BTreeMap<String, Role>,
     pub widgets: Vec<WidgetChoice>,
@@ -115,6 +118,8 @@ impl CreatePage {
 #[serde(deny_unknown_fields)]
 pub struct UpdatePage {
     pub expected_revision: u64,
+    #[serde(default)]
+    pub confirmed_widget_removals: Vec<String>,
     pub page: CreatePage,
 }
 
@@ -201,7 +206,24 @@ pub struct OfflinePageView {
     #[serde(flatten)]
     pub page: OfflinePage,
     pub composition: LogicalComposition,
+    pub widget_evaluation: OfflineWidgetEvaluation,
     pub recovery: RecoveryInfo,
+}
+
+/// Local registry recognition only. Logical composition and the authorization
+/// to publish to a connected server are evaluated independently.
+#[derive(Serialize)]
+pub struct OfflineWidgetEvaluation {
+    pub profile: Option<AdapterProfile>,
+    pub unrecognized: Vec<UnrecognizedWidget>,
+}
+
+#[derive(Serialize)]
+pub struct UnrecognizedWidget {
+    pub widget_id: String,
+    pub widget_type: String,
+    pub unknown_type: bool,
+    pub unknown_field_count: usize,
 }
 
 #[derive(Serialize)]
@@ -219,6 +241,7 @@ struct SaveAttempts {
 impl OfflinePage {
     pub fn view(self) -> Result<OfflinePageView, WorkcopyError> {
         let composition = logical_composition(&self.bundle.project)?;
+        let widget_evaluation = evaluate_widgets(&self.bundle.project)?;
         Ok(OfflinePageView {
             recovery: RecoveryInfo {
                 may_have_unsaved_changes: false,
@@ -226,8 +249,59 @@ impl OfflinePage {
             },
             page: self,
             composition,
+            widget_evaluation,
         })
     }
+}
+
+fn evaluate_widgets(project: &TypedProject) -> Result<OfflineWidgetEvaluation, WorkcopyError> {
+    let ProjectRoot::Page(page) = &project.root else {
+        return Err(corrupt());
+    };
+    let profile = project_evaluation_profile(project);
+    let mut unrecognized = Vec::new();
+    if let Some(registry) = profile.map(AdapterProfile::widget_capabilities) {
+        for widget in &page.widgets {
+            let (widget_type, marked_unknown, fields) = match widget {
+                Widget::Graph { .. } => ("svggraph", false, &[][..]),
+                Widget::ItemValue { .. } => ("item", false, &[][..]),
+                Widget::Zabbix {
+                    widget_type,
+                    registry_state,
+                    fields,
+                    ..
+                } => (
+                    widget_type.as_str(),
+                    *registry_state == RegistryState::Unknown,
+                    fields.as_slice(),
+                ),
+            };
+            let capability = registry.find(widget_type);
+            let unknown_type = marked_unknown || capability.is_none();
+            let unknown_field_count = capability.map_or(0, |entry| {
+                fields
+                    .iter()
+                    .filter(|field| {
+                        field.registry_state == RegistryState::Unknown
+                            || !WidgetFieldType::try_from(field.field_type)
+                                .is_ok_and(|kind| entry.knows_field(&field.name, kind))
+                    })
+                    .count()
+            });
+            if unknown_type || unknown_field_count > 0 {
+                unrecognized.push(UnrecognizedWidget {
+                    widget_id: widget.id().to_owned(),
+                    widget_type: widget_type.to_owned(),
+                    unknown_type,
+                    unknown_field_count,
+                });
+            }
+        }
+    }
+    Ok(OfflineWidgetEvaluation {
+        profile,
+        unrecognized,
+    })
 }
 
 impl TryFrom<&OfflinePage> for OfflinePageSummary {
@@ -253,6 +327,8 @@ impl TryFrom<&OfflinePage> for OfflinePageSummary {
 struct PageFile {
     format: String,
     pages: Vec<OfflinePage>,
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    removed_widgets: BTreeMap<String, RemovedWidgets>,
 }
 
 impl Default for PageFile {
@@ -260,6 +336,7 @@ impl Default for PageFile {
         Self {
             format: "zdashstitch.offline-pages/v0".to_owned(),
             pages: Vec::new(),
+            removed_widgets: BTreeMap::new(),
         }
     }
 }
@@ -273,7 +350,7 @@ impl OfflinePageStore {
         &self,
         bundle: TypedPortableBundle,
     ) -> Result<OfflinePage, WorkcopyError> {
-        if bundle.project.provenance != ProjectProvenance::Local {
+        if bundle.project.provenance != ProjectProvenance::ServerSnapshot {
             return Err(WorkcopyError::new("portable_conversion_unsupported_data"));
         }
         self.save_imported(bundle)
@@ -460,6 +537,17 @@ impl OfflinePageStore {
                 return Err(corrupt());
             }
         }
+        for (id, archived) in &file.removed_widgets {
+            let Some(page) = file.pages.iter().find(|page| &page.local_id == id) else {
+                return Err(corrupt());
+            };
+            let ProjectRoot::Page(current) = &page.bundle.project.root else {
+                return Err(corrupt());
+            };
+            if !valid_removed_widgets(archived, current) {
+                return Err(corrupt());
+            }
+        }
         Ok(file)
     }
 
@@ -600,14 +688,25 @@ impl OfflinePageStore {
         if page.revision != request.expected_revision {
             return Err(WorkcopyError::new("offline_page_conflict"));
         }
+        let expected_revision = request.expected_revision;
         let catalogs = request.page.catalogs.clone();
-        let bundle = compose(&self.root, local_id.to_owned(), request.page, Some(page))?;
+        let mut removed = file.removed_widgets.remove(local_id).unwrap_or_default();
+        let bundle = compose_edit(
+            &self.root,
+            page,
+            &page.bundle.project,
+            request,
+            &mut removed,
+        )?;
+        if !removed.is_empty() {
+            file.removed_widgets.insert(local_id.to_owned(), removed);
+        }
         page.bundle = bundle;
         page.catalog_versions = catalogs;
         page.revision = page.revision.checked_add(1).ok_or_else(corrupt)?;
         page.updated_at_ms = now_ms().max(page.updated_at_ms).max(page.created_at_ms);
         let result = page.clone();
-        self.mark_save_attempt(local_id, request.expected_revision)?;
+        self.mark_save_attempt(local_id, expected_revision)?;
         #[cfg(test)]
         if FAIL_AFTER_RECOVERY.with(std::cell::Cell::get) {
             return Err(WorkcopyError::new("storage_write_failed"));
@@ -636,17 +735,130 @@ fn now_ms() -> u64 {
         })
 }
 
+pub(crate) type RemovedWidgets = BTreeMap<String, Widget>;
+
+pub(crate) fn valid_removed_widgets(archive: &RemovedWidgets, page: &Page) -> bool {
+    !archive.is_empty()
+        && archive.len() <= MAX_WIDGETS_PER_PAGE
+        && archive.iter().all(|(id, widget)| {
+            matches!(widget, Widget::Zabbix { .. })
+                && id == widget.id()
+                && !page.widgets.iter().any(|current| current.id() == id)
+        })
+}
+
+pub(crate) fn compose_edit(
+    root: &Path,
+    existing: &OfflinePage,
+    project: &TypedProject,
+    request: UpdatePage,
+    removed: &mut RemovedWidgets,
+) -> Result<TypedPortableBundle, WorkcopyError> {
+    let ProjectRoot::Page(old) = &existing.bundle.project.root else {
+        return Err(corrupt());
+    };
+    let retained: BTreeSet<_> = request
+        .page
+        .widgets
+        .iter()
+        .filter_map(|widget| match widget {
+            WidgetChoice::Preserved { widget_id, .. } => Some(widget_id.clone()),
+            _ => None,
+        })
+        .collect();
+    let omitted: Vec<_> = old
+        .widgets
+        .iter()
+        .enumerate()
+        .filter(|(_, widget)| {
+            matches!(widget, Widget::Zabbix { .. }) && !retained.contains(widget.id())
+        })
+        .collect();
+    let confirmed: BTreeSet<_> = request
+        .confirmed_widget_removals
+        .iter()
+        .map(String::as_str)
+        .collect();
+    if confirmed.len() != request.confirmed_widget_removals.len()
+        || omitted.len() != confirmed.len()
+        || omitted
+            .iter()
+            .any(|(_, widget)| !confirmed.contains(widget.id()))
+    {
+        return Err(invalid());
+    }
+    if !omitted.is_empty() {
+        let page_index = match &project.root {
+            ProjectRoot::Page(_) => 0,
+            ProjectRoot::Dashboard(dashboard) => dashboard
+                .pages
+                .iter()
+                .position(|page| page.id == old.id)
+                .ok_or_else(corrupt)?,
+        };
+        let removals = omitted
+            .iter()
+            .map(|(index, _)| (page_index, *index))
+            .collect();
+        let registry = project_evaluation_profile(project).map(AdapterProfile::widget_capabilities);
+        if !crate::portable_redaction::can_remove_widgets(
+            registry.as_ref(),
+            &project.root,
+            &removals,
+        ) {
+            return Err(WorkcopyError::new("offline_page_widget_removal_dependency"));
+        }
+    }
+    let restored = retained.iter().any(|id| removed.contains_key(id));
+    let bundle = compose_with_removed(
+        root,
+        existing.local_id.clone(),
+        request.page,
+        Some(existing),
+        removed,
+    )?;
+    if restored {
+        let ProjectRoot::Page(page) = &bundle.project.root else {
+            return Err(corrupt());
+        };
+        crate::offline_dashboards::validate_restored_page_links(page, &project.root)?;
+    }
+    removed.retain(|id, _| !retained.contains(id));
+    for (_, widget) in omitted {
+        removed.insert(widget.id().into(), widget.clone());
+    }
+    if removed.len() > MAX_WIDGETS_PER_PAGE {
+        return Err(WorkcopyError::new("storage_limit_reached"));
+    }
+    Ok(bundle)
+}
+
 pub(crate) fn compose(
     root: &Path,
     id: String,
     request: CreatePage,
     existing: Option<&OfflinePage>,
 ) -> Result<TypedPortableBundle, WorkcopyError> {
+    compose_with_removed(root, id, request, existing, &RemovedWidgets::new())
+}
+
+fn compose_with_removed(
+    root: &Path,
+    id: String,
+    request: CreatePage,
+    existing: Option<&OfflinePage>,
+    removed: &RemovedWidgets,
+) -> Result<TypedPortableBundle, WorkcopyError> {
     if request.name.trim().is_empty()
         || (existing.is_none() && request.catalogs.is_empty())
         || request.catalogs.len() > 32
         || (existing.is_none() && request.widgets.is_empty())
-        || request.widgets.len() > 256
+        || request.widgets.len() > MAX_WIDGETS_PER_PAGE
+    {
+        return Err(invalid());
+    }
+    if let (Some(existing), Some(profile)) = (existing, request.evaluation_profile)
+        && project_evaluation_profile(&existing.bundle.project) != Some(profile)
     {
         return Err(invalid());
     }
@@ -697,12 +909,14 @@ pub(crate) fn compose(
             WidgetChoice::Preserved { widget_id, .. } => Some(widget_id.clone()),
         };
         let previous = if let Some(widget_id) = &requested_id {
-            existing.and_then(|page| match &page.bundle.project.root {
-                ProjectRoot::Page(root) => {
-                    root.widgets.iter().find(|widget| widget.id() == widget_id)
-                }
-                _ => None,
-            })
+            existing
+                .and_then(|page| match &page.bundle.project.root {
+                    ProjectRoot::Page(root) => {
+                        root.widgets.iter().find(|widget| widget.id() == widget_id)
+                    }
+                    _ => None,
+                })
+                .or_else(|| removed.get(widget_id))
         } else {
             None
         };
@@ -800,10 +1014,12 @@ pub(crate) fn compose(
         format: TypedProjectFormat::V2,
         project_id: id.clone(),
         kind: ProjectKind::Page,
-        declared_compatibility: VersionRange {
-            minimum: Version::new(7, 4, 0),
-            maximum_exclusive: None,
-        },
+        // Omitted profile is accepted for legacy local clients that created
+        // 7.4 drafts before the constructor exposed a selector.
+        declared_compatibility: request
+            .evaluation_profile
+            .unwrap_or(AdapterProfile::V7_4)
+            .widget_version_range(),
         provenance: ProjectProvenance::Local,
         catalogs: references,
         roles: request.roles,
@@ -1011,6 +1227,7 @@ mod tests {
             .unwrap_or_else(|error| panic!("{error}"));
         let request = CreatePage {
             name: "ClickHouse and OS".to_owned(),
+            evaluation_profile: None,
             catalogs: ids
                 .iter()
                 .map(|(id, _)| CatalogChoice {
@@ -1064,6 +1281,7 @@ mod tests {
 
         let rejected = store.create(CreatePage {
             name: "Unsafe graph".to_owned(),
+            evaluation_profile: None,
             catalogs: vec![CatalogChoice {
                 catalog_id: ids[0].0.clone(),
                 version: 1,
@@ -1135,6 +1353,7 @@ mod tests {
         let metric = &imported[0].catalog.metrics[0];
         let request = CreatePage {
             name: "Local fixture".to_owned(),
+            evaluation_profile: None,
             catalogs,
             roles: one_role(),
             widgets: vec![WidgetChoice::Graph {
@@ -1466,6 +1685,7 @@ mod tests {
         };
         CreatePage {
             name: root.name.clone(),
+            evaluation_profile: None,
             catalogs: page.catalog_versions.clone(),
             roles: page.bundle.project.roles.clone(),
             widgets: root
@@ -1566,6 +1786,7 @@ mod tests {
                 &reopened.local_id,
                 UpdatePage {
                     expected_revision: reopened.revision,
+                    confirmed_widget_removals: vec![],
                     page: edit,
                 },
             )
@@ -1663,6 +1884,7 @@ mod tests {
                 &created.local_id,
                 UpdatePage {
                     expected_revision: created.revision,
+                    confirmed_widget_removals: vec![],
                     page: edit.clone(),
                 },
             )
@@ -1695,6 +1917,7 @@ mod tests {
                     &created.local_id,
                     UpdatePage {
                         expected_revision: created.revision,
+                        confirmed_widget_removals: vec![],
                         page: edit
                     }
                 )
@@ -1710,6 +1933,7 @@ mod tests {
                     &created.local_id,
                     UpdatePage {
                         expected_revision: updated.revision,
+                        confirmed_widget_removals: vec![],
                         page: invalid
                     }
                 )
@@ -1730,6 +1954,7 @@ mod tests {
                 &updated.local_id,
                 UpdatePage {
                     expected_revision: updated.revision,
+                    confirmed_widget_removals: vec![],
                     page: empty,
                 },
             )
@@ -1776,6 +2001,7 @@ mod tests {
                 &created.local_id,
                 UpdatePage {
                     expected_revision: created.revision,
+                    confirmed_widget_removals: vec![],
                     page: edit.clone(),
                 },
             )
@@ -1794,6 +2020,7 @@ mod tests {
                     &created.local_id,
                     UpdatePage {
                         expected_revision: saved.revision,
+                        confirmed_widget_removals: vec![],
                         page: edit
                     }
                 )
@@ -1878,6 +2105,7 @@ mod tests {
                 &target.local_id,
                 UpdatePage {
                     expected_revision: target.revision,
+                    confirmed_widget_removals: vec![],
                     page: pasted,
                 },
             )
@@ -1918,6 +2146,7 @@ mod tests {
             &created.local_id,
             UpdatePage {
                 expected_revision: created.revision,
+                confirmed_widget_removals: vec![],
                 page: edit.clone(),
             },
         );
@@ -1934,6 +2163,7 @@ mod tests {
                 &created.local_id,
                 UpdatePage {
                     expected_revision: created.revision,
+                    confirmed_widget_removals: vec![],
                     page: edit,
                 },
             )
@@ -1966,6 +2196,7 @@ mod tests {
                 &created.local_id,
                 UpdatePage {
                     expected_revision: created.revision,
+                    confirmed_widget_removals: vec![],
                     page: moved,
                 },
             )
@@ -1978,6 +2209,7 @@ mod tests {
                 &created.local_id,
                 UpdatePage {
                     expected_revision: moved.revision,
+                    confirmed_widget_removals: vec![],
                     page: deleted,
                 },
             )
@@ -1987,6 +2219,7 @@ mod tests {
                 &created.local_id,
                 UpdatePage {
                     expected_revision: deleted.revision,
+                    confirmed_widget_removals: vec![],
                     page: restore,
                 },
             )
@@ -2001,16 +2234,21 @@ mod tests {
     }
 
     #[test]
-    fn editor_keeps_opaque_fields_and_rejects_invalid_geometry_without_a_write() {
-        let (root, request) = fixture();
+    fn editor_keeps_opaque_8_0_fields_and_rejects_invalid_edits_without_a_write() {
+        let (root, mut request) = fixture();
+        request.evaluation_profile = Some(AdapterProfile::V8_0);
         let store = OfflinePageStore::new(root.path().to_owned());
         let mut created = store
             .create(request)
             .unwrap_or_else(|error| panic!("{error}"));
         let opaque: Widget = serde_json::from_value(serde_json::json!({
-            "id":"opaque-widget", "type":"zabbix", "widget_type":"vendor.status", "name":"Opaque",
-            "registry_state":"unknown", "layout":{"mode":"fixed","x":40,"y":20,"w":12,"h":5},
-            "fields":[{"name":"vendor.hint","field_type":1,"registry_state":"unknown","value":{"kind":"string","value":"preserve exactly"}}]
+            "id":"opaque-widget", "type":"zabbix", "widget_type":"svggraph", "name":"Opaque",
+            "registry_state":"known", "layout":{"mode":"fixed","x":40,"y":20,"w":12,"h":5},
+            "fields":[
+                {"name":"show_hostnames","field_type":0,"registry_state":"known","value":{"kind":"integer","value":1}},
+                {"name":"vendor.hint","field_type":1,"registry_state":"known","value":{"kind":"string","value":"preserve exactly"}},
+                {"name":"ds.0.invert_values","field_type":0,"registry_state":"unknown","value":{"kind":"integer","value":1}}
+            ]
         })).unwrap_or_else(|error| panic!("{error}"));
         let ProjectRoot::Page(page) = &mut created.bundle.project.root else {
             panic!("page");
@@ -2030,6 +2268,60 @@ mod tests {
             .unwrap_or_else(|error| panic!("{error}")),
         )
         .unwrap_or_else(|error| panic!("{error}"));
+        let opened = store
+            .open(&created.local_id)
+            .unwrap_or_else(|error| panic!("{error}"))
+            .unwrap_or_else(|| panic!("saved page"));
+        assert_eq!(opened.widget_evaluation.profile, Some(AdapterProfile::V8_0));
+        let [issue] = opened.widget_evaluation.unrecognized.as_slice() else {
+            panic!("one widget with unrecognized fields");
+        };
+        assert_eq!(issue.widget_id, "opaque-widget");
+        assert!(!issue.unknown_type);
+        assert_eq!(issue.unknown_field_count, 2);
+
+        let mut legacy = created.clone();
+        legacy.bundle.project.declared_compatibility = AdapterProfile::V7_4.widget_version_range();
+        let legacy_eval =
+            evaluate_widgets(&legacy.bundle.project).unwrap_or_else(|error| panic!("{error}"));
+        assert_eq!(legacy_eval.profile, Some(AdapterProfile::V7_4));
+        assert_eq!(legacy_eval.unrecognized[0].unknown_field_count, 3);
+        legacy.bundle.project.declared_compatibility.minimum =
+            zdashstitch_core::Version::new(8, 1, 0);
+        assert!(
+            legacy
+                .view()
+                .unwrap_or_else(|error| panic!("{error}"))
+                .widget_evaluation
+                .profile
+                .is_none()
+        );
+
+        let mut dropped = request_for(&created);
+        dropped.widgets.pop();
+        let mut switched = request_for(&created);
+        switched.evaluation_profile = Some(AdapterProfile::V7_4);
+        for page in [dropped, switched] {
+            assert!(
+                store
+                    .update(
+                        &created.local_id,
+                        UpdatePage {
+                            expected_revision: created.revision,
+                            confirmed_widget_removals: vec![],
+                            page,
+                        }
+                    )
+                    .is_err()
+            );
+        }
+        assert_eq!(
+            store
+                .get(&created.local_id)
+                .unwrap_or_else(|error| panic!("{error}")),
+            Some(created.clone())
+        );
+
         let mut edit = request_for(&created);
         if let WidgetChoice::Preserved { layout, .. } = &mut edit.widgets[1] {
             *layout = Some(Layout::Fixed {
@@ -2044,6 +2336,7 @@ mod tests {
                 &created.local_id,
                 UpdatePage {
                     expected_revision: created.revision,
+                    confirmed_widget_removals: vec![],
                     page: edit,
                 },
             )
@@ -2072,7 +2365,15 @@ mod tests {
                 h: 5
             }
         );
-        assert!(saved.clone().view().is_ok());
+        let reopened = store
+            .open(&saved.local_id)
+            .unwrap_or_else(|error| panic!("{error}"))
+            .unwrap_or_else(|| panic!("edited page"));
+        assert_eq!(&reopened.page, &saved);
+        assert_eq!(
+            reopened.widget_evaluation.unrecognized[0].unknown_field_count,
+            2
+        );
         for bad in [
             Layout::Fixed {
                 x: 71,
@@ -2097,6 +2398,7 @@ mod tests {
                         &saved.local_id,
                         UpdatePage {
                             expected_revision: saved.revision,
+                            confirmed_widget_removals: vec![],
                             page: edit
                         }
                     )
@@ -2109,8 +2411,74 @@ mod tests {
             store
                 .get(&saved.local_id)
                 .unwrap_or_else(|error| panic!("{error}")),
-            Some(saved)
+            Some(saved.clone())
         );
+        let mut with_uncertain_consumer = saved.clone();
+        let ProjectRoot::Page(page) = &mut with_uncertain_consumer.bundle.project.root else {
+            panic!("expected page");
+        };
+        let mut sibling = opaque;
+        let Widget::Zabbix { id, layout, .. } = &mut sibling else {
+            panic!("expected opaque widget");
+        };
+        *id = "opaque-consumer".into();
+        *layout = Layout::Fixed {
+            x: 58,
+            y: 22,
+            w: 12,
+            h: 5,
+        };
+        page.widgets.push(sibling);
+        let mut proposed = request_for(&with_uncertain_consumer);
+        proposed.widgets.remove(1);
+        assert_eq!(
+            compose_edit(
+                root.path(),
+                &with_uncertain_consumer,
+                &with_uncertain_consumer.bundle.project,
+                UpdatePage {
+                    expected_revision: saved.revision,
+                    confirmed_widget_removals: vec!["opaque-widget".into()],
+                    page: proposed,
+                },
+                &mut RemovedWidgets::new(),
+            )
+            .err()
+            .map(|error| error.code()),
+            Some("offline_page_widget_removal_dependency"),
+        );
+        let mut without_opaque = request_for(&saved);
+        without_opaque.widgets.pop();
+        let deleted = store
+            .update(
+                &saved.local_id,
+                UpdatePage {
+                    expected_revision: saved.revision,
+                    confirmed_widget_removals: vec!["opaque-widget".to_owned()],
+                    page: without_opaque,
+                },
+            )
+            .unwrap_or_else(|error| panic!("{error}"));
+        let ProjectRoot::Page(deleted_root) = &deleted.bundle.project.root else {
+            panic!("expected page");
+        };
+        assert_eq!(deleted_root.widgets.len(), 1);
+        assert!(
+            !serde_json::to_string(&deleted.view().unwrap_or_else(|error| panic!("{error}")))
+                .unwrap_or_else(|error| panic!("{error}"))
+                .contains("opaque-widget")
+        );
+        let restored = OfflinePageStore::new(root.path().to_owned())
+            .update(
+                &saved.local_id,
+                UpdatePage {
+                    expected_revision: saved.revision + 1,
+                    confirmed_widget_removals: vec![],
+                    page: request_for(&saved),
+                },
+            )
+            .unwrap_or_else(|error| panic!("{error}"));
+        assert_eq!(restored.bundle, saved.bundle);
     }
 
     #[test]
@@ -2127,6 +2495,7 @@ mod tests {
             &created.local_id,
             UpdatePage {
                 expected_revision: created.revision,
+                confirmed_widget_removals: vec![],
                 page: edit.clone(),
             },
         );
@@ -2148,6 +2517,7 @@ mod tests {
                 &created.local_id,
                 UpdatePage {
                     expected_revision: created.revision,
+                    confirmed_widget_removals: vec![],
                     page: edit,
                 },
             )

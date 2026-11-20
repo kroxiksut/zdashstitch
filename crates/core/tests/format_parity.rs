@@ -2,8 +2,10 @@
 
 use std::{collections::BTreeMap, fs, path::PathBuf};
 
+use serde_json::json;
+
 use zdashstitch_core::formats::{
-    DeploymentState, FormatError, LegacyRootSelection, LocalBindings, MetricCatalog,
+    DeploymentState, FormatError, LegacyRootSelection, LocalBindings, MetricCatalog, MetricsFormat,
     PROJECT_V1_MAX_PAGES, PROJECT_V2_MAX_PAGES, Page, PortableProject, ProjectKind,
     ProjectProvenance, ProjectRoot, SourceKind, TypedProject, ValueType, Widget,
     ZabbixWidgetFieldValue, from_json_str, from_yaml_str, migrate_legacy_project, to_json_string,
@@ -54,6 +56,113 @@ fn failure<T>(result: Result<T, FormatError>) -> FormatError {
         Ok(_) => panic!("expected validation failure"),
         Err(error) => error,
     }
+}
+
+#[test]
+fn json_catalog_version_and_widget_boundaries() {
+    let source = read("fixtures/formats/v2/positive/json-mixed-catalog.yaml");
+    let catalog: MetricCatalog =
+        from_yaml_str(&source).unwrap_or_else(|error| panic!("catalog: {error}"));
+    assert_eq!(catalog.format, MetricsFormat::V2);
+    assert_eq!(catalog.metrics.len(), 3);
+    assert_eq!(catalog.metrics[1].value_type, ValueType::Json);
+    assert_eq!(catalog.metrics[2].value_type, ValueType::Json);
+    let encoded = to_yaml_string(&catalog).unwrap_or_else(|error| panic!("serialize: {error}"));
+    let reopened: MetricCatalog =
+        from_yaml_str(&encoded).unwrap_or_else(|error| panic!("reopen: {error}"));
+    assert_eq!(reopened, catalog);
+
+    let mut no_json = catalog.clone();
+    no_json.metrics.truncate(1);
+    let no_json_yaml =
+        to_yaml_string(&no_json).unwrap_or_else(|error| panic!("serialize v2: {error}"));
+    let still_v2: MetricCatalog =
+        from_yaml_str(&no_json_yaml).unwrap_or_else(|error| panic!("reopen v2: {error}"));
+    assert_eq!(still_v2.format, MetricsFormat::V2);
+
+    let mut false_v1 = catalog.clone();
+    false_v1.format = MetricsFormat::V1;
+    assert_code(
+        failure(to_yaml_string(&false_v1)),
+        "catalog_value_type_version",
+    );
+    assert_code(
+        failure(from_yaml_str::<MetricCatalog>(
+            &source.replace("zdashstitch.metrics/v2", "zdashstitch.metrics/v1"),
+        )),
+        "catalog_value_type_version",
+    );
+    assert!(
+        from_yaml_str::<MetricCatalog>(
+            &source.replace("value_type: json", "value_type: future_type")
+        )
+        .is_err()
+    );
+
+    let (legacy, mut catalogs) = project_and_catalogs();
+    catalogs.insert("linux".to_owned(), catalog.clone());
+    validate_project(&legacy, &catalogs).unwrap_or_else(|error| panic!("legacy: {error}"));
+    let typed: TypedProject = from_yaml_str(&read("examples/page-v2.yaml"))
+        .unwrap_or_else(|error| panic!("typed: {error}"));
+    validate_typed_project(
+        &typed,
+        &BTreeMap::from([("linux".to_owned(), catalog.clone())]),
+    )
+    .unwrap_or_else(|error| panic!("typed relationships: {error}"));
+
+    let mut bad = legacy.clone();
+    let graph = &mut bad.dashboards[0].pages[2].widgets[0];
+    if let Widget::Graph { series, .. } = graph {
+        series[0].metric.metric = "structured_status".to_owned();
+    } else {
+        panic!("expected graph fixture");
+    }
+    assert_code(
+        failure(validate_project(&bad, &catalogs)),
+        "nonnumeric_graph",
+    );
+
+    let mut typed: TypedProject = from_yaml_str(&read("examples/page-v2.yaml"))
+        .unwrap_or_else(|error| panic!("typed: {error}"));
+    typed
+        .roles
+        .get_mut("system_nodes")
+        .unwrap_or_else(|| panic!("missing role"))
+        .cardinality = zdashstitch_core::formats::Cardinality::One;
+    let value_widget = serde_json::from_value(json!({
+        "id": "json-value", "type": "item_value", "title": "JSON",
+        "expansion": "single", "metric": {"catalog": "linux", "metric": "structured_status"},
+        "hosts": {"role": "system_nodes", "selection": "one"},
+        "layout": {"mode": "auto", "w": 12, "h": 4}
+    }))
+    .unwrap_or_else(|error| panic!("value widget: {error}"));
+    match &mut typed.root {
+        ProjectRoot::Page(page) => page.widgets = vec![value_widget],
+        ProjectRoot::Dashboard(_) => panic!("expected page fixture"),
+    }
+    let only_catalog = BTreeMap::from([("linux".to_owned(), catalog.clone())]);
+    assert_code(
+        failure(validate_typed_project(&typed, &only_catalog)),
+        "json_item_value",
+    );
+    let lld_widget = serde_json::from_value(json!({
+        "id": "json-field", "type": "zabbix", "widget_type": "item",
+        "name": "JSON", "registry_state": "known",
+        "layout": {"mode": "auto", "w": 12, "h": 4},
+        "fields": [{"name": "itemid.0", "field_type": 4, "registry_state": "known",
+            "value": {"kind": "lld_instance", "catalog": "linux",
+                "metric": "discovered_document", "source_key": "example.document[one]",
+                "hosts": {"role": "system_nodes", "selection": "one"}}}]
+    }))
+    .unwrap_or_else(|error| panic!("LLD widget: {error}"));
+    match &mut typed.root {
+        ProjectRoot::Page(page) => page.widgets = vec![lld_widget],
+        ProjectRoot::Dashboard(_) => panic!("expected page fixture"),
+    }
+    assert_code(
+        failure(validate_typed_project(&typed, &only_catalog)),
+        "json_item_value",
+    );
 }
 
 #[test]

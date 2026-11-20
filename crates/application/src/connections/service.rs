@@ -216,12 +216,13 @@ fn sign_in_rejected(report: &ConnectionCheckReport) -> bool {
     })
 }
 
-const SIGN_IN_CODES: [&str; 5] = [
+const SIGN_IN_CODES: [&str; 6] = [
     "token_not_authorized",
     "token_expired",
     "session_expired",
     "mfa_session_terminated",
     "auth_failed",
+    "api_error",
 ];
 
 impl ConnectionService {
@@ -684,6 +685,18 @@ impl ConnectionService {
             return Err(ConnectionError::new("writes_not_confirmed"));
         }
         let active = self.active_for(connection_id)?;
+        let reader = match &active.gateway {
+            ActiveGateway::ReadOnly(reader) => Some(reader),
+            ActiveGateway::ReadWrite(writer) => Some(writer.reader()),
+            ActiveGateway::Switching => None,
+        };
+        if let Some(reader) = reader {
+            let version = &reader.capabilities().version;
+            if version.major == 8 && (version.minor != 0 || version.patch != 0) {
+                return Err(ConnectionError::new("writes_version_unsupported")
+                    .with("version", version.to_string()));
+            }
+        }
         let gateway = std::mem::replace(&mut active.gateway, ActiveGateway::Switching);
         active.gateway = match gateway {
             ActiveGateway::ReadOnly(reader) => ActiveGateway::ReadWrite(reader.enable_writes()),
@@ -731,10 +744,35 @@ impl ConnectionService {
     /// Write gateway, only in read-write mode.
     #[must_use]
     pub fn writer(&self) -> Option<&ReadWriteGateway> {
+        let writer = self.portable_writer()?;
+        let version = &writer.reader().capabilities().version;
+        (version.major != 8).then_some(writer)
+    }
+
+    /// Gateway for portable publication. On 8.0.0 this is usable only by
+    /// independently verified portable plans, never by general write routes.
+    #[must_use]
+    pub fn portable_writer(&self) -> Option<&ReadWriteGateway> {
         match &self.active.as_ref()?.gateway {
             ActiveGateway::ReadWrite(writer) => Some(writer),
             _ => None,
         }
+    }
+
+    /// The specific Clone sender still requires a verified source-bound plan.
+    #[must_use]
+    pub fn clone_writer(&self) -> Option<&ReadWriteGateway> {
+        let writer = self.portable_writer()?;
+        let version = &writer.reader().capabilities().version;
+        (version.major != 8 || version.to_string() == "8.0.0").then_some(writer)
+    }
+
+    /// Scoped 8.0.0 ReplaceHost still requires adapter evidence and a VerifiedPlan.
+    #[must_use]
+    pub fn replace_host_writer(&self) -> Option<&ReadWriteGateway> {
+        let writer = self.portable_writer()?;
+        let version = &writer.reader().capabilities().version;
+        (version.major != 8 || (version.minor == 0 && version.patch == 0)).then_some(writer)
     }
 
     fn is_active(&self, connection_id: &str) -> bool {

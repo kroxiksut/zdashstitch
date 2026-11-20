@@ -625,6 +625,22 @@
     "message": "Версия Zabbix",
     "placeholders": {}
   },
+  "connection.test.details.role_api_access": {
+    "message": "Доступ роли к API (не право записи)",
+    "placeholders": {}
+  },
+  "connection.test.role_api_access.enabled": {
+    "message": "Включён",
+    "placeholders": {}
+  },
+  "connection.test.role_api_access.disabled": {
+    "message": "Выключен",
+    "placeholders": {}
+  },
+  "connection.test.role_api_access.unverified": {
+    "message": "Не удалось проверить",
+    "placeholders": {}
+  },
   "connection.test.report.scope": {
     "message": "В отчёте нет пароля, токена, ответов сервера и путей к файлам; адрес — только по галке.",
     "placeholders": {}
@@ -797,7 +813,7 @@
     "placeholders": {}
   },
   "errors.connection.version_unsupported": {
-    "message": "Zabbix {version} не поддерживается. Можно продолжить работу автономно.",
+    "message": "Эта операция для Zabbix {version} недоступна в текущей сборке.",
     "placeholders": {
       "version": "technical"
     }
@@ -929,6 +945,10 @@
   "errors.connection.writes_not_confirmed": {
     "message": "Запись панелей не подтверждена.",
     "placeholders": {}
+  },
+  "errors.connection.writes_version_unsupported": {
+    "message": "Запись панелей в Zabbix {version} недоступна в этой сборке.",
+    "placeholders": {"version": "technical"}
   },
   "errors.connection.random_unavailable": {
     "message": "Системный источник случайных чисел недоступен.",

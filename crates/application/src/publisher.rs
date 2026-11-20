@@ -109,6 +109,8 @@ pub enum FindingCode {
     /// The resolved target differs from the source (units, value type,
     /// origin, pattern coverage); a warning (P1-05D `compatible`).
     MatchDifferences,
+    /// Item mask matches excluded by the verified host selectors (param `count`).
+    PatternMatchesOutsideSelection,
     /// The reference stays on the source host (O-003).
     KeptOnSource,
     /// The list of references kept on the source host is not confirmed.
@@ -149,6 +151,7 @@ impl FindingCode {
             Self::BindingStale => "binding_stale",
             Self::BindingInvalid => "binding_invalid",
             Self::MatchDifferences => "match_differences",
+            Self::PatternMatchesOutsideSelection => "pattern_matches_outside_selection",
             Self::KeptOnSource => "kept_on_source",
             Self::KeptOnSourceUnconfirmed => "kept_on_source_unconfirmed",
             Self::KeptOnSourceConfirmationStale => "kept_on_source_confirmation_stale",
@@ -731,7 +734,7 @@ pub async fn publish_confirmed_plan(
     if plan.workcopy_binding().is_some() {
         return plan.refuse(None);
     }
-    send_confirmed(client, journal, plan, stage).await
+    send_confirmed(client, journal, plan, stage, || true).await
 }
 
 /// Checks shared by every plan right before send, then the journal and the
@@ -751,6 +754,7 @@ pub(crate) async fn send_confirmed(
     journal: &PublishJournal,
     plan: ConfirmedPlan,
     stage: &WriteStage,
+    draft_current: impl FnOnce() -> bool + Send,
 ) -> PublishReport {
     if stage.generation() != plan.session {
         return plan.refuse(Some(PlanInvalidReason::SessionEnded));
@@ -785,8 +789,14 @@ pub(crate) async fn send_confirmed(
     let ConfirmedPlan {
         plan_id, update, ..
     } = plan;
+    let mut draft_changed = false;
     let outcome = client
-        .publish_verified_dashboard_update(&update, || handle.admit_send())
+        .publish_verified_dashboard_update(&update, || {
+            handle.admit_send_if(|| {
+                draft_changed = !draft_current();
+                !draft_changed
+            })
+        })
         .await;
     // A refused submit record leaves the file at `confirmed` or with an
     // unconfirmed `submitting`; nothing more is appended to it.
@@ -795,6 +805,9 @@ pub(crate) async fn send_confirmed(
         None => handle.finish(journal_state(outcome), None).err(),
     };
     let mut report = finish_report(plan_id, pre_send_states().to_vec(), outcome);
+    if draft_changed {
+        report.invalidated = Some(PlanInvalidReason::DraftChanged);
+    }
     report.journal_error = journal_error;
     report
 }
@@ -803,6 +816,8 @@ pub(crate) async fn send_confirmed(
 fn operation_record(client: &ReadWriteGateway, plan: &ConfirmedPlan) -> OperationRecord {
     let identity = client.reader().identity();
     OperationRecord {
+        planned_deployment: None,
+        portable_update: None,
         kind: OperationKind::Update,
         intent: plan.origin.operation(),
         connection_id: plan.update.connection_id().to_owned(),

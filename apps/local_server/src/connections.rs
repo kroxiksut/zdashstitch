@@ -419,6 +419,7 @@ struct ReportBody {
     server_version: Option<String>,
     identity: Option<&'static str>,
     read_access: Vec<ReadAccessBody>,
+    role_api_access: Option<&'static str>,
     /// RFC 3339 UTC.
     checked_at: Option<String>,
     result_code: Option<&'static str>,
@@ -455,6 +456,7 @@ impl From<&ConnectionCheckReport> for ReportBody {
                     access: access.as_str(),
                 })
                 .collect(),
+            role_api_access: report.role_api_access.map(|access| access.as_str()),
             checked_at: rfc3339_utc(report.checked_at),
             result_code: report.result_code(),
             passed: report.passed(),

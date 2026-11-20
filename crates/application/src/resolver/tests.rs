@@ -36,6 +36,7 @@ pub(crate) fn item(itemid: &str, hostid: &str, key: &str, name: &str) -> ItemDet
         value_type: 3,
         units: String::new(),
         flags: ItemFlags::Plain,
+        enabled: None,
         templateid: None,
         discovery: None,
         owner_name: None,
@@ -58,6 +59,7 @@ pub(crate) fn discovered(mut item: ItemDetails, parent: &str, prototype_key: &st
     item.discovery = Some(ItemDiscoveryLink {
         parent_itemid: parent.to_owned(),
         prototype_key: prototype_key.to_owned(),
+        currently_discovered: None,
     });
     item
 }

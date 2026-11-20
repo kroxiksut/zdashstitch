@@ -5,7 +5,10 @@ use std::collections::HashSet;
 use serde::{Deserialize, Serialize};
 use time::{OffsetDateTime, format_description::well_known::Rfc3339};
 
-use super::{LocalBindings, PortableProject, Result, Validate};
+use super::{
+    LocalBindings, PROJECT_V2_MAX_PAGES, PortableProject, ProjectRoot, Result, TypedProject,
+    Validate,
+};
 use crate::formats::validation::{
     ensure, ensure_decimal_id, ensure_len, ensure_slug, validate_hex, validate_version,
 };
@@ -72,6 +75,157 @@ pub struct DeployedWidget {
     pub widgetid: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub reference: Option<String>,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+pub enum DeploymentFormatV2 {
+    #[serde(rename = "zdashstitch.deployment-state/v2")]
+    V2,
+}
+
+/// One confirmed deployment of the single dashboard root of a typed draft.
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct DeploymentStateV2 {
+    pub format: DeploymentFormatV2,
+    pub storage_scope: DeploymentStorageScope,
+    pub project_id: String,
+    pub root_id: String,
+    pub source_revision: u64,
+    pub connection_id: String,
+    pub deployment_id: String,
+    pub adapter_id: String,
+    pub target_server_version: String,
+    pub server_identity_fingerprint: String,
+    pub status: DeploymentStatus,
+    pub last_verified_at: String,
+    pub last_operation_id: String,
+    pub dashboard_name: String,
+    pub dashboard: DeployedDashboard,
+}
+
+impl DeploymentStateV2 {
+    pub fn validate_against(&self, project: &TypedProject) -> Result<()> {
+        self.validate()?;
+        let ProjectRoot::Dashboard(root) = &project.root else {
+            return Err(super::FormatError::validation(
+                "deployment_project_identity",
+                "deployment requires a dashboard root",
+            ));
+        };
+        ensure(
+            self.project_id == project.project_id && self.root_id == root.id,
+            "deployment_project_identity",
+            "deployment/project identity mismatch",
+        )?;
+        for mapped in &self.dashboard.pages {
+            let page = root
+                .pages
+                .iter()
+                .find(|page| page.id == mapped.logical_id)
+                .ok_or_else(|| {
+                    super::FormatError::validation(
+                        "unknown_deployment_page",
+                        "deployment page is absent from root",
+                    )
+                })?;
+            for widget in &mapped.widgets {
+                ensure(
+                    page.widgets
+                        .iter()
+                        .any(|candidate| candidate.id() == widget.logical_id),
+                    "unknown_deployment_widget",
+                    "deployment widget is absent from page",
+                )?;
+            }
+        }
+        Ok(())
+    }
+}
+
+impl Validate for DeploymentStateV2 {
+    fn validate(&self) -> Result<()> {
+        ensure_slug(&self.project_id, "project id")?;
+        ensure_slug(&self.root_id, "root id")?;
+        ensure_slug(&self.connection_id, "connection id")?;
+        ensure_slug(&self.deployment_id, "deployment id")?;
+        ensure(
+            (2..=64).contains(&self.adapter_id.len())
+                && self.adapter_id.as_bytes()[0].is_ascii_lowercase()
+                && self.adapter_id.bytes().all(|byte| {
+                    byte.is_ascii_lowercase()
+                        || byte.is_ascii_digit()
+                        || matches!(byte, b'.' | b'_' | b'-')
+                }),
+            "invalid_adapter_id",
+            "adapter_id must match ^[a-z][a-z0-9._-]{1,63}$",
+        )?;
+        ensure(
+            self.source_revision > 0 && self.dashboard.logical_id == self.root_id,
+            "deployment_project_identity",
+            "deployment root or source revision is invalid",
+        )?;
+        validate_version(&self.target_server_version, "target_server_version")?;
+        validate_hex(
+            &self.server_identity_fingerprint,
+            64,
+            true,
+            "server_identity_fingerprint",
+        )?;
+        ensure(
+            OffsetDateTime::parse(&self.last_verified_at, &Rfc3339).is_ok(),
+            "last_verified_at",
+            "last_verified_at must be an RFC 3339 date-time",
+        )?;
+        ensure_len(
+            &self.last_operation_id,
+            1,
+            128,
+            "last_operation_id",
+            "last operation id",
+        )?;
+        ensure_len(
+            &self.dashboard_name,
+            1,
+            255,
+            "dashboard_name",
+            "dashboard name",
+        )?;
+        ensure_decimal_id(&self.dashboard.dashboardid, "dashboardid")?;
+        validate_hex(
+            &self.dashboard.fingerprint,
+            64,
+            true,
+            "dashboard fingerprint",
+        )?;
+        ensure(
+            self.dashboard.pages.len() <= PROJECT_V2_MAX_PAGES,
+            "deployment_page_count",
+            "too many deployed pages",
+        )?;
+        let mut logical_pages = HashSet::new();
+        let mut remote_pages = HashSet::new();
+        let mut remote_widgets = HashSet::new();
+        for page in &self.dashboard.pages {
+            page.validate()?;
+            ensure(
+                logical_pages.insert(&page.logical_id)
+                    && remote_pages.insert(&page.dashboard_pageid),
+                "duplicate_deployment_page",
+                "duplicate deployment page identity",
+            )?;
+            let mut logical_widgets = HashSet::new();
+            for widget in &page.widgets {
+                ensure(
+                    logical_widgets.insert((&widget.logical_id, &widget.slot_id))
+                        && remote_widgets.insert(&widget.widgetid),
+                    "duplicate_deployment_widget",
+                    "duplicate deployment widget identity",
+                )?;
+            }
+        }
+        Ok(())
+    }
 }
 
 impl DeploymentState {

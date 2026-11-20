@@ -45,6 +45,24 @@ struct Script {
 
 type Shared = Arc<StdMutex<Script>>;
 
+#[path = "drafts_tests/clone_8_0.rs"]
+mod clone_8_0;
+
+#[path = "drafts_tests/portable_8_0.rs"]
+mod portable_8_0;
+
+#[path = "drafts_tests/lab_p5_04.rs"]
+mod lab_p5_04;
+
+#[path = "drafts_tests/lab_clone_8_0.rs"]
+mod lab_clone_8_0;
+
+#[path = "drafts_tests/lab_z80_e2e.rs"]
+mod lab_z80_e2e;
+
+#[path = "drafts_tests/replace_host_security.rs"]
+mod replace_host_security;
+
 async fn rpc(
     State(script): State<Shared>,
     headers: HeaderMap,
@@ -61,15 +79,22 @@ async fn rpc(
         .and_then(|value| value.to_str().ok())
         == Some(format!("Bearer {TOKEN}").as_str());
     let result = match method.as_str() {
+        "apiinfo.version" if script.list["clone_8_0"] == true => json!("8.0.2"),
         "apiinfo.version" => json!("7.4.16"),
         "user.checkAuthentication" if body["params"]["token"] == TOKEN => {
-            json!({"userid": "3", "username": "synthetic"})
+            json!({"userid": "3", "username": "synthetic", "roleid":"9", "type":"3"})
         }
         _ if !authorized => {
             return Json(json!({"jsonrpc": "2.0", "id": id, "error": {
                 "code": -32602, "message": "Invalid params.", "data": "Not authorized."
             }}))
             .into_response();
+        }
+        "dashboard.get"
+            if script.list["lld_fixture"] == true
+                && body["params"]["dashboardids"] == json!(["99999"]) =>
+        {
+            json!([script.list["created"]])
         }
         "dashboard.get" if body["params"].get("dashboardids").is_some() => {
             if script.snapshots.len() > 1 {
@@ -82,7 +107,23 @@ async fn rpc(
                     .unwrap_or_else(|| json!([]))
             }
         }
+        "dashboard.get" if script.list["lld_fixture"] == true => json!([]),
         "dashboard.get" => script.list.clone(),
+        "host.get" | "item.get" | "itemprototype.get" if script.list["clone_8_0"] == true => {
+            clone_8_0::lookup(&script.list, &method, &body["params"])
+        }
+        "dashboard.create"
+            if script.list["lld_fixture"] == true && script.list["verified_create"] == true =>
+        {
+            let mut created = body["params"].clone();
+            created["dashboardid"] = json!("99999");
+            created["userid"] = json!("3");
+            script.list["created"] = created;
+            json!({"dashboardids":["99999"]})
+        }
+        "role.get" if script.list["lld_fixture"] == true => {
+            json!([{"roleid":"9","type":"3","rules":{"api.access":"1","api.mode":"0","api":[],"actions":[{"name":"edit_dashboards","status":if script.list["deny_create"] == true { "0" } else { "1" }}]}}])
+        }
         "item.get"
             if body["params"].get("selectItemDiscovery").is_some()
                 && body["params"]["itemids"] == json!(["30002"]) =>
@@ -91,14 +132,114 @@ async fn rpc(
                 {"itemid":"30002","hostid":"40001","key_":"synthetic.value[db-a]","name":"Value db-a","value_type":"0","units":"","flags":"4","templateid":"0","itemDiscovery":{"parent_itemid":"50001","key_":"synthetic.value[{#ID}]"},"hosts":[{"hostid":"40001","name":"Synthetic host"}]}
             ])
         }
+        "item.get"
+            if script.list["lld_fixture"] == true && body["params"].get("hostids").is_some() =>
+        {
+            json!([
+                {"itemid":"30003","hostid":"40002","key_":"synthetic.value[db-b]","name":"Value db-b","value_type":"0","units":"","flags":"4","templateid":"0","itemDiscovery":{"parent_itemid":"50003","key_":"synthetic.value[{#ID}]"},"hosts":[{"hostid":"40002","name":"Synthetic target"}]}
+            ])
+        }
+        "itemprototype.get"
+            if script.list["lld_fixture"] == true
+                && body["params"]["itemids"] == json!(["50003"])
+                && body["params"]["output"].to_string().contains("uuid") =>
+        {
+            json!([{"itemid":"50003","hostid":"40002","templateid":"50002","uuid":""}])
+        }
+        "itemprototype.get"
+            if script.list["lld_fixture"] == true
+                && body["params"]["itemids"] == json!(["50003"]) =>
+        {
+            json!([{"itemid":"50003","hostid":"40002","key_":"synthetic.value[{#ID}]","name":"Value {#ID}","value_type":"0","units":"","templateid":"50002","discoveryRule":[]}])
+        }
+        "host.get"
+            if script.list["lld_fixture"] == true
+                && body["params"]["hostids"] == json!(["40002"]) =>
+        {
+            json!([{"hostid":"40002","host":"synthetic-target","name":"Synthetic target"}])
+        }
+        "itemprototype.get"
+            if script.list["lld_fixture"] == true
+                && body["params"]["itemids"] == json!(["50001"])
+                && body["params"]["output"].to_string().contains("uuid") =>
+        {
+            json!([
+                {"itemid":"50001","hostid":"40001","templateid":"50002","uuid":""}
+            ])
+        }
+        "itemprototype.get"
+            if script.list["lld_fixture"] == true
+                && body["params"]["itemids"] == json!(["50002"]) =>
+        {
+            json!([
+                {"itemid":"50002","hostid":"60001","templateid":"0","uuid":"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+            ])
+        }
+        "template.get"
+            if script.list["lld_fixture"] == true
+                && body["params"]["templateids"] == json!(["60001"]) =>
+        {
+            json!([
+                {"templateid":"60001","uuid":script.list["template_uuid"]}
+            ])
+        }
         "itemprototype.get" if body["params"]["itemids"] == json!(["50001"]) => json!([
             {"itemid":"50001","hostid":"40001","key_":"synthetic.value[{#ID}]","name":"Value {#ID}","value_type":"0","units":"","templateid":"0","discoveryRule":[]}
         ]),
+        "item.get"
+            if script.list["template_metric"] == true
+                && body["params"]["itemids"] == json!(["30001"])
+                && body["params"]["output"].to_string().contains("uuid") =>
+        {
+            json!([
+                {"itemid":"30001","hostid":"40001","templateid":"30010","uuid":""}
+            ])
+        }
+        "item.get"
+            if script.list["template_metric"] == true
+                && body["params"]["itemids"] == json!(["30010"]) =>
+        {
+            json!([
+                {"itemid":"30010","hostid":"60001","templateid":"0","uuid":"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+            ])
+        }
+        "template.get"
+            if script.list["template_metric"] == true
+                && body["params"]["templateids"] == json!(["60001"]) =>
+        {
+            json!([
+                {"templateid":"60001","uuid":script.list["template_uuid"]}
+            ])
+        }
+        "item.get" if script.list["pattern_global"] == true && body["params"]["hostids"] == json!(["40001"]) => json!([
+            {"itemid":"30001","hostid":"40001","key_":"cpu","name":"CPU load","value_type":"0","units":"","flags":"0","templateid":"0","itemDiscovery":[],"hosts":[{"hostid":"40001","name":"Synthetic host"}]}
+        ]),
+        "item.get" if script.list["pattern_global"] == true && body["params"]["hostids"] == json!(["40002"]) => json!([
+            {"itemid":"30002","hostid":"40002","key_":"cpu","name":"CPU load","value_type":"0","units":"","flags":"0","templateid":"0","itemDiscovery":[],"hosts":[{"hostid":"40002","name":"db-two"}]}
+        ]),
         "item.get" if body["params"].get("selectItemDiscovery").is_some() => json!([
-            {"itemid":"30001","hostid":"40001","key_":"synthetic.rate","name":"Rate","value_type":"0","units":"","flags":"0","templateid":"0","itemDiscovery":[],"hosts":[{"hostid":"40001","name":"Synthetic host"}]}
+            {"itemid":"30001","hostid":"40001","key_":"synthetic.rate","name":"Rate","value_type":"0","units":if script.list["metric_units_changed"] == true { "changed" } else { "" },"flags":"0","templateid":if script.list["template_metric"] == true { "30010" } else { "0" },"itemDiscovery":[],"hosts":[{"hostid":"40001","name":"Synthetic host"}]}
+        ]),
+        "host.get" if script.list["pattern_truncated"] == true && body["params"].get("selectParentTemplates").is_some() =>
+            json!((0..101).map(|n| json!({"hostid": format!("{}", 40000+n), "host": "node", "name": "node"})).collect::<Vec<_>>()),
+        "host.get"
+            if script.list["pattern_global"] == true
+                && body["params"].get("selectParentTemplates").is_some() =>
+        {
+            json!([
+                {"hostid":"40001","host":"synthetic-host","name":if script.list["pattern_host_changed"] == true { "db-new" } else { "Synthetic host" }},
+                {"hostid":"40002","host":"db-two","name":"db-two"}
+            ])
+        }
+        "host.get" if script.list["pattern_global"] == true && body["params"]["hostids"] == json!(["40002"]) => json!([
+            {"hostid":"40002","host":"db-two","name":"db-two"}
+        ]),
+        "host.get" if body["params"]["hostids"] == json!(["40001", "40002"]) => json!([
+            {"hostid":"40001","host":"synthetic-host","name":"Synthetic host"},
+            {"hostid":"40002","host":"db-two","name":"db-two"}
         ]),
         "host.get" if body["params"]["hostids"] == json!(["40001"]) => json!([
-            {"hostid":"40001","host":"synthetic-host","name":"Synthetic host"}
+            {"hostid":"40001","host":"synthetic-host","name":if script.list["pattern_host_changed"] == true { "db-new" } else { "Synthetic host" }}
         ]),
         "item.get" => json!([
             {"itemid": "30001", "value_type": "3", "units": "", "valuemapid": "0", "valuemap": []}
@@ -193,6 +334,7 @@ struct App {
     csrf: String,
     address: String,
     script: Shared,
+    connections: ConnectionsHandle,
     storage: tempfile::TempDir,
     _config: tempfile::TempDir,
 }
@@ -212,7 +354,7 @@ impl App {
         let api = connections::routes(handle.clone())
             .merge(routes(handle.clone(), drafts.clone()))
             .merge(super::publication_routes(
-                handle,
+                handle.clone(),
                 drafts,
                 Arc::new(super::PlanRegistry::default()),
             ));
@@ -223,6 +365,7 @@ impl App {
             csrf: String::new(),
             address,
             script,
+            connections: handle,
             storage,
             _config: config,
         };
@@ -690,6 +833,103 @@ async fn library_index_route_rebuilds_cache_and_requires_session() {
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn offline_8_0_page_keeps_profile_and_multi_host_rows_inside_dashboard() {
+    let app = App::start(default_script()).await;
+    let mut imported = inspect_template_file(
+        "synthetic-74.json",
+        br#"{"zabbix_export":{"version":"7.4","templates":[{"template":"Synthetic rate","items":[{"name":"Rate","key":"synthetic.rate","value_type":"FLOAT"}]}]}}"#,
+    ).unwrap_or_else(|| panic!("known extension"))
+        .unwrap_or_else(|error| panic!("fixture: {error}"));
+    imported.extend(inspect_template_file(
+        "synthetic-80.json",
+        br#"{"zabbix_export":{"version":"8.0","templates":[{"template":"Synthetic count","items":[{"name":"Count","key":"synthetic.count","value_type":"UNSIGNED"},{"name":"JSON payload","key":"synthetic.payload","value_type":"JSON"}]}]}}"#,
+    ).unwrap_or_else(|| panic!("known extension"))
+        .unwrap_or_else(|error| panic!("fixture: {error}")));
+    let first_catalog = imported[0].catalog.catalog_id.clone();
+    let second_catalog = imported[1].catalog.catalog_id.clone();
+    let first_metric = imported[0].catalog.metrics[0].id.clone();
+    let second_metric = imported[1]
+        .catalog
+        .metrics
+        .iter()
+        .find(|metric| metric.name == "Count")
+        .unwrap_or_else(|| panic!("count metric"))
+        .id
+        .clone();
+    CatalogLibrary::new(app.storage.path().to_owned())
+        .save(imported)
+        .unwrap_or_else(|error| panic!("save: {error}"));
+    let request = json!({
+        "name":"Synthetic page",
+        "evaluation_profile":"8.0",
+        "catalogs":[{"catalog_id":first_catalog,"version":1},{"catalog_id":second_catalog,"version":1}],
+        "roles":{"source":{"cardinality":"many","slots":["node-b","node-a"]}},
+        "widgets":[{"kind":"graph","title":"Rate and count","metrics":[
+            {"catalog_id":first_catalog,"metric_id":first_metric,"hosts":{"role":"source","selection":"all"}},
+            {"catalog_id":second_catalog,"metric_id":second_metric,"hosts":{"role":"source","selection":"all"}}
+        ]}]
+    });
+    let mut invalid = request.clone();
+    invalid["evaluation_profile"] = json!("8.1");
+    let (status, _) = app
+        .call("POST", "/api/library/offline-pages", Some(invalid))
+        .await;
+    assert!(status.is_client_error());
+    let (status, page) = app
+        .call("POST", "/api/library/offline-pages", Some(request))
+        .await;
+    assert_eq!(status, StatusCode::CREATED, "{page}");
+    assert_eq!(
+        page["widget_evaluation"],
+        json!({"profile":"8.0","unrecognized":[]})
+    );
+    assert_eq!(
+        page["bundle"]["project"]["declared_compatibility"],
+        json!({"minimum":"8.0.0","maximum_exclusive":"8.1.0"})
+    );
+    assert_eq!(page["composition"]["instance_count"], 1);
+    assert_eq!(
+        page["composition"]["instances"][0]["sources"],
+        json!([
+            {"catalog_id":first_catalog,"metric_id":first_metric,"role":"source","slot_id":"node-b"},
+            {"catalog_id":first_catalog,"metric_id":first_metric,"role":"source","slot_id":"node-a"},
+            {"catalog_id":second_catalog,"metric_id":second_metric,"role":"source","slot_id":"node-b"},
+            {"catalog_id":second_catalog,"metric_id":second_metric,"role":"source","slot_id":"node-a"}
+        ])
+    );
+    let id = page["local_id"]
+        .as_str()
+        .unwrap_or_else(|| panic!("page id"));
+    let (status, reopened) = app
+        .call("GET", &format!("/api/library/offline-pages/{id}"), None)
+        .await;
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(reopened, page);
+    let (status, dashboard) = app
+        .call(
+            "POST",
+            "/api/library/offline-dashboards",
+            Some(json!({"name":"Synthetic dashboard","page_ids":[id]})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::CREATED, "{dashboard}");
+    let dashboard_id = dashboard["local_id"]
+        .as_str()
+        .unwrap_or_else(|| panic!("dashboard id"));
+    let (status, embedded) = app
+        .call(
+            "GET",
+            &format!("/api/library/offline-dashboards/{dashboard_id}/pages/{id}"),
+            None,
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(embedded["widget_evaluation"], page["widget_evaluation"]);
+    assert_eq!(embedded["composition"], page["composition"]);
+    assert!(app.methods().is_empty());
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn offline_page_routes_use_saved_catalog_without_zabbix_calls() {
     let app = App::start(default_script()).await;
     let imported = inspect_template_file(
@@ -724,6 +964,8 @@ async fn offline_page_routes_use_saved_catalog_without_zabbix_calls() {
     }))).await;
     assert_eq!(status, StatusCode::CREATED, "{created}");
     assert_eq!(created["bundle"]["project"]["kind"], "page");
+    assert_eq!(created["widget_evaluation"]["profile"], "7.4");
+    assert_eq!(created["widget_evaluation"]["unrecognized"], json!([]));
     assert_eq!(created["composition"]["instance_count"], 3);
     assert_eq!(created["composition"]["instances"][1]["slot_id"], "node-b");
     assert_eq!(created["composition"]["instances"][2]["slot_id"], "node-a");
@@ -2416,6 +2658,7 @@ async fn portable_bindings_http_reads_selects_saves_and_reopens() {
             .iter()
             .any(|method| method == "dashboard.update" || method == "dashboard.create")
     );
+
     let (status, dashboard) = app
         .call(
             "POST",
@@ -2439,14 +2682,131 @@ async fn portable_bindings_http_reads_selects_saves_and_reopens() {
         .await;
     assert_eq!(status, StatusCode::OK, "{reopened}");
     assert!(!reopened.to_string().contains("30001"));
+
+    // An ordinary host-owned metric needs an explicit target review too;
+    // the candidate and the materialized ID must come from fresh server reads.
+    let mut bundle: zdashstitch_core::formats::TypedPortableBundle =
+        serde_json::from_value(reopened["dashboard"]["bundle"].clone())
+            .unwrap_or_else(|error| panic!("bundle: {error}"));
+    for catalog in bundle.catalogs.values_mut() {
+        for metric in &mut catalog.metrics {
+            metric.origin = zdashstitch_core::formats::MetricOrigin::HostItem;
+        }
+    }
+    let dashboard = zdashstitch_application::offline_dashboards::OfflineDashboardStore::new(
+        app.storage.path().to_path_buf(),
+    )
+    .save_imported(bundle)
+    .unwrap_or_else(|error| panic!("save: {error}"));
+    let local = dashboard.local_id;
+    let request = json!({"revision": dashboard.revision, "page_index": 0, "widget_index": 0,
+        "field_index": 0, "hostid": "40001"});
+    let (status, review) = app
+        .call(
+            "POST",
+            &format!("/api/drafts/{local}/portable-lld-review"),
+            Some(request.clone()),
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK, "{review}");
+    assert_eq!(review["candidates"][0]["itemid"], "30001");
+    let (status, confirmed) = app
+        .call(
+            "POST",
+            &format!("/api/drafts/{local}/portable-lld-confirm"),
+            Some(json!({"review":request, "itemid":"30001", "fingerprint":review["fingerprint"]})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK, "{confirmed}");
+    let service =
+        zdashstitch_application::workcopy::WorkcopyService::new(app.storage.path().to_path_buf());
+    let active = app
+        .connections
+        .service()
+        .unwrap_or_else(|| panic!("connection"));
+    let guard = active.lock().await;
+    let reader = guard.reader().unwrap_or_else(|| panic!("reader"));
+    let evidence = service
+        .verify_portable_lld_for_plan(reader, &local, dashboard.revision)
+        .await
+        .unwrap_or_else(|error| panic!("ordinary metric proof: {error}"));
+    let materialized = service
+        .materialize_portable_lld_dashboard(&evidence)
+        .unwrap_or_else(|error| panic!("ordinary metric materialization: {error}"));
+    assert_eq!(
+        materialized.as_document()["pages"][0]["widgets"][0]["fields"][0]["value"],
+        "30001"
+    );
+    app.script
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .list = json!({"metric_units_changed":true});
+    assert!(
+        service
+            .revalidate_portable_lld_for_plan(reader, &evidence)
+            .await
+            .is_err(),
+        "changed units must invalidate the proof"
+    );
+    drop(guard);
+    let mut bundle: zdashstitch_core::formats::TypedPortableBundle =
+        serde_json::from_value(reopened["dashboard"]["bundle"].clone())
+            .unwrap_or_else(|error| panic!("bundle: {error}"));
+    for catalog in bundle.catalogs.values_mut() {
+        catalog.source.template_uuid = Some("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa".into());
+        for metric in &mut catalog.metrics {
+            metric.origin = zdashstitch_core::formats::MetricOrigin::TemplateItem;
+            metric.uuid = Some("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb".into());
+        }
+    }
+    let dashboard = zdashstitch_application::offline_dashboards::OfflineDashboardStore::new(
+        app.storage.path().to_path_buf(),
+    )
+    .save_imported(bundle)
+    .unwrap_or_else(|error| panic!("save: {error}"));
+    let local = dashboard.local_id;
+    app.script
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .list = json!({"template_metric":true,"template_uuid":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"});
+    let request = json!({"revision":dashboard.revision,"page_index":0,"widget_index":0,"field_index":0,"hostid":"40001"});
+    let path = format!("/api/drafts/{local}/portable-lld-review");
+    let (status, review) = app.call("POST", &path, Some(request.clone())).await;
+    assert_eq!(status, StatusCode::OK, "{review}");
+    assert_eq!(review["candidates"][0]["itemid"], "30001");
+    let (status, confirmed) = app
+        .call(
+            "POST",
+            &format!("/api/drafts/{local}/portable-lld-confirm"),
+            Some(json!({"review":request,"itemid":"30001","fingerprint":review["fingerprint"]})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK, "{confirmed}");
+    let guard = active.lock().await;
+    let reader = guard.reader().unwrap_or_else(|| panic!("reader"));
+    let evidence = service
+        .verify_portable_lld_for_plan(reader, &local, dashboard.revision)
+        .await
+        .unwrap_or_else(|error| panic!("template metric proof: {error}"));
+    app.script
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .list["template_uuid"] = json!("cccccccccccccccccccccccccccccccc");
+    assert!(
+        service
+            .revalidate_portable_lld_for_plan(reader, &evidence)
+            .await
+            .is_err(),
+        "changed template identity must invalidate the proof"
+    );
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-async fn portable_dynamic_masks_require_explicit_roles_and_reopen_unverified() {
+async fn portable_dynamic_masks_persist_and_revalidate_confirmation() {
     let source = json!({"dashboardid":"604","name":"Source","userid":"3","private":"1","display_period":"30","auto_start":"1","users":[],"userGroups":[],"pages":[{"dashboard_pageid":"6040","name":"Page","display_period":"0","sortorder":"0","widgets":[{"widgetid":"60400","type":"svggraph","name":"CPU","x":"0","y":"0","width":"12","height":"4","view_mode":"0","fields":[{"type":"1","name":"ds.0.hosts.0","value":"db-*"},{"type":"1","name":"ds.0.items.0","value":"CPU*"}]}]}]});
     let app = App::start(Script {
         snapshots: VecDeque::from([json!([source])]),
-        list: json!([]),
+        list: json!({"pattern_global":true}),
         methods: Vec::new(),
     })
     .await;
@@ -2500,12 +2860,192 @@ async fn portable_dynamic_masks_require_explicit_roles_and_reopen_unverified() {
     let (status, preview) = app.call("POST", &review_path, Some(review.clone())).await;
     assert_eq!(status, StatusCode::OK, "{preview}");
     assert_eq!(preview["preview"]["match_count"], 0);
+    assert_eq!(preview["visible_matches"][0]["hostid"], "40002");
+    assert_eq!(preview["visible_matches"][0]["selected"], false);
+    let mut item_review = review.clone();
+    item_review["field_index"] = json!(1);
+    let (status, item_preview) = app.call("POST", &review_path, Some(item_review)).await;
+    assert_eq!(status, StatusCode::OK, "{item_preview}");
+    assert_eq!(item_preview["preview"]["match_count"], 1);
+    assert_eq!(
+        item_preview["visible_matches"].as_array().map(Vec::len),
+        Some(2)
+    );
+    assert_eq!(item_preview["visible_matches"][1]["selected"], false);
+    app.script
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .list = json!({"pattern_truncated":true});
+    assert_ne!(
+        app.call("POST", &review_path, Some(review.clone())).await.0,
+        StatusCode::OK
+    );
+    app.script
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .list = json!({"pattern_global":true});
     assert_eq!(preview["fingerprint"].as_str().map(str::len), Some(64));
+    let mut multi = review.clone();
+    multi["targets"]
+        .as_array_mut()
+        .unwrap_or_else(|| panic!("targets"))
+        .push(
+            json!({"slot_id":"second","host":{"hostid":"40002","host":"ignored","name":"ignored"}}),
+        );
+    let (status, multi_preview) = app.call("POST", &review_path, Some(multi.clone())).await;
+    assert_eq!(status, StatusCode::OK, "{multi_preview}");
+    assert_eq!(multi_preview["preview"]["match_count"], 1);
+    assert_eq!(
+        multi_preview["preview"]["checked_slots"]
+            .as_array()
+            .map(Vec::len),
+        Some(2)
+    );
+    multi["targets"][1]["slot_id"] = json!("first");
+    assert_ne!(
+        app.call("POST", &review_path, Some(multi)).await.0,
+        StatusCode::OK
+    );
+    let confirm_path = review_path.replace("portable-pattern-review", "portable-pattern-confirm");
+    let unacknowledged = json!({"review": review.clone(), "fingerprint": preview["fingerprint"]});
+    assert_eq!(
+        app.call("POST", &confirm_path, Some(unacknowledged))
+            .await
+            .0,
+        StatusCode::CONFLICT
+    );
+    let confirmation = json!({"review": review.clone(), "fingerprint": preview["fingerprint"], "acknowledge_visible_outside":true});
+    assert_eq!(
+        app.call("POST", &confirm_path, Some(confirmation.clone()))
+            .await
+            .0,
+        StatusCode::OK
+    );
+    let reopen_path = review_path.replace("portable-pattern-review", "portable-pattern-reopen");
+    let reopen = json!({"revision": review["revision"], "page_index": 0, "widget_index": 0, "field_index": 0});
+    let (status, reopened_review) = app.call("POST", &reopen_path, Some(reopen.clone())).await;
+    assert_eq!(status, StatusCode::OK, "{reopened_review}");
+    assert_eq!(reopened_review["fingerprint"], preview["fingerprint"]);
+    app.script
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .list = json!({"pattern_global":true,"pattern_host_changed": true});
+    assert_ne!(
+        app.call("POST", &reopen_path, Some(reopen.clone())).await.0,
+        StatusCode::OK
+    );
+    app.script
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .list = json!({"pattern_global":true});
+    let mut stale_reopen = reopen;
+    stale_reopen["revision"] = json!(999);
+    assert_ne!(
+        app.call("POST", &reopen_path, Some(stale_reopen)).await.0,
+        StatusCode::OK
+    );
+    let mut changed = confirmation;
+    changed["fingerprint"] = json!("different");
+    assert_eq!(
+        app.call("POST", &confirm_path, Some(changed)).await.0,
+        StatusCode::CONFLICT
+    );
     let mut stale = review;
     stale["revision"] = json!(999);
     assert_eq!(
         app.call("POST", &review_path, Some(stale)).await.0,
         StatusCode::CONFLICT
+    );
+    // A dashboard proof must bind every saved pattern to the same targets and
+    // invalidate when the target inventory changes after proof creation.
+    let mut bundle: zdashstitch_core::formats::TypedPortableBundle =
+        serde_json::from_value(reopened["page"]["bundle"].clone())
+            .unwrap_or_else(|error| panic!("bundle: {error}"));
+    let zdashstitch_core::formats::ProjectRoot::Page(page) = bundle.project.root.clone() else {
+        panic!("page")
+    };
+    bundle.project.kind = zdashstitch_core::formats::ProjectKind::Dashboard;
+    bundle.project.root =
+        zdashstitch_core::formats::ProjectRoot::Dashboard(zdashstitch_core::formats::Dashboard {
+            id: bundle.project.project_id.clone(),
+            name: "Synthetic".into(),
+            kind: zdashstitch_core::formats::DashboardKind::Global,
+            pages: vec![page],
+        });
+    let dashboard = zdashstitch_application::offline_dashboards::OfflineDashboardStore::new(
+        app.storage.path().to_path_buf(),
+    )
+    .save_imported(bundle)
+    .unwrap_or_else(|error| panic!("dashboard: {error}"));
+    let local = dashboard.local_id;
+    for index in 0..2 {
+        let request = json!({"revision":dashboard.revision,"page_index":0,"widget_index":0,"field_index":index,
+            "targets":[{"slot_id":"first","host":{"hostid":"40001","host":"ignored","name":"ignored"}}]});
+        let (status, preview) = app
+            .call(
+                "POST",
+                &format!("/api/drafts/{local}/portable-pattern-review"),
+                Some(request.clone()),
+            )
+            .await;
+        assert_eq!(status, StatusCode::OK, "{preview}");
+        let (status, confirmed) = app.call("POST", &format!("/api/drafts/{local}/portable-pattern-confirm"),
+            Some(json!({"review":request,"fingerprint":preview["fingerprint"],"acknowledge_visible_outside":true}))).await;
+        assert_eq!(status, StatusCode::OK, "{confirmed}");
+    }
+    let service =
+        zdashstitch_application::workcopy::WorkcopyService::new(app.storage.path().to_path_buf());
+    let active = app
+        .connections
+        .service()
+        .unwrap_or_else(|| panic!("connection"));
+    let guard = active.lock().await;
+    let reader = guard.reader().unwrap_or_else(|| panic!("reader"));
+    let proof = service
+        .verify_portable_lld_for_plan(reader, &local, dashboard.revision)
+        .await
+        .unwrap_or_else(|error| panic!("pattern proof: {error}"));
+    service
+        .revalidate_portable_lld_for_plan(reader, &proof)
+        .await
+        .unwrap_or_else(|error| panic!("recheck: {error}"));
+    app.script
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .list = json!({"pattern_global":true,"pattern_host_changed":true});
+    assert!(
+        service
+            .revalidate_portable_lld_for_plan(reader, &proof)
+            .await
+            .is_err(),
+        "changed matches invalidate the proof"
+    );
+    drop(guard);
+    app.script
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .list = json!({"pattern_global":true});
+    let request = json!({"revision":dashboard.revision,"page_index":0,"widget_index":0,"field_index":1,
+        "targets":[{"slot_id":"first","host":{"hostid":"40002","host":"ignored","name":"ignored"}}]});
+    let (status, preview) = app
+        .call(
+            "POST",
+            &format!("/api/drafts/{local}/portable-pattern-review"),
+            Some(request.clone()),
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK, "{preview}");
+    let (status, confirmed) = app.call("POST", &format!("/api/drafts/{local}/portable-pattern-confirm"),
+        Some(json!({"review":request,"fingerprint":preview["fingerprint"],"acknowledge_visible_outside":true}))).await;
+    assert_eq!(status, StatusCode::OK, "{confirmed}");
+    let guard = active.lock().await;
+    let reader = guard.reader().unwrap_or_else(|| panic!("reader"));
+    assert!(
+        service
+            .verify_portable_lld_for_plan(reader, &local, dashboard.revision)
+            .await
+            .is_err(),
+        "fields using one role must not disagree on targets"
     );
     assert!(
         !app.methods()
@@ -2519,11 +3059,11 @@ async fn portable_lld_prototype_http_preserves_selected_instance_key() {
     let source = json!({"dashboardid":"603","name":"Source","userid":"3","private":"1","display_period":"30","auto_start":"1","users":[],"userGroups":[],"pages":[{"dashboard_pageid":"6030","name":"Page","display_period":"0","sortorder":"0","widgets":[{"widgetid":"60300","type":"item","name":"Value","x":"0","y":"0","width":"12","height":"4","view_mode":"0","fields":[{"type":"4","name":"itemid.0","value":"30002"}]}]}]});
     let app = App::start(Script {
         snapshots: VecDeque::from([json!([source])]),
-        list: json!([]),
+        list: json!({"lld_fixture":true,"template_uuid":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}),
         methods: Vec::new(),
     })
     .await;
-    let imported = inspect_template_file("synthetic.json", br#"{"zabbix_export":{"version":"7.4","templates":[{"template":"LLD","discovery_rules":[{"name":"Discovery","key":"synthetic.discovery","item_prototypes":[{"name":"Value {#ID}","key":"synthetic.value[{#ID}]","value_type":"FLOAT"}]}]}]}}"#).unwrap_or_else(|| panic!("extension")).unwrap_or_else(|e| panic!("{e}"));
+    let imported = inspect_template_file("synthetic.json", br#"{"zabbix_export":{"version":"7.4","templates":[{"uuid":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","template":"LLD","discovery_rules":[{"name":"Discovery","key":"synthetic.discovery","item_prototypes":[{"uuid":"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","name":"Value {#ID}","key":"synthetic.value[{#ID}]","value_type":"FLOAT"}]}]}]}}"#).unwrap_or_else(|| panic!("extension")).unwrap_or_else(|e| panic!("{e}"));
     CatalogLibrary::new(app.storage.path().to_owned())
         .save(imported)
         .unwrap_or_else(|e| panic!("{e}"));
@@ -2532,7 +3072,7 @@ async fn portable_lld_prototype_http_preserves_selected_instance_key() {
         .call(
             "POST",
             &format!("/api/server/{connection}/dashboards/603/import"),
-            Some(json!({"scope":"page","dashboard_pageid":"6030"})),
+            Some(json!({"scope":"dashboard"})),
         )
         .await;
     assert_eq!(status, StatusCode::CREATED, "{imported}");
@@ -2556,14 +3096,495 @@ async fn portable_lld_prototype_http_preserves_selected_instance_key() {
         )
         .await;
     assert_eq!(status, StatusCode::OK, "{reopened}");
-    let bundle = &reopened["page"]["bundle"];
+    let bundle = &reopened["dashboard"]["bundle"];
     assert!(bundle.to_string().contains("synthetic.value[db-a]"));
     assert!(!bundle.to_string().contains("30002") && !bundle.to_string().contains("50001"));
+    assert_eq!(
+        bundle["project"]["root"]["pages"][0]["widgets"][0]["fields"][0]["value"]["kind"],
+        "lld_instance"
+    );
+    let target = saved["local_id"].as_str().unwrap_or_default();
+    let proof_service =
+        zdashstitch_application::workcopy::WorkcopyService::new(app.storage.path().to_path_buf());
+    let active = app
+        .connections
+        .service()
+        .unwrap_or_else(|| panic!("connections"));
+    let revision = reopened["dashboard"]["revision"]
+        .as_u64()
+        .unwrap_or_default();
+    {
+        let guard = active.lock().await;
+        let reader = guard.reader().unwrap_or_else(|| panic!("reader"));
+        assert!(
+            proof_service
+                .verify_portable_lld_for_plan(reader, target, revision)
+                .await
+                .is_err()
+        );
+    }
+    let request = json!({"revision":reopened["dashboard"]["revision"],"page_index":0,"widget_index":0,"field_index":0,"hostid":"40002"});
+    let (status, review) = app
+        .call(
+            "POST",
+            &format!("/api/drafts/{target}/portable-lld-review"),
+            Some(request.clone()),
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK, "{review}");
+    assert_eq!(review["candidates"][0]["itemid"], "30003");
+    let confirm = json!({"review":request,"itemid":"30003","fingerprint":review["fingerprint"]});
+    let path = format!("/api/drafts/{target}/portable-lld-confirm");
+    assert_eq!(
+        app.call("POST", &path, Some(confirm.clone())).await.0,
+        StatusCode::OK
+    );
+    let proof = {
+        let guard = active.lock().await;
+        let reader = guard.reader().unwrap_or_else(|| panic!("reader"));
+        let proof = proof_service
+            .verify_portable_lld_for_plan(reader, target, revision)
+            .await
+            .unwrap_or_else(|e| panic!("{e}"));
+        assert_eq!(proof.selection_count(), 1);
+        let materialized = proof_service
+            .materialize_portable_lld_dashboard(&proof)
+            .unwrap_or_else(|e| panic!("{e}"));
+        assert_eq!(materialized.page_count(), 1);
+        assert_eq!(
+            materialized.as_document()["pages"][0]["widgets"][0]["fields"][0]["value"],
+            "30003"
+        );
+        assert!(materialized.as_document().get("dashboardid").is_none());
+        let name = materialized.as_document()["name"]
+            .as_str()
+            .unwrap_or_default();
+        let requirements = zdashstitch_application::portable_create_requirements(
+            materialized.as_document(),
+            &reader.capabilities().version,
+            name,
+        )
+        .unwrap_or_else(|e| panic!("{e}"));
+        assert_eq!(requirements.page_count, 1);
+        assert_eq!(requirements.widget_count, 1);
+        let mut unknown = materialized.as_document().clone();
+        unknown["pages"][0]["widgets"][0]["type"] = json!("vendor.unknown");
+        assert!(
+            zdashstitch_application::portable_create_requirements(
+                &unknown,
+                &reader.capabilities().version,
+                name
+            )
+            .is_err()
+        );
+        proof_service
+            .revalidate_portable_lld_for_plan(reader, &proof)
+            .await
+            .unwrap_or_else(|e| panic!("{e}"));
+        proof
+    };
+    let draft_path = app
+        .storage
+        .path()
+        .join("drafts/offline-dashboards/dashboards.json");
+    let original_draft = std::fs::read(&draft_path).unwrap_or_else(|e| panic!("draft: {e}"));
+    let mut changed_draft: Value = serde_json::from_slice(&original_draft).unwrap_or_default();
+    changed_draft["dashboards"][0]["bundle"]["project"]["root"]["name"] =
+        json!("Changed without revision");
+    std::fs::write(
+        &draft_path,
+        serde_json::to_vec(&changed_draft).unwrap_or_default(),
+    )
+    .unwrap_or_else(|e| panic!("fixture write: {e}"));
+    assert!(
+        proof_service
+            .materialize_portable_lld_dashboard(&proof)
+            .is_err()
+    );
+    std::fs::write(&draft_path, original_draft).unwrap_or_else(|e| panic!("fixture restore: {e}"));
+    let reopen_path = format!("/api/drafts/{target}/portable-lld-reopen");
+    let reopen = json!({"revision":reopened["dashboard"]["revision"],"page_index":0,"widget_index":0,"field_index":0});
+    let (status, restored) = app.call("POST", &reopen_path, Some(reopen.clone())).await;
+    assert_eq!(status, StatusCode::OK, "{restored}");
+    assert_eq!(restored["itemid"], "30003");
+    let (status, portable_again) = app
+        .call("GET", &format!("/api/drafts/{target}"), None)
+        .await;
+    assert_eq!(status, StatusCode::OK);
+    let portable_text = portable_again["dashboard"]["bundle"].to_string();
+    assert!(!portable_text.contains("30003") && !portable_text.contains("40002"));
+    let binding_path = app.storage.path().join("bindings/portable-lld-v1.json");
+    let original = std::fs::read(&binding_path).unwrap_or_else(|e| panic!("binding: {e}"));
+    let mut changed_binding: Value =
+        serde_json::from_slice(&original).unwrap_or_else(|e| panic!("binding JSON: {e}"));
+    assert!(!String::from_utf8_lossy(&original).contains("synthetic.value"));
+    changed_binding["bindings"][0]["draft_fingerprint"] =
+        json!("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+    std::fs::write(
+        &binding_path,
+        serde_json::to_vec(&changed_binding).unwrap_or_default(),
+    )
+    .unwrap_or_else(|e| panic!("fixture write: {e}"));
+    assert_eq!(
+        app.call("POST", &reopen_path, Some(reopen.clone())).await.0,
+        StatusCode::CONFLICT
+    );
+    std::fs::write(&binding_path, original).unwrap_or_else(|e| panic!("fixture restore: {e}"));
+    let original = std::fs::read(&binding_path).unwrap_or_default();
+    std::fs::write(&binding_path, b"{invalid").unwrap_or_else(|e| panic!("fixture write: {e}"));
+    assert_eq!(
+        app.call("POST", &reopen_path, Some(reopen.clone())).await.0,
+        StatusCode::CONFLICT
+    );
+    std::fs::write(&binding_path, original).unwrap_or_else(|e| panic!("fixture restore: {e}"));
+    let original = std::fs::read(&binding_path).unwrap_or_default();
+    let mut other_server: Value = serde_json::from_slice(&original).unwrap_or_default();
+    other_server["bindings"][0]["server"] =
+        json!("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+    std::fs::write(
+        &binding_path,
+        serde_json::to_vec(&other_server).unwrap_or_default(),
+    )
+    .unwrap_or_else(|e| panic!("fixture write: {e}"));
+    assert_eq!(
+        app.call("POST", &reopen_path, Some(reopen.clone())).await.0,
+        StatusCode::CONFLICT
+    );
+    std::fs::write(&binding_path, original).unwrap_or_else(|e| panic!("fixture restore: {e}"));
+    let mut missing = reopen.clone();
+    missing["revision"] = json!(999);
+    assert_eq!(
+        app.call("POST", &reopen_path, Some(missing)).await.0,
+        StatusCode::CONFLICT
+    );
+    let mut bad = confirm.clone();
+    bad["itemid"] = json!("30001");
+    assert_eq!(
+        app.call("POST", &path, Some(bad)).await.0,
+        StatusCode::CONFLICT
+    );
+    let mut stale = confirm;
+    stale["review"]["revision"] = json!(999);
+    assert_eq!(
+        app.call("POST", &path, Some(stale)).await.0,
+        StatusCode::CONFLICT
+    );
+    app.script
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .list["template_uuid"] = json!("cccccccccccccccccccccccccccccccc");
+    {
+        let guard = active.lock().await;
+        let reader = guard.reader().unwrap_or_else(|| panic!("reader"));
+        assert!(
+            proof_service
+                .revalidate_portable_lld_for_plan(reader, &proof)
+                .await
+                .is_err()
+        );
+    }
+    assert_eq!(
+        app.call("POST", &reopen_path, Some(reopen)).await.0,
+        StatusCode::CONFLICT
+    );
+    let changed = json!({"review":request,"itemid":"30003","fingerprint":review["fingerprint"]});
+    assert_eq!(
+        app.call("POST", &path, Some(changed)).await.0,
+        StatusCode::CONFLICT
+    );
     assert!(
         !app.methods()
             .iter()
             .any(|method| method == "dashboard.update" || method == "dashboard.create")
     );
+    app.script
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .list["template_uuid"] = json!("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+
+    let mut guard = active.lock().await;
+    guard
+        .enable_writes(&connection, true)
+        .unwrap_or_else(|e| panic!("enable: {e}"));
+    let session = zdashstitch_application::LocalSession::new();
+    let journal = zdashstitch_application::PublishJournal::new(app.storage.path().to_path_buf());
+    let request = zdashstitch_application::PortableCreateRequest {
+        local_id: target.into(),
+        connection_id: connection.clone(),
+        revision,
+        target_name: "Synthetic new dashboard".into(),
+        create_another: false,
+        session: session.current(),
+    };
+    app.script
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .list["deny_create"] = json!(true);
+    assert!(
+        zdashstitch_application::plan_portable_dashboard(
+            &proof_service,
+            &journal,
+            &session,
+            &guard,
+            &request
+        )
+        .await
+        .is_err()
+    );
+    app.script
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .list["deny_create"] = json!(false);
+    let wrong_plan = zdashstitch_application::plan_portable_dashboard(
+        &proof_service,
+        &journal,
+        &session,
+        &guard,
+        &request,
+    )
+    .await
+    .unwrap_or_else(|e| panic!("plan: {e}"));
+    let wrong_id = wrong_plan.preview().plan_id;
+    let wrong_confirmed = wrong_plan
+        .confirm(&wrong_id)
+        .unwrap_or_else(|e| panic!("confirm: {e}"));
+    let wrong_stage = session
+        .begin_write(session.current())
+        .unwrap_or_else(|_| panic!("stage unavailable"));
+    let wrong_report = zdashstitch_application::publish_save_as_copy_plan(
+        &proof_service,
+        guard.writer().unwrap_or_else(|| panic!("writer")),
+        &journal,
+        wrong_confirmed,
+        &wrong_stage,
+    )
+    .await;
+    assert!(!wrong_report.sent());
+    drop(wrong_stage);
+    let permission_plan = zdashstitch_application::plan_portable_dashboard(
+        &proof_service,
+        &journal,
+        &session,
+        &guard,
+        &request,
+    )
+    .await
+    .unwrap_or_else(|e| panic!("plan: {e}"));
+    let permission_id = permission_plan.preview().plan_id;
+    let permission_confirmed = permission_plan
+        .confirm(&permission_id)
+        .unwrap_or_else(|e| panic!("confirm: {e}"));
+    app.script
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .list["deny_create"] = json!(true);
+    let permission_stage = session
+        .begin_write(session.current())
+        .unwrap_or_else(|_| panic!("stage unavailable"));
+    let permission_report = zdashstitch_application::publish_portable_dashboard_plan(
+        &proof_service,
+        guard.writer().unwrap_or_else(|| panic!("writer")),
+        &journal,
+        permission_confirmed,
+        &permission_stage,
+    )
+    .await;
+    assert!(!permission_report.sent());
+    assert!(format!("{:?}", permission_report.outcome).contains("CreatePermissionUnverified"));
+    assert!(permission_report.journal_error.is_none());
+    drop(permission_stage);
+    app.script
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .list["deny_create"] = json!(false);
+    let plan = zdashstitch_application::plan_portable_dashboard(
+        &proof_service,
+        &journal,
+        &session,
+        &guard,
+        &request,
+    )
+    .await
+    .unwrap_or_else(|e| panic!("plan: {e}"));
+    let plan_id = plan.preview().plan_id;
+    let confirmed = plan
+        .confirm(&plan_id)
+        .unwrap_or_else(|e| panic!("confirm: {e}"));
+    app.script
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .list["template_uuid"] = json!("cccccccccccccccccccccccccccccccc");
+    let stage = session
+        .begin_write(session.current())
+        .unwrap_or_else(|_| panic!("stage unavailable"));
+    let report = zdashstitch_application::publish_portable_dashboard_plan(
+        &proof_service,
+        guard.writer().unwrap_or_else(|| panic!("writer")),
+        &journal,
+        confirmed,
+        &stage,
+    )
+    .await;
+    assert!(!report.sent(), "changed prototype must prevent the write");
+    assert!(
+        report.journal_error.is_none(),
+        "journal must admit the plan: {report:?}"
+    );
+    assert_eq!(
+        report.outcome.as_ref().map(|outcome| outcome.as_str()),
+        Some("failed_before_send")
+    );
+    assert!(format!("{:?}", report.outcome).contains("BindingsChanged"));
+    assert!(
+        !app.methods()
+            .iter()
+            .any(|method| method == "dashboard.create")
+    );
+    drop(stage);
+    app.script
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .list["template_uuid"] = json!("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+    app.script
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .list["verified_create"] = json!(true);
+    let verified_request = zdashstitch_application::PortableCreateRequest {
+        local_id: target.into(),
+        connection_id: connection.clone(),
+        revision,
+        target_name: "Synthetic verified dashboard".into(),
+        create_another: false,
+        session: session.current(),
+    };
+    let verified_plan = zdashstitch_application::plan_portable_dashboard(
+        &proof_service,
+        &journal,
+        &session,
+        &guard,
+        &verified_request,
+    )
+    .await
+    .unwrap_or_else(|e| panic!("verified plan: {e}"));
+    let verified_id = verified_plan.preview().plan_id;
+    let verified_confirmed = verified_plan
+        .confirm(&verified_id)
+        .unwrap_or_else(|e| panic!("confirm: {e}"));
+    let verified_stage = session
+        .begin_write(session.current())
+        .unwrap_or_else(|_| panic!("stage unavailable"));
+    let verified_report = zdashstitch_application::publish_portable_dashboard_plan(
+        &proof_service,
+        guard.writer().unwrap_or_else(|| panic!("writer")),
+        &journal,
+        verified_confirmed,
+        &verified_stage,
+    )
+    .await;
+    assert_eq!(
+        verified_report.journal_state,
+        Some(zdashstitch_application::JournalState::Verified),
+        "{verified_report:?}"
+    );
+    assert!(verified_report.record_error.is_none());
+    drop(verified_stage);
+    drop(guard);
+    let plan_path = format!("/api/drafts/{target}/portable-publication/plan");
+    let confirm_path = format!("/api/drafts/{target}/publication/confirm");
+    let (status, planned) = app.call("POST", &plan_path, Some(json!({
+        "connection_id": connection, "revision": revision, "name": "Synthetic stale dashboard"
+    }))).await;
+    assert_eq!(status, StatusCode::OK, "{planned}");
+    app.script
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .list["template_uuid"] = json!("cccccccccccccccccccccccccccccccc");
+    let (status, stale) = app
+        .call(
+            "POST",
+            &confirm_path,
+            Some(json!({
+                "handle": planned["handle"], "plan_id": planned["plan"]["plan_id"],
+                "confirmed": true, "name": "Synthetic stale dashboard"
+            })),
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK, "{stale}");
+    assert_eq!(stale["state"], "failed_before_send", "{stale}");
+    assert_eq!(
+        app.methods()
+            .iter()
+            .filter(|method| *method == "dashboard.create")
+            .count(),
+        1
+    );
+    app.script
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .list["template_uuid"] = json!("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+    let (status, planned) = app.call("POST", &plan_path, Some(json!({
+        "connection_id": connection, "revision": revision, "name": "Synthetic HTTP dashboard"
+    }))).await;
+    assert_eq!(status, StatusCode::OK, "{planned}");
+    assert_eq!(planned["plan"]["action"], "create_dashboard");
+    let confirmation = json!({"handle": planned["handle"], "plan_id": planned["plan"]["plan_id"],
+        "confirmed": true, "name": "Synthetic HTTP dashboard"});
+    let (status, result) = app
+        .call("POST", &confirm_path, Some(confirmation.clone()))
+        .await;
+    assert_eq!(status, StatusCode::OK, "{result}");
+    assert_eq!(result["state"], "verified", "{result}");
+    let (status, _) = app.call("POST", &confirm_path, Some(confirmation)).await;
+    assert_eq!(status, StatusCode::NOT_FOUND, "plan must be one-shot");
+    let guard = active.lock().await;
+    app.script
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .list["verified_create"] = json!(false);
+    let plan = zdashstitch_application::plan_portable_dashboard(
+        &proof_service,
+        &journal,
+        &session,
+        &guard,
+        &request,
+    )
+    .await
+    .unwrap_or_else(|e| panic!("second plan: {e}"));
+    let plan_id = plan.preview().plan_id;
+    let confirmed = plan
+        .confirm(&plan_id)
+        .unwrap_or_else(|e| panic!("confirm: {e}"));
+    let stage = session
+        .begin_write(session.current())
+        .unwrap_or_else(|_| panic!("stage unavailable"));
+    let report = zdashstitch_application::publish_portable_dashboard_plan(
+        &proof_service,
+        guard.writer().unwrap_or_else(|| panic!("writer")),
+        &journal,
+        confirmed,
+        &stage,
+    )
+    .await;
+    assert!(
+        report.sent(),
+        "one create should be dispatched to the mock: {report:?}"
+    );
+    assert_eq!(
+        app.methods()
+            .iter()
+            .filter(|method| *method == "dashboard.create")
+            .count(),
+        3
+    );
+    assert_eq!(
+        report.journal_state,
+        Some(zdashstitch_application::JournalState::UnknownOutcome)
+    );
+    assert!(journal.entry(&report.plan_id).is_ok());
+    assert!(app.methods().iter().all(|method| {
+        !(method.ends_with(".create") || method.ends_with(".update") || method.ends_with(".delete"))
+            || method == "dashboard.create"
+    }));
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]

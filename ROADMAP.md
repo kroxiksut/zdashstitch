@@ -6,7 +6,7 @@
 
 ## Baseline: MVP 0.1.0
 
-The baseline is a local Rust/Axum/Svelte GUI for global dashboards on **Zabbix 7.4 only**. It must prove offline creation of a typed dashboard project or page project, portable YAML/data-only ZIP, Create/Append/Clone/ReplaceHost operations, explicit preview and a closed verified publisher. The existing multi-dashboard `project/v1` remains a legacy container until P0-08 implements the format decided in O-026. See the [README](README.md#planned-mvp-010) for scope, exclusions and quality gates.
+The baseline is a local Rust/Axum/Svelte GUI prioritizing global dashboards on **Zabbix 8.0**; existing 7.4 work is preserved without claiming complete support. It must prove offline creation of a typed dashboard project or page project, portable YAML/data-only ZIP, Create/Append/Clone/ReplaceHost operations, explicit preview and a closed verified publisher. The existing multi-dashboard `project/v1` remains a legacy container until P0-08 implements the format decided in O-026. See the [README](README.md#planned-mvp-010) for scope, exclusions and quality gates.
 
 ## How priorities are chosen
 
@@ -34,11 +34,11 @@ There are no fixed version numbers or dates for the directions below. Order is c
 
 ## F-02 — additional Zabbix generations
 
-- Candidate order from current needs: 7.0 LTS, 6.0 LTS, 8.0, then a separate feasibility assessment for 5.4/5.0.
+- Candidates beyond the 8.0 priority and retained 7.4 work: 7.0 LTS, 6.0 LTS, then a separate feasibility assessment for 5.4/5.0.
 - Each generation gets its own API adapter, export parser profile, capability matrix, fixtures and contract tests.
 - Reintroduce macOS CI, packaging and real-Mac acceptance during this multi-version compatibility stage; macOS is not built or supported by the MVP.
 - `core`, portable projects and the UI remain version-neutral; unsupported behavior fails closed.
-- A widget compatibility matrix from the official Zabbix documentation: widget type and its fields → the versions where they exist and change. It refines the compatibility label of a dashboard or page (O-029). In the MVP the label is computed for 7.4 only, but the version-range model and the widget capability registry are built in from the start.
+- A widget compatibility matrix from the official Zabbix documentation: widget type and its fields → the versions where they exist and change. It refines the compatibility label of a dashboard or page (O-029). Existing 7.4 behavior is retained; 8.0 needs a separately verified registry and label.
 
 **Acceptance signal:** the same portable project produces a verified result or an explicit compatibility refusal, never silent feature loss.
 

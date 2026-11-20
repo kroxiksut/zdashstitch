@@ -44,6 +44,8 @@ fn hex(digit: char) -> String {
 
 fn record(dashboardid: &str) -> OperationRecord {
     OperationRecord {
+        planned_deployment: None,
+        portable_update: None,
         kind: OperationKind::Update,
         intent: "replace_host",
         connection_id: CONNECTION.to_owned(),
@@ -68,6 +70,8 @@ fn record(dashboardid: &str) -> OperationRecord {
 
 fn create_record(name: &str, local_id: Option<&str>) -> OperationRecord {
     OperationRecord {
+        planned_deployment: None,
+        portable_update: None,
         kind: OperationKind::Create,
         intent: "save_as_copy",
         target: JournalTarget::NewDashboard {
@@ -80,6 +84,162 @@ fn create_record(name: &str, local_id: Option<&str>) -> OperationRecord {
         owner_userid: Some("3".to_owned()),
         ..record("1")
     }
+}
+
+#[test]
+fn offline_dashboard_source_is_accepted_only_for_portable_create() {
+    let (_dir, journal) = setup();
+    let id = "db-00112233445566778899aabbccddeeff";
+    let mut portable = create_record("Portable", Some(id));
+    portable.intent = "create_dashboard";
+    let handle = journal
+        .begin(&operation_id(), &portable)
+        .unwrap_or_else(|e| panic!("{e}"));
+    drop(handle);
+    let (_other_dir, other_journal) = setup();
+    let wrong = create_record("Wrong", Some(id));
+    assert!(other_journal.begin(&operation_id(), &wrong).is_err());
+    let mut update = record("999");
+    update
+        .source
+        .as_mut()
+        .unwrap_or_else(|| panic!("source"))
+        .local_id = id.into();
+    update.intent = "create_dashboard";
+    assert!(other_journal.begin(&operation_id(), &update).is_err());
+}
+
+#[test]
+fn large_portable_manifest_is_durable_before_a_send_and_survives_replay() {
+    use crate::portable_deployment::{PlannedDeployment, PlannedPage, PlannedWidget};
+    let (directory, journal) = setup();
+    let root = "db-00112233445566778899aabbccddeeff";
+    let pages: Vec<_> = (0..4)
+        .map(|page| PlannedPage {
+            page_id: format!("page-{page}"),
+            widgets: (0..256)
+                .map(|widget| PlannedWidget {
+                    widget_id: format!("widget-{widget:057}"),
+                    geometry: [(widget % 18) * 4, (widget / 18) * 4, 4, 4],
+                })
+                .collect(),
+        })
+        .collect();
+    let planned = PlannedDeployment {
+        root_id: root.into(),
+        page_id: pages[0].page_id.clone(),
+        widget_id: pages[0].widgets[0].widget_id.clone(),
+        create_another: false,
+        pages,
+    };
+    let portable = OperationRecord {
+        intent: "create_dashboard",
+        server_version: "8.0.0".into(),
+        planned_deployment: Some(planned.clone()),
+        ..create_record("Large private dashboard", Some(root))
+    };
+    let id = operation_id();
+    let mut write = journal
+        .begin(&id, &portable)
+        .unwrap_or_else(|error| panic!("large manifest: {error}"));
+    let length = std::fs::metadata(journal_file(directory.path(), &id))
+        .unwrap_or_else(|error| panic!("confirmed file: {error}"))
+        .len();
+    assert!(length > record::MAX_JOURNAL_FILE_BYTES as u64);
+    assert!(write.admit_send());
+    write
+        .finish_with(Finish::state(JournalState::UnknownOutcome))
+        .unwrap_or_else(|error| panic!("unknown record: {error}"));
+    let reopened = PublishJournal::new(directory.path().to_path_buf());
+    let replay = reopened
+        .entry(&id)
+        .unwrap_or_else(|error| panic!("replay: {error}"));
+    assert_eq!(replay.state, JournalState::UnknownOutcome);
+    assert_eq!(replay.sends, 1);
+    assert_eq!(replay.planned_deployment, Some(planned));
+}
+
+#[test]
+fn portable_create_blocks_parallel_and_finished_creates_of_the_same_draft() {
+    let (dir, journal) = setup();
+    let root = "db-00112233445566778899aabbccddeeff";
+    let first = operation_id();
+    let portable = |name| OperationRecord {
+        intent: "create_dashboard",
+        server_version: "8.0.0".into(),
+        planned_deployment: Some(crate::portable_deployment::PlannedDeployment {
+            root_id: root.into(),
+            page_id: "page".into(),
+            widget_id: "widget".into(),
+            create_another: false,
+            pages: Vec::new(),
+        }),
+        ..create_record(name, Some(root))
+    };
+    let mut sending = journal
+        .begin(&first, &portable("First"))
+        .unwrap_or_else(|error| panic!("first plan: {error}"));
+    assert!(sending.admit_send());
+    let mut second = portable("Different name");
+    // A second profile pointing at the same endpoint cannot escape the check.
+    second.connection_id = "conn-00000000000000000000000000000000".into();
+    assert_eq!(
+        journal
+            .begin(&operation_id(), &second)
+            .err()
+            .map(|error| error.code()),
+        Some("target_blocked")
+    );
+    sending
+        .finish_with(Finish {
+            observed_fingerprint: Some(hex('d')),
+            created_dashboardid: Some("99".into()),
+            ..Finish::state(JournalState::Verified)
+        })
+        .unwrap_or_else(|error| panic!("finish first: {error}"));
+    assert_eq!(
+        journal
+            .begin(&operation_id(), &second)
+            .err()
+            .map(|error| error.code()),
+        Some("portable_already_deployed")
+    );
+    let future = crate::workcopy::now_ms() + 91 * DAY;
+    assert!(prune(&journal, future).removed.is_empty());
+    assert!(journal.entry(&first).is_ok());
+    let raw = json!({"dashboardid":"99","name":"First","pages":[
+        {"dashboard_pageid":"98","widgets":[{"widgetid":"97"}]}
+    ]});
+    let snapshot = VersionedDashboardSnapshot::from_adapter_raw(
+        CONNECTION.into(),
+        "8.0.0".parse().unwrap_or_else(|_| panic!("version")),
+        raw.clone(),
+    )
+    .unwrap_or_else(|_| panic!("confirmed snapshot"));
+    let stored = json!([{
+        "endpoint_fingerprint":hex('a'),"raw_snapshot":raw,"state":{
+            "format":"zdashstitch.deployment-state/v2","storage_scope":"local_only",
+            "project_id":root,"root_id":root,"source_revision":1,"connection_id":CONNECTION,
+            "deployment_id":first,"adapter_id":"zabbix-8.0","target_server_version":"8.0.0",
+            "server_identity_fingerprint":hex('b'),"status":"verified",
+            "last_verified_at":"2026-11-20T05:00:00Z","last_operation_id":first,"dashboard_name":"First",
+            "dashboard":{"logical_id":root,"dashboardid":"99","fingerprint":snapshot.fingerprint(),
+                "pages":[{"logical_id":"page","dashboard_pageid":"98","widgets":[{"logical_id":"widget","widgetid":"97"}]}]}
+        }
+    }]);
+    let path = dir.path().join("deployments");
+    std::fs::create_dir(&path).unwrap_or_else(|_| panic!("fixture directory"));
+    std::fs::write(path.join("typed-v2.json"), stored.to_string())
+        .unwrap_or_else(|_| panic!("fixture deployment"));
+    assert_eq!(prune(&journal, future).removed, [first]);
+    assert_eq!(
+        code(journal.begin(&operation_id(), &second)),
+        Some("portable_already_deployed")
+    );
+    if let Some(mapping) = &mut second.planned_deployment {
+        mapping.create_another = true;
+    }
+    assert!(journal.begin(&operation_id(), &second).is_ok());
 }
 
 fn setup() -> (tempfile::TempDir, PublishJournal) {
@@ -801,6 +961,28 @@ fn update_reconciliation_decides_only_on_an_exact_fingerprint() {
     assert_eq!(
         UpdateEvidence::OtherFound.state(),
         JournalState::ManualCheckRequired
+    );
+}
+
+#[test]
+fn an_eight_zero_fingerprint_cannot_confirm_a_journal_update() {
+    let (_dir, journal) = setup();
+    let expected = VersionedDashboardSnapshot::from_adapter_raw(
+        CONNECTION.to_owned(),
+        "8.0.2"
+            .parse()
+            .unwrap_or_else(|error| panic!("version: {error}")),
+        dashboard("202"),
+    )
+    .unwrap_or_else(|error| panic!("snapshot: {error}"));
+    let mut operation = record("7");
+    operation.server_version = expected.server_version().to_string();
+    operation.expected_fingerprint = expected.fingerprint().to_owned();
+    let id = operation_id();
+    drop(begin(&journal, &id, &operation));
+    assert_eq!(
+        decide_update_reconciliation(&entry(&journal, &id), Some(&expected)),
+        UpdateEvidence::OtherFound
     );
 }
 

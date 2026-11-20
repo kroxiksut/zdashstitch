@@ -1,9 +1,9 @@
 {
-  "template_import.source_steps": {"message":"To get a file, open Zabbix 7.4 → Data collection → Templates, select the templates and click Export. Save the YAML, JSON or XML file, then choose it here.","placeholders":{}},
+  "template_import.source_steps": {"message":"In Zabbix, open Data collection → Templates, select the templates and click Export. Save the YAML, JSON or XML file, then choose it here.","placeholders":{}},
   "template_import.server_future": {"message":"Importing templates directly from a connected Zabbix server will be available in a later step.","placeholders":{}},
   "template_import.selected": {"message":"Selected files: {count}","placeholders":{"count":"number"}},
   "template_import.catalog_use_later": {"message":"Use saved catalogs to build a local page in Drafts. Select catalog versions and metrics there; the page keeps its selected copies.","placeholders":{}},
-  "template_import.help": {"message":"Choose Zabbix 7.4 template exports in YAML, JSON or XML. Review the result before saving catalogs on this computer.","placeholders":{}},
+  "template_import.help": {"message":"Choose Zabbix 7.4 or 8.0 template exports in YAML, JSON or XML. Review the result before saving catalogs locally.","placeholders":{}},
   "template_import.choose": {"message":"Upload through the browser","placeholders":{}},
   "template_import.inspect": {"message":"Inspect files","placeholders":{}},
   "template_import.save": {"message":"Save catalogs to the library","placeholders":{}},

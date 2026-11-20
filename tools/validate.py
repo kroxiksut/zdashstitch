@@ -171,7 +171,14 @@ def catalog_normalized_source(entry):
 
 
 def validate_catalog(entry):
-    assert_valid(entry, schema('metrics-v1.schema.json'))
+    fmt = entry.get('format') if isinstance(entry, dict) else None
+    if fmt == 'zdashstitch.metrics/v1':
+        name = 'metrics-v1.schema.json'
+    elif fmt == 'zdashstitch.metrics/v2':
+        name = 'metrics-v2.schema.json'
+    else:
+        raise ValueError(f'Unsupported metric catalog format: {fmt!r}')
+    assert_valid(entry, schema(name))
     ids = [m['id'] for m in entry['metrics']]
     if len(ids) != len(set(ids)):
         raise ValueError('Duplicate metric id')
@@ -240,12 +247,15 @@ def validate_zabbix_field_shape(field):
         or (kind == 'dynamic_pattern' and field_type == 1)
         or (kind == 'host' and field_type in {2, 3})
         or (kind == 'metric' and field_type in {4, 5})
+        or (kind == 'lld_instance' and field_type == 4)
         or (kind == 'unresolved' and field_type > 13 and value.get('object_kind') == 'unknown')
     ):
         raise ProjectValidationError(
             'widget_field_value_kind', 'widget field value kind does not match field type'
         )
     text = value.get('value')
+    if kind == 'lld_instance' and isinstance(value.get('source_key'), str) and (not 1 <= len(value['source_key']) <= 2048 or any(unicodedata.category(char) == 'Cc' for char in value['source_key'])):
+        raise ProjectValidationError('widget_lld_source_key', 'invalid LLD source key')
     if kind == 'dynamic_pattern' and isinstance(text, str) and (not 1 <= len(text) <= 255 or any(unicodedata.category(char) == 'Cc' for char in text)):
         raise ProjectValidationError('widget_pattern', 'widget pattern must be 1..255 characters without controls')
     if kind == 'string' and isinstance(text, str) and len(text) > 16384:
@@ -415,7 +425,7 @@ def validate_content(project, catalogs):
                         elif kind == 'host':
                             validate_portable_host(value, project['roles'])
                             validate_single_reference(value, project['roles'])
-                        elif kind == 'metric':
+                        elif kind in {'metric', 'lld_instance'}:
                             validate_portable_host(value['hosts'], project['roles'])
                             validate_single_reference(value['hosts'], project['roles'])
                             if (
@@ -424,10 +434,17 @@ def validate_content(project, catalogs):
                             ):
                                 raise ProjectValidationError('unknown_metric', 'unknown metric')
                             metric = catalog_data[value['catalog']][value['metric']]
+                            if kind == 'lld_instance' and metric['origin'] != 'lld_prototype':
+                                raise ProjectValidationError('widget_lld_prototype', 'LLD reference requires a prototype')
                             if field['field_type'] == 4 and metric['value_type'] == 'binary':
                                 raise ProjectValidationError(
                                     'binary_item_value',
                                     'binary metrics are unsupported in item fields',
+                                )
+                            if field['field_type'] == 4 and metric['value_type'] == 'json':
+                                raise ProjectValidationError(
+                                    'json_item_value',
+                                    'JSON metrics are unsupported in item fields',
                                 )
                     references = []
                 else:
@@ -455,6 +472,8 @@ def validate_content(project, catalogs):
                         raise ValueError('Nonnumeric graph series')
                     if w['type'] == 'item_value' and m['value_type'] == 'binary':
                         raise ValueError('Binary item_value unsupported by MVP')
+                    if w['type'] == 'item_value' and m['value_type'] == 'json':
+                        raise ValueError('JSON item_value unsupported')
                 if w['type'] == 'item_value':
                     if w['expansion'] == 'single' and w['hosts']['selection'] == 'all':
                         # Singleton cardinality is statically known, otherwise runtime check required.
@@ -571,6 +590,8 @@ def validate_local_bindings(data, project=None, catalogs=None):
 
 
 def validate_deployment_state(data, project=None, bindings=None):
+    if isinstance(data, dict) and data.get('format') == 'zdashstitch.deployment-state/v2':
+        return validate_typed_deployment_state(data, project)
     assert_valid(data, schema('deployment-state-v1.schema.json'))
     if project is not None and data['project_id'] != project['project_id']:
         raise ValueError('Deployment/project identity mismatch')
@@ -617,6 +638,37 @@ def validate_deployment_state(data, project=None, bindings=None):
                     known = {e['slot_id'] for role in bindings['roles'].values() for e in role}
                     if w['slot_id'] not in known:
                         raise ValueError('Deployment references unknown slot')
+    return data
+
+
+def validate_typed_deployment_state(data, project=None):
+    assert_valid(data, schema('deployment-state-v2.schema.json'))
+    dashboard = data['dashboard']
+    if dashboard['logical_id'] != data['root_id']:
+        raise ValueError('Deployment root identity mismatch')
+    if project is not None and (project.get('kind') != 'dashboard'
+            or project['project_id'] != data['project_id'] or project['root']['id'] != data['root_id']):
+        raise ValueError('Deployment/project identity mismatch')
+    pages = {page['id']: page for page in project['root']['pages']} if project else {}
+    page_ids, page_zabbix_ids, widget_zabbix_ids = set(), set(), set()
+    for page in dashboard['pages']:
+        logical = page['logical_id']
+        if logical in page_ids or page['dashboard_pageid'] in page_zabbix_ids:
+            raise ValueError('Duplicate deployment page identity')
+        page_ids.add(logical)
+        page_zabbix_ids.add(page['dashboard_pageid'])
+        if project is not None and logical not in pages:
+            raise ValueError('Unknown deployment page')
+        allowed = {widget['id'] for widget in pages[logical]['widgets']} if project else set()
+        identities = set()
+        for widget in page['widgets']:
+            key = widget['logical_id'], widget.get('slot_id')
+            if key in identities or widget['widgetid'] in widget_zabbix_ids:
+                raise ValueError('Duplicate deployed widget identity')
+            identities.add(key)
+            widget_zabbix_ids.add(widget['widgetid'])
+            if project is not None and widget['logical_id'] not in allowed:
+                raise ValueError('Unknown deployment widget')
     return data
 
 

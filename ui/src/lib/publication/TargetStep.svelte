@@ -9,20 +9,21 @@
   // Step 1 «Назначение» for ReplaceHost (P1-08E/I, mockup 11-02): the action is chosen explicitly
   // (no default), the copy needs a name, «Не изменяется» lists what stays, and owner/sharing are
   // not written (P5-08 contract pending: a copy is private, an update does not send them).
-  let { i18n, store, preview, draft, onnext }: {
+  let { i18n, store, preview, draft, onnext, separateCopy = false }: {
     i18n: I18n;
     store: PublicationStore;
     preview: ReplaceHostPreview;
     draft: DraftDetail;
     onnext: () => void;
+    separateCopy?: boolean;
   } = $props();
 
   const dashboardName = $derived(draft.source?.dashboard_name ?? draft.name);
   const sourceHost = $derived(preview.operation.source_host.name);
   const untouched = $derived(preview.diff.summary.widgets.total - preview.diff.summary.widgets.changed);
-  const getAction = (): string | undefined => store.action ?? undefined;
+  const getAction = (): string | undefined => separateCopy && store.action === 'save_as_copy' ? undefined : store.action ?? undefined;
   const setAction = (value: string | undefined): void => {
-    if (value === 'update_source' || value === 'save_as_copy') store.setAction(value as PublicationAction);
+    if (value === 'update_source' || (value === 'save_as_copy' && !separateCopy)) store.setAction(value as PublicationAction);
     // A suggestion the user can change; the server makes the final uniqueness check.
     if (value === 'save_as_copy' && store.copyName.trim() === '') store.copyName = i18n.t('drafts.copy_name', { name: dashboardName, number: 2 });
   };
@@ -39,7 +40,7 @@
       legend={{ id: 'publication.target.title' }}
       bind:value={getAction, setAction}
       options={[
-        { value: 'save_as_copy', label: { id: 'publication.target.save_copy' }, description: { id: 'publication.target.save_copy_hint' } },
+        ...(separateCopy ? [] : [{ value: 'save_as_copy', label: { id: 'publication.target.save_copy' as const }, description: { id: 'publication.target.save_copy_hint' as const } }]),
         {
           value: 'update_source',
           label: { id: 'publication.target.update_source', params: { dashboard_name: dashboardName } },
@@ -50,7 +51,7 @@
     {#if store.action === 'update_source'}
       <p class="note"><Icon name="alert-triangle" />{i18n.t('publication.target.update_visible_to_all')}</p>
     {/if}
-    {#if store.action === 'save_as_copy'}
+    {#if !separateCopy && store.action === 'save_as_copy'}
       <TextField
         {i18n}
         id="publication-copy-name"
@@ -84,6 +85,6 @@
   </section>
 
   <div class="actions">
-    <Button {i18n} variant="primary" label={{ id: 'publication.action.next_checks' }} disabled={store.action === null || nameMissing} onclick={onnext} />
+    <Button {i18n} variant="primary" label={{ id: 'publication.action.next_checks' }} disabled={getAction() === undefined || nameMissing} onclick={onnext} />
   </div>
 </div>

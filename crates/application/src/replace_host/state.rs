@@ -432,13 +432,24 @@ fn apply_freshness(
                 mark(row, RowCheck::Stale, CheckReason::ResolutionChanged);
             }
             if row.decision_state == DecisionState::Applied
-                && let Some(itemid) = row.decision.as_ref().and_then(RowDecision::itemid)
-                && !fresh_binding
+                && let Some(decision) = row.decision.as_ref()
+                && let Some(itemid) = decision.itemid()
+            {
+                match fresh_binding
                     .candidates
                     .iter()
-                    .any(|candidate| candidate.itemid == itemid)
-            {
-                mark(row, RowCheck::Invalid, CheckReason::CandidateNotVisible);
+                    .find(|candidate| candidate.itemid == itemid)
+                {
+                    None => mark(row, RowCheck::Invalid, CheckReason::CandidateNotVisible),
+                    Some(current)
+                        if matches!(decision, RowDecision::ChooseLldInstance { .. })
+                            && calculation.server_version.starts_with("8.0.")
+                            && row.target_item.as_ref() != Some(current) =>
+                    {
+                        mark(row, RowCheck::Stale, CheckReason::ResolutionChanged);
+                    }
+                    Some(_) => {}
+                }
             }
         }
     }

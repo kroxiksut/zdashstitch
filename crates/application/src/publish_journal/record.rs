@@ -26,6 +26,8 @@ pub(crate) const LOCAL_ONLY: &str = "local_only";
 
 /// Upper bound of one journal file; a normal operation has 3–6 short lines.
 pub(crate) const MAX_JOURNAL_FILE_BYTES: usize = 64 * 1024;
+/// Portable Graph manifests carry logical IDs needed for durable recovery.
+pub(crate) const MAX_PORTABLE_JOURNAL_FILE_BYTES: usize = 2 * 1024 * 1024;
 /// Upper bound of transitions in one file.
 pub(crate) const MAX_JOURNAL_LINES: usize = 64;
 const MAX_NAME_CHARS: usize = 255;
@@ -99,6 +101,10 @@ pub(crate) struct OperationFile {
     pub target: TargetFile,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub source: Option<SourceFile>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub planned_deployment: Option<crate::portable_deployment::PlannedDeployment>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub portable_update: Option<crate::portable_update::PortableUpdateRecord>,
     pub source_fingerprint: String,
     pub expected_fingerprint: String,
     /// Create only (required there, absent on an update): `userid` of the
@@ -168,10 +174,28 @@ impl LineFile {
     pub(crate) fn to_bytes(&self) -> Result<Vec<u8>, JournalError> {
         let mut raw = serde_json::to_vec(self).map_err(|_| JournalError::new("journal_corrupt"))?;
         raw.push(b'\n');
-        if raw.len() > MAX_JOURNAL_FILE_BYTES {
+        if raw.len() > MAX_JOURNAL_FILE_BYTES && raw.len() > self.file_limit() {
             return Err(JournalError::new("journal_corrupt").with("reason", "line_too_large"));
         }
         Ok(raw)
+    }
+
+    pub(crate) fn file_limit(&self) -> usize {
+        if self.seq == 0
+            && self.state == JournalState::Confirmed.as_str()
+            && self.operation.as_ref().is_some_and(|operation| {
+                (operation.planned_deployment.is_some()
+                    || operation
+                        .portable_update
+                        .as_ref()
+                        .is_some_and(|update| update.mapping.is_some()))
+                    && check_operation(operation).is_ok()
+            })
+        {
+            MAX_PORTABLE_JOURNAL_FILE_BYTES
+        } else {
+            MAX_JOURNAL_FILE_BYTES
+        }
     }
 }
 
@@ -205,6 +229,18 @@ fn corrupt(reason: &'static str) -> JournalError {
 /// Splits `raw` into committed lines. A trailing fragment without a newline
 /// is a torn write and is excluded from `committed_len`.
 pub(crate) fn split(raw: &[u8]) -> Result<Committed, Damage> {
+    if raw.len() > MAX_JOURNAL_FILE_BYTES {
+        let limit = raw
+            .split_inclusive(|byte| *byte == b'\n')
+            .next()
+            .filter(|header| header.ends_with(b"\n"))
+            .and_then(|header| serde_json::from_slice::<LineFile>(header).ok())
+            .filter(|header| header.format == JOURNAL_FORMAT && header.storage_scope == LOCAL_ONLY)
+            .map_or(MAX_JOURNAL_FILE_BYTES, |header| header.file_limit());
+        if raw.len() > limit {
+            return Err(Damage::new(JournalError::new("storage_file_too_large")));
+        }
+    }
     let committed_len = raw
         .iter()
         .rposition(|byte| *byte == b'\n')
@@ -214,6 +250,9 @@ pub(crate) fn split(raw: &[u8]) -> Result<Committed, Damage> {
         let body = &chunk[..chunk.len() - 1];
         if lines.len() >= MAX_JOURNAL_LINES {
             return Err(Damage::new(corrupt("too_many_lines")));
+        }
+        if !lines.is_empty() && chunk.len() > MAX_JOURNAL_FILE_BYTES {
+            return Err(Damage::new(corrupt("line_too_large")));
         }
         let value: Value = serde_json::from_slice(body).map_err(|_| Damage {
             error: corrupt("line_not_json"),
@@ -335,13 +374,49 @@ pub(crate) fn check_operation(
         _ => return Err(corrupt("owner_userid")),
     }
     let source = match &operation.source {
-        Some(source) if crate::workcopy::is_workcopy_id(&source.local_id) => Some(JournalSource {
-            local_id: source.local_id.clone(),
-            revision: source.revision,
-        }),
+        Some(source)
+            if crate::workcopy::is_workcopy_id(&source.local_id)
+                || (kind == OperationKind::Create
+                    && operation.intent == "create_dashboard"
+                    && crate::workcopy::is_offline_dashboard_id(&source.local_id))
+                || operation.portable_update.as_ref().is_some_and(|metadata| {
+                    metadata.valid_source(&operation.intent, &source.local_id)
+                }) =>
+        {
+            Some(JournalSource {
+                local_id: source.local_id.clone(),
+                revision: source.revision,
+            })
+        }
         Some(_) => return Err(corrupt("source")),
         None => None,
     };
+    if let Some(mapping) = &operation.planned_deployment {
+        use crate::portable_deployment::valid_logical_id;
+        if kind != OperationKind::Create
+            || operation.intent != "create_dashboard"
+            || operation.server_version != "8.0.0"
+            || !source.as_ref().is_some_and(|source| {
+                crate::workcopy::is_offline_dashboard_id(&source.local_id)
+                    && source.revision != 0
+                    && source.local_id == mapping.root_id
+            })
+            || !valid_logical_id(&mapping.page_id)
+            || !valid_logical_id(&mapping.widget_id)
+            || !mapping.valid_pages()
+        {
+            return Err(corrupt("planned_deployment"));
+        }
+    }
+    if let Some(update) = &operation.portable_update
+        && (kind != OperationKind::Update
+            || operation.server_version != "8.0.0"
+            || !source.as_ref().is_some_and(|source| {
+                source.revision > 0 && update.valid_source(&operation.intent, &source.local_id)
+            }))
+    {
+        return Err(corrupt("portable_update"));
+    }
     if !is_code(&operation.intent)
         || !is_connection_id(&operation.connection_id)
         || operation.server_version.is_empty()
@@ -397,6 +472,8 @@ pub(crate) fn replay(operation_id: &str, lines: &[LineFile]) -> Result<JournalEn
         progress: super::JournalProgress::Finished,
         endpoint_fingerprint: operation.endpoint_fingerprint.clone(),
         server_identity: operation.server_identity.clone(),
+        planned_deployment: operation.planned_deployment.clone(),
+        portable_update: operation.portable_update.clone(),
     };
     let mut previous = None;
     for (seq, line) in lines.iter().enumerate() {

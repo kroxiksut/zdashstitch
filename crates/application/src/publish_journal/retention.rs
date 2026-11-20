@@ -23,7 +23,10 @@
 
 use cap_std::fs::Dir;
 
-use super::{JournalError, JournalProgress, PublishJournal, RecoveryReport, file, load, running};
+use super::{
+    JournalError, JournalProgress, JournalState, PublishJournal, RecoveryReport, file, load,
+    running,
+};
 use crate::settings::cap_metadata_is_reparse;
 use crate::workcopy::store::sync_dir;
 
@@ -120,6 +123,37 @@ impl PublishJournal {
                 continue;
             };
             if entry.progress != JournalProgress::Finished || !expired(last.at_ms, now_ms) {
+                continue;
+            }
+            // A verified create remains recoverable until its local link is durable.
+            if entry.planned_deployment.is_some()
+                && matches!(
+                    entry.state,
+                    JournalState::Verified | JournalState::ReconciledVerified
+                )
+                && !crate::portable_deployment::load(&self.store).is_ok_and(|deployments| {
+                    deployments
+                        .iter()
+                        .any(|deployment| deployment.state.deployment_id == entry.operation_id)
+                })
+            {
+                continue;
+            }
+            if entry.needs_portable_update_projection()
+                && !crate::portable_deployment::load(&self.store).is_ok_and(|deployments| {
+                    deployments.iter().any(|deployment| {
+                        deployment.state.deployment_id
+                            == entry
+                                .portable_update
+                                .as_ref()
+                                .and_then(|operation| operation.deployment_id.as_deref())
+                                .unwrap_or_default()
+                            && (deployment.state.last_operation_id == entry.operation_id
+                                || deployment.state.dashboard.fingerprint
+                                    != entry.source_fingerprint)
+                    })
+                })
+            {
                 continue;
             }
             match remove(&directory, &operation_id) {

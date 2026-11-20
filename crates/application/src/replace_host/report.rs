@@ -20,7 +20,7 @@ use crate::publisher::{
     CapabilityCheck, CompatibilityFinding, CompatibilityReport, FindingCode, FindingGroup,
     FindingSeverity, FindingSubject,
 };
-use crate::resolver::{MatchStatus, ReasonCode};
+use crate::resolver::{MatchStatus, ReasonCode, ResolveScope, SourceKind, SourceModel};
 
 /// Laboratory contract for `svggraph` `ds.N.itemids.N` (P2-04A), not proven;
 /// its state comes from the session capabilities.
@@ -115,6 +115,30 @@ fn primary_reason(row: &RowView) -> Option<ReasonCode> {
         .into_iter()
         .find(|reason| row.reasons.contains(reason))
         .or_else(|| row.reasons.first().copied())
+}
+
+/// Unknown fields are visible compatibility findings derived from Base.
+/// Their values stay in the raw snapshot, outside the operation log.
+pub(crate) fn report_unknown_fields(
+    report: &mut CompatibilityReport,
+    model: &SourceModel,
+    scope: &ResolveScope,
+) {
+    for (widget, source) in model.sources() {
+        if source.kind == SourceKind::Unknown && scope.contains(&widget.widget) {
+            report.findings.push(
+                blocking(FindingCode::SourceUnverified, FindingGroup::Bindings)
+                    .with_subject(FindingSubject {
+                        page_index: widget.widget.page_index,
+                        widget_index: widget.widget.widget_index,
+                        widgetid: widget.widget.widgetid.clone(),
+                        field: Some(source.field.field_name.clone()),
+                    })
+                    .with_reason(source.applicability_reason)
+                    .with_param("source_kind", "unknown"),
+            );
+        }
+    }
 }
 
 fn contract_checks(input: &ReportInput<'_>, checks: &mut Vec<CapabilityCheck>) {

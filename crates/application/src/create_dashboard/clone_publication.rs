@@ -7,8 +7,8 @@ use zdashstitch_zabbix::{AccessMode, CreateScope, verify_dashboard_create_for};
 
 use super::{
     ClonePlanBinding, ConfirmedCreatePlan, CreateBinding, CreatePlanError, CreatePublishReport,
-    NameCheck, VerifiedCreatePlan, blocker, create_report, create_target_key, prepare_create_send,
-    publish_prepared_create, supported,
+    CreateReportScope, NameCheck, VerifiedCreatePlan, blocker, create_report, create_target_key,
+    prepare_create_send, publish_prepared_create, supported,
 };
 use crate::clone_dashboard::SavedCloneWorkcopy;
 use crate::clone_preflight::CloneLocalPreview;
@@ -98,8 +98,13 @@ async fn inspect_clone(
         .revalidate_saved_clone(reader, &branch)
         .await
         .map_err(CreatePlanError::Workcopy)?;
+    let scoped_clone = reader.capabilities().version.major == 8;
     let permission = mode == AccessMode::ReadWrite
-        && matches!(reader.dashboard_create_permission().await, Ok(true));
+        && if scoped_clone {
+            matches!(reader.eight_zero_clone_permission().await, Ok(true))
+        } else {
+            matches!(reader.dashboard_create_permission().await, Ok(true))
+        };
     if !session.is_current(request.session) {
         return Err(invalid(PlanInvalidReason::SessionEnded));
     }
@@ -121,7 +126,11 @@ async fn inspect_clone(
     let mut compatibility = create_report(
         local.local(),
         DraftKind::Dashboard,
-        Some(CreateScope::Dashboard),
+        Some(if scoped_clone {
+            CreateReportScope::EightZeroClone
+        } else {
+            CreateReportScope::CopiedPages(CreateScope::Dashboard)
+        }),
         intent.target_name(),
         NameCheck::NotVisible,
         reader.capabilities(),
@@ -172,19 +181,44 @@ pub async fn plan_clone_dashboard(
     connections: &ConnectionService,
     request: &ClonePublicationRequest,
 ) -> Result<VerifiedCreatePlan, CreatePlanError> {
+    plan_clone_dashboard_with_access(service, journal, session, connections, request, true).await
+}
+
+/// On 8.0.0, copy the source ACL or use the private, empty default.
+pub async fn plan_clone_dashboard_with_access(
+    service: &WorkcopyService,
+    journal: &PublishJournal,
+    session: &LocalSession,
+    connections: &ConnectionService,
+    request: &ClonePublicationRequest,
+    copy_access: bool,
+) -> Result<VerifiedCreatePlan, CreatePlanError> {
     let (preview, branch) = inspect_clone(service, journal, session, connections, request).await?;
     if !preview.compatibility.allows_publication() {
         return Err(CreatePlanError::Incompatible(preview.compatibility));
     }
-    let client = connections.writer().ok_or(CreatePlanError::Invalidated(
-        PlanInvalidReason::ConnectionChanged,
-    ))?;
-    let create = verify_dashboard_create_for(
-        preview.draft.local(),
-        CreateScope::Dashboard,
-        &client.publication_context(),
-        &request.target_name,
-    )
+    let client = connections
+        .clone_writer()
+        .ok_or(CreatePlanError::Invalidated(
+            PlanInvalidReason::ConnectionChanged,
+        ))?;
+    let create = if client.capabilities().version.major == 8 {
+        client
+            .verify_eight_zero_clone_create(
+                branch.draft().base(),
+                preview.draft.local(),
+                &request.target_name,
+                copy_access,
+            )
+            .await
+    } else {
+        verify_dashboard_create_for(
+            preview.draft.local(),
+            CreateScope::Dashboard,
+            &client.publication_context(),
+            &request.target_name,
+        )
+    }
     .map_err(CreatePlanError::Adapter)?;
     let binding = CreateBinding {
         local_id: request.local_id.clone(),
@@ -220,7 +254,7 @@ pub async fn publish_clone_dashboard_plan(
     let Some(clone) = &plan.binding.clone else {
         return plan.refuse(PlanInvalidReason::TargetChanged);
     };
-    let Some(client) = connections.writer().filter(|_| {
+    let Some(client) = connections.clone_writer().filter(|_| {
         connections
             .active()
             .is_some_and(|(id, _, _)| id == plan.binding.connection_id)

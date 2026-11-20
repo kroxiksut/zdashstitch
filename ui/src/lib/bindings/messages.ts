@@ -224,6 +224,7 @@ export const FINDING_CODES: ReadonlyArray<string> = [
   'binding_stale',
   'binding_invalid',
   'match_differences',
+  'pattern_matches_outside_selection',
   'kept_on_source',
   'kept_on_source_unconfirmed',
   'kept_on_source_confirmation_stale',
@@ -268,6 +269,8 @@ export function findingText(i18n: I18n, finding: Finding, host: string): Localiz
       return { id: 'publication.finding.binding_stale' };
     case 'binding_invalid':
       return { id: 'publication.finding.binding_invalid' };
+    case 'pattern_matches_outside_selection':
+      return { id: 'publication.finding.pattern_matches_outside_selection', params: { count: Number(params.count) } };
     case 'match_differences':
       return {
         id: 'publication.finding.match_differences',

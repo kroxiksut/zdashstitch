@@ -10,6 +10,7 @@ use axum::{
     Router,
     body::Body,
     http::{Request, StatusCode, header},
+    response::IntoResponse,
 };
 use http_body_util::BodyExt;
 use serde_json::{Value, json};
@@ -223,7 +224,8 @@ async fn editor_settings_reject_bad_values_and_keep_corrupt_file() {
         app.config.clone(),
         app.storage.clone(),
     )))
-    .await;
+    .await
+    .into_response();
     let bytes = fresh
         .into_body()
         .collect()
@@ -356,7 +358,8 @@ async fn invalid_file_is_reported_and_never_overwritten() {
         app.config.clone(),
         app.storage.clone(),
     )))
-    .await;
+    .await
+    .into_response();
     let bytes = fresh
         .into_body()
         .collect()
@@ -372,4 +375,91 @@ async fn invalid_file_is_reported_and_never_overwritten() {
     let (_, repaired) = app.call("GET", ROUTE, None, true).await;
     assert_eq!(repaired["theme"], "dark");
     assert_eq!(repaired["session_only"], false);
+}
+
+#[tokio::test]
+async fn reload_observes_external_edits_and_clears_both_session_overrides() {
+    let app = App::start().await;
+    let (_, initial) = app.call("GET", ROUTE, None, true).await;
+    let (status, _) = app
+        .call(
+            "PUT",
+            ROUTE,
+            Some(json!({
+                "locale": "en", "theme": "dark", "reduced_motion": "system",
+                "fingerprint": initial["fingerprint"]
+            })),
+            true,
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK);
+    let path = app.config.join("settings.yaml");
+    let original = app.file().unwrap_or_else(|| panic!("settings file"));
+    let external = original
+        .replace("theme: dark", "theme: light")
+        .replace("autosave_max_interval_s: 30", "autosave_max_interval_s: 60");
+    std::fs::write(&path, &external).unwrap_or_else(|error| panic!("external edit: {error}"));
+    let (_, editor) = app.call("GET", EDITOR_ROUTE, None, true).await;
+    assert_eq!(editor["values"]["autosave_max_interval_s"], 60);
+
+    let broken = "format: confidential-example: broken YAML";
+    std::fs::write(&path, broken).unwrap_or_else(|error| panic!("invalid edit: {error}"));
+    let (status, appearance) = app.call("GET", ROUTE, None, true).await;
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(appearance["theme"], "light");
+    assert_eq!(appearance["issue"]["code"], "invalid_yaml");
+    assert!(appearance["issue"]["line"].as_u64().is_some());
+    assert!(appearance["issue"]["column"].as_u64().is_some());
+    assert!(!appearance.to_string().contains("confidential-example"));
+    let (status, session) = app
+        .call(
+            "PUT",
+            ROUTE,
+            Some(json!({
+                "locale": "ru", "theme": "high_contrast", "reduced_motion": "system",
+                "fingerprint": appearance["fingerprint"]
+            })),
+            true,
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(session["session_only"], true);
+    assert_eq!(app.file().as_deref(), Some(broken));
+
+    // An editor-only reload notices the repair and clears the appearance override.
+    std::fs::write(&path, &external).unwrap_or_else(|error| panic!("repair: {error}"));
+    let (_, valid) = app.call("GET", EDITOR_ROUTE, None, true).await;
+    assert_eq!(valid["file_state"], "valid");
+    assert!(valid["issue"].is_null());
+    std::fs::write(&path, broken).unwrap_or_else(|error| panic!("invalid edit: {error}"));
+    let (_, again) = app.call("GET", ROUTE, None, true).await;
+    assert_eq!(again["theme"], "light");
+    assert_eq!(again["session_only"], false);
+}
+
+#[tokio::test]
+async fn oversized_file_allows_session_changes_without_reading_or_rewriting_contents() {
+    let app = App::start().await;
+    std::fs::create_dir(&app.config).unwrap_or_else(|error| panic!("settings dir: {error}"));
+    let path = app.config.join("settings.yaml");
+    let oversized = vec![b'x'; 128 * 1024];
+    std::fs::write(&path, &oversized).unwrap_or_else(|error| panic!("oversized file: {error}"));
+    let (status, appearance) = app.call("GET", ROUTE, None, true).await;
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(appearance["file_state"], "invalid");
+    assert_eq!(appearance["issue"]["code"], "file_too_large");
+    let (status, session) = app
+        .call(
+            "PUT",
+            ROUTE,
+            Some(json!({
+                "locale": "ru", "theme": "dark", "reduced_motion": "system",
+                "fingerprint": appearance["fingerprint"]
+            })),
+            true,
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(session["session_only"], true);
+    assert_eq!(std::fs::read(path).ok(), Some(oversized));
 }

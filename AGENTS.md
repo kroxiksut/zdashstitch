@@ -4,7 +4,7 @@
 
 ## 1. Product purpose
 
-ZDashstitch must save administrators time creating, cloning and maintaining **global Zabbix dashboards**. First real use: Mamonsu/PostgreSQL and ClickHouse in Prod/Pilot on Zabbix 7.4, including multiple custom templates per page, offline project creation and replacing a host across many widgets. The target is a free, local, GUI-only tool; code is licensed `MIT OR Apache-2.0`, documentation and original visuals are `CC-BY-4.0`; no end-user TUI/CLI and no server deployment in MVP.
+ZDashstitch must save administrators time creating, cloning and maintaining **global Zabbix dashboards**. First real use: Mamonsu/PostgreSQL and ClickHouse in Prod/Pilot on Zabbix 8.0, including multiple custom templates per page, offline project creation and replacing a host across many widgets. Preserve existing 7.4 work without claiming completed support. Reuse version-independent logic for 8.0, 7.4 and potential older versions; keep version-specific behavior and independently proven capabilities in adapters. The target is a free, local, GUI-only tool; code is licensed `MIT OR Apache-2.0`, documentation and original visuals are `CC-BY-4.0`; no end-user TUI/CLI and no server deployment in MVP.
 
 ## 2. Required reading order
 
@@ -29,7 +29,7 @@ The ignored local `docs/history/` directory may exist in some working copies. It
 
 ## 4. Architecture boundaries
 
-`core` independent of Zabbix IDs/version and transport. `template_import` independently parses export formats. `zabbix` handles version-specific API and widget codecs. `application` owns intents, matching, plan and publish. `ui` has no Zabbix JSON-RPC logic. First adapter v7_4; other adapters **planned**. Rust/Axum/Svelte as documented.
+`core` independent of Zabbix IDs/version and transport. `template_import` independently parses export formats. `zabbix` handles version-specific API and widget codecs. `application` owns intents, matching, plan and publish. `ui` has no Zabbix JSON-RPC logic. The existing first adapter v7_4 is retained; v8_0 is the current priority and remains **planned** until independently implemented and verified. Rust/Axum/Svelte as documented.
 
 The UI domain hierarchy is `Dashboard → Page → Widget`. A local draft is typed as one dashboard or one page (engineering name: Dashboard/Page project); it is not a Zabbix entity and not a generic wrapper for every workcopy/library object. The UI never says “project”: drafts are labelled by entity (dashboard/page) and origin (local/copy from server), and Russian UI terms follow the official Zabbix localization (панель → страница → виджет, узел сети, элемент данных). Source and target identities are independent. Follow `docs/architecture/domain_model_v1_ru.md`; do not change the legacy multi-dashboard `project/v1` schema or claim typed-project round-trip until P0-08 implements the decided O-026 format (`project/v2`).
 
@@ -37,6 +37,7 @@ All user-visible text from Rust/Axum, TypeScript and Svelte uses shared localiza
 
 ## 5. How to work
 
+- For authorized laboratory and development hosts, check the owner's existing SSH keys under `.ssh/ai` and host-specific SSH configuration before assuming access is unavailable. Never copy or expose private keys or credentials.
 - Use the completed **R0-01** matrix in `docs/MVP_TRACEABILITY.md`, then start **P0** from the local `TASKS_RU.md`; follow dependencies and the G0–G6 gates in the README. Parallelize only independent non-write work.
 - Before each task: state touched files, expected behavior, checks and risks. After: report actual changed files, commands/tests, real outcomes and limitations.
 - Update local task checkboxes **only after acceptance**. Keep `IMPLEMENTATION_LOG.md`. Use `OPEN_DECISIONS.md` to request human approval for changes in schema, security boundaries, public contracts, supported versions or MVP scope.

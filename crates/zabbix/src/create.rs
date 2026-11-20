@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-//! Closed dashboard creation path of the 7.4 adapter (P2-06B/C/D, O-019).
+//! Closed dashboard creation paths, with independent 7.4 and 8.0.0 scopes.
 //!
 //! A [`VerifiedDashboardCreate`] is built only by [`verify_dashboard_create`]
 //! from a Local snapshot (Base + operations) of the same connection and a
@@ -74,9 +74,18 @@ use sha2::{Digest, Sha256};
 
 use crate::gateway::{ReadMethod, ReadOnlyGateway, ReadWriteGateway, WriteMethod};
 use crate::{
-    AdapterRegistry, CreateContract, DashboardCreateContracts, Failure, FailureParam,
-    PublicationContext, Result, VersionedDashboardSnapshot, WidgetFieldType, ZabbixError,
-    ZabbixVersion, is_zabbix_id,
+    AdapterProfile, AdapterRegistry, CreateContract, DashboardCreateContracts, Failure,
+    FailureParam, PublicationContext, Result, VersionedDashboardSnapshot, WidgetFieldType,
+    ZabbixError, ZabbixVersion, is_zabbix_id,
+};
+
+mod clone_8_0;
+pub(crate) mod graph_8_0;
+mod portable_update;
+pub use graph_8_0::MAX_PORTABLE_GRAPH_PAGES;
+pub use portable_update::{
+    LinkedGraphCompositionPage, LinkedGraphPage, MAX_PORTABLE_APPEND_WIDGETS, PortableGraphChange,
+    PortableUpdateDifference, PortableUpdateReadback, VerifiedPortableUpdate,
 };
 
 /// Longest dashboard name Zabbix stores (`dashboard.name`, 255 characters).
@@ -95,7 +104,7 @@ pub enum CreateRejectionCode {
     AuthorityOffline,
     /// The context version differs from the Local snapshot version.
     ServerVersionMismatch,
-    /// No adapter is registered for the Local snapshot version.
+    /// No create codec is registered for the Local snapshot version.
     AdapterUnsupported,
     /// A contract the create needs is not `Supported` (param `contract`).
     ContractUnverified,
@@ -270,6 +279,10 @@ impl CreateRequirements {
 /// Adapter-validated `dashboard.create`. Deliberately neither `Clone` nor
 /// deserializable, and its payload is never exposed.
 pub struct VerifiedDashboardCreate {
+    portable: bool,
+    scoped_graph: Option<graph_8_0::ScopedGraphCreate>,
+    scoped_clone: Option<clone_8_0::ScopedCloneCreate>,
+    access: Option<crate::dashboard_access::VerifiedAccess>,
     connection_id: String,
     source_dashboardid: String,
     server_version: ZabbixVersion,
@@ -282,6 +295,29 @@ pub struct VerifiedDashboardCreate {
 }
 
 impl VerifiedDashboardCreate {
+    pub fn is_scoped_snapshot_copy(&self) -> bool {
+        self.scoped_clone.is_some()
+    }
+
+    pub fn access(&self) -> Option<&crate::DashboardAccessState> {
+        self.access.as_ref().map(|verified| &verified.state)
+    }
+
+    /// Scoped 8.0.0 create contracts are separate from the legacy copy path.
+    pub fn scoped_contract(&self) -> Option<&'static str> {
+        self.scoped_graph
+            .as_ref()
+            .map(graph_8_0::ScopedGraphCreate::contract)
+            .or_else(|| self.scoped_clone.as_ref().map(|_| clone_8_0::CONTRACT))
+    }
+
+    pub fn copies_visible_access_only(&self) -> bool {
+        self.access.is_some()
+            && self
+                .scoped_clone
+                .as_ref()
+                .is_some_and(clone_8_0::ScopedCloneCreate::visible_only)
+    }
     pub fn connection_id(&self) -> &str {
         &self.connection_id
     }
@@ -329,7 +365,8 @@ pub struct CreateExpectation {
     /// Exact target name (user data).
     pub name: String,
     pub content_fingerprint: String,
-    /// `userid` of the connection account: the expected owner.
+    /// The publishing connection account. It is the owner for default
+    /// private creates. An explicit owner is bound in the combined digest.
     pub owner_userid: String,
 }
 
@@ -350,7 +387,7 @@ pub enum ReadBackVerdict {
     Shared,
     /// Owned by another account.
     OwnerDiffers,
-    /// The read dashboard lacks a key the comparison needs.
+    /// The read dashboard has no supported shape for this comparison.
     ShapeInvalid,
 }
 
@@ -428,6 +465,8 @@ impl CreateReconciliation {
 /// Why a verified create was not sent.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum CreateSendRefusal {
+    /// Portable binding evidence changed or could not be re-read.
+    BindingsChanged,
     /// Endpoint, identity, version, credential or write epoch changed.
     AuthorityChanged,
     /// A required contract is not `Supported` right before send.
@@ -444,6 +483,7 @@ impl CreateSendRefusal {
     #[must_use]
     pub const fn as_str(self) -> &'static str {
         match self {
+            Self::BindingsChanged => "bindings_changed",
             Self::AuthorityChanged => "connection_changed",
             Self::ContractUnverified(_) => "write_contract_unverified",
             Self::NameCheckFailed => "name_check_failed",
@@ -676,12 +716,29 @@ fn prepare(
     scope: CreateScope<'_>,
     name: &str,
 ) -> std::result::Result<Prepared, CreateRejection> {
+    prepare_document(
+        local.raw_api_document(),
+        local.server_version(),
+        scope,
+        name,
+    )
+}
+
+/// Validate create-shaped data without inventing a source snapshot.
+fn prepare_document(
+    raw: &Value,
+    version: &ZabbixVersion,
+    scope: CreateScope<'_>,
+    name: &str,
+) -> std::result::Result<Prepared, CreateRejection> {
+    if !graph_8_0::exact_version(version) {
+        require_create_codec(version)?;
+    }
     if !is_valid_dashboard_name(name) {
         return Err(CreateRejection::new(CreateRejectionCode::NameInvalid));
     }
-    let registry = AdapterRegistry::widget_capabilities(local.server_version())
+    let registry = AdapterRegistry::widget_capabilities(version)
         .map_err(|_| CreateRejection::new(CreateRejectionCode::AdapterUnsupported))?;
-    let raw = local.raw_api_document();
     let all_pages = raw
         .get("pages")
         .and_then(Value::as_array)
@@ -789,6 +846,15 @@ fn prepare(
     })
 }
 
+fn require_create_codec(version: &ZabbixVersion) -> std::result::Result<(), CreateRejection> {
+    match AdapterRegistry::resolve_profile(version) {
+        Ok(AdapterProfile::V7_4) => Ok(()),
+        _ => Err(CreateRejection::new(
+            CreateRejectionCode::AdapterUnsupported,
+        )),
+    }
+}
+
 /// What creating `local` under `name` needs from the server: contracts,
 /// widgets the registry does not know, counts. Pure; lets the application
 /// report every gap at once.
@@ -799,6 +865,23 @@ pub fn create_requirements(
     create_requirements_for(local, CreateScope::Dashboard, name)
 }
 
+/// Inspect create-shaped data without granting authority or assuming a
+/// server-side source dashboard. The caller must independently validate
+/// field names and semantics, reference closure, origin and target bindings.
+pub fn portable_create_requirements(
+    document: &Value,
+    version: &ZabbixVersion,
+    name: &str,
+) -> std::result::Result<CreateRequirements, CreateRejection> {
+    let prepared = prepare_document(document, version, CreateScope::Dashboard, name)?;
+    if !prepared.requirements.unknown_widgets.is_empty() {
+        return Err(CreateRejection::new(
+            CreateRejectionCode::WidgetCopyUnproven,
+        ));
+    }
+    Ok(prepared.requirements)
+}
+
 /// [`create_requirements`] of the pages of `scope`; a page copy also lists
 /// its links to other pages.
 pub fn create_requirements_for(
@@ -806,7 +889,27 @@ pub fn create_requirements_for(
     scope: CreateScope<'_>,
     name: &str,
 ) -> std::result::Result<CreateRequirements, CreateRejection> {
+    require_create_codec(local.server_version())?;
     prepare(local, scope, name).map(|prepared| prepared.requirements)
+}
+
+/// Read-only shape check for the exact-patch Clone codec.
+pub fn eight_zero_clone_create_requirements(
+    local: &VersionedDashboardSnapshot,
+    name: &str,
+) -> std::result::Result<CreateRequirements, CreateRejection> {
+    if !graph_8_0::exact_version(local.server_version())
+        || clone_8_0::supported_content(local.raw_api_document()).is_none()
+    {
+        return Err(
+            CreateRejection::new(CreateRejectionCode::ContractUnverified)
+                .with("contract", clone_8_0::CONTRACT),
+        );
+    }
+    let mut requirements = prepare(local, CreateScope::Dashboard, name)?.requirements;
+    requirements.contracts.clear();
+    requirements.unknown_widgets.clear();
+    Ok(requirements)
 }
 
 /// Builds the only sendable form of a dashboard create: all pages and
@@ -839,6 +942,7 @@ pub fn verify_dashboard_create_for(
             CreateRejectionCode::ServerVersionMismatch,
         ));
     }
+    require_create_codec(local.server_version())?;
     let Prepared {
         params,
         content_fingerprint,
@@ -867,6 +971,10 @@ pub fn verify_dashboard_create_for(
         });
     }
     Ok(VerifiedDashboardCreate {
+        portable: false,
+        scoped_graph: None,
+        scoped_clone: None,
+        access: None,
         connection_id: local.connection_id().to_owned(),
         source_dashboardid: local.dashboard_id().to_owned(),
         server_version: local.server_version().clone(),
@@ -877,6 +985,162 @@ pub fn verify_dashboard_create_for(
         content_fingerprint,
         requirements,
     })
+}
+
+/// Verify create-shaped portable data without an invented server snapshot.
+/// The application must separately verify all bindings and revalidate them
+/// via the mandatory asynchronous guard immediately before send.
+pub fn verify_portable_dashboard_create(
+    document: &Value,
+    connection_id: &str,
+    local_fingerprint: &str,
+    context: &PublicationContext,
+    name: &str,
+) -> std::result::Result<VerifiedDashboardCreate, CreateRejection> {
+    if !context.is_live_authenticated() {
+        return Err(CreateRejection::new(CreateRejectionCode::AuthorityOffline));
+    }
+    validate_portable_create_document(document, &context.capabilities().version)?;
+    let prepared = prepare_document(
+        document,
+        &context.capabilities().version,
+        CreateScope::Dashboard,
+        name,
+    )?;
+    if !prepared.requirements.unknown_widgets.is_empty() {
+        return Err(CreateRejection::new(
+            CreateRejectionCode::WidgetCopyUnproven,
+        ));
+    }
+    if let Some(contract) = prepared
+        .requirements
+        .missing_contracts(&context.capabilities().dashboard_create_contracts)
+        .first()
+    {
+        return Err(
+            CreateRejection::new(CreateRejectionCode::ContractUnverified)
+                .with("contract", contract.as_str()),
+        );
+    }
+    Ok(VerifiedDashboardCreate {
+        portable: true,
+        scoped_graph: None,
+        scoped_clone: None,
+        access: None,
+        connection_id: connection_id.to_owned(),
+        source_dashboardid: String::new(),
+        server_version: context.capabilities().version.clone(),
+        authority_fingerprint: context.binding_fingerprint().to_owned(),
+        local_fingerprint: local_fingerprint.to_owned(),
+        name: name.to_owned(),
+        create_params: prepared.params,
+        content_fingerprint: prepared.content_fingerprint,
+        requirements: prepared.requirements,
+    })
+}
+
+fn validate_portable_create_document(
+    document: &Value,
+    version: &ZabbixVersion,
+) -> std::result::Result<(), CreateRejection> {
+    require_create_codec(version)?;
+    fn keys(
+        value: &Value,
+        allowed: &[&str],
+        object: &'static str,
+    ) -> std::result::Result<(), CreateRejection> {
+        let map = value.as_object().ok_or_else(|| shape(object))?;
+        if map.keys().any(|key| !allowed.contains(&key.as_str())) {
+            return Err(shape(object));
+        }
+        Ok(())
+    }
+    keys(
+        document,
+        &["name", "display_period", "auto_start", "pages"],
+        "dashboard",
+    )?;
+    let registry = AdapterRegistry::widget_capabilities(version)
+        .map_err(|_| CreateRejection::new(CreateRejectionCode::AdapterUnsupported))?;
+    for page in document
+        .get("pages")
+        .and_then(Value::as_array)
+        .ok_or_else(|| shape("dashboard"))?
+    {
+        keys(page, &["name", "display_period", "widgets"], "page")?;
+        for widget in page
+            .get("widgets")
+            .and_then(Value::as_array)
+            .ok_or_else(|| shape("page"))?
+        {
+            keys(
+                widget,
+                &[
+                    "type",
+                    "name",
+                    "x",
+                    "y",
+                    "width",
+                    "height",
+                    "view_mode",
+                    "fields",
+                ],
+                "widget",
+            )?;
+            let kind = widget
+                .get("type")
+                .and_then(Value::as_str)
+                .ok_or_else(|| shape("widget"))?;
+            if !matches!(kind, "item" | "clock") {
+                return Err(CreateRejection::new(
+                    CreateRejectionCode::WidgetCopyUnproven,
+                ));
+            }
+            let capability = registry
+                .find(kind)
+                .ok_or_else(|| CreateRejection::new(CreateRejectionCode::WidgetCopyUnproven))?;
+            let mut names = BTreeSet::new();
+            for field in widget
+                .get("fields")
+                .and_then(Value::as_array)
+                .ok_or_else(|| shape("widget"))?
+            {
+                keys(field, &["type", "name", "value"], "field")?;
+                let field_name = field
+                    .get("name")
+                    .and_then(Value::as_str)
+                    .ok_or_else(|| shape("field"))?;
+                let raw_type = text(field.get("type"))
+                    .and_then(|s| s.parse::<u16>().ok())
+                    .ok_or_else(|| shape("field"))?;
+                let field_type =
+                    WidgetFieldType::try_from(raw_type).map_err(|()| shape("field"))?;
+                if !names.insert(field_name)
+                    || field_name == "reference"
+                    || field_name.ends_with("._reference")
+                    || !matches!(raw_type, 0 | 1 | 4)
+                    || !capability.knows_field(field_name, field_type)
+                {
+                    return Err(shape("field"));
+                }
+                if raw_type == 4 && !text(field.get("value")).is_some_and(|id| is_zabbix_id(&id)) {
+                    return Err(shape("field"));
+                }
+                if raw_type == 0
+                    && text(field.get("value")).is_none_or(|value| value.parse::<i64>().is_err())
+                {
+                    return Err(shape("field"));
+                }
+                if raw_type == 1 && field.get("value").and_then(Value::as_str).is_none() {
+                    return Err(shape("field"));
+                }
+            }
+            if kind == "item" && !names.contains("itemid.0") {
+                return Err(shape("widget"));
+            }
+        }
+    }
+    Ok(())
 }
 
 fn text(value: Option<&Value>) -> Option<String> {
@@ -895,46 +1159,48 @@ fn canonical_content(document: &Value) -> Option<Value> {
         .get("pages")?
         .as_array()?
         .iter()
-        .map(|page| {
-            let mut widgets = page
-                .get("widgets")?
-                .as_array()?
-                .iter()
-                .map(|widget| {
-                    let mut fields = widget
-                        .get("fields")?
-                        .as_array()?
-                        .iter()
-                        .map(|field| {
-                            Some(json!([
-                                text(field.get("type"))?,
-                                field.get("name")?.as_str()?,
-                                text(field.get("value"))?,
-                            ]))
-                        })
-                        .collect::<Option<Vec<_>>>()?;
-                    fields.sort_by_cached_key(Value::to_string);
-                    let mut canonical = Map::new();
-                    for key in WIDGET_KEYS {
-                        canonical.insert(key.to_owned(), Value::String(text(widget.get(key))?));
-                    }
-                    canonical.insert("fields".to_owned(), Value::Array(fields));
-                    Some(Value::Object(canonical))
-                })
-                .collect::<Option<Vec<_>>>()?;
-            widgets.sort_by_cached_key(Value::to_string);
-            Some(json!({
-                "name": text(page.get("name"))?,
-                "display_period": text(page.get("display_period"))?,
-                "widgets": widgets,
-            }))
-        })
+        .map(canonical_page)
         .collect::<Option<Vec<_>>>()?;
     Some(json!({
         "name": text(document.get("name"))?,
         "display_period": text(document.get("display_period"))?,
         "auto_start": text(document.get("auto_start"))?,
         "pages": pages,
+    }))
+}
+
+fn canonical_page(page: &Value) -> Option<Value> {
+    let mut widgets = page
+        .get("widgets")?
+        .as_array()?
+        .iter()
+        .map(|widget| {
+            let mut fields = widget
+                .get("fields")?
+                .as_array()?
+                .iter()
+                .map(|field| {
+                    Some(json!([
+                        text(field.get("type"))?,
+                        field.get("name")?.as_str()?,
+                        text(field.get("value"))?,
+                    ]))
+                })
+                .collect::<Option<Vec<_>>>()?;
+            fields.sort_by_cached_key(Value::to_string);
+            let mut canonical = Map::new();
+            for key in WIDGET_KEYS {
+                canonical.insert(key.to_owned(), Value::String(text(widget.get(key))?));
+            }
+            canonical.insert("fields".to_owned(), Value::Array(fields));
+            Some(Value::Object(canonical))
+        })
+        .collect::<Option<Vec<_>>>()?;
+    widgets.sort_by_cached_key(Value::to_string);
+    Some(json!({
+        "name": text(page.get("name"))?,
+        "display_period": text(page.get("display_period"))?,
+        "widgets": widgets,
     }))
 }
 
@@ -954,6 +1220,11 @@ fn content_fingerprint(document: &Value) -> Option<String> {
 /// create verification. Callers must project it before exposing it to a UI.
 #[must_use]
 pub fn dashboard_comparison_content(snapshot: &VersionedDashboardSnapshot) -> Option<Value> {
+    if graph_8_0::exact_version(snapshot.server_version()) {
+        clone_8_0::supported_content(snapshot.raw_api_document())?;
+    } else {
+        require_create_codec(snapshot.server_version()).ok()?;
+    }
     canonical_content(snapshot.raw_api_document())
 }
 
@@ -962,7 +1233,42 @@ pub fn dashboard_comparison_content(snapshot: &VersionedDashboardSnapshot) -> Op
 /// comparison does not understand.
 #[must_use]
 pub fn dashboard_content_fingerprint(snapshot: &VersionedDashboardSnapshot) -> Option<String> {
-    content_fingerprint(snapshot.raw_api_document())
+    let raw = snapshot.raw_api_document();
+    if graph_8_0::exact_version(snapshot.server_version()) {
+        if !graph_8_0::graph_readback_supported(raw) && clone_8_0::supported_content(raw).is_none()
+        {
+            return None;
+        }
+    } else {
+        require_create_codec(snapshot.server_version()).ok()?;
+    }
+    content_fingerprint(raw)
+}
+
+/// Recover the Clone access expectation from the pinned source and the
+/// exact fingerprint in the journal, without persisting recipient IDs there.
+pub fn expected_eight_zero_clone_access(
+    source: &VersionedDashboardSnapshot,
+    local: &VersionedDashboardSnapshot,
+    expectation: &CreateExpectation,
+) -> Option<crate::DashboardAccessState> {
+    if !graph_8_0::exact_version(&expectation.server_version) {
+        return None;
+    }
+    let mut document = local.raw_api_document().clone();
+    document["name"] = json!(expectation.name);
+    let content = content_fingerprint(&document)?;
+    if expectation.content_fingerprint == content {
+        return Some(crate::DashboardAccessState {
+            owner: expectation.owner_userid.clone(),
+            private: true,
+            users: vec![],
+            groups: vec![],
+        });
+    }
+    let mut copied = source.dashboard_access_state()?;
+    copied.owner.clone_from(&expectation.owner_userid);
+    (copied.bind_create_fingerprint(&content)? == expectation.content_fingerprint).then_some(copied)
 }
 
 /// Compares a read dashboard with the expectation: connection and version,
@@ -981,10 +1287,18 @@ pub fn check_created_dashboard(
     if raw.get("name").and_then(Value::as_str) != Some(expectation.name.as_str()) {
         return ReadBackVerdict::NameDiffers;
     }
-    let Some(fingerprint) = content_fingerprint(raw) else {
+    let Some(fingerprint) = dashboard_content_fingerprint(snapshot) else {
         return ReadBackVerdict::ShapeInvalid;
     };
     if fingerprint != expectation.content_fingerprint {
+        if crate::dashboard_access::exact_version(snapshot.server_version())
+            && crate::DashboardAccessState::read(raw)
+                .and_then(|access| access.bind_create_fingerprint(&fingerprint))
+                .as_deref()
+                == Some(&expectation.content_fingerprint)
+        {
+            return ReadBackVerdict::Matches;
+        }
         return ReadBackVerdict::ContentDiffers;
     }
     let (Some(private), Some(users), Some(groups), Some(owner)) = (
@@ -1115,6 +1429,8 @@ impl ReadOnlyGateway {
     ) -> CreateReconciliation {
         if self.capabilities().version != expectation.server_version
             || self.identity().account_userid() != expectation.owner_userid
+            || (graph_8_0::exact_version(&expectation.server_version)
+                && !matches!(self.matches_live_version().await, Ok(true)))
         {
             return CreateReconciliation::ConnectionMismatch;
         }
@@ -1144,9 +1460,105 @@ impl ReadOnlyGateway {
             Err(error) => reconcile_created_dashboard(Err(&error.failure()), expectation),
         }
     }
+
+    /// Reconcile a Clone and independently verify that Zabbix allocated
+    /// fresh IDs for the complete 8.0.0 dashboard tree.
+    pub async fn reconcile_clone_dashboard_create(
+        &self,
+        expectation: &CreateExpectation,
+        known_dashboardid: Option<&str>,
+        source: &VersionedDashboardSnapshot,
+    ) -> CreateReconciliation {
+        let candidate = self
+            .reconcile_dashboard_create(expectation, known_dashboardid)
+            .await;
+        let CreateReconciliation::Confirmed {
+            dashboardid,
+            fingerprint,
+        } = &candidate
+        else {
+            return candidate;
+        };
+        if dashboardid == source.dashboard_id() {
+            return CreateReconciliation::Mismatch {
+                verdict: ReadBackVerdict::SourceDashboard,
+            };
+        }
+        if !graph_8_0::exact_version(&expectation.server_version) {
+            return candidate;
+        }
+        match self
+            .dashboard_snapshot(&expectation.connection_id, dashboardid)
+            .await
+        {
+            Ok(Some(snapshot)) if !clone_8_0::fresh_ids(source, &snapshot) => {
+                CreateReconciliation::Mismatch {
+                    verdict: ReadBackVerdict::SourceDashboard,
+                }
+            }
+            Ok(Some(snapshot))
+                if snapshot.fingerprint() == fingerprint
+                    && matches!(self.dashboard_is_editable(dashboardid).await, Ok(true)) =>
+            {
+                candidate
+            }
+            Ok(Some(_)) => CreateReconciliation::Mismatch {
+                verdict: ReadBackVerdict::ContentDiffers,
+            },
+            Ok(None) => CreateReconciliation::NotFound,
+            Err(error) => CreateReconciliation::ReadFailed {
+                failure: error.failure(),
+            },
+        }
+    }
 }
 
 impl ReadWriteGateway {
+    /// Select access only on the exact-version, scoped create command.
+    pub async fn verify_eight_zero_create_access(
+        &self,
+        create: VerifiedDashboardCreate,
+        selection: &crate::DashboardAccessSelection,
+    ) -> std::result::Result<VerifiedDashboardCreate, CreateRejection> {
+        if create.scoped_graph.is_none() {
+            return Err(
+                CreateRejection::new(CreateRejectionCode::ContractUnverified)
+                    .with("contract", crate::dashboard_access::CONTRACT),
+            );
+        }
+        self.bind_eight_zero_create_access(create, selection).await
+    }
+
+    async fn bind_eight_zero_create_access(
+        &self,
+        mut create: VerifiedDashboardCreate,
+        selection: &crate::DashboardAccessSelection,
+    ) -> std::result::Result<VerifiedDashboardCreate, CreateRejection> {
+        let unverified = || {
+            CreateRejection::new(CreateRejectionCode::ContractUnverified)
+                .with("contract", crate::dashboard_access::CONTRACT)
+        };
+        if create.access.is_some()
+            || create.authority_fingerprint() != self.publication_context().binding_fingerprint()
+        {
+            return Err(unverified());
+        }
+        let verified = self
+            .reader()
+            .verify_dashboard_access(selection, None)
+            .await
+            .ok()
+            .flatten()
+            .ok_or_else(unverified)?;
+        create.content_fingerprint = verified
+            .state
+            .bind_create_fingerprint(create.content_fingerprint())
+            .ok_or_else(unverified)?;
+        verified.apply(&mut create.create_params);
+        create.access = Some(verified);
+        Ok(create)
+    }
+
     /// The expectation of `create` on this connection; record it before
     /// send so that an unknown outcome can be reconciled after a restart.
     pub fn create_expectation(&self, create: &VerifiedDashboardCreate) -> CreateExpectation {
@@ -1176,7 +1588,10 @@ impl ReadWriteGateway {
     where
         G: FnOnce() -> bool + Send,
     {
-        self.create_dashboard_with_source(create, None, before_send)
+        if create.portable || create.scoped_clone.is_some() {
+            return DashboardCreateOutcome::FailedBeforeSend(CreateSendRefusal::BindingsChanged);
+        }
+        self.create_dashboard_with_source(create, None, async || true, before_send)
             .await
     }
 
@@ -1191,18 +1606,42 @@ impl ReadWriteGateway {
     where
         G: FnOnce() -> bool + Send,
     {
-        self.create_dashboard_with_source(create, Some(base), before_send)
+        if create.portable {
+            return DashboardCreateOutcome::FailedBeforeSend(CreateSendRefusal::BindingsChanged);
+        }
+        self.create_dashboard_with_source(create, Some(base), async || true, before_send)
             .await
     }
 
-    async fn create_dashboard_with_source<G>(
+    /// Portable create requires a fresh asynchronous binding check after
+    /// name and permission checks, before journal admission and the write.
+    pub async fn create_verified_portable_dashboard<G, V>(
         &self,
         create: &VerifiedDashboardCreate,
-        base: Option<&VersionedDashboardSnapshot>,
+        verify_bindings: V,
         before_send: G,
     ) -> DashboardCreateOutcome
     where
         G: FnOnce() -> bool + Send,
+        V: AsyncFnOnce() -> bool + Send,
+    {
+        if !create.portable {
+            return DashboardCreateOutcome::FailedBeforeSend(CreateSendRefusal::BindingsChanged);
+        }
+        self.create_dashboard_with_source(create, None, verify_bindings, before_send)
+            .await
+    }
+
+    async fn create_dashboard_with_source<G, V>(
+        &self,
+        create: &VerifiedDashboardCreate,
+        base: Option<&VersionedDashboardSnapshot>,
+        verify_bindings: V,
+        before_send: G,
+    ) -> DashboardCreateOutcome
+    where
+        G: FnOnce() -> bool + Send,
+        V: AsyncFnOnce() -> bool + Send,
     {
         let context = self.publication_context();
         if !context.is_live_authenticated()
@@ -1213,10 +1652,12 @@ impl ReadWriteGateway {
         }
         let contracts = &self.capabilities().dashboard_create_contracts;
         // The copy contracts are always required, whatever the plan lists.
-        if let Some(contract) = CreateContract::COPY
-            .iter()
-            .chain(create.requirements.contracts.iter())
-            .find(|contract| !contracts.is_verified(**contract))
+        if create.scoped_graph.is_none()
+            && create.scoped_clone.is_none()
+            && let Some(contract) = CreateContract::COPY
+                .iter()
+                .chain(create.requirements.contracts.iter())
+                .find(|contract| !contracts.is_verified(**contract))
         {
             return DashboardCreateOutcome::FailedBeforeSend(
                 CreateSendRefusal::ContractUnverified(*contract),
@@ -1240,16 +1681,80 @@ impl ReadWriteGateway {
             if base.connection_id() != create.connection_id
                 || base.dashboard_id() != create.source_dashboardid
                 || *base.server_version() != create.server_version
-                || !matches!(
-                    self.reader().dashboard_snapshot(base.connection_id(), base.dashboard_id()).await,
-                    Ok(Some(snapshot)) if snapshot.fingerprint() == base.fingerprint()
-                )
+                || create
+                    .scoped_clone
+                    .as_ref()
+                    .is_some_and(|clone| clone.source_fingerprint != base.fingerprint())
+                || create.scoped_clone.is_none()
+                    && !matches!(
+                        self.reader().dashboard_snapshot(base.connection_id(), base.dashboard_id()).await,
+                        Ok(Some(snapshot)) if snapshot.fingerprint() == base.fingerprint()
+                    )
             {
                 return DashboardCreateOutcome::FailedBeforeSend(CreateSendRefusal::SourceChanged);
             }
-            if !matches!(self.reader().dashboard_create_permission().await, Ok(true)) {
+            if create.scoped_clone.is_none()
+                && !matches!(self.reader().dashboard_create_permission().await, Ok(true))
+            {
                 return DashboardCreateOutcome::FailedBeforeSend(
                     CreateSendRefusal::CreatePermissionUnverified,
+                );
+            }
+        }
+        if create.portable
+            && create.scoped_graph.is_none()
+            && !matches!(self.reader().dashboard_create_permission().await, Ok(true))
+        {
+            return DashboardCreateOutcome::FailedBeforeSend(
+                CreateSendRefusal::CreatePermissionUnverified,
+            );
+        }
+        if !verify_bindings().await {
+            return DashboardCreateOutcome::FailedBeforeSend(CreateSendRefusal::BindingsChanged);
+        }
+        if let Some(access) = &create.access
+            && !access.recheck(self.reader()).await
+        {
+            return DashboardCreateOutcome::FailedBeforeSend(
+                CreateSendRefusal::CreatePermissionUnverified,
+            );
+        }
+        if let Some(scoped) = &create.scoped_clone {
+            if !scoped.recheck(self.reader()).await {
+                return DashboardCreateOutcome::FailedBeforeSend(
+                    CreateSendRefusal::CreatePermissionUnverified,
+                );
+            }
+            let Some(base) = base else {
+                return DashboardCreateOutcome::FailedBeforeSend(CreateSendRefusal::SourceChanged);
+            };
+            if (scoped.require_editable_source
+                && !matches!(
+                    self.reader()
+                        .dashboard_is_editable(base.dashboard_id())
+                        .await,
+                    Ok(true)
+                ))
+                || !matches!(self.reader().dashboard_snapshot(base.connection_id(), base.dashboard_id()).await,
+                Ok(Some(current)) if current.fingerprint() == base.fingerprint())
+            {
+                return DashboardCreateOutcome::FailedBeforeSend(CreateSendRefusal::SourceChanged);
+            }
+            if !scoped.reserve_send() {
+                return DashboardCreateOutcome::FailedBeforeSend(
+                    CreateSendRefusal::AuthorityChanged,
+                );
+            }
+        }
+        if let Some(scoped) = &create.scoped_graph {
+            if !scoped.recheck(self).await {
+                return DashboardCreateOutcome::FailedBeforeSend(
+                    CreateSendRefusal::CreatePermissionUnverified,
+                );
+            }
+            if !scoped.reserve_send() {
+                return DashboardCreateOutcome::FailedBeforeSend(
+                    CreateSendRefusal::AuthorityChanged,
                 );
             }
         }
@@ -1278,8 +1783,8 @@ impl ReadWriteGateway {
                         dashboardid: Some(dashboardid),
                     }
                 }
-                Some(dashboardid) => self.read_back(&expectation, dashboardid).await,
-                None => self.reconcile_unknown(&expectation, original).await,
+                Some(dashboardid) => self.read_back(&expectation, dashboardid, base).await,
+                None => self.reconcile_unknown(&expectation, base).await,
             },
             Err(error) if is_name_taken(&error, &create.name) => {
                 DashboardCreateOutcome::NameTaken { sent: true }
@@ -1290,7 +1795,7 @@ impl ReadWriteGateway {
             },
             // Transport loss, HTTP status (a proxy may answer after the
             // server committed), oversized or malformed answers: unknown.
-            Err(_) => self.reconcile_unknown(&expectation, original).await,
+            Err(_) => self.reconcile_unknown(&expectation, base).await,
         }
     }
 
@@ -1298,17 +1803,40 @@ impl ReadWriteGateway {
         &self,
         expectation: &CreateExpectation,
         dashboardid: String,
+        base: Option<&VersionedDashboardSnapshot>,
     ) -> DashboardCreateOutcome {
         for attempt in 0..READ_ATTEMPTS {
             if attempt > 0 {
                 tokio::time::sleep(Duration::from_millis(50)).await;
+            }
+            if graph_8_0::exact_version(&expectation.server_version)
+                && !matches!(self.reader().matches_live_version().await, Ok(true))
+            {
+                continue;
             }
             if let Ok(Some(snapshot)) = self
                 .reader()
                 .dashboard_snapshot(&expectation.connection_id, &dashboardid)
                 .await
             {
-                return match check_created_dashboard(&snapshot, expectation) {
+                let verdict = if graph_8_0::exact_version(&expectation.server_version)
+                    && base.is_some_and(|source| !clone_8_0::fresh_ids(source, &snapshot))
+                {
+                    ReadBackVerdict::SourceDashboard
+                } else {
+                    check_created_dashboard(&snapshot, expectation)
+                };
+                if graph_8_0::exact_version(&expectation.server_version)
+                    && base.is_some()
+                    && verdict == ReadBackVerdict::Matches
+                    && !matches!(
+                        self.reader().dashboard_is_editable(&dashboardid).await,
+                        Ok(true)
+                    )
+                {
+                    continue;
+                }
+                return match verdict {
                     ReadBackVerdict::Matches => DashboardCreateOutcome::Verified {
                         dashboardid,
                         fingerprint: snapshot.fingerprint().to_owned(),
@@ -1329,29 +1857,30 @@ impl ReadWriteGateway {
     async fn reconcile_unknown(
         &self,
         expectation: &CreateExpectation,
-        original: Option<&str>,
+        original: Option<&VersionedDashboardSnapshot>,
     ) -> DashboardCreateOutcome {
         let mut last = CreateReconciliation::NotFound;
         for attempt in 0..READ_ATTEMPTS {
             if attempt > 0 {
                 tokio::time::sleep(Duration::from_millis(50)).await;
             }
-            last = self
-                .reader()
-                .reconcile_dashboard_create(expectation, None)
-                .await;
+            last = match original {
+                Some(source) => {
+                    self.reader()
+                        .reconcile_clone_dashboard_create(expectation, None, source)
+                        .await
+                }
+                None => {
+                    self.reader()
+                        .reconcile_dashboard_create(expectation, None)
+                        .await
+                }
+            };
             if let CreateReconciliation::Confirmed {
                 dashboardid,
                 fingerprint,
             } = last
             {
-                if original == Some(dashboardid.as_str()) {
-                    return DashboardCreateOutcome::UnknownOutcome {
-                        reconciliation: CreateReconciliation::Mismatch {
-                            verdict: ReadBackVerdict::SourceDashboard,
-                        },
-                    };
-                }
                 return DashboardCreateOutcome::ReconciledVerified {
                     dashboardid,
                     fingerprint,

@@ -170,6 +170,13 @@ impl ReferenceMapping {
                 "clone_lld_candidate_prototype_mismatch",
             ));
         }
+        if (self.widget_type == "svggraph" && !matches!(selected.value_type, 0 | 3))
+            || (self.widget_type == "item" && selected.value_type == 6)
+        {
+            return Err(CloneLldDecisionError::new(
+                "clone_lld_decision_not_applicable",
+            ));
+        }
 
         let mut differences = Vec::new();
         if source.value_type != selected.value_type {

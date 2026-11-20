@@ -9,7 +9,7 @@ use serde_json::Value;
 use sha2::{Digest, Sha256};
 use zdashstitch_zabbix::{
     AdapterRegistry, CreateScope, ReadOnlyGateway, VersionedDashboardSnapshot,
-    create_requirements_for,
+    create_requirements_for, eight_zero_clone_create_requirements,
 };
 
 use crate::clone_dashboard::{SavedCloneWorkcopy, validate_clone_references};
@@ -18,7 +18,8 @@ use crate::clone_mapping::{
     revalidate_clone_mapping_from_source,
 };
 use crate::resolver::{
-    Applicability, FieldAddress, SourceKind, collect_source_facts, host_inventory, source_model,
+    Applicability, FieldAddress, SourceKind, clone_source_model, collect_source_facts,
+    host_inventory,
 };
 use crate::workcopy::{WorkcopyError, WorkcopyService};
 
@@ -118,8 +119,8 @@ pub(crate) fn kept_sources(
     let mapping = branch.draft().mapping();
     let registry = AdapterRegistry::widget_capabilities(source.server_version())
         .map_err(|_| WorkcopyError::new("clone_preview_adapter_missing"))?;
-    let model =
-        source_model(source, &registry).map_err(|error| WorkcopyError::from_resolver(&error))?;
+    let model = clone_source_model(source, &registry)
+        .map_err(|error| WorkcopyError::from_resolver(&error))?;
     let patterns = mapping
         .pattern_decisions
         .iter()
@@ -210,16 +211,20 @@ impl WorkcopyService {
         let local = branch.local();
         validate_clone_references(local)?;
         check_layout(local)?;
-        let capabilities = AdapterRegistry::resolve(local.server_version().clone())
-            .map_err(|_| WorkcopyError::new("clone_preview_adapter_missing"))?;
-        let requirements =
-            create_requirements_for(local, CreateScope::Dashboard, intent.target_name())
+        let missing_contracts = if local.server_version().major == 8 {
+            eight_zero_clone_create_requirements(local, intent.target_name())
                 .map_err(|error| WorkcopyError::new(error.code().as_str()))?;
-        let missing_contracts = requirements
-            .missing_contracts(&capabilities.dashboard_create_contracts)
-            .into_iter()
-            .map(|contract| contract.as_str())
-            .collect();
+            Vec::new()
+        } else {
+            let capabilities = AdapterRegistry::resolve(local.server_version().clone())
+                .map_err(|_| WorkcopyError::new("clone_preview_adapter_missing"))?;
+            create_requirements_for(local, CreateScope::Dashboard, intent.target_name())
+                .map_err(|error| WorkcopyError::new(error.code().as_str()))?
+                .missing_contracts(&capabilities.dashboard_create_contracts)
+                .into_iter()
+                .map(|contract| contract.as_str())
+                .collect()
+        };
         let kept_digest = if kept.iter().any(|entry| !entry.explicit_keep) {
             let encoded = serde_json::to_vec(&(
                 branch.local_id(),
@@ -303,7 +308,7 @@ impl WorkcopyService {
         }
         let registry = AdapterRegistry::widget_capabilities(preview.local.server_version())
             .map_err(|_| WorkcopyError::new("clone_preview_adapter_missing"))?;
-        let model = source_model(&source_local, &registry)
+        let model = clone_source_model(&source_local, &registry)
             .map_err(|error| WorkcopyError::from_resolver(&error))?;
         let facts = collect_source_facts(reader, &model)
             .await

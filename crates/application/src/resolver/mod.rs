@@ -42,6 +42,7 @@ pub use model::{
     FieldAddress, PatternPlace, Source, SourceKind, SourceModel, SvgDataSet, WidgetAddress,
     WidgetSources, WidgetSupport, source_model,
 };
+pub(crate) use model::{clone_source_model, workcopy_source_model};
 pub use pattern::{is_mask, name_pattern_matches, same_visible_name};
 pub use resolve::{
     Evidence, GraphEvidence, ItemEvidence, ItemOrigin, KeptOnSource, MAX_LLD_CANDIDATES,

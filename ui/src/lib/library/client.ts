@@ -32,6 +32,13 @@ export interface CatalogMetric {
   origin: string;
 }
 
+export type WidgetEvaluationProfile = '7.4' | '8.0';
+
+export interface OfflineWidgetEvaluation {
+  profile: WidgetEvaluationProfile | null;
+  unrecognized: Array<{ widget_id: string; widget_type: string; unknown_type: boolean; unknown_field_count: number }>;
+}
+
 export interface OfflinePage {
   local_id: string;
   created_at_ms: number;
@@ -40,6 +47,7 @@ export interface OfflinePage {
   catalog_versions: Array<{ catalog_id: string; version: number }>;
   embedded_catalogs?: string[];
   recovery?: { may_have_unsaved_changes: boolean; last_saved_at_ms: number };
+  widget_evaluation: OfflineWidgetEvaluation;
   bundle: {
     project: {
       kind: 'page';
@@ -150,6 +158,7 @@ export type PortablePageWidget = ({ id: string; layout: PageLayout } & (
 export function portableWidgetTitle(widget: PortablePageWidget): string { return widget.type === 'zabbix' ? widget.name : widget.title; }
 export interface NewOfflinePage {
   name: string;
+  evaluation_profile?: WidgetEvaluationProfile;
   catalogs: Array<{ catalog_id: string; version: number }>;
   roles: Record<string, PageRole>;
   widgets: Array<
@@ -238,7 +247,11 @@ export function createCatalogClient(fetcher: typeof fetch = (...args) => fetch(.
     exportRedaction: (kind: 'page' | 'dashboard', id: string, expected_revision: number, changes: RedactionChange[], preview_sha256: string) => request<PackageDownload>(`${base}/${kind === 'page' ? 'offline-pages' : 'offline-dashboards'}/${encodeURIComponent(id)}/redaction-export`, 'POST', { expected_revision, changes, preview_sha256, acknowledged: true }),
     page: (id: string) => request<OfflinePage>(`${pageBase}/${encodeURIComponent(id)}`),
     createPage: (page: NewOfflinePage) => request<OfflinePage>(`${base}/offline-pages`, 'POST', page),
-    updatePage: (id: string, revision: number, page: NewOfflinePage) => request<OfflinePage>(`${pageBase}/${encodeURIComponent(id)}`, 'POST', { expected_revision: revision, page }, editHeaders(id)),
+    updatePage: (id: string, revision: number, page: NewOfflinePage, confirmedRemovals: string[] = []) =>
+      request<OfflinePage>(`${pageBase}/${encodeURIComponent(id)}`, 'POST', {
+        expected_revision: revision, page,
+        ...(confirmedRemovals.length ? { confirmed_widget_removals: confirmedRemovals } : {})
+      }, editHeaders(id)),
     async acquirePage(id: string, takeOver = false): Promise<'editing' | 'read_only'> {
       const result = await request<{ state: 'editing'; token: string } | { state: 'read_only' }>(`${pageBase}/${encodeURIComponent(id)}/edit-session`, 'POST', { take_over: takeOver });
       if (result.state === 'editing') editorTokens.set(id, result.token); else editorTokens.delete(id);

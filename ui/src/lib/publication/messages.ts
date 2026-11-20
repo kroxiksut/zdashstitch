@@ -143,7 +143,9 @@ const ERRORS = {
   journal_not_damaged: 'errors.publication.journal_not_damaged',
   quarantine_exists: 'errors.publication.quarantine_exists',
   journal_write_failed: 'errors.publication.journal_write_failed',
-  dashboard_name_taken: 'errors.publication.name_taken_maybe_hidden'
+  dashboard_name_taken: 'errors.publication.name_taken_maybe_hidden',
+  portable_already_deployed: 'publication.portable.already_deployed',
+  portable_diff_item_not_visible: 'publication.portable.diff_unavailable'
 } as const;
 
 /** Every code the publication routes add to the draft and connection codes. */
@@ -161,6 +163,8 @@ export function publicationCodeText(i18n: I18n, failure: Pick<PublicationFailure
     case 'journal_damaged':
       return { id: 'errors.publication.journal_damaged', params: { operation_id: params.operation_id ?? '—' } };
     case 'write_contract_unverified':
+      if (params.contract === 'dashboard_access_8_0_0') return { id: 'publication.access.rejected' };
+      return { id: 'errors.publication.code', params: { code } };
     case 'changed_page_widget_unproven':
     case 'create_link_outside_page':
     case 'publication_authority_offline':

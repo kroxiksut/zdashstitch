@@ -1,16 +1,22 @@
 <script lang="ts">
   import { onMount, untrack } from 'svelte';
   import type { I18n } from '../i18n';
+  import type { ActiveConnection, ConnectionProfile } from '../connections/client';
+  import PortablePublication from '../publication/PortablePublication.svelte';
   import { createCatalogClient, type OfflineDashboard, type OfflinePageSummary, type LibraryPageSummary } from './client';
   import { dashboardPagePath, draftPath, internalLinkPath } from '../shell/router';
   import { choosePageSource } from './page-source-selection';
   import SensitivePreview from './SensitivePreview.svelte';
+  import PortablePatternReview from './PortablePatternReview.svelte';
+  import PortableLldReview from './PortableLldReview.svelte';
   import RedactionPreview from './RedactionPreview.svelte';
   import SaveAsButton from './SaveAsButton.svelte';
 
-  let { i18n, initialDashboard = null, onchanged }: {
+  let { i18n, initialDashboard = null, active = null, profile = null, onchanged }: {
     i18n: I18n;
     initialDashboard?: OfflineDashboard | null;
+    active?: ActiveConnection | null;
+    profile?: ConnectionProfile | null;
     onchanged?: (dashboard: OfflineDashboard) => void;
   } = $props();
   const client = createCatalogClient();
@@ -167,6 +173,9 @@
 <section class="card dashboard-builder" aria-labelledby="offline-dashboard-title">
   <h2 id="offline-dashboard-title">{i18n.t('offline_dashboard.title')}</h2>
   <p class="muted">{i18n.t('offline_dashboard.help')}</p>
+  {#if opened}<PortablePatternReview {i18n} draft={opened} enabled={!dirty && !busy} />{/if}
+  {#if opened}<PortableLldReview {i18n} draft={opened} enabled={!dirty && !busy} />{/if}
+  {#if opened}<PortablePublication {i18n} draft={opened} enabled={!dirty && !busy} {active} {profile} />{/if}
   <label for="offline-dashboard-name">{i18n.t('offline_dashboard.name')}</label>
   <input id="offline-dashboard-name" maxlength="120" bind:value={name} oninput={() => { dirty = true; saved = false; }} disabled={busy || conflict} />
 

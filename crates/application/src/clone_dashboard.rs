@@ -401,7 +401,11 @@ impl WorkcopyService {
             &record.base_storage_fingerprint,
         )?;
         if base.fingerprint() != source.base_fingerprint
-            || base.server_version().to_string() != mapping.server_version
+            || !mapping.matches_source(
+                base.connection_id(),
+                &base.server_version().to_string(),
+                base.adapter_id(),
+            )
         {
             return Err(corrupt());
         }
@@ -456,6 +460,7 @@ impl WorkcopyService {
         };
         let mapping = entry.state;
         if mapping.mapping_revision != intent.mapping_revision()
+            || mapping.mapping_revision != source.source_workcopy_revision
             || mapping.base_fingerprint.as_deref() != Some(&source.base_fingerprint)
             || mapping.local_fingerprint.as_deref() != Some(&source.local_fingerprint)
             || mapping.connection_id != source.connection_id

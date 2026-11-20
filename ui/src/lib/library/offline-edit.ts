@@ -3,10 +3,10 @@ import { ApiFailure } from '../api';
 
 /** Reconcile a lost local HTTP response by reading, never by a blind second write. */
 export async function saveKnownPage(client: {
-  updatePage: (id: string, revision: number, content: NewOfflinePage) => Promise<OfflinePage>;
+  updatePage: (id: string, revision: number, content: NewOfflinePage, confirmedRemovals?: string[]) => Promise<OfflinePage>;
   page: (id: string) => Promise<OfflinePage>;
-}, before: OfflinePage, content: NewOfflinePage): Promise<OfflinePage> {
-  try { return await client.updatePage(before.local_id, before.revision, content); }
+}, before: OfflinePage, content: NewOfflinePage, confirmedRemovals?: string[]): Promise<OfflinePage> {
+  try { return await client.updatePage(before.local_id, before.revision, content, confirmedRemovals); }
   catch (failure) {
     if (failure instanceof ApiFailure) throw failure;
     const latest = await client.page(before.local_id);

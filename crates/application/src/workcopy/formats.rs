@@ -108,12 +108,25 @@ pub(crate) struct PageSelector {
 #[serde(deny_unknown_fields)]
 pub(crate) struct WorkcopySource {
     pub connection_id: String,
+    /// Endpoint and account observed by the authenticated importer.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub server_identity_fingerprint: Option<String>,
     pub dashboardid: String,
     /// Server data captured at import, shown as the source name.
     pub dashboard_name: String,
     pub page: Option<PageSelector>,
     pub adapter_id: String,
     pub server_version: String,
+}
+
+impl WorkcopySource {
+    pub(crate) fn matches_publication_identity(
+        &self,
+        reader: &zdashstitch_zabbix::ReadOnlyGateway,
+    ) -> bool {
+        self.adapter_id != zdashstitch_zabbix::AdapterProfile::V8_0.adapter_id()
+            || self.server_identity_fingerprint.as_deref() == Some(reader.identity().fingerprint())
+    }
 }
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
@@ -240,6 +253,11 @@ impl WorkcopyFile {
             return Err(corrupt());
         }
         if !super::is_connection_id(&self.source.connection_id)
+            || self
+                .source
+                .server_identity_fingerprint
+                .as_deref()
+                .is_some_and(|hash| !super::is_fingerprint(hash))
             || !zdashstitch_zabbix::is_zabbix_id(&self.source.dashboardid)
             || !super::is_fingerprint(&self.base.fingerprint)
         {
@@ -251,7 +269,25 @@ impl WorkcopyFile {
                 if zdashstitch_zabbix::is_zabbix_id(&page.dashboard_pageid) => {}
             _ => return Err(corrupt()),
         }
-        super::operations::parse_log(&self.operations, &self.base.fingerprint)?;
+        let operations = super::operations::parse_log(&self.operations, &self.base.fingerprint)?;
+        let mut identity = None;
+        for operation in &operations {
+            let super::operations::Operation::CloneMapping(entry) = operation else {
+                continue;
+            };
+            let state = &entry.state;
+            let current_identity = state.server_identity_fingerprint.as_str();
+            if !state.matches_source(
+                &self.source.connection_id,
+                &self.source.server_version,
+                &self.source.adapter_id,
+            ) || state.mapping_revision > self.revision
+                || identity.is_some_and(|previous| previous != current_identity)
+            {
+                return Err(corrupt());
+            }
+            identity = Some(current_identity);
+        }
         Ok(())
     }
 }

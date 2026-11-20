@@ -118,7 +118,7 @@
       values={[
         { label: { id: 'publication.journal.field.operation_id' }, value: { value: shown.operation_id, kind: 'technical' } },
         { label: { id: 'publication.tech.base' }, value: { value: shown.source_fingerprint, kind: 'technical' } },
-        { label: { id: 'publication.tech.local' }, value: { value: shown.expected_fingerprint, kind: 'technical' } }
+        { label: { id: 'publication.tech.expected' }, value: { value: shown.expected_fingerprint, kind: 'technical' } }
       ]}
     />
     {#snippet actions()}

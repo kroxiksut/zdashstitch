@@ -197,11 +197,11 @@
     }
   },
   "package_import.registry_known": {
-    "message": "Локальный реестр 7.4 распознаёт указанные виджеты и поля. Поддержку сервером ещё нужно проверить.",
+    "message": "Локальный реестр 7.4 распознаёт эти виджеты и поля для проверки формата. Поддержка сервером, особенно 8.0, этим не подтверждена.",
     "placeholders": {}
   },
   "package_import.registry_unknown": {
-    "message": "Локальный реестр 7.4 не может оценить все виджеты или поля. Поддержка сервером не подтверждена.",
+    "message": "Локальный реестр 7.4 не может оценить все виджеты или поля. Поддержка сервером, включая 8.0, не подтверждена.",
     "placeholders": {}
   },
   "package_import.registry_incompatible": {
@@ -213,13 +213,13 @@
     "placeholders": {}
   },
   "package_import.registry_min": {
-    "message": "Оценка по реестру: {version} и новее",
+    "message": "Локальная оценка формата: {version} и новее; поддержка сервером не проверена",
     "placeholders": {
       "version": "technical"
     }
   },
   "package_import.registry_range": {
-    "message": "Оценка по реестру: от {minimum} до {maximum}, не включая верхнюю границу",
+    "message": "Локальная оценка формата: от {minimum} до {maximum}, не включая верхнюю границу; поддержка сервером не проверена",
     "placeholders": {
       "minimum": "technical",
       "maximum": "technical"
@@ -331,6 +331,26 @@
   },
   "offline_builder.page_name": {
     "message": "Название страницы",
+    "placeholders": {}
+  },
+  "offline_builder.profile": {
+    "message": "Профиль проверки виджетов",
+    "placeholders": {}
+  },
+  "offline_builder.profile_choice": {
+    "message": "Zabbix {version}",
+    "placeholders": {"version": "technical"}
+  },
+  "offline_builder.profile_current": {
+    "message": "Профиль проверки виджетов этого черновика — Zabbix {version}",
+    "placeholders": {"version": "technical"}
+  },
+  "offline_builder.profile_unavailable": {
+    "message": "Для версии из этого черновика нет локального реестра виджетов.",
+    "placeholders": {}
+  },
+  "offline_builder.profile_help": {
+    "message": "Профиль используется для локальной проверки виджетов. Для публикации нужна отдельная проверка на целевом сервере.",
     "placeholders": {}
   },
   "offline_builder.choose_catalogs": {
@@ -695,7 +715,19 @@
     "placeholders": {}
   },
   "offline_editor.opaque": {
-    "message": "Поля сохраняются как есть. В этом срезе меняется только геометрия; правка полей, удаление и копирование недоступны.",
+    "message": "Поля доступны только для просмотра. Можно изменить положение и размер виджета или удалить его целиком.",
+    "placeholders": {}
+  },
+  "offline_editor.confirm_removal": {
+    "message": "Удалить эти виджеты из черновика?",
+    "placeholders": {}
+  },
+  "offline_editor.confirm_removal_help": {
+    "message": "Изменение можно отменить через историю редактора.",
+    "placeholders": {}
+  },
+  "offline_editor.removal_dependency": {
+    "message": "Черновик не сохранён: оставшийся виджет может зависеть от удалённого. Отмените удаление или удалите зависимые виджеты вместе с ним.",
     "placeholders": {}
   },
   "editor.action.undo": {
@@ -839,6 +871,10 @@
   "offline_editor.check.metric_type": {
     "message": "Тип метрики не поддерживается этим виджетом.",
     "placeholders": {}
+  },
+  "offline_editor.check.unrecognized_fields": {
+    "message": "Число полей с неизвестной совместимостью — {count}. Их значения сохранены.",
+    "placeholders": {"count": "number"}
   },
   "offline_editor.check.role": {
     "message": "Проверьте роль {role} и выбор источников.",

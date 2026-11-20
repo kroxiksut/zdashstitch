@@ -9,10 +9,11 @@ use std::{
 use serde::Deserialize;
 use tempfile::tempdir;
 use zdashstitch_core::formats::{
-    LegacyRootSelection, MAX_ARCHIVE_ENTRIES, MAX_FILE_BYTES, ProjectRoot, build_package_bytes,
-    build_typed_package_bytes, build_typed_yaml_bytes, load_project_file, load_typed_project_file,
-    package_entry_hashes, read_package, read_package_bytes, read_typed_package,
-    read_typed_package_bytes, write_package, write_typed_package,
+    LegacyRootSelection, MAX_ARCHIVE_ENTRIES, MAX_FILE_BYTES, MetricCatalog, ProjectRoot,
+    build_package_bytes, build_typed_package_bytes, build_typed_yaml_bytes, from_yaml_str,
+    load_project_file, load_typed_project_file, package_entry_hashes, read_package,
+    read_package_bytes, read_typed_package, read_typed_package_bytes, write_package,
+    write_typed_package,
 };
 use zip::{CompressionMethod, ZipWriter, write::SimpleFileOptions};
 
@@ -22,6 +23,37 @@ fn root() -> PathBuf {
         .nth(2)
         .unwrap_or_else(|| panic!("core crate must be nested under the workspace root"))
         .to_path_buf()
+}
+
+#[test]
+fn mixed_catalog_versions_round_trip_in_both_project_packages() {
+    let mut legacy = read_package(&root().join("examples/db-pilot-package.zip"))
+        .unwrap_or_else(|error| panic!("legacy package: {error}"));
+    let catalog: MetricCatalog = from_yaml_str(
+        &fs::read_to_string(root().join("fixtures/formats/v2/positive/json-mixed-catalog.yaml"))
+            .unwrap_or_else(|error| panic!("catalog fixture: {error}")),
+    )
+    .unwrap_or_else(|error| panic!("catalog: {error}"));
+    legacy.catalogs.insert("linux".to_owned(), catalog.clone());
+    let raw = build_package_bytes(&legacy).unwrap_or_else(|error| panic!("legacy build: {error}"));
+    assert_eq!(
+        read_package_bytes(&raw).unwrap_or_else(|error| panic!("legacy reopen: {error}")),
+        legacy
+    );
+
+    let typed = legacy
+        .migrate(&LegacyRootSelection::Page {
+            dashboard_id: "db-pilot".to_owned(),
+            page_id: "operating-system".to_owned(),
+        })
+        .unwrap_or_else(|error| panic!("migration: {error}"));
+    let raw =
+        build_typed_package_bytes(&typed).unwrap_or_else(|error| panic!("typed build: {error}"));
+    assert_eq!(
+        read_typed_package_bytes(&raw).unwrap_or_else(|error| panic!("typed reopen: {error}")),
+        typed
+    );
+    assert_eq!(typed.catalogs["linux"], catalog);
 }
 
 #[test]

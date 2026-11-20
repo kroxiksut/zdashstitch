@@ -1,12 +1,14 @@
 <script lang="ts">
   import type { I18n } from '../i18n';
   import type { NewOfflinePage } from './client';
+  import type { EditorPreferences } from '../settings/editor';
   import { firstFree, pointerBox, repeatLayout, validBox, validGroup, moveSelection, type FixedLayout, type LayoutChange } from './editor-geometry';
   import { selectWidget, widgetOrder } from './editor-selection';
   import type { EditorFinding } from './editor-composition';
   import { resolveText } from '../components';
-  let { i18n, widgets, titles, disabled = false, onchange, onremove, onduplicate, selectedIds = [], onselection = () => {}, ongroupmove, ongroupremove, findings = [] }: {
+  let { i18n, widgets, titles, defaultZoom = 'fit_width', showGrid = true, disabled = false, onchange, onremove, onduplicate, selectedIds = [], onselection = () => {}, ongroupmove, ongroupremove, findings = [] }: {
     i18n: I18n; widgets: NewOfflinePage['widgets']; titles: string[]; disabled?: boolean;
+    defaultZoom?: EditorPreferences['default_zoom']; showGrid?: boolean;
     onchange: (index: number, layout: FixedLayout, action: 'move' | 'resize') => void;
     onremove: (index: number) => void; onduplicate: (index: number) => void;
     selectedIds?: string[]; onselection?: (ids: string[]) => void;
@@ -14,10 +16,14 @@
     findings?: readonly EditorFinding[];
   } = $props();
   let viewport: HTMLDivElement;
+  const canvasWidth = 864;
+  let viewportWidth = $state(0);
   let anchor = $state<string | null>(null);
   const selected = $derived(selectedIds.at(-1) ?? null);
   const selectedIndex = $derived(widgets.findIndex((widget) => widget.widget_id === selected));
-  let zoom = $state(1);
+  let chosenZoom = $state<number | 'fit_width' | null>(null);
+  const fitZoom = $derived(viewportWidth ? Math.min(3, Math.max(.25, viewportWidth / canvasWidth)) : 1);
+  const zoom = $derived(chosenZoom === 'fit_width' || (chosenZoom === null && defaultZoom === 'fit_width') ? fitZoom : chosenZoom ?? 1);
   let x = $state(0); let y = $state(0); let w = $state(12); let h = $state(5);
   let rejected = $state(false);
   let grid: HTMLDivElement;
@@ -119,16 +125,16 @@
   <h3 id="editor-canvas-title">{i18n.t('offline_editor.canvas')}</h3>
   <p id="editor-canvas-help">{i18n.t('offline_editor.canvas_help')}</p>
   <div class="actions">
-    <button type="button" disabled={gesture !== null} onclick={() => zoom = Math.max(.25, zoom / 1.25)}>{i18n.t('offline_editor.zoom_out')}</button>
-    <button type="button" disabled={gesture !== null} onclick={() => zoom = 1}>{i18n.t('offline_editor.zoom_reset')}</button>
-    <button type="button" disabled={gesture !== null} onclick={() => zoom = Math.min(3, zoom * 1.25)}>{i18n.t('offline_editor.zoom_in')}</button>
-    <button type="button" disabled={gesture !== null} onclick={() => zoom = Math.max(.25, (viewport?.clientWidth ?? 864) / 864)}>{i18n.t('offline_editor.zoom_fit')}</button>
+    <button type="button" disabled={gesture !== null} onclick={() => chosenZoom = Math.max(.25, zoom / 1.25)}>{i18n.t('offline_editor.zoom_out')}</button>
+    <button type="button" disabled={gesture !== null} onclick={() => chosenZoom = 1}>{i18n.t('offline_editor.zoom_reset')}</button>
+    <button type="button" disabled={gesture !== null} onclick={() => chosenZoom = Math.min(3, zoom * 1.25)}>{i18n.t('offline_editor.zoom_in')}</button>
+    <button type="button" disabled={gesture !== null} onclick={() => chosenZoom = 'fit_width'}>{i18n.t('offline_editor.zoom_fit')}</button>
   </div>
   {#if rejected}<p role="alert">{i18n.t('offline_editor.geometry_rejected')}</p>{/if}
   <!-- The scroll viewport needs its own keyboard stop for panning. -->
   <!-- svelte-ignore a11y_no_noninteractive_tabindex, a11y_no_noninteractive_element_interactions (Focusable scroll region supports canvas selection shortcuts.) -->
-  <div class="canvas-scroll" bind:this={viewport} role="region" aria-label={i18n.t('offline_editor.canvas')} tabindex="0" onkeydown={(event) => { if (event.target === viewport) selectionKey(event); }}>
-    <div class="canvas-grid" bind:this={grid} style:width={`${864 * zoom}px`} style:height={`${64 * 33.6 * zoom}px`}>
+  <div class="canvas-scroll" bind:this={viewport} bind:clientWidth={viewportWidth} role="region" aria-label={i18n.t('offline_editor.canvas')} tabindex="0" onkeydown={(event) => { if (event.target === viewport) selectionKey(event); }}>
+    <div class="canvas-grid" class:show-grid={showGrid} bind:this={grid} style:width={`${canvasWidth * zoom}px`} style:height={`${64 * 33.6 * zoom}px`}>
       {#each widgets as widget, index (widget.widget_id)}
         {#if widget.layout?.mode === 'fixed'}
           {@const box = widget.layout}
@@ -185,7 +191,8 @@
 <style>
   .editor-canvas { min-width: 0; }
   .canvas-scroll { max-height: 60vh; overflow: auto; border: 1px solid var(--grid-bounds); margin-block: .5rem; }
-  .canvas-grid { position: relative; background-color: var(--surface-canvas); background-image: linear-gradient(to right, var(--grid-line) 1px, transparent 1px), linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px); background-size: calc(100% / 72) calc(100% / 64); }
+  .canvas-grid { position: relative; background-color: var(--surface-canvas); }
+  .canvas-grid.show-grid { background-image: linear-gradient(to right, var(--grid-line) 1px, transparent 1px), linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px); background-size: calc(100% / 72) calc(100% / 64); }
   .canvas-widget-shell { position: absolute; }
   .canvas-widget { position: absolute; inset: 0; width: 100%; height: 100%; overflow: hidden; min-height: 0; border: 1px solid var(--grid-bounds); background: var(--surface-base); color: var(--text-primary); border-radius: 0; padding: .25rem; touch-action: none; cursor: move; }
   .resize-handle { position: absolute; right: 0; bottom: 0; min-width: 32px; min-height: 32px; touch-action: none; cursor: nwse-resize; }

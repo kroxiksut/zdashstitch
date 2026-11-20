@@ -304,6 +304,37 @@ impl Transport {
         .await
     }
 
+    /// Zabbix 8.0 read-only diagnostic for the current role. This does not
+    /// provide publication authority.
+    pub(crate) async fn read_current_role_rules(&self, token: &SecretString) -> Result<Vec<Value>> {
+        self.call(
+            crate::create_permission::OWN_ROLE_METHOD,
+            serde_json::json!({
+                "current": true,
+                "output": ["roleid", "type"],
+                "selectRules": ["api.access", "api.mode", "api"]
+            }),
+            Some(token),
+        )
+        .await
+    }
+
+    pub(crate) async fn read_current_dashboard_role_rules(
+        &self,
+        token: &SecretString,
+    ) -> Result<Vec<Value>> {
+        self.call(
+            crate::create_permission::OWN_ROLE_METHOD,
+            serde_json::json!({
+                "current": true,
+                "output": ["roleid", "type"],
+                "selectRules": ["api.access", "api.mode", "api", "actions"]
+            }),
+            Some(token),
+        )
+        .await
+    }
+
     /// Write methods require a grant that only `ReadWriteGateway` holds.
     pub(crate) async fn write<T: DeserializeOwned>(
         &self,

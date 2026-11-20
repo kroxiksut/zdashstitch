@@ -270,4 +270,17 @@ describe('«Appearance» section (mockup 06-01)', () => {
     expect(body).toContain('Файл настроек содержит ошибки и не применён');
     expect(body).toContain('изменения здесь действуют до перезапуска');
   });
+
+  it('shows the localized YAML position and gives the user a reload action', async () => {
+    const client = createHttpAppearanceClient((async () => Response.json({
+      ...DEFAULT_APPEARANCE, file_state: 'invalid', fingerprint: 'invalid', session_only: false,
+      issue: { code: 'invalid_yaml', line: 2, column: 14, message: 'sensitive parser detail' }
+    })) as typeof fetch);
+    const store = new AppearanceStore(client, environment());
+    await store.load();
+    const { body } = render(AppearanceSection, { props: { i18n: ru, store } });
+    expect(body).toContain(ru.t('settings.file.issue.yaml_location', { line: 2, column: 14 }));
+    expect(body).toContain(ru.t('settings.editor.reload'));
+    expect(body).not.toContain('sensitive parser detail');
+  });
 });

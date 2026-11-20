@@ -187,6 +187,12 @@ impl LocalStore {
     /// verified snapshot already existed and was reused. An existing file
     /// with this fingerprint that fails verification is never overwritten.
     pub(crate) fn put_snapshot(&self, file: &SnapshotFile) -> Result<bool, WorkcopyError> {
+        verify_snapshot(
+            file,
+            &file.connection_id,
+            &file.dashboardid,
+            &file.fingerprint,
+        )?;
         let _guard =
             crate::snapshot_guard::lock().map_err(|_| WorkcopyError::new("storage_unavailable"))?;
         let raw = serde_json::to_vec(file).map_err(|_| WorkcopyError::new("snapshot_corrupt"))?;
@@ -324,11 +330,12 @@ impl LocalStore {
             crate::snapshot_guard::lock().map_err(|_| WorkcopyError::new("storage_unavailable"))?;
         // Detect a linked workcopies directory before verifying the Base.
         let _ = self.path(&[WORKCOPIES], false)?;
-        self.load_snapshot(
+        let (_, base) = self.load_snapshot(
             &file.source.connection_id,
             &file.source.dashboardid,
             &file.base.fingerprint,
         )?;
+        verify_workcopy_source(file, &base)?;
         let raw = workcopy_bytes(file)?;
         self.create_local_draft(WORKCOPIES, &file.workcopy_id, &raw, None)
     }
@@ -396,11 +403,12 @@ impl LocalStore {
     pub(crate) fn replace_workcopy(&self, file: &WorkcopyFile) -> Result<(), WorkcopyError> {
         let _guard =
             crate::snapshot_guard::lock().map_err(|_| WorkcopyError::new("storage_unavailable"))?;
-        self.load_snapshot(
+        let (_, base) = self.load_snapshot(
             &file.source.connection_id,
             &file.source.dashboardid,
             &file.base.fingerprint,
         )?;
+        verify_workcopy_source(file, &base)?;
         let raw = workcopy_bytes(file)?;
         let directory = self
             .path(&[WORKCOPIES, &file.workcopy_id], false)?
@@ -533,6 +541,20 @@ fn verify_snapshot(
         return Err(corrupt());
     }
     Ok(snapshot)
+}
+
+fn verify_workcopy_source(
+    file: &WorkcopyFile,
+    base: &VersionedDashboardSnapshot,
+) -> Result<(), WorkcopyError> {
+    if file.source.adapter_id != base.adapter_id()
+        || file.source.server_version != base.server_version().to_string()
+        || file.source.connection_id != base.connection_id()
+        || file.source.dashboardid != base.dashboard_id()
+    {
+        return Err(WorkcopyError::new("workcopy_corrupt"));
+    }
+    Ok(())
 }
 
 fn exists(directory: &Dir, name: &str) -> Result<bool, WorkcopyError> {

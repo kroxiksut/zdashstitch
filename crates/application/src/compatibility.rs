@@ -8,9 +8,27 @@ use zdashstitch_core::{
         ProjectRoot, RegistryState, TypedProject, Widget, ZabbixWidgetField, ZabbixWidgetFieldValue,
     },
 };
-use zdashstitch_zabbix::{WidgetCapabilityRegistry, WidgetFieldType};
+use zdashstitch_zabbix::{
+    AdapterProfile, AdapterRegistry, WidgetCapabilityRegistry, WidgetFieldType, ZabbixVersion,
+};
 
 use crate::MessageId;
+
+/// The authored minimum identifies the evaluation family when a supported
+/// stable registry exists. Catalog export versions and connection state are
+/// independent of this local assessment.
+pub(crate) fn project_evaluation_profile(project: &TypedProject) -> Option<AdapterProfile> {
+    let version = &project.declared_compatibility.minimum;
+    if version.prerelease.is_some() {
+        return None;
+    }
+    AdapterRegistry::resolve_profile(&ZabbixVersion {
+        major: version.major,
+        minor: version.minor,
+        patch: version.patch,
+    })
+    .ok()
+}
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum CompatibilityKnowledge {
@@ -269,7 +287,10 @@ pub fn validate_portable_widget_for_create(
         if matches!(field.value, ZabbixWidgetFieldValue::DynamicPattern { .. }) {
             return Err(PortableWidgetCreateError::PatternVerificationRequired);
         }
-        if matches!(field.value, ZabbixWidgetFieldValue::Unresolved { .. }) {
+        if matches!(
+            field.value,
+            ZabbixWidgetFieldValue::Unresolved { .. } | ZabbixWidgetFieldValue::LldInstance { .. }
+        ) {
             return Err(PortableWidgetCreateError::UnresolvedWidgetField);
         }
     }
@@ -528,6 +549,25 @@ mod tests {
 
     fn check(widget: &Widget) -> Result<(), PortableWidgetCreateError> {
         validate_portable_widget_for_create(widget, &WidgetCapabilityRegistry::v7_4())
+    }
+
+    #[test]
+    fn portable_lld_review_alone_never_enables_creation() {
+        let value = ZabbixWidgetFieldValue::LldInstance {
+            catalog: "linux".into(),
+            metric: "cpu".into(),
+            source_key: "cpu[instance]".into(),
+            hosts: HostSelection {
+                role: "db".into(),
+                selection: Selection::One,
+                slot_id: None,
+            },
+        };
+        let widget = zabbix_widget("item", vec![field("itemid.0", 4, value)]);
+        assert_eq!(
+            check(&widget),
+            Err(PortableWidgetCreateError::UnresolvedWidgetField)
+        );
     }
 
     #[test]

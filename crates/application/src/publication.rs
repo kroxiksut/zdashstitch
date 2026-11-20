@@ -212,8 +212,26 @@ fn same(left: &Value, right: &Value, keys: &[&str]) -> bool {
         .all(|key| scalar(left.get(*key)) == scalar(right.get(*key)))
 }
 
+fn same_except(left: &Value, right: &Value, excluded: &[&str]) -> bool {
+    let (Some(left), Some(right)) = (left.as_object(), right.as_object()) else {
+        return left == right;
+    };
+    let relevant = |key: &str| !excluded.contains(&key);
+    let contained = |from: &serde_json::Map<String, Value>, to: &serde_json::Map<String, Value>| {
+        from.iter()
+            .filter(|(key, _)| relevant(key))
+            .all(|(key, value)| to.get(key) == Some(value))
+    };
+    contained(left, right) && contained(right, left)
+}
+
+fn same_exact(left: &Value, right: &Value, keys: &[&str]) -> bool {
+    keys.iter().all(|key| left.get(key) == right.get(key))
+}
+
 const GEOMETRY: [&str; 4] = ["x", "y", "width", "height"];
 const WIDGET_CONTENT: [&str; 3] = ["type", "name", "view_mode"];
+const ACCESS_PROPERTIES: [&str; 4] = ["userid", "private", "users", "userGroups"];
 
 fn page_number(index: usize) -> Option<u32> {
     u32::try_from(index + 1).ok()
@@ -234,6 +252,9 @@ pub fn remote_changes(
             ..RemoteDiff::default()
         };
     };
+    // The 7.4 laboratory established which array order is incidental.
+    // Preserve the complete raw content and order when comparing 8.0.
+    let strict = base.adapter_id() != "zabbix-7.4";
     let (base, remote) = (base.raw_api_document(), remote.raw_api_document());
     let mut changes = Vec::new();
     let dashboard_row = |kind| RemoteChange {
@@ -245,13 +266,26 @@ pub fn remote_changes(
         widgetid: None,
         overlaps: false,
     };
-    if !same(base, remote, &["name", "display_period", "auto_start"]) {
+    let dashboard_same = if strict {
+        same_except(
+            base,
+            remote,
+            &["pages", "userid", "private", "users", "userGroups"],
+        )
+    } else {
+        same(base, remote, &["name", "display_period", "auto_start"])
+    };
+    if !dashboard_same {
         changes.push(dashboard_row(RemoteChangeKind::DashboardProperties));
     }
-    if !same(base, remote, &["userid", "private"])
-        || array(base, "users") != array(remote, "users")
-        || array(base, "userGroups") != array(remote, "userGroups")
-    {
+    let access_same = if strict {
+        same_exact(base, remote, &ACCESS_PROPERTIES)
+    } else {
+        same(base, remote, &["userid", "private"])
+            && array(base, "users") == array(remote, "users")
+            && array(base, "userGroups") == array(remote, "userGroups")
+    };
+    if !access_same {
         changes.push(dashboard_row(RemoteChangeKind::Access));
     }
     let pages = |raw: &Value| -> BTreeMap<String, (usize, Value)> {
@@ -294,6 +328,20 @@ pub fn remote_changes(
             .map(|widget| (text(widget, "widgetid").to_owned(), widget.clone()))
             .collect()
     };
+    let widget_order = |page: &Value| -> Vec<String> {
+        array(page, "widgets")
+            .iter()
+            .map(|widget| text(widget, "widgetid").to_owned())
+            .collect()
+    };
+    let widget_content_same = |widget: &Value, old: &Value| {
+        if strict {
+            same_except(widget, old, &GEOMETRY)
+        } else {
+            same(widget, old, &WIDGET_CONTENT) && fields(widget) == fields(old)
+        }
+    };
+    let widget_geometry_same = if strict { same_exact } else { same };
     for (pageid, (index, page)) in &remote_pages {
         let Some((base_index, base_page)) = base_pages.get(pageid) else {
             changes.push(page_row(RemoteChangeKind::PageAdded, *index, page));
@@ -307,12 +355,18 @@ pub fn remote_changes(
             }
             continue;
         };
+        let (now, before) = (widgets(page), widgets(base_page));
+        let page_same = if strict {
+            same_except(page, base_page, &["widgets"])
+                && (!now.keys().eq(before.keys()) || widget_order(page) == widget_order(base_page))
+        } else {
+            same(page, base_page, &["display_period"])
+        };
         if text(page, "name") != text(base_page, "name") {
             changes.push(page_row(RemoteChangeKind::PageRenamed, *index, page));
-        } else if index != base_index || !same(page, base_page, &["display_period"]) {
+        } else if index != base_index || !page_same {
             changes.push(page_row(RemoteChangeKind::PageChanged, *index, page));
         }
-        let (now, before) = (widgets(page), widgets(base_page));
         for (widgetid, widget) in &now {
             match before.get(widgetid) {
                 None => changes.push(widget_row(
@@ -321,9 +375,7 @@ pub fn remote_changes(
                     page,
                     widget,
                 )),
-                Some(old)
-                    if !same(widget, old, &WIDGET_CONTENT) || fields(widget) != fields(old) =>
-                {
+                Some(old) if !widget_content_same(widget, old) => {
                     changes.push(widget_row(
                         RemoteChangeKind::WidgetChanged,
                         *index,
@@ -331,12 +383,9 @@ pub fn remote_changes(
                         widget,
                     ));
                 }
-                Some(old) if !same(widget, old, &GEOMETRY) => changes.push(widget_row(
-                    RemoteChangeKind::WidgetMoved,
-                    *index,
-                    page,
-                    widget,
-                )),
+                Some(old) if !widget_geometry_same(widget, old, &GEOMETRY) => changes.push(
+                    widget_row(RemoteChangeKind::WidgetMoved, *index, page, widget),
+                ),
                 Some(_) => {}
             }
         }
@@ -550,6 +599,62 @@ mod tests {
             "display_period": "30", "auto_start": "1", "users": [], "userGroups": [],
             "pages": pages
         })
+    }
+
+    #[test]
+    fn eight_zero_conflict_diff_retains_unknown_properties_and_field_order() {
+        let base = dashboard(json!([{
+            "dashboard_pageid":"11", "name":"One", "display_period":"0",
+            "widgets":[widget("101", "A", "0", "1"), widget("102", "B", "12", "2")]
+        }]));
+        let mut base = base;
+        base["pages"][0]["widgets"][0]["fields"] = json!([
+            {"type":"4", "name":"itemid.0", "value":"1"},
+            {"type":"1", "name":"reference", "value":"ABCDE"}
+        ]);
+        let mut remote = base.clone();
+        remote["vendor_extra"] = json!({"keep":true});
+        remote["pages"][0]["vendor_extra"] = json!(true);
+        remote["pages"][0]["widgets"][0]["fields"]
+            .as_array_mut()
+            .unwrap_or_else(|| panic!("fields"))
+            .reverse();
+        remote["pages"][0]["widgets"][1]["vendor_extra"] = json!(true);
+        let snapshots = |version: &str| {
+            let version = version
+                .parse::<ZabbixVersion>()
+                .unwrap_or_else(|error| panic!("version: {error}"));
+            [base.clone(), remote.clone()].map(|raw| {
+                VersionedDashboardSnapshot::from_adapter_raw(
+                    "conn".to_owned(),
+                    version.clone(),
+                    raw,
+                )
+                .unwrap_or_else(|error| panic!("snapshot: {error}"))
+            })
+        };
+        let [base_8, remote_8] = snapshots("8.0.2");
+        let local = BTreeSet::from(["101".to_owned()]);
+        let diff = remote_changes(&base_8, Some(&remote_8), &local);
+        assert_eq!(
+            diff.changes
+                .iter()
+                .map(|change| change.kind)
+                .collect::<Vec<_>>(),
+            [
+                RemoteChangeKind::DashboardProperties,
+                RemoteChangeKind::PageChanged,
+                RemoteChangeKind::WidgetChanged,
+                RemoteChangeKind::WidgetChanged,
+            ]
+        );
+        assert_eq!(diff.overlapping_widgets, 1);
+        let [base_7, remote_7] = snapshots("7.4.16");
+        assert!(
+            remote_changes(&base_7, Some(&remote_7), &local)
+                .changes
+                .is_empty()
+        );
     }
 
     #[test]

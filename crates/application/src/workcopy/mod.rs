@@ -153,6 +153,10 @@ pub fn is_workcopy_id(value: &str) -> bool {
     is_prefixed_hex(value, "wc-")
 }
 
+pub(crate) fn is_offline_dashboard_id(value: &str) -> bool {
+    is_prefixed_hex(value, "db-")
+}
+
 /// Snapshot fingerprint (canonical or storage): 64 lowercase hex characters.
 pub(crate) fn is_fingerprint(value: &str) -> bool {
     value.len() == 64

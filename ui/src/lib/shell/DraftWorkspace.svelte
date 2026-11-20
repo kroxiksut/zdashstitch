@@ -7,6 +7,7 @@
   import type { ReplaceHostStore } from '../bindings/store.svelte';
   import type { PublicationStore, RecoveryStore } from '../publication/store.svelte';
   import RecoveryBanner from '../publication/RecoveryBanner.svelte';
+  import SaveCopyPublication from '../publication/SaveCopyPublication.svelte';
   import { copyDraftName, copyNaming } from '../workcopy/server';
   import { Breadcrumb, EmptyState, Skeleton, StatusBadge, resolveText, type LocalizedText } from '../components';
   import ChecksSection from './ChecksSection.svelte';
@@ -166,6 +167,16 @@
         <EmptyState {i18n} heading={{ id: 'draft.nav.bindings' }} reason={{ id: 'common.state.coming_later' }} />
       {:else if section === 'checks'}
         <ChecksSection {i18n} {draft} />
+      {:else if !demo && draft.origin === 'server_copy' && draft.kind === 'dashboard' && connection?.version === '8.0.0'}
+        {#if replaceHost && replaceHost.localId === localId && replaceHost.preview}
+          <PublicationSection {i18n} store={replaceHost} {draft} {localId} {serverReads} {connection} {publication} {recovery} {profileName} {draftName} copyName={refetchName} separateCopy />
+        {:else if recovery}
+          <RecoveryBanner {i18n} store={recovery} {localId} {profileName} {draftName} activeConnectionId={activeConnectionId} />
+        {/if}
+        {#key localId}
+          <SaveCopyPublication {i18n} {localId} sourceName={draft.source?.dashboard_name ?? draft.name}
+            connected={serverReads} writable={serverReads && connection.writable === true} />
+        {/key}
       {:else if replaceHost}
         <PublicationSection {i18n} store={replaceHost} {draft} {localId} {serverReads} {connection} {publication} {recovery} {profileName} {draftName} copyName={refetchName} />
       {:else}

@@ -51,8 +51,12 @@ fn version() -> ZabbixVersion {
 }
 
 fn snapshot_file(raw: Value) -> SnapshotFile {
+    snapshot_file_for_version(raw, version())
+}
+
+fn snapshot_file_for_version(raw: Value, version: ZabbixVersion) -> SnapshotFile {
     let snapshot =
-        VersionedDashboardSnapshot::from_adapter_raw(CONNECTION.to_owned(), version(), raw)
+        VersionedDashboardSnapshot::from_adapter_raw(CONNECTION.to_owned(), version, raw)
             .unwrap_or_else(|error| panic!("snapshot: {error}"));
     let fingerprint = snapshot.storage_fingerprint().to_owned();
     SnapshotFile {
@@ -60,7 +64,7 @@ fn snapshot_file(raw: Value) -> SnapshotFile {
         storage_scope: LOCAL_ONLY.to_owned(),
         connection_id: CONNECTION.to_owned(),
         adapter_id: snapshot.adapter_id().to_owned(),
-        server_version: "7.4.16".to_owned(),
+        server_version: snapshot.server_version().to_string(),
         dashboardid: "42".to_owned(),
         scope: SnapshotScope::Dashboard,
         first_read_at_ms: 1,
@@ -83,6 +87,7 @@ fn workcopy_file(snapshot: &SnapshotFile, id: &str) -> WorkcopyFile {
         updated_at_ms: 10,
         revision: 0,
         source: WorkcopySource {
+            server_identity_fingerprint: None,
             connection_id: CONNECTION.to_owned(),
             dashboardid: "42".to_owned(),
             dashboard_name: "Synthetic".to_owned(),
@@ -406,6 +411,147 @@ fn snapshot_is_write_once_and_verified_on_read() {
         snapshot.raw_api_document()["pages"][0]["widgets"][0]["x_vendor"],
         json!({"kept": true})
     );
+}
+
+#[test]
+fn legacy_workcopy_reopens_with_unchanged_base_bytes_and_fingerprints() {
+    let directory = temp_root();
+    let store = LocalStore::at(directory.path().to_path_buf());
+    let file = snapshot_file(raw_dashboard("Synthetic"));
+    let canonical = VersionedDashboardSnapshot::from_adapter_raw(
+        CONNECTION.to_owned(),
+        version(),
+        file.raw_api_document.clone(),
+    )
+    .unwrap_or_else(|error| panic!("snapshot: {error}"))
+    .fingerprint()
+    .to_owned();
+    store
+        .put_snapshot(&file)
+        .unwrap_or_else(|error| panic!("snapshot: {error}"));
+    store
+        .create_workcopy(&workcopy_file(&file, WORKCOPY))
+        .unwrap_or_else(|error| panic!("workcopy: {error}"));
+    let snapshot_path = snapshot_path(directory.path(), &file);
+    let workcopy_path = workcopy_path(directory.path(), WORKCOPY);
+    let old_snapshot_bytes = read(&snapshot_path);
+    let old_workcopy_bytes = read(&workcopy_path);
+    drop(store);
+
+    let reopened = WorkcopyService::new(directory.path().to_path_buf());
+    let base = reopened
+        .base_snapshot(WORKCOPY)
+        .unwrap_or_else(|error| panic!("reopen Base: {error}"));
+    assert_eq!(base.adapter_id(), "zabbix-7.4");
+    assert_eq!(base.storage_fingerprint(), file.fingerprint);
+    assert_eq!(base.fingerprint(), canonical);
+    assert_eq!(
+        reopened
+            .load(WORKCOPY)
+            .unwrap_or_else(|error| panic!("reopen workcopy: {error}"))
+            .base
+            .fingerprint,
+        file.fingerprint
+    );
+    assert_eq!(read(&snapshot_path), old_snapshot_bytes);
+    assert_eq!(read(&workcopy_path), old_workcopy_bytes);
+}
+
+#[test]
+fn eight_zero_snapshot_identity_round_trips_and_spoofed_adapter_is_untouched() {
+    let directory = temp_root();
+    let store = LocalStore::at(directory.path().to_path_buf());
+    let mut raw = raw_dashboard("Synthetic 8");
+    raw["pages"][0]["widgets"][0]["type"] = json!("item");
+    raw["pages"][0]["widgets"][0]["fields"] = json!([{"type":"4","name":"itemid.0","value":"101"}]);
+    let version: ZabbixVersion = "8.0.0"
+        .parse()
+        .unwrap_or_else(|error| panic!("version: {error}"));
+    let snapshot =
+        VersionedDashboardSnapshot::from_adapter_raw(CONNECTION.to_owned(), version, raw.clone())
+            .unwrap_or_else(|error| panic!("snapshot: {error}"));
+    assert_eq!(snapshot.adapter_id(), "zabbix-8.0");
+    let mut file = snapshot_file(raw);
+    file.adapter_id = snapshot.adapter_id().to_owned();
+    file.server_version = "8.0.0".to_owned();
+    file.fingerprint = snapshot.storage_fingerprint().to_owned();
+    file.first_read_fingerprint = file.fingerprint.clone();
+    file.last_read_fingerprint = file.fingerprint.clone();
+    store
+        .put_snapshot(&file)
+        .unwrap_or_else(|error| panic!("8.0 snapshot: {error}"));
+    let workcopy = workcopy_file(&file, WORKCOPY);
+    store
+        .create_workcopy(&workcopy)
+        .unwrap_or_else(|error| panic!("8.0 workcopy: {error}"));
+    drop(store);
+    let reopened = WorkcopyService::new(directory.path().to_path_buf());
+    let base = reopened
+        .base_snapshot(WORKCOPY)
+        .unwrap_or_else(|error| panic!("8.0 reopen: {error}"));
+    assert_eq!(base.adapter_id(), "zabbix-8.0");
+    assert_eq!(base.storage_fingerprint(), file.fingerprint);
+    let detail = reopened
+        .draft(WORKCOPY)
+        .unwrap_or_else(|error| panic!("8.0 draft: {error}"));
+    assert!(
+        !detail.pages[0].widgets[0].editable,
+        "unverified 8.0 item codec must remain closed"
+    );
+    let snapshot_path = snapshot_path(directory.path(), &file);
+    let workcopy_path = workcopy_path(directory.path(), WORKCOPY);
+    let original_snapshot = read(&snapshot_path);
+    let original_workcopy = read(&workcopy_path);
+
+    let mut spoofed = file.clone();
+    spoofed.adapter_id = "zabbix-7.4".to_owned();
+    let error = LocalStore::at(directory.path().to_path_buf())
+        .put_snapshot(&spoofed)
+        .err()
+        .map(|error| error.code());
+    assert_eq!(error, Some("snapshot_unsupported_adapter"));
+    assert_eq!(read(&snapshot_path), original_snapshot);
+    let mut tampered: Value =
+        serde_json::from_slice(&original_snapshot).unwrap_or_else(|error| panic!("json: {error}"));
+    tampered["adapter_id"] = json!("zabbix-7.4");
+    write(
+        &snapshot_path,
+        &serde_json::to_vec(&tampered).unwrap_or_else(|error| panic!("json: {error}")),
+    );
+    let tampered_bytes = read(&snapshot_path);
+    assert_eq!(
+        reopened
+            .base_snapshot(WORKCOPY)
+            .err()
+            .map(|error| error.code()),
+        Some("snapshot_unsupported_adapter")
+    );
+    assert_eq!(read(&snapshot_path), tampered_bytes);
+    assert_eq!(read(&workcopy_path), original_workcopy);
+
+    write(&snapshot_path, &original_snapshot);
+    let mut tampered_workcopy: Value =
+        serde_json::from_slice(&original_workcopy).unwrap_or_else(|error| panic!("json: {error}"));
+    tampered_workcopy["source"]["server_version"] = json!("7.4.16");
+    write(
+        &workcopy_path,
+        &serde_json::to_vec(&tampered_workcopy).unwrap_or_else(|error| panic!("json: {error}")),
+    );
+    let tampered_bytes = read(&workcopy_path);
+    assert_eq!(
+        reopened
+            .base_snapshot(WORKCOPY)
+            .err()
+            .map(|error| error.code()),
+        Some("workcopy_corrupt")
+    );
+    assert_eq!(read(&workcopy_path), tampered_bytes);
+    assert_eq!(read(&snapshot_path), original_snapshot);
+    let listed = reopened
+        .list_drafts()
+        .unwrap_or_else(|error| panic!("list: {error}"));
+    assert!(listed.drafts.is_empty());
+    assert_eq!(listed.damaged[0].code, "workcopy_corrupt");
 }
 
 #[test]
@@ -959,6 +1105,8 @@ fn snapshot_deletion_blocks_unfinished_finished_and_damaged_journals() {
         .clone();
     let journal = PublishJournal::new(path.clone());
     let record = OperationRecord {
+        planned_deployment: None,
+        portable_update: None,
         kind: OperationKind::Update,
         intent: "replace_host",
         connection_id: CONNECTION.to_owned(),
@@ -1051,6 +1199,52 @@ fn concurrent_workcopy_creation_and_snapshot_deletion_never_leave_dangling_base(
                 .is_ok()
         );
     }
+}
+
+#[test]
+fn snapshot_library_keeps_distinct_versions_of_identical_raw_data() {
+    use crate::snapshot_library::SnapshotLibrary;
+
+    let root = temp_root();
+    let path = root.path().to_owned();
+    let store = LocalStore::at(path.clone());
+    let raw = raw_dashboard("Same raw dashboard");
+    let legacy = snapshot_file(raw.clone());
+    let experimental = snapshot_file_for_version(
+        raw,
+        "8.0.2".parse().unwrap_or_else(|error| panic!("{error}")),
+    );
+    for snapshot in [&legacy, &experimental] {
+        assert!(
+            !store
+                .put_snapshot(snapshot)
+                .unwrap_or_else(|error| panic!("{error}"))
+        );
+    }
+    let listing = SnapshotLibrary::open(path.clone()).unwrap_or_else(|error| panic!("{error}"));
+    assert!(listing.damaged.is_empty());
+    assert_eq!(listing.snapshots.len(), 2);
+    let left = listing
+        .snapshots
+        .iter()
+        .find(|snapshot| snapshot.server_version == "7.4.16")
+        .unwrap_or_else(|| panic!("7.4 snapshot"));
+    let right = listing
+        .snapshots
+        .iter()
+        .find(|snapshot| snapshot.server_version == "8.0.2")
+        .unwrap_or_else(|| panic!("8.0 snapshot"));
+    assert_ne!(left.library_id, right.library_id);
+    assert_eq!(
+        SnapshotLibrary::compare(path.clone(), &left.library_id, &right.library_id)
+            .err()
+            .map(|error| error.code()),
+        Some("snapshot_scope_mismatch")
+    );
+    SnapshotLibrary::delete(path.clone(), &right.library_id, true)
+        .unwrap_or_else(|error| panic!("{error}"));
+    let reopened = SnapshotLibrary::open(path).unwrap_or_else(|error| panic!("{error}"));
+    assert_eq!(reopened.snapshots, vec![left.clone()]);
 }
 
 #[test]

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Synthetic Zabbix 8.0 template export. See template-export-synthetic.md. -->
+<zabbix_export>
+  <version>8.0</version>
+  <template_groups>
+    <template_group>
+      <uuid>58f44162b8674563aedaa48863d12836</uuid>
+      <name>Templates/Synthetic</name>
+    </template_group>
+  </template_groups>
+  <templates>
+    <template>
+      <uuid>4bd523679faa48778aa59efa07ef9f01</uuid>
+      <template>Synthetic database</template>
+      <name>Synthetic DB &amp; counters</name>
+      <groups><group><name>Templates/Synthetic</name></group></groups>
+      <templates>
+        <template><name>Synthetic base</name></template>
+        <template><name>Synthetic external</name></template>
+      </templates>
+      <items>
+        <item>
+          <uuid>4a5e6e43a1034bf7ac73015558dea89e</uuid>
+          <name>Pool size</name>
+          <key>synthetic.pool.size</key>
+        </item>
+        <item>
+          <uuid>84a5e9e8ec46486a9959f4540c3132b8</uuid>
+          <name>Pool state</name>
+          <key>synthetic.pool.state</key>
+          <value_type>JSON</value_type>
+          <delay>30s</delay>
+        </item>
+      </items>
+      <discovery_rules>
+        <discovery_rule>
+          <uuid>f7c9f1d51b574c27b59f2a65c9ce4afb</uuid>
+          <name>Discover pools</name>
+          <key>synthetic.pool.discovery</key>
+          <item_prototypes>
+            <item_prototype>
+              <uuid>98f0f4eb9edd49acac32200935b4e81a</uuid>
+              <name>State of pool {#POOL}</name>
+              <key>synthetic.pool.state[{#POOL}]</key>
+              <value_type>JSON</value_type>
+            </item_prototype>
+          </item_prototypes>
+        </discovery_rule>
+      </discovery_rules>
+    </template>
+    <template>
+      <uuid>6ae4106bf58144798313ab832960a70a</uuid>
+      <template>Synthetic base</template>
+      <name>Synthetic base</name>
+      <groups><group><name>Templates/Synthetic</name></group></groups>
+      <items>
+        <item>
+          <uuid>fdc6b807945b4ac08ef0ce5202d0f34a</uuid>
+          <name>Text state</name>
+          <key>synthetic.pool.state</key>
+          <value_type>TEXT</value_type>
+        </item>
+      </items>
+    </template>
+  </templates>
+</zabbix_export>

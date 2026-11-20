@@ -15,8 +15,9 @@ use std::collections::{BTreeMap, BTreeSet};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use zdashstitch_zabbix::{
-    AdapterRegistry, DependencyKind, SnapshotDependency, VersionedDashboardSnapshot,
-    WidgetCapability, WidgetCapabilityRegistry, WidgetFieldType, WriteContract, is_zabbix_id,
+    AdapterProfile, AdapterRegistry, DependencyKind, DependencyState, SnapshotDependency,
+    VersionedDashboardSnapshot, WidgetCapability, WidgetCapabilityRegistry, WidgetFieldType,
+    WriteContract, ZabbixError, is_zabbix_id,
 };
 
 use super::ResolverError;
@@ -163,6 +164,8 @@ pub struct WidgetSources {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct SourceModel {
     pub dashboardid: String,
+    pub(crate) profile: AdapterProfile,
+    pub(crate) explicit_lld_choice: bool,
     /// Storage fingerprint of the Base snapshot the model was built from
     /// (`VersionedDashboardSnapshot::storage_fingerprint`): it is frozen
     /// into the operation log and checked against the workcopy's Base
@@ -264,6 +267,44 @@ pub fn source_model(
     snapshot: &VersionedDashboardSnapshot,
     registry: &WidgetCapabilityRegistry,
 ) -> Result<SourceModel, ResolverError> {
+    build_source_model(snapshot, registry, LocalBindingScope::Inspect)
+}
+
+/// Clone can prepare a local copy of documented 8.0 item references.
+/// This classification grants no adapter edit, create or publish capability.
+pub(crate) fn clone_source_model(
+    snapshot: &VersionedDashboardSnapshot,
+    registry: &WidgetCapabilityRegistry,
+) -> Result<SourceModel, ResolverError> {
+    build_source_model(snapshot, registry, LocalBindingScope::Clone)
+}
+
+/// Local calculation for a supported workcopy edit, without adapter write authority.
+pub(crate) fn workcopy_source_model(
+    snapshot: &VersionedDashboardSnapshot,
+    registry: &WidgetCapabilityRegistry,
+) -> Result<SourceModel, ResolverError> {
+    build_source_model(snapshot, registry, LocalBindingScope::Workcopy)
+}
+
+enum LocalBindingScope {
+    Inspect,
+    Clone,
+    Workcopy,
+}
+
+fn build_source_model(
+    snapshot: &VersionedDashboardSnapshot,
+    registry: &WidgetCapabilityRegistry,
+    local_scope: LocalBindingScope,
+) -> Result<SourceModel, ResolverError> {
+    let profile = AdapterRegistry::resolve_profile(snapshot.server_version())
+        .map_err(|error| ResolverError::from_zabbix(&error))?;
+    if registry.adapter() != profile.family() {
+        return Err(ResolverError::from_zabbix(
+            &ZabbixError::UnsupportedVersion(snapshot.server_version().to_string()),
+        ));
+    }
     let analysis = snapshot
         .analyze()
         .map_err(|error| ResolverError::from_zabbix(&error))?;
@@ -318,17 +359,60 @@ pub fn source_model(
             continue;
         };
         let widget = &mut widgets[position];
-        let Some(kind) = source_kind(dependency) else {
+        let kind =
+            if profile == AdapterProfile::V8_0 && dependency.state == DependencyState::Unknown {
+                Some(SourceKind::Unknown)
+            } else {
+                source_kind(dependency)
+            };
+        let Some(kind) = kind else {
             continue;
         };
         let capability = registry.find(&widget.widget_type);
-        let (applicability, applicability_reason) = applicability(
+        let mut decision = applicability(
             &widget.widget_type,
             capability,
             dependency,
             &kind,
             contracts,
         );
+        if profile == AdapterProfile::V8_0
+            && decision.1 == Some(ReasonCode::WidgetNotEditable)
+            && match (&local_scope, &kind) {
+                (LocalBindingScope::Clone, SourceKind::Item { .. }) => {
+                    widget.widget_type == "item"
+                        && is_item_widget_item_field(&dependency.field_name)
+                        || widget.widget_type == "svggraph"
+                            && is_svggraph_item_field(&dependency.field_name)
+                }
+                (LocalBindingScope::Workcopy, SourceKind::Item { .. }) => {
+                    snapshot.server_version().to_string() == "8.0.0"
+                        && match widget.widget_type.as_str() {
+                            "item" => dependency.field_name == "itemid.0",
+                            "svggraph" => matches!(
+                                dependency.field_name.as_str(),
+                                "ds.0.itemids.0" | "ds.0.itemids.1" | "ds.0.itemids.2"
+                            ),
+                            _ => false,
+                        }
+                }
+                (
+                    LocalBindingScope::Workcopy,
+                    SourceKind::HostPattern {
+                        place: PatternPlace::DataSet(0),
+                        pattern,
+                    },
+                ) => {
+                    snapshot.server_version().to_string() == "8.0.0"
+                        && widget.widget_type == "svggraph"
+                        && dependency.field_name == "ds.0.hosts.0"
+                        && !is_mask(pattern)
+                }
+                _ => false,
+            }
+        {
+            decision = (Applicability::Editable, None);
+        }
         widget.sources.push(Source {
             field: FieldAddress {
                 widget: widget.widget.clone(),
@@ -336,8 +420,8 @@ pub fn source_model(
             },
             field_type: dependency.field_type,
             kind,
-            applicability,
-            applicability_reason,
+            applicability: decision.0,
+            applicability_reason: decision.1,
         });
     }
 
@@ -355,6 +439,9 @@ pub fn source_model(
     let links = WidgetLinks::from_widgets(&widgets);
     Ok(SourceModel {
         dashboardid: analysis.dashboardid,
+        profile,
+        explicit_lld_choice: profile == AdapterProfile::V8_0
+            && matches!(local_scope, LocalBindingScope::Workcopy),
         snapshot_fingerprint: snapshot.storage_fingerprint().to_owned(),
         page_count: analysis.page_count,
         widgets,
@@ -404,6 +491,12 @@ fn source_kind(dependency: &SnapshotDependency) -> Option<SourceKind> {
             itemid: object_id(value)?,
         },
         DependencyKind::Graph => SourceKind::Graph {
+            graphid: object_id(value)?,
+        },
+        DependencyKind::ItemPrototype => SourceKind::ItemPrototype {
+            itemid: object_id(value)?,
+        },
+        DependencyKind::GraphPrototype => SourceKind::GraphPrototype {
             graphid: object_id(value)?,
         },
         DependencyKind::Host => SourceKind::Host {

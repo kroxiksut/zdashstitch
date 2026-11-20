@@ -279,8 +279,9 @@ impl WorkcopyService {
         let (file, base) = self.load_with_base(local_id)?;
         let raw = base.raw_api_document();
         let page = draft_page(&file, raw)?.map(|(index, _)| index);
-        let model = source_model(&base, &self.registry)
-            .map_err(|error| WorkcopyError::from_resolver(&error))?;
+        let registry = Self::registry_for_version(base.server_version())?;
+        let model =
+            source_model(&base, &registry).map_err(|error| WorkcopyError::from_resolver(&error))?;
         let facts = collect_source_facts(lookup, &model)
             .await
             .map_err(|error| WorkcopyError::from_resolver(&error))?;

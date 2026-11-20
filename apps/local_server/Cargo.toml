@@ -33,8 +33,10 @@ rfd = { workspace = true, features = ["xdg-portal"] }
 
 [dev-dependencies]
 http-body-util.workspace = true
+reqwest.workspace = true
 tempfile.workspace = true
 tower.workspace = true
+zdashstitch-zabbix = { path = "../../crates/zabbix" }
 
 [lints]
 workspace = true

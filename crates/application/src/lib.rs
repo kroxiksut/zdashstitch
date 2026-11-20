@@ -22,6 +22,12 @@ pub mod offline_page_sessions;
 pub mod offline_pages;
 pub mod page_library;
 mod portable_bindings;
+mod portable_deployment;
+mod portable_update;
+pub use portable_update::{
+    PortableUpdateConfirmation, PortableUpdateIntent, PortableUpdateRequest,
+    VerifiedPortableUpdatePlan, plan_portable_update,
+};
 pub mod portable_conversion;
 pub use portable_bindings::{PortableHostChoice, PortableItemChoice, PortablePatternChoice};
 mod portable_evidence;
@@ -30,6 +36,8 @@ pub use portable_evidence::{
     PortableBindingSetup, PortableEvidenceSummary,
 };
 pub mod portable_import;
+pub mod portable_lld_review;
+pub use zdashstitch_zabbix::portable_create_requirements;
 pub mod portable_pattern_review;
 pub mod portable_redaction;
 mod portable_save;
@@ -69,9 +77,12 @@ pub use compatibility::{
 pub use create_dashboard::{
     ClonePublicationPreview, ClonePublicationRequest, ConfirmedCreatePlan, CreatePlanError,
     CreatePlanPreview, CreatePublishReport, CreateRecovery, CreateRefusal, NameCheck,
-    SAVE_AS_COPY_OPERATION, SaveAsCopyRequest, VerifiedCreatePlan, plan_clone_dashboard,
-    plan_save_as_copy, preflight_clone_publication, publish_clone_dashboard_plan,
-    publish_save_as_copy_plan, reconcile_create, reconcile_save_as_copy,
+    PortableCreateRequest, SAVE_AS_COPY_OPERATION, SaveAsCopyRequest, SaveAsCopySource,
+    VerifiedCreatePlan, plan_clone_dashboard, plan_clone_dashboard_with_access,
+    plan_eight_zero_save_as_copy, plan_portable_dashboard, plan_portable_dashboard_with_access,
+    plan_portable_dashboard_with_gateway, plan_save_as_copy, preflight_clone_publication,
+    publish_clone_dashboard_plan, publish_portable_dashboard_plan, publish_save_as_copy_plan,
+    reconcile_create, reconcile_save_as_copy,
 };
 pub use generated_message_ids::MessageId;
 pub use publish_journal::{
@@ -131,6 +142,10 @@ pub fn build_snapshot_report(
         .collect::<ZabbixResult<Vec<_>>>()?;
     Ok(SnapshotSummary::from_analyses(&analyses))
 }
+
+pub use zdashstitch_zabbix::{
+    DashboardAccessChoices, DashboardAccessSelection, DashboardAccessState,
+};
 
 #[cfg(test)]
 mod tests {

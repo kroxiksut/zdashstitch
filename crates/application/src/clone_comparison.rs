@@ -8,7 +8,8 @@ use serde::Serialize;
 use serde_json::{Value, json};
 use zdashstitch_zabbix::{
     AdapterRegistry, CreateContract, ReadBackVerdict, ReadOnlyGateway, VersionedDashboardSnapshot,
-    create_requirements, dashboard_comparison_content, is_zabbix_id,
+    create_requirements, dashboard_comparison_content, expected_eight_zero_clone_access,
+    is_zabbix_id,
 };
 
 use crate::clone_dashboard::{CloneReadBackVerdict, SavedCloneWorkcopy};
@@ -310,6 +311,22 @@ impl SavedCloneWorkcopy {
             .and_then(dashboard_comparison_content)
             .map_or_else(BTreeMap::new, |document| objects(&document));
         let owner = entry.and_then(|entry| entry.owner_userid.as_deref());
+        let expected_access = if local.server_version().major == 8 {
+            entry
+                .and_then(|entry| expectation_of(entry).ok())
+                .and_then(|expected| expected_eight_zero_clone_access(base, local, &expected))
+                .map(|access| Access {
+                    private: Some(access.private),
+                    shared: Some(!access.users.is_empty() || !access.groups.is_empty()),
+                    owner_matches: Some(true),
+                })
+        } else {
+            Some(Access {
+                private: Some(true),
+                shared: Some(false),
+                owner_matches: Some(true),
+            })
+        };
         let kept: BTreeSet<_> = kept_sources(base, self)
             .unwrap_or_default()
             .into_iter()
@@ -323,27 +340,31 @@ impl SavedCloneWorkcopy {
                 Some((at, address.field_name))
             })
             .collect();
-        let requirements = create_requirements(local, intent.target_name())
-            .map_err(|error| WorkcopyError::new(error.code().as_str()))?;
-        let capabilities =
-            AdapterRegistry::resolve(local.server_version().clone()).map_err(|_| invalid())?;
-        let unknown: BTreeSet<_> = if requirements
-            .missing_contracts(&capabilities.dashboard_create_contracts)
-            .contains(&CreateContract::CopyUnknownWidgets)
-        {
-            requirements
-                .unknown_widgets
-                .iter()
-                .filter_map(|widget| {
-                    position_at(
-                        local.raw_api_document(),
-                        widget.page_index,
-                        widget.widget_index,
-                    )
-                })
-                .collect()
-        } else {
+        let unknown: BTreeSet<_> = if local.server_version().major == 8 {
             BTreeSet::new()
+        } else {
+            let requirements = create_requirements(local, intent.target_name())
+                .map_err(|error| WorkcopyError::new(error.code().as_str()))?;
+            let capabilities =
+                AdapterRegistry::resolve(local.server_version().clone()).map_err(|_| invalid())?;
+            if requirements
+                .missing_contracts(&capabilities.dashboard_create_contracts)
+                .contains(&CreateContract::CopyUnknownWidgets)
+            {
+                requirements
+                    .unknown_widgets
+                    .iter()
+                    .filter_map(|widget| {
+                        position_at(
+                            local.raw_api_document(),
+                            widget.page_index,
+                            widget.widget_index,
+                        )
+                    })
+                    .collect()
+            } else {
+                BTreeSet::new()
+            }
         };
         let keys: BTreeSet<_> = source
             .keys()
@@ -419,11 +440,7 @@ impl SavedCloneWorkcopy {
             verdict,
             access: [
                 Some(access(base, None)),
-                Some(Access {
-                    private: Some(true),
-                    shared: Some(false),
-                    owner_matches: Some(true),
-                }),
+                expected_access,
                 snapshot.as_ref().map(|snapshot| access(snapshot, owner)),
             ],
             rows,

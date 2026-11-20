@@ -80,10 +80,11 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use thiserror::Error;
 use zdashstitch_zabbix::{
-    CapabilityState, CreateExpectation, CreateReconciliation, CreateRejection, CreateRejectionCode,
-    CreateScope, DashboardCreateOutcome, Failure, PublicationContext, ReadOnlyGateway,
-    ReadWriteGateway, VerifiedDashboardCreate, VersionedDashboardSnapshot, ZabbixCapabilities,
-    create_requirements_for, is_valid_dashboard_name, verify_dashboard_create_for,
+    AccessMode, CapabilityState, CreateExpectation, CreateReconciliation, CreateRejection,
+    CreateRejectionCode, CreateScope, DashboardCreateOutcome, Failure, PublicationContext,
+    ReadOnlyGateway, ReadWriteGateway, VerifiedDashboardCreate, VersionedDashboardSnapshot,
+    ZabbixCapabilities, create_requirements_for, is_valid_dashboard_name,
+    verify_dashboard_create_for,
 };
 
 use crate::publish_journal::{JournalError, PublishJournal, TargetKey, TargetRef};
@@ -91,7 +92,9 @@ use crate::publisher::{
     CapabilityCheck, CompatibilityFinding, CompatibilityReport, FindingCode, FindingGroup,
     FindingSeverity, FindingSubject, JournalState, PlanInvalidReason, plan_nonce,
 };
-use crate::workcopy::formats::CreatedDashboardRecord;
+use crate::replace_host::{SessionContext, materialize_local_operations};
+use crate::workcopy::formats::{CreatedDashboardRecord, WorkcopyFile};
+use crate::workcopy::operations::Operation;
 use crate::workcopy::{DraftKind, WorkcopyError, WorkcopyService, now_ms};
 use crate::{LocalSession, SessionGeneration, WriteStage};
 
@@ -101,8 +104,9 @@ pub(crate) use journaling::expectation_of;
 
 pub use clone_publication::{
     ClonePublicationPreview, ClonePublicationRequest, plan_clone_dashboard,
-    preflight_clone_publication, publish_clone_dashboard_plan,
+    plan_clone_dashboard_with_access, preflight_clone_publication, publish_clone_dashboard_plan,
 };
+pub(crate) use journaling::expectation_of as portable_create_expectation;
 pub use journaling::{CreateRecovery, reconcile_create};
 
 /// Intent code of this plan (ADR-006).
@@ -125,6 +129,84 @@ pub struct SaveAsCopyRequest {
     pub target_name: String,
     /// Generation the request was admitted under.
     pub session: SessionGeneration,
+}
+
+/// The saved workcopy revision and fingerprints used by the copy dialog.
+#[derive(Debug, serde::Serialize)]
+pub struct SaveAsCopySource {
+    pub revision: u64,
+    pub base_fingerprint: String,
+    pub local_fingerprint: String,
+}
+
+impl WorkcopyService {
+    fn eight_zero_copy_source(&self, local_id: &str) -> Result<EightZeroCopySource, WorkcopyError> {
+        let (file, base, operations) = self.load_log(local_id)?;
+        if file.kind != DraftKind::Dashboard
+            || file.source.page.is_some()
+            || base.server_version().to_string() != "8.0.0"
+        {
+            return Err(WorkcopyError::new("write_contract_unverified")
+                .with("contract", "clone_dashboard_8_0_0"));
+        }
+        let local = materialize_local_operations(base.clone(), &operations)?;
+        let has_replacement = operations
+            .iter()
+            .any(|op| matches!(op, Operation::ReplaceHost(_)));
+        Ok(EightZeroCopySource {
+            file,
+            base,
+            local,
+            has_replacement,
+        })
+    }
+
+    pub fn eight_zero_save_as_copy_source(
+        &self,
+        local_id: &str,
+    ) -> Result<SaveAsCopySource, WorkcopyError> {
+        let source = self.eight_zero_copy_source(local_id)?;
+        Ok(SaveAsCopySource {
+            revision: source.file.revision,
+            base_fingerprint: source.base.fingerprint().to_owned(),
+            local_fingerprint: source.local.fingerprint().to_owned(),
+        })
+    }
+}
+
+struct EightZeroCopySource {
+    file: WorkcopyFile,
+    base: VersionedDashboardSnapshot,
+    local: VersionedDashboardSnapshot,
+    has_replacement: bool,
+}
+
+impl EightZeroCopySource {
+    async fn bindings_are_current(
+        &self,
+        service: &WorkcopyService,
+        reader: &ReadOnlyGateway,
+    ) -> Result<bool, WorkcopyError> {
+        if !self.has_replacement {
+            return Ok(self.base.fingerprint() == self.local.fingerprint());
+        }
+        let preview = service
+            .revalidate_replace_host(
+                reader,
+                &self.file.workcopy_id,
+                SessionContext::Connected {
+                    access_mode: AccessMode::ReadWrite,
+                    capabilities: reader.capabilities(),
+                },
+            )
+            .await?;
+        Ok(preview.checked_at_ms.is_some()
+            && preview.revision == self.file.revision
+            && preview.base_fingerprint == self.base.fingerprint()
+            && preview.local_fingerprint == self.local.fingerprint()
+            && !preview.changes.is_empty()
+            && crate::publication::copy_blockers(&preview).is_empty())
+    }
 }
 
 /// The name check before send. A hint, never a proof that the name is free.
@@ -190,12 +272,267 @@ struct ClonePlanBinding {
 
 impl CreateBinding {
     const fn operation(&self) -> &'static str {
-        if self.clone.is_some() {
+        if self.source_dashboardid.is_empty() {
+            "create_dashboard"
+        } else if self.clone.is_some() {
             crate::clone_dashboard::CLONE_OPERATION
         } else {
             SAVE_AS_COPY_OPERATION
         }
     }
+}
+
+/// Input for a private dashboard created from a portable dashboard draft.
+pub struct PortableCreateRequest {
+    pub local_id: String,
+    pub connection_id: String,
+    pub revision: u64,
+    pub target_name: String,
+    pub create_another: bool,
+    pub session: SessionGeneration,
+}
+
+/// Build a one-shot create plan only after fresh binding, permission,
+/// compatibility, authority, name and journal checks.
+pub async fn plan_portable_dashboard(
+    service: &WorkcopyService,
+    journal: &PublishJournal,
+    session: &LocalSession,
+    connections: &crate::connections::ConnectionService,
+    request: &PortableCreateRequest,
+) -> Result<VerifiedCreatePlan, CreatePlanError> {
+    plan_portable_dashboard_with_access(service, journal, session, connections, request, None).await
+}
+
+pub async fn plan_portable_dashboard_with_access(
+    service: &WorkcopyService,
+    journal: &PublishJournal,
+    session: &LocalSession,
+    connections: &crate::connections::ConnectionService,
+    request: &PortableCreateRequest,
+    access: Option<&zdashstitch_zabbix::DashboardAccessSelection>,
+) -> Result<VerifiedCreatePlan, CreatePlanError> {
+    if !session.is_current(request.session) {
+        return Err(CreatePlanError::Invalidated(
+            PlanInvalidReason::SessionEnded,
+        ));
+    }
+    let client = connections
+        .portable_writer()
+        .filter(|_| {
+            connections
+                .active()
+                .is_some_and(|(id, _, _)| id == request.connection_id)
+        })
+        .ok_or(CreatePlanError::Invalidated(
+            PlanInvalidReason::ConnectionChanged,
+        ))?;
+    plan_portable_create(service, journal, session, client, request, access).await
+}
+
+/// Scoped planner used by an explicitly authorized live write gateway. The
+/// normal local HTTP route still requires the active connection's writer.
+pub async fn plan_portable_dashboard_with_gateway(
+    service: &WorkcopyService,
+    journal: &PublishJournal,
+    session: &LocalSession,
+    client: &ReadWriteGateway,
+    request: &PortableCreateRequest,
+) -> Result<VerifiedCreatePlan, CreatePlanError> {
+    plan_portable_create(service, journal, session, client, request, None).await
+}
+
+async fn plan_portable_create(
+    service: &WorkcopyService,
+    journal: &PublishJournal,
+    session: &LocalSession,
+    client: &ReadWriteGateway,
+    request: &PortableCreateRequest,
+    access: Option<&zdashstitch_zabbix::DashboardAccessSelection>,
+) -> Result<VerifiedCreatePlan, CreatePlanError> {
+    if !session.is_current(request.session) {
+        return Err(CreatePlanError::Invalidated(
+            PlanInvalidReason::SessionEnded,
+        ));
+    }
+    let reader = client.reader();
+    if access.is_some() && reader.capabilities().version.to_string() != "8.0.0" {
+        return Err(CreatePlanError::Invalidated(
+            PlanInvalidReason::ConnectionChanged,
+        ));
+    }
+    journal
+        .check_target(&create_target_key(
+            &request.connection_id,
+            reader.identity().endpoint_fingerprint(),
+            &request.target_name,
+            &request.local_id,
+        ))
+        .map_err(CreatePlanError::Journal)?;
+    if !is_valid_dashboard_name(&request.target_name) {
+        return Err(CreatePlanError::Invalidated(
+            PlanInvalidReason::TargetChanged,
+        ));
+    }
+    let draft = crate::offline_dashboards::OfflineDashboardStore::new(service.store.root_path())
+        .get(&request.local_id)
+        .map_err(CreatePlanError::Workcopy)?
+        .ok_or(CreatePlanError::Invalidated(
+            PlanInvalidReason::DraftChanged,
+        ))?;
+    if draft.revision != request.revision {
+        return Err(CreatePlanError::Invalidated(
+            PlanInvalidReason::DraftChanged,
+        ));
+    }
+    let planned_deployment = if reader.capabilities().version.to_string() == "8.0.0" {
+        let mapping = crate::portable_deployment::PlannedDeployment::from_project(
+            &draft.bundle.project,
+            request.create_another,
+        )
+        .map_err(CreatePlanError::Workcopy)?;
+        journal
+            .check_portable_create(
+                &create_target_key(
+                    &request.connection_id,
+                    reader.identity().endpoint_fingerprint(),
+                    &request.target_name,
+                    &request.local_id,
+                ),
+                &mapping,
+            )
+            .map_err(CreatePlanError::Journal)?;
+        Some(mapping)
+    } else {
+        None
+    };
+    let version = reader
+        .capabilities()
+        .version
+        .to_string()
+        .parse::<zdashstitch_core::Version>()
+        .map_err(|_| CreatePlanError::Invalidated(PlanInvalidReason::ConnectionChanged))?;
+    if !draft
+        .bundle
+        .project
+        .declared_compatibility
+        .contains(&version)
+    {
+        return Err(CreatePlanError::Invalidated(
+            PlanInvalidReason::ConnectionChanged,
+        ));
+    }
+    let proof = service
+        .verify_portable_lld_for_plan(reader, &request.local_id, request.revision)
+        .await
+        .map_err(CreatePlanError::Workcopy)?;
+    let scoped_graph = reader.capabilities().version.major == 8;
+    let materialized = if scoped_graph {
+        service.materialize_portable_graph_8_0(&proof)
+    } else {
+        service.materialize_portable_lld_dashboard(&proof)
+    }
+    .map_err(CreatePlanError::Workcopy)?;
+    if !scoped_graph && !matches!(reader.dashboard_create_permission().await, Ok(true)) {
+        return Err(CreatePlanError::Invalidated(
+            PlanInvalidReason::ConnectionChanged,
+        ));
+    }
+    let named = reader
+        .dashboards_named(&request.connection_id, &request.target_name)
+        .await
+        .map_err(|e| CreatePlanError::Read(e.failure()))?;
+    if named.truncated || !named.dashboards.is_empty() {
+        return Err(CreatePlanError::Invalidated(
+            PlanInvalidReason::TargetChanged,
+        ));
+    }
+    let context = client.publication_context();
+    let create = if scoped_graph {
+        client
+            .verify_eight_zero_portable_graph_create(
+                materialized.as_document(),
+                &request.connection_id,
+                proof.draft_fingerprint(),
+                &request.target_name,
+            )
+            .await
+    } else {
+        zdashstitch_zabbix::verify_portable_dashboard_create(
+            materialized.as_document(),
+            &request.connection_id,
+            proof.draft_fingerprint(),
+            &context,
+            &request.target_name,
+        )
+    }
+    .map_err(CreatePlanError::Adapter)?;
+    let create = if let Some(selection) = access {
+        client
+            .verify_eight_zero_create_access(create, selection)
+            .await
+            .map_err(CreatePlanError::Adapter)?
+    } else {
+        create
+    };
+    if !session.is_current(request.session)
+        || !service.portable_draft_matches(
+            &request.local_id,
+            request.revision,
+            proof.draft_fingerprint(),
+        )
+    {
+        return Err(CreatePlanError::Invalidated(
+            PlanInvalidReason::DraftChanged,
+        ));
+    }
+    if !service.portable_lld_binding_state_matches(&proof) {
+        return Err(CreatePlanError::Invalidated(
+            PlanInvalidReason::BindingsChanged,
+        ));
+    }
+    let report = CompatibilityReport {
+        checks: create
+            .required_contracts()
+            .iter()
+            .map(|contract| CapabilityCheck {
+                name: contract.as_str(),
+                state: context
+                    .capabilities()
+                    .dashboard_create_contracts
+                    .state(*contract),
+                blocking: true,
+            })
+            .chain(create.scoped_contract().map(|name| CapabilityCheck {
+                name,
+                state: CapabilityState::Supported,
+                blocking: true,
+            }))
+            .collect(),
+        findings: Vec::new(),
+    };
+    if !report.allows_publication() {
+        return Err(CreatePlanError::Incompatible(report));
+    }
+    let binding = CreateBinding {
+        local_id: request.local_id.clone(),
+        connection_id: request.connection_id.clone(),
+        revision: request.revision,
+        base_fingerprint: String::new(),
+        local_fingerprint: proof.draft_fingerprint().to_owned(),
+        source_dashboardid: String::new(),
+        clone: None,
+    };
+    let mut plan = VerifiedCreatePlan::new(
+        create,
+        report,
+        NameCheck::NotVisible,
+        binding,
+        request.session,
+    );
+    plan.portable_evidence = Some(proof);
+    plan.planned_deployment = planned_deployment;
+    Ok(plan)
 }
 
 /// Trusted planner output: one `dashboard.create` of Local under a new
@@ -241,6 +578,8 @@ pub struct VerifiedCreatePlan {
     name_check: NameCheck,
     binding: CreateBinding,
     session: SessionGeneration,
+    portable_evidence: Option<crate::portable_lld_review::VerifiedPortableLldEvidence>,
+    planned_deployment: Option<crate::portable_deployment::PlannedDeployment>,
 }
 
 /// A plan the user confirmed; consumed by the send.
@@ -252,6 +591,8 @@ pub struct ConfirmedCreatePlan {
     compatibility: CompatibilityReport,
     binding: CreateBinding,
     session: SessionGeneration,
+    portable_evidence: Option<crate::portable_lld_review::VerifiedPortableLldEvidence>,
+    planned_deployment: Option<crate::portable_deployment::PlannedDeployment>,
 }
 
 /// What the confirmation dialog shows (P1-08F); no payload.
@@ -273,6 +614,8 @@ pub struct CreatePlanPreview {
     pub target_name: String,
     /// Always `true` until access writes are proven (P5-08, O-031).
     pub private: bool,
+    pub access: Option<zdashstitch_zabbix::DashboardAccessState>,
+    pub access_visible_only: bool,
     /// Pages of the new dashboard: 1 for a page draft.
     pub page_count: usize,
     pub widget_count: usize,
@@ -347,7 +690,7 @@ impl From<CreateRefusal> for CreatePublishReport {
 
 static PLAN_SEQUENCE: AtomicU64 = AtomicU64::new(0);
 
-fn millis(time: SystemTime) -> u64 {
+pub(crate) fn millis(time: SystemTime) -> u64 {
     time.duration_since(UNIX_EPOCH).map_or(0, |elapsed| {
         u64::try_from(elapsed.as_millis()).unwrap_or(u64::MAX)
     })
@@ -358,6 +701,14 @@ fn prefix(fingerprint: &str) -> &str {
 }
 
 impl VerifiedCreatePlan {
+    pub fn copies_visible_access_only(&self) -> bool {
+        self.create.copies_visible_access_only()
+    }
+
+    pub fn requires_public_acknowledgement(&self) -> bool {
+        self.create.access().is_some_and(|access| !access.private)
+    }
+
     fn new(
         create: VerifiedDashboardCreate,
         compatibility: CompatibilityReport,
@@ -383,6 +734,8 @@ impl VerifiedCreatePlan {
             name_check,
             binding,
             session,
+            portable_evidence: None,
+            planned_deployment: None,
         }
     }
 
@@ -399,7 +752,9 @@ impl VerifiedCreatePlan {
             revision: self.binding.revision,
             source_dashboardid: self.binding.source_dashboardid.clone(),
             target_name: self.create.name().to_owned(),
-            private: true,
+            private: self.create.access().is_none_or(|access| access.private),
+            access: self.create.access().cloned(),
+            access_visible_only: self.create.copies_visible_access_only(),
             page_count: requirements.page_count,
             widget_count: requirements.widget_count,
             reference_definitions: requirements.reference_definitions,
@@ -410,6 +765,7 @@ impl VerifiedCreatePlan {
                 .required_contracts()
                 .iter()
                 .map(|contract| contract.as_str())
+                .chain(self.create.scoped_contract())
                 .collect(),
             base_fingerprint: self.binding.base_fingerprint.clone(),
             local_fingerprint: self.binding.local_fingerprint.clone(),
@@ -439,6 +795,8 @@ impl VerifiedCreatePlan {
             compatibility: self.compatibility,
             binding: self.binding,
             session: self.session,
+            portable_evidence: self.portable_evidence,
+            planned_deployment: self.planned_deployment,
         })
     }
 }
@@ -562,6 +920,111 @@ pub async fn plan_save_as_copy(
     })
 }
 
+/// Exact 8.0.0 full server workcopy in the same live connection. Verify
+/// the source and saved access again before journaling the create.
+pub async fn plan_eight_zero_save_as_copy(
+    service: &WorkcopyService,
+    journal: &PublishJournal,
+    session: &LocalSession,
+    gateway: &ReadWriteGateway,
+    request: &SaveAsCopyRequest,
+    restore_access: bool,
+) -> Result<VerifiedCreatePlan, CreatePlanError> {
+    let invalid = CreatePlanError::Invalidated;
+    if !session.is_current(request.session) {
+        return Err(invalid(PlanInvalidReason::SessionEnded));
+    }
+    let source = service
+        .eight_zero_copy_source(&request.local_id)
+        .map_err(CreatePlanError::Workcopy)?;
+    if source.file.source.connection_id != request.connection_id {
+        return Err(invalid(PlanInvalidReason::ConnectionChanged));
+    }
+    if request.revision != source.file.revision
+        || request.base_fingerprint != source.base.fingerprint()
+        || request.local_fingerprint != source.local.fingerprint()
+    {
+        return Err(invalid(PlanInvalidReason::DraftChanged));
+    }
+    let reader = gateway.reader();
+    if !source.file.source.matches_publication_identity(reader) {
+        return Err(invalid(PlanInvalidReason::ConnectionChanged));
+    }
+    if !crate::source_check::check_snapshot_source(reader, &request.local_id, &source.base)
+        .await
+        .map_err(CreatePlanError::Workcopy)?
+        .is_current()
+    {
+        return Err(invalid(PlanInvalidReason::SourceChanged));
+    }
+    if !source
+        .bindings_are_current(service, reader)
+        .await
+        .map_err(CreatePlanError::Workcopy)?
+    {
+        return Err(invalid(PlanInvalidReason::BindingsChanged));
+    }
+    journal
+        .check_target(&create_target_key(
+            &request.connection_id,
+            reader.identity().endpoint_fingerprint(),
+            &request.target_name,
+            &request.local_id,
+        ))
+        .map_err(CreatePlanError::Journal)?;
+    let name_check = if is_valid_dashboard_name(&request.target_name) {
+        let named = reader
+            .dashboards_named(&request.connection_id, &request.target_name)
+            .await
+            .map_err(|error| CreatePlanError::Read(error.failure()))?;
+        if named.dashboards.is_empty() && !named.truncated {
+            NameCheck::NotVisible
+        } else {
+            NameCheck::TakenVisible
+        }
+    } else {
+        NameCheck::NotChecked
+    };
+    let context = gateway.publication_context();
+    let compatibility = create_report(
+        &source.local,
+        DraftKind::Dashboard,
+        Some(CreateReportScope::EightZeroClone),
+        &request.target_name,
+        name_check,
+        context.capabilities(),
+        context.is_live_authenticated(),
+    )?;
+    if !compatibility.allows_publication() {
+        return Err(CreatePlanError::Incompatible(compatibility));
+    }
+    let create = gateway
+        .verify_eight_zero_save_as_copy(
+            &source.base,
+            &source.local,
+            &request.target_name,
+            restore_access,
+        )
+        .await
+        .map_err(CreatePlanError::Adapter)?;
+    let binding = CreateBinding {
+        local_id: request.local_id.clone(),
+        connection_id: request.connection_id.clone(),
+        revision: source.file.revision,
+        base_fingerprint: source.file.base.fingerprint,
+        local_fingerprint: source.local.fingerprint().to_owned(),
+        source_dashboardid: source.base.dashboard_id().to_owned(),
+        clone: None,
+    };
+    Ok(VerifiedCreatePlan::new(
+        create,
+        compatibility,
+        name_check,
+        binding,
+        request.session,
+    ))
+}
+
 fn check_draft(inputs: &CreatePlanInputs<'_>) -> Result<(), CreatePlanError> {
     let request = inputs.request;
     let invalid = |reason| Err(CreatePlanError::Invalidated(reason));
@@ -600,12 +1063,17 @@ fn create_scope<'a>(inputs: &CreatePlanInputs<'a>) -> Option<CreateScope<'a>> {
     }
 }
 
+enum CreateReportScope<'a> {
+    CopiedPages(CreateScope<'a>),
+    EightZeroClone,
+}
+
 /// Capability checks and findings of a create (no prose; the UI renders
 /// codes).
 fn create_report(
     local: &VersionedDashboardSnapshot,
     kind: DraftKind,
-    scope: Option<CreateScope<'_>>,
+    scope: Option<CreateReportScope<'_>>,
     target_name: &str,
     name_check: NameCheck,
     capabilities: &ZabbixCapabilities,
@@ -643,8 +1111,15 @@ fn create_report(
         NameCheck::NotVisible => {}
     }
     if let (Some(scope), true) = (scope, name_check != NameCheck::NotChecked) {
-        let requirements =
-            create_requirements_for(local, scope, target_name).map_err(CreatePlanError::Adapter)?;
+        let requirements = match scope {
+            CreateReportScope::EightZeroClone => {
+                zdashstitch_zabbix::eight_zero_clone_create_requirements(local, target_name)
+            }
+            CreateReportScope::CopiedPages(scope) => {
+                create_requirements_for(local, scope, target_name)
+            }
+        }
+        .map_err(CreatePlanError::Adapter)?;
         for link in &requirements.links_outside_page {
             report.findings.push(
                 blocker(FindingCode::ScopeLinkCrossing, FindingGroup::Widgets)
@@ -710,7 +1185,7 @@ pub(crate) fn verify_save_as_copy_plan(
     let report = create_report(
         inputs.local,
         inputs.kind,
-        scope,
+        scope.map(CreateReportScope::CopiedPages),
         &inputs.request.target_name,
         inputs.name_check,
         inputs.context.capabilities(),
@@ -777,6 +1252,13 @@ impl PreparedCreateSend {
 
 /// The draft is still exactly the planned one.
 fn draft_unchanged(service: &WorkcopyService, binding: &CreateBinding) -> bool {
+    if binding.source_dashboardid.is_empty() {
+        return service.portable_draft_matches(
+            &binding.local_id,
+            binding.revision,
+            &binding.local_fingerprint,
+        );
+    }
     if let Some(clone) = &binding.clone {
         let Ok(branch) = service.open_clone_workcopy(&binding.local_id) else {
             return false;
@@ -812,7 +1294,18 @@ pub(crate) fn prepare_save_as_copy_send(
     plan: ConfirmedCreatePlan,
     stage: &WriteStage,
 ) -> Result<PreparedCreateSend, CreateRefusal> {
-    prepare_create_send(service, client, plan, stage, None)
+    if plan.binding.clone.is_some() {
+        return Err(plan.refusal(PlanInvalidReason::TargetChanged));
+    }
+    let base = if plan.create.is_scoped_snapshot_copy() {
+        let Ok(source) = service.base_snapshot(&plan.binding.local_id) else {
+            return Err(plan.refusal(PlanInvalidReason::DraftChanged));
+        };
+        Some(source)
+    } else {
+        None
+    };
+    prepare_create_send(service, client, plan, stage, base)
 }
 
 fn prepare_create_send(
@@ -822,7 +1315,12 @@ fn prepare_create_send(
     stage: &WriteStage,
     clone_base: Option<VersionedDashboardSnapshot>,
 ) -> Result<PreparedCreateSend, CreateRefusal> {
-    if plan.binding.clone.is_some() != clone_base.is_some() {
+    if plan.binding.source_dashboardid.is_empty() != plan.portable_evidence.is_some() {
+        return Err(plan.refusal(PlanInvalidReason::TargetChanged));
+    }
+    if (plan.binding.clone.is_some() || plan.create.is_scoped_snapshot_copy())
+        != clone_base.is_some()
+    {
         return Err(plan.refusal(PlanInvalidReason::TargetChanged));
     }
     if stage.generation() != plan.session {
@@ -876,8 +1374,22 @@ where
         return plan.refuse(PlanInvalidReason::DraftChanged);
     }
     let mut draft_changed = false;
-    let outcome = match &clone_base {
-        Some(base) => {
+    let mut bindings_changed = false;
+    let is_portable = plan.portable_evidence.is_some();
+    let outcome = match (&clone_base, &plan.portable_evidence) {
+        (Some(base), None) => {
+            if plan.binding.clone.is_none() {
+                let Ok(source) = service.eight_zero_copy_source(&plan.binding.local_id) else {
+                    return plan.refuse(PlanInvalidReason::DraftChanged);
+                };
+                if !source
+                    .bindings_are_current(service, client.reader())
+                    .await
+                    .is_ok_and(|current| current)
+                {
+                    return plan.refuse(PlanInvalidReason::BindingsChanged);
+                }
+            }
             client
                 .create_verified_clone_dashboard(&plan.create, base, || {
                     draft_changed = !draft_unchanged(service, &plan.binding);
@@ -885,16 +1397,40 @@ where
                 })
                 .await
         }
-        None => {
+        (None, Some(evidence)) => {
+            client
+                .create_verified_portable_dashboard(
+                    &plan.create,
+                    async || {
+                        service
+                            .revalidate_portable_lld_for_plan(client.reader(), evidence)
+                            .await
+                            .is_ok()
+                            && stage.generation() == plan.session
+                            && draft_unchanged(service, &plan.binding)
+                    },
+                    || {
+                        draft_changed = !draft_unchanged(service, &plan.binding);
+                        bindings_changed = !service.portable_lld_binding_state_matches(evidence);
+                        !draft_changed && !bindings_changed && before_send()
+                    },
+                )
+                .await
+        }
+        (None, None) => {
             client
                 .create_verified_dashboard(&plan.create, before_send)
                 .await
         }
+        (Some(_), Some(_)) => return plan.refuse(PlanInvalidReason::TargetChanged),
     };
     if draft_changed {
         return plan.refuse(PlanInvalidReason::DraftChanged);
     }
-    let record_error = if clone_base.is_none() {
+    if bindings_changed {
+        return plan.refuse(PlanInvalidReason::BindingsChanged);
+    }
+    let record_error = if clone_base.is_none() && !is_portable {
         outcome
             .confirmed_dashboard()
             .and_then(|(dashboardid, fingerprint)| {
@@ -941,7 +1477,55 @@ pub async fn publish_save_as_copy_plan(
     plan: ConfirmedCreatePlan,
     stage: &WriteStage,
 ) -> CreatePublishReport {
+    if plan.portable_evidence.is_some() {
+        return plan.refuse(PlanInvalidReason::TargetChanged);
+    }
     let prepared = match prepare_save_as_copy_send(service, client, plan, stage) {
+        Ok(prepared) => prepared,
+        Err(refusal) => return refusal.into(),
+    };
+    let source = prepared.clone_base.clone();
+    let local_id = prepared.plan.binding.local_id.clone();
+    let expectation = prepared.expectation.clone();
+    let mut report = publish_prepared_create(service, client, journal, prepared, stage).await;
+    if let Some(source) = source {
+        if report.sent() {
+            report.clone_source = Some(
+                crate::source_check::check_snapshot_source(client.reader(), &local_id, &source)
+                    .await,
+            );
+        }
+        if report.journal_error.is_none()
+            && matches!(
+                report.journal_state,
+                Some(JournalState::Verified | JournalState::ReconciledVerified)
+            )
+            && let Some((dashboardid, fingerprint)) = report
+                .outcome
+                .as_ref()
+                .and_then(DashboardCreateOutcome::confirmed_dashboard)
+        {
+            report.record_error = service
+                .record_created_dashboard(&local_id, &expectation, dashboardid, fingerprint)
+                .err();
+        }
+    }
+    report
+}
+
+/// Journal and send one confirmed portable plan. The adapter revalidates
+/// its stored LLD evidence asynchronously immediately before admission.
+pub async fn publish_portable_dashboard_plan(
+    service: &WorkcopyService,
+    client: &ReadWriteGateway,
+    journal: &PublishJournal,
+    plan: ConfirmedCreatePlan,
+    stage: &WriteStage,
+) -> CreatePublishReport {
+    if plan.portable_evidence.is_none() {
+        return plan.refuse(PlanInvalidReason::TargetChanged);
+    }
+    let prepared = match prepare_create_send(service, client, plan, stage, None) {
         Ok(prepared) => prepared,
         Err(refusal) => return refusal.into(),
     };
@@ -960,10 +1544,25 @@ async fn publish_prepared_create(
         endpoint_fingerprint: identity.endpoint_fingerprint(),
         server_identity: identity.fingerprint(),
     };
-    journaling::journaled_create(journal, prepared, &authority, async |prepared, handle| {
-        send_prepared_create(service, client, prepared, stage, || handle.admit_send()).await
-    })
-    .await
+    let mut report =
+        journaling::journaled_create(journal, prepared, &authority, async |prepared, handle| {
+            send_prepared_create(service, client, prepared, stage, || handle.admit_send()).await
+        })
+        .await;
+    if report.journal_error.is_none()
+        && let Ok(entry) = journal.entry(&report.plan_id)
+        && entry.planned_deployment.is_some()
+        && matches!(
+            entry.state,
+            JournalState::Verified | JournalState::ReconciledVerified
+        )
+    {
+        report.record_error = service
+            .project_portable_create(client.reader(), &entry)
+            .await
+            .err();
+    }
+    report
 }
 
 /// Read-only reconciliation of a create with an unknown outcome or an

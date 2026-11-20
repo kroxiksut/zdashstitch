@@ -2,10 +2,11 @@
 
 //! Offline template-export parsing boundary.
 //!
-//! Zabbix 7.4 exports are untrusted input. Parsing is in-memory and never
+//! Zabbix 7.4 and 8.0 exports are untrusted input. Parsing is in-memory and never
 //! invokes Zabbix, reads an external resource, or evaluates export content.
 
 mod hints;
+mod profile;
 mod xml;
 
 pub use hints::{
@@ -22,11 +23,12 @@ use zdashstitch_core::ProductStage;
 use zdashstitch_core::formats::strict::{ParseError, json_value_from_str, yaml_value_from_str};
 use zdashstitch_core::formats::{
     CatalogSource, Diagnostic, ExportProfile, MAX_FILE_BYTES, Metric, MetricCatalog, MetricOrigin,
-    MetricSelector, MetricsFormat, SourceKind, Validate, ValueType,
+    MetricSelector, SourceKind, Validate,
 };
 
+use profile::{TemplateExportProfile, catalog_format};
+
 const MAX_EXPORT_NODES: usize = 100_000;
-const EXPORT_VERSION: &str = "7.4";
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum ExportSyntax {
@@ -125,9 +127,8 @@ pub fn import_templates(
         .get("zabbix_export")
         .filter(|root| root.is_object())
         .ok_or_else(shape)?;
-    if required_text(root, "version")? != EXPORT_VERSION {
-        return Err(ImportError::new("template_export_version"));
-    }
+    let version = required_text(root, "version")?;
+    let profile = TemplateExportProfile::for_version(version)?;
     let templates = list(root, "templates")?;
     if templates.is_empty() {
         return Err(ImportError::new("template_export_empty"));
@@ -150,6 +151,8 @@ pub fn import_templates(
                     || has_unknown(root, ROOT_FIELDS)
                     || has_unknown(&export, &["zabbix_export"]),
                 &root_thresholds,
+                profile,
+                version,
             )?;
             if !catalog_ids.insert(imported.catalog.catalog_id.clone()) {
                 return Err(ImportError::new("template_export_duplicate_template"));
@@ -320,29 +323,11 @@ fn identifier(prefix: &str, uuid: Option<&str>, parts: &[&str]) -> String {
     format!("{prefix}-{}", &hash[..32])
 }
 
-fn metric_value_type(input: Option<&Value>) -> Result<ValueType, ImportError> {
-    let number;
-    let value = match input {
-        None => return Ok(ValueType::NumericUnsigned),
-        Some(Value::String(text)) => text.as_str(),
-        Some(Value::Number(value)) => {
-            number = value.to_string();
-            number.as_str()
-        }
-        _ => return Err(ImportError::new("template_export_value_type")),
-    };
-    match value {
-        "FLOAT" | "0" => Ok(ValueType::NumericFloat),
-        "CHAR" | "1" => Ok(ValueType::Character),
-        "LOG" | "2" => Ok(ValueType::Log),
-        "UNSIGNED" | "3" => Ok(ValueType::NumericUnsigned),
-        "TEXT" | "4" => Ok(ValueType::Text),
-        "BINARY" | "5" => Ok(ValueType::Binary),
-        _ => Err(ImportError::new("template_export_value_type")),
-    }
-}
-
-fn import_metric(raw: &Value, rule: Option<&str>) -> Result<Metric, ImportError> {
+fn import_metric(
+    raw: &Value,
+    rule: Option<&str>,
+    profile: TemplateExportProfile,
+) -> Result<Metric, ImportError> {
     let name = required_text(raw, "name")?;
     let key = required_text(raw, "key")?;
     let uuid = optional_text(raw, "uuid")?;
@@ -372,7 +357,7 @@ fn import_metric(raw: &Value, rule: Option<&str>) -> Result<Metric, ImportError>
         id: identifier("metric", uuid, &[rule.unwrap_or_default(), key]),
         name: name.to_owned(),
         selector: MetricSelector::Key(key.to_owned()),
-        value_type: metric_value_type(raw.get("value_type"))?,
+        value_type: profile.value_type(raw.get("value_type"))?,
         units: units.to_owned(),
         origin,
         uuid: uuid.map(str::to_owned),
@@ -385,6 +370,8 @@ fn import_template(
     included: &BTreeSet<&str>,
     root_partial: bool,
     root_thresholds: &hints::ThresholdIndex<'_>,
+    profile: TemplateExportProfile,
+    version: &str,
 ) -> Result<ImportedTemplate, ImportError> {
     let template_key = required_text(raw, "template")?;
     let uuid = optional_text(raw, "uuid")?;
@@ -404,7 +391,7 @@ fn import_template(
         .collect();
     let mut metrics = list(raw, "items")?
         .iter()
-        .map(|item| import_metric(item, None))
+        .map(|item| import_metric(item, None, profile))
         .collect::<Result<Vec<_>, _>>()?;
     let mut discovery_rules = Vec::new();
     let mut rule_keys = BTreeSet::new();
@@ -427,7 +414,7 @@ fn import_template(
         }
         let mut prototype_ids = Vec::new();
         for prototype in list(rule, "item_prototypes")? {
-            let metric = import_metric(prototype, Some(key))?;
+            let metric = import_metric(prototype, Some(key), profile)?;
             prototype_ids.push(metric.id.clone());
             metrics.push(metric);
         }
@@ -469,12 +456,12 @@ fn import_template(
         diagnostics.push(Diagnostic::SourcePartial);
     }
     let catalog = MetricCatalog {
-        format: MetricsFormat::V1,
+        format: catalog_format(&metrics),
         catalog_id: identifier("template", uuid, &[template_key]),
         export_profile: ExportProfile::PortableWithPublicKeys,
         source: CatalogSource {
             kind: SourceKind::TemplateExport,
-            export_format_version: Some(EXPORT_VERSION.to_owned()),
+            export_format_version: Some(version.to_owned()),
             source_server_version: None,
             template_name: Some(name.to_owned()),
             template_uuid: uuid.map(str::to_owned),

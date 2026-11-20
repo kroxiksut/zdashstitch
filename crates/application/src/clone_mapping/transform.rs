@@ -10,7 +10,9 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::fmt;
 
 use serde_json::{Map, Value};
-use zdashstitch_zabbix::{AdapterRegistry, VersionedDashboardSnapshot, WriteContract};
+use zdashstitch_zabbix::{
+    AdapterProfile, AdapterRegistry, VersionedDashboardSnapshot, WriteContract,
+};
 
 use super::{
     CardinalityPlan, ClonePatternAction, ClonePatternDecision, PlannedDataset, ReferenceMapping,
@@ -18,7 +20,8 @@ use super::{
     TargetSlotId,
 };
 use crate::resolver::{
-    Applicability, Difference, FieldAddress, SourceValue, TargetValue, WidgetAddress, source_model,
+    Applicability, Difference, FieldAddress, ReasonCode, SourceValue, TargetValue, WidgetAddress,
+    source_model,
 };
 
 /// Per-widget colors supplied by the later deterministic color policy
@@ -121,6 +124,9 @@ fn usable_resolution(resolution: &TargetMetricResolution) -> bool {
         && resolution.applicability == Applicability::Editable
         && !resolution.differences.contains(&Difference::ValueType)
         && !resolution.differences.contains(&Difference::Units)
+        && !resolution
+            .reasons
+            .contains(&ReasonCode::ValueTypeIncompatible)
 }
 
 fn same_visible_name(left: &str, right: &str) -> bool {
@@ -636,6 +642,13 @@ pub fn materialize_clone(
     let requirements = super::pattern_requirements(&model);
     let pattern_decisions = super::patterns::decisions_by_field(&requirements, pattern_decisions)
         .map_err(|error| CloneTransformError::new(error.code()))?;
+    if model.profile == AdapterProfile::V8_0
+        && pattern_decisions.values().any(|decision| {
+            !matches!(&decision.action, ClonePatternAction::Replace { preview } if preview.visible_fingerprint.is_some())
+        })
+    {
+        return Err(CloneTransformError::new("clone_pattern_decision_required"));
+    }
     let cardinality_fields = cardinality_fields(cardinalities)?;
     let mut replacements = Vec::new();
     let mut addressed = BTreeSet::new();

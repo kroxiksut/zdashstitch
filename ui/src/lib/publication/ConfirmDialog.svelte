@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { I18n } from '../i18n';
-  import { Button, Dialog, TechnicalDetails } from '../components';
+  import { Button, Dialog, TechnicalDetails, resolveText } from '../components';
+  import { findingText } from '../bindings/messages';
   import type { ReplaceHostPreview } from '../bindings/model';
   import type { DraftDetail } from '../shell/drafts';
   import type { PlanResult } from './model';
@@ -26,7 +27,8 @@
   const dashboardName = $derived(draft.source?.dashboard_name ?? draft.name);
   const source = $derived(preview.operation.source_host.name);
   const target = $derived(preview.operation.target_host?.name ?? '—');
-  const warnings = $derived(preview_.report.findings.filter((finding) => finding.severity === 'informational' && finding.code !== 'kept_on_source').length);
+  const warnings = $derived(preview_.report.findings.filter((finding) => finding.severity === 'informational' && finding.code !== 'kept_on_source' && finding.code !== 'pattern_matches_outside_selection').length);
+  const outsideMatches = $derived(preview_.report.findings.find((finding) => finding.code === 'pattern_matches_outside_selection'));
   const kept = $derived(preview.kept_on_source.entries.length);
   const untouchedWidgets = $derived(preview.diff.summary.widgets.total - preview.diff.summary.widgets.changed);
   const question = $derived(
@@ -87,6 +89,7 @@
       <dd><span class="technical">{preview_.plan_id}</span> · {i18n.t('publication.confirm.plan_once', { time: preview_.created_at })}</dd>
     </div>
   </dl>
+  {#if outsideMatches}<p>{resolveText(i18n, findingText(i18n, outsideMatches, source))}</p>{/if}
   {#if preview_.action === 'update_source'}
     <p>{i18n.t('publication.confirm.reread', { time: preview_.created_at })}</p>
   {:else}
@@ -100,7 +103,7 @@
     values={preview_.action === 'update_source'
       ? [
           { label: { id: 'publication.tech.base' }, value: { value: preview_.source_fingerprint, kind: 'technical' } },
-          { label: { id: 'publication.tech.local' }, value: { value: preview_.expected_fingerprint, kind: 'technical' } }
+          { label: { id: 'publication.tech.expected' }, value: { value: preview_.expected_fingerprint, kind: 'technical' } }
         ]
       : [{ label: { id: 'publication.tech.local' }, value: { value: preview_.local_fingerprint, kind: 'technical' } }]}
   />

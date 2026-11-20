@@ -45,8 +45,8 @@ use serde_json::{Value, json};
 use crate::taxonomy::{Failure, FailureCode};
 use crate::transport::{Transport, hex_sha256};
 use crate::{
-    InventoryMethod, InventoryProbe, MethodOutcome, Result, VersionedDashboardSnapshot,
-    ZabbixCapabilities, ZabbixEndpoint, ZabbixError, ZabbixVersion,
+    CapabilityState, InventoryMethod, InventoryProbe, MethodOutcome, Result,
+    VersionedDashboardSnapshot, ZabbixCapabilities, ZabbixEndpoint, ZabbixError, ZabbixVersion,
 };
 
 /// Unauthenticated and session-management methods.
@@ -221,6 +221,26 @@ pub enum AuthMethod {
     Password,
 }
 
+/// A read-only observation of the current role's API flag. It grants no
+/// dashboard read or write permission and is never used by publication.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum RoleApiAccess {
+    Enabled,
+    Disabled,
+    Unverified,
+}
+
+impl RoleApiAccess {
+    #[must_use]
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::Enabled => "enabled",
+            Self::Disabled => "disabled",
+            Self::Unverified => "unverified",
+        }
+    }
+}
+
 impl AuthMethod {
     #[must_use]
     pub const fn as_str(self) -> &'static str {
@@ -243,6 +263,15 @@ pub struct ServerIdentity {
     account_userid: String,
 }
 
+fn account_fingerprint(endpoint: &str, userid: &str, username: &str) -> String {
+    hex_sha256(&[
+        b"zdashstitch-server-identity-v1",
+        endpoint.as_bytes(),
+        username.as_bytes(),
+        userid.as_bytes(),
+    ])
+}
+
 impl ServerIdentity {
     pub(crate) fn new(
         endpoint: &ZabbixEndpoint,
@@ -252,15 +281,14 @@ impl ServerIdentity {
     ) -> Self {
         Self {
             endpoint_fingerprint: endpoint.fingerprint(),
-            fingerprint: hex_sha256(&[
-                b"zdashstitch-server-identity-v1",
-                endpoint.api_url().as_str().as_bytes(),
-                username.as_bytes(),
-                userid.as_bytes(),
-            ]),
+            fingerprint: account_fingerprint(endpoint.api_url().as_str(), userid, username),
             version,
             account_userid: userid.to_owned(),
         }
+    }
+
+    pub(crate) fn matches_account(&self, endpoint: &str, userid: &str, username: &str) -> bool {
+        self.fingerprint == account_fingerprint(endpoint, userid, username)
     }
 
     /// Zabbix `userid` of the signed-in account, a server ID kept in memory
@@ -338,6 +366,47 @@ impl fmt::Debug for ReadOnlyGateway {
 }
 
 impl ReadOnlyGateway {
+    /// Compares a fresh unauthenticated API version to the authenticated session.
+    pub async fn matches_live_version(&self) -> Result<bool> {
+        let live: String = self
+            .session
+            .transport
+            .session(SessionMethod::ApiInfoVersion, json!([]), None)
+            .await?;
+        Ok(live == self.capabilities().version.to_string())
+    }
+
+    fn require_inventory_contract(&self) -> Result<()> {
+        if self.session.capabilities.read_inventory != CapabilityState::Supported {
+            return Err(ZabbixError::UnsupportedVersion(
+                self.session.capabilities.version.to_string(),
+            ));
+        }
+        Ok(())
+    }
+
+    /// Read with fixed, adapter-owned parameters. Generic calls and bulk
+    /// snapshots still require a supported inventory contract.
+    pub(crate) async fn read_inventory_rows(
+        &self,
+        method: ReadMethod,
+        params: Value,
+    ) -> Result<Vec<Value>> {
+        if self.session.capabilities.read_inventory == CapabilityState::Unsupported {
+            return Err(ZabbixError::UnsupportedVersion(
+                self.session.capabilities.version.to_string(),
+            ));
+        }
+        self.session
+            .transport
+            .read(method, params, &self.session.token)
+            .await
+    }
+
+    pub(crate) fn adapter_profile(&self) -> Result<crate::AdapterProfile> {
+        crate::AdapterRegistry::resolve_profile(self.identity().version())
+    }
+
     #[must_use]
     pub const fn mode(&self) -> AccessMode {
         AccessMode::ReadOnly
@@ -362,6 +431,7 @@ impl ReadOnlyGateway {
 
     /// Generic allowlisted read for application use cases.
     pub async fn read(&self, method: ReadMethod, params: Value) -> Result<Value> {
+        self.require_inventory_contract()?;
         self.session
             .transport
             .read(method, params, &self.session.token)
@@ -374,7 +444,12 @@ impl ReadOnlyGateway {
     pub async fn probe_read_access(&self) -> Result<Vec<(ReadMethod, ReadAccess)>> {
         let mut outcomes = Vec::with_capacity(ReadMethod::PROBED.len());
         for method in ReadMethod::PROBED {
-            let access = match self.read(method, method.probe_params()).await {
+            let access = match self
+                .session
+                .transport
+                .read::<Value>(method, method.probe_params(), &self.session.token)
+                .await
+            {
                 Ok(_) => ReadAccess::Available,
                 Err(error) if error.is_permission_denied() => ReadAccess::Denied,
                 Err(error) => return Err(error),
@@ -384,7 +459,76 @@ impl ReadOnlyGateway {
         Ok(outcomes)
     }
 
+    /// Zabbix 8.0 role diagnostics. `role.get current` is optional for the
+    /// account; denied or incomplete evidence is reported as unverified.
+    /// A positive API flag never upgrades an access mode or capability.
+    pub async fn probe_role_api_access(&self) -> Result<RoleApiAccess> {
+        if self.session.capabilities.version.major != 8
+            || self.session.capabilities.version.minor != 0
+        {
+            return Ok(RoleApiAccess::Unverified);
+        }
+        let credential = secrecy::ExposeSecret::expose_secret(&self.session.token);
+        let params = if self.session.login_session {
+            json!({"sessionid": credential})
+        } else {
+            json!({"token": credential})
+        };
+        let identity: Value = self
+            .session
+            .transport
+            .session(SessionMethod::UserCheckAuthentication, params, None)
+            .await?;
+        if identity["userid"].as_str() != Some(self.identity().account_userid()) {
+            return Ok(RoleApiAccess::Unverified);
+        }
+        let Some(roleid) = identity["roleid"]
+            .as_str()
+            .filter(|id| crate::is_zabbix_id(id))
+        else {
+            return Ok(RoleApiAccess::Unverified);
+        };
+        let rows: Vec<Value> = match self
+            .session
+            .transport
+            .read_current_role_rules(&self.session.token)
+            .await
+        {
+            Ok(rows) => rows,
+            Err(ZabbixError::Api { .. }) => return Ok(RoleApiAccess::Unverified),
+            Err(error) => return Err(error),
+        };
+        let [row] = rows.as_slice() else {
+            return Ok(RoleApiAccess::Unverified);
+        };
+        // 8.0.0 returns a number from checkAuthentication and a string from
+        // role.get for the same account type.
+        let user_type = |value: &Value| {
+            value
+                .as_u64()
+                .or_else(|| value.as_str()?.parse().ok())
+                .filter(|kind| matches!(kind, 1..=3))
+        };
+        let Some(identity_type) = user_type(&identity["type"]) else {
+            return Ok(RoleApiAccess::Unverified);
+        };
+        if row["roleid"].as_str() != Some(roleid) || user_type(&row["type"]) != Some(identity_type)
+        {
+            return Ok(RoleApiAccess::Unverified);
+        }
+        match row["rules"]["api.access"].as_u64().or_else(|| {
+            row["rules"]["api.access"]
+                .as_str()
+                .and_then(|value| value.parse().ok())
+        }) {
+            Some(1) => Ok(RoleApiAccess::Enabled),
+            Some(0) => Ok(RoleApiAccess::Disabled),
+            _ => Ok(RoleApiAccess::Unverified),
+        }
+    }
+
     pub async fn inventory(&self) -> Result<InventoryProbe> {
+        self.require_inventory_contract()?;
         Ok(InventoryProbe {
             template: self.probe(InventoryMethod::Template).await?,
             host: self.probe(InventoryMethod::Host).await?,
@@ -397,6 +541,7 @@ impl ReadOnlyGateway {
     /// Read a bounded list of item identifiers for trusted application-side
     /// resolution. This is read-only and never returns item values or secrets.
     pub async fn readable_item_ids(&self, limit: usize) -> Result<Vec<String>> {
+        self.require_inventory_contract()?;
         if !(1..=1_000).contains(&limit) {
             return Err(ZabbixError::SnapshotShape(
                 "item id read limit must be 1..=1000".to_owned(),
@@ -427,6 +572,7 @@ impl ReadOnlyGateway {
         &self,
         connection_id: &str,
     ) -> Result<Vec<VersionedDashboardSnapshot>> {
+        self.require_inventory_contract()?;
         if connection_id.is_empty() || connection_id.len() > 128 {
             return Err(ZabbixError::SnapshotShape(
                 "connection_id must contain 1..=128 bytes".to_owned(),

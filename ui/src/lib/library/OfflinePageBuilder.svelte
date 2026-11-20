@@ -2,16 +2,20 @@
   import { onMount, tick, untrack } from 'svelte';
   import { ApiFailure } from '../api';
   import type { I18n, MessageId } from '../i18n';
-  import { createCatalogClient, portableWidgetTitle, type CatalogMetric, type CatalogSummary, type NewOfflinePage, type OfflinePage, type PageMetricChoice, type PageSeriesChoice, type PageRole, type PageHostSelection } from './client';
+  import { createCatalogClient, portableWidgetTitle, type CatalogMetric, type CatalogSummary, type NewOfflinePage, type OfflinePage, type PageMetricChoice, type PageSeriesChoice, type PageRole, type PageHostSelection, type WidgetEvaluationProfile } from './client';
   import { validNewRole, validSource, singleSource } from './offline-roles';
   import { canonicalEditorState, pageRequestFromSaved, savedCatalogChoices, saveKnownPage } from './offline-edit';
   import { draftPath, dashboardPagePath, internalLinkPath, parseRoute } from '../shell/router';
   import { EditorHistory } from './editor-history';
   import { EditorAutosave } from './editor-autosave';
-  import { createEditorSettingsClient } from '../settings/editor';
+  import { createEditorSettingsClient, type EditorPreferences } from '../settings/editor';
   import { settingsPath } from '../shell/router';
   import EditorCanvas from './EditorCanvas.svelte';
   import SensitivePreview from './SensitivePreview.svelte';
+  import PortablePatternReview from './PortablePatternReview.svelte';
+  import PortableLldReview from './PortableLldReview.svelte';
+  import PortablePublication from '../publication/PortablePublication.svelte';
+  import type { ActiveConnection, ConnectionProfile } from '../connections/client';
   import RedactionPreview from './RedactionPreview.svelte';
   import SaveAsButton from './SaveAsButton.svelte';
   import type { FixedLayout } from './editor-geometry';
@@ -19,11 +23,11 @@
   import { PageClipboard, type ClipboardCode, type ClipboardContent, type ClipboardContext, type ClipboardIssue } from './editor-clipboard';
   import { emptyResolution, initialResolution, inspectResolvedPaste, applyResolvedPaste } from './editor-paste-resolution';
   import PasteResolutionForm from './PasteResolutionForm.svelte';
-  import { compositionFindings, graphRowCount } from './editor-composition';
+  import { acceptsMetricType, compositionFindings, graphRowCount } from './editor-composition';
   import { Dialog, resolveText, type LocalizedText } from '../components';
   import type { LayoutChange } from './editor-geometry';
 
-  let { i18n, initialPage = null, onchanged, clipboard = new PageClipboard(), view = 'edit', dashboardId }: { i18n: I18n; initialPage?: OfflinePage | null; onchanged?: (page: OfflinePage) => void; clipboard?: PageClipboard; view?: 'edit' | 'checks'; dashboardId?: string } = $props();
+  let { i18n, initialPage = null, onchanged, clipboard = new PageClipboard(), view = 'edit', dashboardId, active = null, profile = null }: { i18n: I18n; initialPage?: OfflinePage | null; onchanged?: (page: OfflinePage) => void; clipboard?: PageClipboard; view?: 'edit' | 'checks'; dashboardId?: string; active?: ActiveConnection | null; profile?: ConnectionProfile | null } = $props();
   const client = createCatalogClient(undefined, untrack(() => dashboardId));
   const pagePath = (pageId: string): string => dashboardId ? dashboardPagePath(dashboardId, pageId) : draftPath(pageId, 'structure');
   type EditorCatalog = Omit<CatalogSummary, 'version'> & { version: number | null };
@@ -41,6 +45,8 @@
   const newRole = $derived<PageRole>({ cardinality, slots: slotLines.split(/\r?\n/).map((slot) => slot.trim()).filter(Boolean) });
   let widgets = $state<NewOfflinePage['widgets']>([]);
   let opened = $state<OfflinePage | null>(null);
+  let evaluationProfile = $state<WidgetEvaluationProfile>('8.0');
+  const savedEvaluation = $derived((opened ?? initialPage)?.widget_evaluation);
   let editingWidget = $state<number | null>(null);
   let baseline = $state('');
   let conflict = $state(false);
@@ -50,6 +56,9 @@
   let busy = $state(false);
   let savingPage = $state(false);
   let error = $state(false);
+  let removalDependency = $state(false);
+  let removalSelection = $state<string[]>([]);
+  let preservedTitles = $state<Record<string, string>>({});
   let saved = $state(false);
   let librarySaved = $state(false);
   let librarySaveFailed = $state(false);
@@ -66,6 +75,8 @@
   let historyTruncated = $state(false);
   let autosaveEnabled = $state(true);
   let autosaveMaxInterval = $state<30 | 60 | 120>(30);
+  let defaultZoom = $state<EditorPreferences['default_zoom']>('fit_width');
+  let showGrid = $state(true);
   let settingsRequest = 0;
   let retrySeconds = $state<number | null>(null);
   let editAccess = $state<EditorAccess>('claiming');
@@ -83,7 +94,7 @@
   const dirty = $derived(modelDirty || widgetTitle.trim() !== '' || selected.length > 0 || roleId.trim() !== '' || slotLines.trim() !== '');
   const pendingInput = $derived(selected.length > 0 || !!widgetTitle.trim() || !!roleId.trim() || !!slotLines.trim());
   const metricsByCatalog = $derived(Object.fromEntries(chosen.map((pin) => [pin.catalog_id, metrics[keyOf(pin)] ?? []])));
-  const findings = $derived(compositionFindings(request(), metricsByCatalog));
+  const findings = $derived(compositionFindings(request(), metricsByCatalog, savedEvaluation));
   $effect(() => {
     if (view === 'edit' && findingFocus !== null) {
       const id = findingFocus; findingFocus = null;
@@ -123,9 +134,25 @@
   }
   function removeSelection(ids: string[]): void {
     if (busy || !canEdit || conflict || pendingInput) return;
-    if (widgets.some((widget) => ids.includes(widget.widget_id ?? '') && widget.kind === 'preserved')) { clipboardIssues = [{ code: 'opaque' }]; return; }
+    if (widgets.some((widget) => ids.includes(widget.widget_id ?? '') && widget.kind === 'preserved')) {
+      removalSelection = [...ids]; return;
+    }
+    applyRemoval(ids);
+  }
+  function applyRemoval(ids: string[]): void {
+    if (busy || !canEdit || conflict) return;
+    const currentId = editingWidget === null ? undefined : widgets[editingWidget]?.widget_id;
     widgets = widgets.filter((widget) => !ids.includes(widget.widget_id ?? '')); selectedWidgetIds = [];
+    if (currentId !== undefined) {
+      const index = widgets.findIndex((widget) => widget.widget_id === currentId);
+      editingWidget = index < 0 ? null : index;
+      if (index < 0) { selected = []; widgetTitle = ''; }
+    }
     commitChange('editor.op.remove_widget');
+  }
+  function confirmRemoval(): void {
+    applyRemoval(removalSelection);
+    removalSelection = [];
   }
   function groupGeometry(changes: LayoutChange[]): void {
     if (busy || !canEdit || conflict) return;
@@ -137,11 +164,11 @@
   const autosaver = new EditorAutosave({
     dirty: () => modelDirty && !conflict && canEdit,
     save: savePage,
-    retryable: (failure) => opened !== null && !conflict && canEdit && !(failure instanceof Error && failure.message === 'offline_page_invalid') && !(failure instanceof ApiFailure && ['offline_page_invalid', 'offline_page_edit_lost'].includes(failure.response?.code ?? '')),
+    retryable: (failure) => opened !== null && !conflict && canEdit && !(failure instanceof Error && failure.message === 'offline_page_invalid') && !(failure instanceof ApiFailure && ['offline_page_invalid', 'offline_page_edit_lost', 'offline_page_widget_removal_dependency'].includes(failure.response?.code ?? '')),
     failed: (failure, retry) => {
       if (failure instanceof ApiFailure && failure.response?.code === 'offline_page_edit_lost') editingSession.lost();
       conflict ||= failure instanceof ApiFailure && failure.response?.code === 'offline_page_conflict';
-      error = !conflict; retrySeconds = retry;
+      error = !conflict && !removalDependency; retrySeconds = retry;
     }
   });
   const editingSession = new PageEditingSession(client, (state) => {
@@ -171,6 +198,7 @@
     if (opened) autosaver.changed();
   }
   function applySnapshot(snapshot: NewOfflinePage): void {
+    removalDependency = false;
     name = snapshot.name; roles = snapshot.roles; widgets = snapshot.widgets;
     chosen = [...catalogs.filter((item) => item.version === null), ...snapshot.catalogs.map((pin) => catalogs.find((item) => keyOf(item) === keyOf(pin))).filter((item): item is EditorCatalog => item !== undefined)];
     selected = []; widgetTitle = ''; editingWidget = null; roleId = ''; slotLines = ''; editingRole = null;
@@ -185,8 +213,7 @@
   }
   function titleOf(widget: NewOfflinePage['widgets'][number]): string {
     if (widget.kind !== 'preserved') return widget.title;
-    const original = opened?.bundle.project.root.widgets.find((item) => item.id === widget.widget_id);
-    return original ? portableWidgetTitle(original) : widget.widget_id;
+    return preservedTitles[widget.widget_id] ?? widget.widget_id;
   }
   function geometry(index: number, layout: FixedLayout, action: 'move' | 'resize'): void {
     if (!canEdit) return;
@@ -195,16 +222,16 @@
   }
 
   const keyOf = (catalog: Pick<EditorCatalog, 'catalog_id' | 'version'>): string => `${catalog.catalog_id}/${catalog.version ?? 'embedded'}`;
-  const isNumeric = (metric: CatalogMetric): boolean => metric.value_type === 'numeric_float' || metric.value_type === 'numeric_unsigned';
   const metricFor = (choice: PageMetricChoice): CatalogMetric | undefined => {
     const catalog = chosen.find((item) => item.catalog_id === choice.catalog_id);
     return catalog ? metrics[keyOf(catalog)]?.find((metric) => metric.id === choice.metric_id) : undefined;
   };
   const graphReady = $derived(selected.length > 0 && selected.length <= 32 && selected.every((item) => {
     const metric = metricFor(item);
-    return metric !== undefined && isNumeric(metric) && validSource(item.hosts, roles);
+    return metric !== undefined && acceptsMetricType('graph', metric.value_type) && validSource(item.hosts, roles);
   }));
-  const itemReady = $derived(selected.length === 1 && metricFor(selected[0]) !== undefined && metricFor(selected[0])?.value_type !== 'binary' && validSource(selected[0].hosts, roles));
+  const selectedItemMetric = $derived(selected.length === 1 ? metricFor(selected[0]) : undefined);
+  const itemReady = $derived(selectedItemMetric !== undefined && acceptsMetricType('item_value', selectedItemMetric.value_type) && validSource(selected[0].hosts, roles));
   const singleReady = $derived(itemReady && singleSource(selected[0].hosts, roles));
   const repeatReady = $derived(itemReady && selected[0].hosts.selection === 'all');
   const selectedGraphRows = $derived(graphRowCount(selected, roles));
@@ -213,6 +240,10 @@
     : widget.kind === 'item_value' ? widget.metric.catalog_id === id : true);
 
   function hydrate(page: OfflinePage): void {
+    preservedTitles = Object.fromEntries(page.bundle.project.root.widgets
+      .filter((widget) => widget.type === 'zabbix')
+      .map((widget) => [widget.id, portableWidgetTitle(widget)]));
+    removalDependency = false;
     const content = pageRequestFromSaved(page);
     const embedded: EditorCatalog[] = (page.embedded_catalogs ?? []).map((catalog_id) => {
       const catalog = page.bundle.catalogs[catalog_id];
@@ -240,6 +271,8 @@
       if (request !== settingsRequest) return;
       autosaveEnabled = settings.values.autosave === 'on';
       autosaveMaxInterval = settings.values.autosave_max_interval_s;
+      defaultZoom = settings.values.default_zoom;
+      showGrid = settings.values.show_grid;
       autosaver.setMaxInterval(autosaveMaxInterval);
       autosaver.setEnabled(autosaveEnabled && canEdit);
     }).catch(() => { /* Defaults remain active when settings cannot be read. */ });
@@ -296,6 +329,7 @@
     };
     window.addEventListener('beforeunload', beforeUnload);
     window.addEventListener('popstate', popped, true);
+    window.addEventListener('focus', refreshEditorSettings);
     document.addEventListener('click', clicked, true);
     document.addEventListener('visibilitychange', hidden);
     document.addEventListener('keydown', keyboard);
@@ -303,6 +337,7 @@
       settingsRequest++;
       window.removeEventListener('beforeunload', beforeUnload);
       window.removeEventListener('popstate', popped, true);
+      window.removeEventListener('focus', refreshEditorSettings);
       document.removeEventListener('click', clicked, true);
       document.removeEventListener('visibilitychange', hidden); document.removeEventListener('keydown', keyboard); autosaver.dispose(); editingSession.dispose();
     };
@@ -408,7 +443,11 @@
   }
 
   function removeWidget(index: number): void {
-    if (widgets[index].kind === 'preserved') return;
+    const widget = widgets[index];
+    if (widget.kind === 'preserved') {
+      if (!busy && canEdit && !conflict) removalSelection = [widget.widget_id];
+      return;
+    }
     widgets = widgets.filter((_, at) => at !== index);
     if (editingWidget === index) { editingWidget = null; selected = []; widgetTitle = ''; }
     else if (editingWidget !== null && editingWidget > index) editingWidget--;
@@ -438,18 +477,24 @@
     busy = true;
     savingPage = true;
     error = false;
+    removalDependency = false;
     saved = false;
     try {
       const content = $state.snapshot({ ...request(), name: name.trim() });
       const before = opened;
-      const page = before ? await saveKnownPage(client, before, content) : await client.createPage(content);
+      const page = before
+        ? await saveKnownPage(client, before, content, before.bundle.project.root.widgets
+          .filter((widget) => widget.type === 'zabbix' && !content.widgets.some((entry) => entry.kind === 'preserved' && entry.widget_id === widget.id))
+          .map((widget) => widget.id))
+        : await client.createPage({ ...content, evaluation_profile: evaluationProfile });
       opened = page; baseline = canonicalEditorState(content); retrySeconds = null;
       if (!before) { memoryHistory = new EditorHistory($state.snapshot(content)); syncHistory(); await editingSession.open(page.local_id); }
       saved = true;
       onchanged?.(page);
     } catch (failure) {
       conflict = failure instanceof ApiFailure && failure.response?.code === 'offline_page_conflict';
-      error = !conflict;
+      removalDependency = failure instanceof ApiFailure && failure.response?.code === 'offline_page_widget_removal_dependency';
+      error = !conflict && !removalDependency;
       throw failure;
     }
     finally { busy = false; savingPage = false; }
@@ -495,6 +540,18 @@
 <section class="card offline-builder" aria-labelledby="offline-builder-title">
   <h2 id="offline-builder-title">{i18n.t(opened ? 'offline_builder.edit_title' : 'offline_builder.title')}</h2>
   <p class="muted">{i18n.t('offline_builder.help')}</p>
+  {#if savedEvaluation}
+    <p>{savedEvaluation.profile === null
+      ? i18n.t('offline_builder.profile_unavailable')
+      : i18n.t('offline_builder.profile_current', { version: savedEvaluation.profile })}</p>
+  {:else}
+    <label for="offline-evaluation-profile">{i18n.t('offline_builder.profile')}</label>
+    <select id="offline-evaluation-profile" bind:value={evaluationProfile} disabled={busy}>
+      <option value="8.0">{i18n.t('offline_builder.profile_choice', { version: '8.0' })}</option>
+      <option value="7.4">{i18n.t('offline_builder.profile_choice', { version: '7.4' })}</option>
+    </select>
+  {/if}
+  <p class="muted">{i18n.t('offline_builder.profile_help')}</p>
   <p class="muted">{i18n.t('offline_editor.scope')}</p>
   <p class="muted">{i18n.t('offline_editor.history_hint')}</p>
   {#if opened && !canEdit}
@@ -517,10 +574,14 @@
   {#if loadWarning}<p role="status">{i18n.t('offline_builder.library_unavailable')}</p>{/if}
   {#if conflict}<p role="alert">{i18n.t('offline_builder.conflict')}</p>{/if}
   {#if error}<p role="alert">{i18n.t('offline_builder.error')}</p>{/if}
+  {#if removalDependency}<p role="alert">{i18n.t('offline_editor.removal_dependency')}</p>{/if}
   {#if catalogInUse}<p role="alert">{i18n.t('offline_builder.catalog_in_use')}</p>{/if}
   {#if saved}<p role="status">{i18n.t('offline_builder.saved')}</p>{/if}
   {#if opened}
     {#if !dashboardId}
+      <PortablePatternReview {i18n} draft={opened} enabled={!dirty && !busy} />
+      <PortableLldReview {i18n} draft={opened} enabled={!dirty && !busy} />
+      <PortablePublication {i18n} draft={opened} enabled={!dirty && !busy} {active} {profile} />
       <SensitivePreview {i18n} kind="page" id={opened.local_id} revision={opened.revision} enabled={!dirty && !busy} onFinding={(location) => { redactionJump = { location, sequence: (redactionJump?.sequence ?? 0) + 1 }; }} />
       <RedactionPreview {i18n} kind="page" id={opened.local_id} revision={opened.revision} enabled={!dirty && !busy} pages={[opened.bundle.project.root]} roles={opened.bundle.project.roles} catalogs={opened.bundle.catalogs} jump={redactionJump} />
       <button type="button" disabled={busy || dirty || exporting} onclick={() => void exportPage()}>{i18n.t('offline_builder.export')}</button>
@@ -575,7 +636,7 @@
   <input id="offline-page-name" maxlength="200" disabled={busy} readonly={!canEdit} bind:value={name}
     oninput={() => { void tick().then(() => { if (opened) autosaver.changed(); }); }}
     onblur={() => commitChange('editor.op.page')} onkeydown={(event) => { if (event.key === 'Enter') commitChange('editor.op.page'); }} />
-  {#if opened || widgets.length > 0}<EditorCanvas {i18n} {widgets} titles={widgets.map(titleOf)} {findings} selectedIds={selectedWidgetIds} onselection={(ids) => selectedWidgetIds = ids} ongroupmove={groupGeometry} ongroupremove={removeSelection} disabled={busy || conflict || !canEdit} onchange={geometry} onremove={removeWidget} onduplicate={duplicateWidget} />{/if}
+  {#if opened || widgets.length > 0}<EditorCanvas {i18n} {widgets} {defaultZoom} {showGrid} titles={widgets.map(titleOf)} {findings} selectedIds={selectedWidgetIds} onselection={(ids) => selectedWidgetIds = ids} ongroupmove={groupGeometry} ongroupremove={removeSelection} disabled={busy || conflict || !canEdit} onchange={geometry} onremove={removeWidget} onduplicate={duplicateWidget} />{/if}
   <fieldset class="editor-fields" disabled={!canEdit}>
   <fieldset disabled={busy || dashboardId !== undefined}>
     <legend>{i18n.t('offline_builder.roles')}</legend>
@@ -667,8 +728,9 @@
       {#if widget.kind === 'preserved'}<p>{i18n.t('offline_editor.opaque')}</p>{:else}
         <button type="button" disabled={busy || conflict} onclick={() => editWidget(index)}>{i18n.t('offline_builder.edit_widget', { widget: titleOf(widget) })}</button>
         <button type="button" disabled={busy || conflict} onclick={() => duplicateWidget(index)}>{i18n.t('common.action.duplicate')}</button>
-        <button type="button" disabled={busy || conflict} onclick={() => removeWidget(index)}>{i18n.t('offline_builder.remove')}</button>
-      {/if}</li>{/each}</ol>
+      {/if}
+      <button type="button" disabled={busy || conflict} onclick={() => removeWidget(index)}>{i18n.t('offline_builder.remove')}</button>
+      </li>{/each}</ol>
   {/if}
   {#if selected.length || widgetTitle.trim() || roleId.trim() || slotLines.trim()}<p>{i18n.t('offline_builder.pending_help')}</p>{/if}
   </fieldset>
@@ -696,6 +758,11 @@
     </div>
   {/if}
   {/if}
+  <Dialog {i18n} id="editor-remove-widgets-dialog" title={{ id: 'offline_editor.confirm_removal' }} description={{ id: 'offline_editor.confirm_removal_help' }} open={removalSelection.length > 0} onclose={() => removalSelection = []}>
+    <ul>{#each widgets.filter((widget) => removalSelection.includes(widget.widget_id ?? '')) as widget}<li><bdi>{titleOf(widget)}</bdi></li>{/each}</ul>
+    <button type="button" onclick={() => removalSelection = []}>{i18n.t('common.action.cancel')}</button>
+    <button type="button" disabled={busy || !canEdit || conflict} onclick={confirmRemoval}>{i18n.t('offline_builder.remove')}</button>
+  </Dialog>
   <Dialog {i18n} id="editor-paste-dialog" title={{ id: 'offline_editor.clipboard.paste' }} description={{ id: 'offline_editor.clipboard.resolve_help' }} open={pasteOpen} onclose={() => void closePaste()}>
     {#snippet children()}
       <fieldset><legend>{i18n.t('offline_editor.clipboard.placement')}</legend>

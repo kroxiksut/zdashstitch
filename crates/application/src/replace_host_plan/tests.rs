@@ -133,6 +133,7 @@ fn setup(raw: Value) -> Setup {
             updated_at_ms: 10,
             revision: 0,
             source: WorkcopySource {
+                server_identity_fingerprint: None,
                 connection_id: CONNECTION.to_owned(),
                 dashboardid: base.dashboard_id().to_owned(),
                 dashboard_name: "Synthetic".to_owned(),

@@ -128,6 +128,213 @@ fn first_page_items() -> Vec<WidgetFieldReplacement> {
     ]
 }
 
+#[test]
+fn eight_zero_cannot_enter_seven_four_update_codec() {
+    let base = snapshot(dashboard(), "8.0.2");
+    let mut capabilities = AdapterRegistry::resolve_server(base.server_version().clone())
+        .unwrap_or_else(|error| panic!("profile: {error}"));
+    capabilities.dashboard_write_contracts = all_contracts();
+    let context = PublicationContext::detached_for_testing(capabilities);
+    let error = rejection(verify_widget_field_replacements(
+        &base,
+        &context,
+        &first_page_items(),
+    ));
+    assert_eq!(error.code(), WriteRejectionCode::ContractUnverified);
+    assert_eq!(
+        error.param("contract"),
+        Some(WriteContract::UpdateOnePageWithFullFields.as_str())
+    );
+}
+
+#[test]
+fn eight_zero_explicit_graph_update_refuses_ambiguous_or_unproven_shapes() {
+    let fields = vec![
+        field(json!("0"), "ds.0.dataset_type", json!("0")),
+        field(json!("4"), "ds.0.itemids.0", json!("101")),
+        field(json!("1"), "ds.0.color.0", json!("FF465C")),
+        field(json!("4"), "ds.0.itemids.1", json!("102")),
+        field(json!("1"), "ds.0.color.1", json!("0EC9AC")),
+        field(json!("4"), "ds.0.itemids.2", json!("103")),
+        field(json!("1"), "ds.0.color.2", json!("34A087")),
+    ];
+    let raw = json!({
+        "dashboardid":"7", "name":"contract", "userid":"1", "private":"1",
+        "display_period":"30", "auto_start":"1", "users":[], "userGroups":[],
+        "pages":[{"dashboard_pageid":"11", "name":"graph", "display_period":"0",
+            "widgets":[widget("13", "svggraph", 0, fields)]}]
+    });
+    let patch = replace(0, "13", "ds.0.itemids.2", "103", "104");
+    let accepts = |raw: Value, version| {
+        item_update_8_0::contract_shape(&snapshot(raw, version), std::slice::from_ref(&patch))
+            .is_some()
+    };
+    assert!(accepts(raw.clone(), "8.0.0"));
+    assert!(!accepts(raw.clone(), "8.0.1"));
+    let mut shared = raw.clone();
+    shared["userGroups"] = json!([{"usrgrpid":"7","permission":"2"}]);
+    assert!(!accepts(shared, "8.0.0"));
+    let mut contaminated = raw.clone();
+    contaminated["pages"][0]["widgets"][0]["fields"][6]["name"] = json!("reference");
+    assert!(!accepts(contaminated, "8.0.0"));
+    let mut stationary_is_replacement = raw;
+    stationary_is_replacement["pages"][0]["widgets"][0]["fields"][1]["value"] = json!("104");
+    assert!(!accepts(stationary_is_replacement, "8.0.0"));
+}
+
+fn linked_graphs_dashboard() -> (Value, Vec<WidgetFieldReplacement>) {
+    let graph = |id, x, rows: [&str; 2], link, link_value| {
+        widget(
+            id,
+            "svggraph",
+            x,
+            vec![
+                field(json!("0"), "ds.0.dataset_type", json!("0")),
+                field(json!("4"), "ds.0.itemids.0", json!(rows[0])),
+                field(json!("1"), "ds.0.color.0", json!("FF465C")),
+                field(json!("4"), "ds.0.itemids.1", json!(rows[1])),
+                field(json!("1"), "ds.0.color.1", json!("0EC9AC")),
+                field(json!("1"), link, json!(link_value)),
+            ],
+        )
+    };
+    let dashboard = json!({
+        "dashboardid": "7", "name": "contract", "userid": "1", "private": "1",
+        "display_period": "30", "auto_start": "1", "users": [], "userGroups": [],
+        "pages": [
+            {"dashboard_pageid": "11", "name": "signals", "display_period": "60", "widgets": [
+                widget("13", "item", 0, vec![field(json!("4"), "itemid.0", json!("101"))]),
+                widget("14", "clock", 12, vec![]),
+            ]},
+            {"dashboard_pageid": "21", "name": "history", "display_period": "60", "widgets": [
+                graph("23", 0, ["101", "103"], "reference", "ABCDE"),
+                graph("24", 12, ["103", "101"], "time_period._reference", "ABCDE._timeperiod"),
+            ]},
+            {"dashboard_pageid": "31", "name": "untouched", "display_period": "120", "widgets": [
+                widget("33", "clock", 0, vec![]),
+            ]},
+        ],
+    });
+    let replacements = vec![
+        replace(0, "13", "itemid.0", "101", "102"),
+        replace(1, "23", "ds.0.itemids.0", "101", "102"),
+        replace(1, "24", "ds.0.itemids.1", "101", "102"),
+    ];
+    (dashboard, replacements)
+}
+
+#[test]
+fn eight_zero_linked_graphs_keep_source_order_for_send_and_predict_exact_readback() {
+    let (dashboard, replacements) = linked_graphs_dashboard();
+    let base = snapshot(dashboard.clone(), "8.0.0");
+    let prepared = prepare(&base, &replacements).unwrap_or_else(|error| panic!("prepare: {error}"));
+    assert_eq!(prepared.requirements.changed_pages, BTreeSet::from([0, 1]));
+    assert!(prepared.requirements.unproven_widgets.is_empty());
+    let payload = encode_update(
+        base.dashboard_id(),
+        &prepared.expected_raw,
+        &prepared.requirements.changed_pages,
+    )
+    .unwrap_or_else(|error| panic!("encode: {error}"));
+    assert_eq!(payload["pages"][2], json!({"dashboard_pageid": "31"}));
+    assert_eq!(
+        payload["pages"][0]["widgets"][1],
+        dashboard["pages"][0]["widgets"][1]
+    );
+    assert_eq!(
+        payload["pages"][1]["widgets"][0]["fields"][1]["value"],
+        "102"
+    );
+    let local = snapshot(prepared.expected_raw, "8.0.0");
+    let readback = expected_readback(local.clone(), &replacements)
+        .unwrap_or_else(|error| panic!("read-back projection: {error}"));
+    let mut expected = local.raw_api_document().clone();
+    for (widget, field_index) in [1, 3].into_iter().enumerate() {
+        let fields = expected["pages"][1]["widgets"][widget]["fields"]
+            .as_array_mut()
+            .unwrap_or_else(|| panic!("Graph fields"));
+        fields[field_index..].rotate_left(1);
+    }
+    assert_eq!(readback.raw_api_document(), &expected);
+    assert_ne!(local.fingerprint(), readback.fingerprint());
+    assert_eq!(base.raw_api_document(), &dashboard);
+}
+
+#[test]
+fn eight_zero_linked_graphs_refuse_incomplete_unknown_and_ambiguous_changes() {
+    let (dashboard, replacements) = linked_graphs_dashboard();
+    let base = snapshot(dashboard.clone(), "8.0.0");
+    assert!(write_requirements(&base, &replacements[..2]).is_err());
+    let mut duplicate = replacements.clone();
+    duplicate[2] = duplicate[1].clone();
+    assert!(write_requirements(&base, &duplicate).is_err());
+    let mut other_target = replacements.clone();
+    other_target[2].replacement_value = "104".to_owned();
+    assert!(write_requirements(&base, &other_target).is_err());
+    for (path, value) in [
+        ("/pages/1/widgets/0/fields/2/name", json!("unverified")),
+        ("/pages/1/widgets/0/fields/2/name", json!("ds.0.itemids.0")),
+        ("/pages/1/widgets/0/widgetid", json!("24")),
+        (
+            "/pages/1/widgets/1/fields/5/value",
+            json!("FGHIJ._timeperiod"),
+        ),
+        ("/private", json!("0")),
+    ] {
+        let mut unproven = dashboard.clone();
+        *unproven
+            .pointer_mut(path)
+            .unwrap_or_else(|| panic!("fixture field")) = value;
+        assert!(
+            write_requirements(&snapshot(unproven, "8.0.0"), &replacements).is_err(),
+            "{path}"
+        );
+    }
+    let capabilities = AdapterRegistry::resolve_server(base.server_version().clone())
+        .unwrap_or_else(|error| panic!("profile: {error}"));
+    let context = PublicationContext::detached_for_testing(capabilities);
+    let refused = rejection(verify_widget_field_replacements(
+        &base,
+        &context,
+        &replacements,
+    ));
+    assert_eq!(refused.code(), WriteRejectionCode::ContractUnverified);
+}
+
+#[test]
+fn eight_zero_pattern_update_keeps_string_position_and_rejects_other_mask_forms() {
+    let (mut document, mut changes) = linked_graphs_dashboard();
+    document["pages"][1]["widgets"][0]["fields"] = json!([
+        field(json!("0"), "ds.0.dataset_type", json!("1")),
+        field(json!("1"), "ds.0.hosts.0", json!("Old host")),
+        field(json!("1"), "ds.0.hosts.1", json!("Other host")),
+        field(json!("1"), "ds.0.items.0", json!("Usage*")),
+        field(json!("1"), "ds.0.color", json!("FF465C")),
+        field(json!("1"), "reference", json!("ABCDE")),
+    ]);
+    changes[1] = replace(1, "23", "ds.0.hosts.0", "Old host", "New host");
+    let base = snapshot(document.clone(), "8.0.0");
+    let prepared = prepare(&base, &changes).unwrap_or_else(|error| panic!("prepare: {error}"));
+    assert!(
+        prepared
+            .requirements
+            .contracts
+            .contains(&WriteContract::SvggraphDatasetHosts)
+    );
+    let projected = expected_readback(snapshot(prepared.expected_raw, "8.0.0"), &changes)
+        .unwrap_or_else(|error| panic!("read-back projection: {error}"));
+    let fields = &projected.raw_api_document()["pages"][1]["widgets"];
+    assert_eq!(fields[0]["fields"][1]["value"], "New host");
+    assert_eq!(fields[1]["fields"][5]["name"], "ds.0.itemids.1");
+    for (position, value) in [(2, "Other*"), (3, "Usage")] {
+        let mut candidate = document.clone();
+        candidate["pages"][1]["widgets"][0]["fields"][position]["value"] = json!(value);
+        assert!(write_requirements(&snapshot(candidate, "8.0.0"), &changes).is_err());
+    }
+    changes[1].replacement_value = "New*".to_owned();
+    assert!(write_requirements(&base, &changes).is_err());
+}
+
 fn rejection(
     result: std::result::Result<VerifiedDashboardUpdate, WriteRejection>,
 ) -> WriteRejection {

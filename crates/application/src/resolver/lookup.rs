@@ -31,7 +31,7 @@ use std::future::Future;
 
 use zdashstitch_zabbix::{
     GraphDetails, GraphPrototypeDetails, HostDetails, HostObjects, ItemDetails,
-    ItemPrototypeDetails, ReadOnlyGateway, ZabbixError, is_zabbix_id,
+    ItemPrototypeDetails, ReadOnlyGateway, ZabbixError, ZabbixVersion, is_zabbix_id,
 };
 
 use super::ResolverError;
@@ -43,6 +43,10 @@ use super::pattern::{is_mask, same_visible_name};
 /// `itemprototype.get`, `graphprototype.get`). Hidden objects are absent from
 /// answers, never errors.
 pub trait ResolverLookup {
+    fn server_version(&self) -> Option<&ZabbixVersion> {
+        None
+    }
+
     fn hosts_by_ids(
         &self,
         hostids: &[String],
@@ -87,6 +91,10 @@ pub trait ResolverLookup {
 }
 
 impl ResolverLookup for ReadOnlyGateway {
+    fn server_version(&self) -> Option<&ZabbixVersion> {
+        Some(&self.capabilities().version)
+    }
+
     fn hosts_by_ids(
         &self,
         hostids: &[String],

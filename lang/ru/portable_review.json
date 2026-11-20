@@ -1,0 +1,108 @@
+{
+  "portable_review.title": {
+    "message": "Проверка динамических масок",
+    "placeholders": {}
+  },
+  "portable_review.help": {
+    "message": "Подключитесь к целевому Zabbix, выберите видимые узлы сети для роли и проверьте совпадения. Маска может совпасть и с другими узлами. Подтверждение временное и не разрешает публикацию.",
+    "placeholders": {}
+  },
+  "portable_review.pattern": {
+    "message": "Маска",
+    "placeholders": {}
+  },
+  "portable_review.search": {
+    "message": "Поиск узлов сети",
+    "placeholders": {}
+  },
+  "portable_review.find": {
+    "message": "Найти узлы",
+    "placeholders": {}
+  },
+  "portable_review.truncated": {
+    "message": "Список узлов неполный; уточните поиск.",
+    "placeholders": {}
+  },
+  "portable_review.choose": {
+    "message": "Выберите узел сети",
+    "placeholders": {}
+  },
+  "portable_review.preview": {
+    "message": "Показать совпадения",
+    "placeholders": {}
+  },
+  "portable_review.matches": {
+    "message": "Совпадений, видимых этой учётной записи: {count}",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "portable_review.outside": {
+    "message": "Вне выбранных узлов сети",
+    "placeholders": {}
+  },
+  "portable_review.acknowledge_outside": {
+    "message": "Я проверил видимые совпадения вне выбранных узлов сети.",
+    "placeholders": {}
+  },
+  "portable_review.confirm": {
+    "message": "Подтвердить совпадения",
+    "placeholders": {}
+  },
+  "portable_review.confirmed": {
+    "message": "Совпадения подтверждены для этого просмотра. Перед публикацией потребуется повторная проверка.",
+    "placeholders": {}
+  },
+  "portable_review.failed": {
+    "message": "Проверка не выполнена или данные изменились. Проверьте подключение и повторите просмотр.",
+    "placeholders": {}
+  },
+  "portable_lld.title": {
+    "message": "Привязки источников",
+    "placeholders": {}
+  },
+  "portable_lld.help": {
+    "message": "Выберите целевой узел сети для каждого слота. Для метрики каталога подтвердите подходящий элемент данных на этом узле.",
+    "placeholders": {}
+  },
+  "portable_lld.field": {
+    "message": "Исходное поле",
+    "placeholders": {}
+  },
+  "portable_lld.find": {
+    "message": "Проверить источник",
+    "placeholders": {}
+  },
+  "portable_lld.candidate": {
+    "message": "Целевой элемент данных",
+    "placeholders": {}
+  },
+  "portable_lld.choose": {
+    "message": "Выберите элемент данных",
+    "placeholders": {}
+  },
+  "portable_lld.empty": {
+    "message": "Подходящие элементы данных не подтверждены.",
+    "placeholders": {}
+  },
+  "portable_lld.confirm": {
+    "message": "Подтвердить привязку",
+    "placeholders": {}
+  },
+  "portable_lld.confirmed": {
+    "message": "Выбор сохранён на этом компьютере и проверен. Перед публикацией нужна повторная проверка.",
+    "placeholders": {}
+  },
+  "portable_lld.failed": {
+    "message": "Не удалось проверить привязку. Проверьте черновик, подключение и доступ к источнику.",
+    "placeholders": {}
+  },
+  "portable_lld.reopen": {
+    "message": "Открыть сохранённый выбор",
+    "placeholders": {}
+  },
+  "portable_lld.saved_host": {
+    "message": "Ранее выбранный узел сети",
+    "placeholders": {}
+  }
+}

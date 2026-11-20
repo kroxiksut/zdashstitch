@@ -59,7 +59,7 @@ describe('explicit local Page paste resolution', () => {
     expect(resolveClipboard(content, target, resolution).issues).toContainEqual({ code: 'role', value: 'source' });
   });
   it('rejects incompatible units and value types even after the chosen evidence is refreshed', () => {
-    for (const change of [{ units: 's' }, { value_type: 'numeric_unsigned' }, { value_type: 'binary' }]) {
+    for (const change of [{ units: 's' }, { value_type: 'numeric_unsigned' }, { value_type: 'binary' }, { value_type: 'json' }]) {
       const { target, content, resolution } = fixture(); Object.assign(target.metrics['target-catalog'][0], change); resolution.metrics['source-catalog/source-metric'].evidence = structuredClone(target.metrics['target-catalog'][0]);
       expect(resolveClipboard(content, target, resolution).issues).toContainEqual({ code: 'metric', value: 'source-metric' });
     }

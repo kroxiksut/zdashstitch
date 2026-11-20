@@ -7,18 +7,19 @@
 use std::collections::BTreeSet;
 
 use serde_json::Value;
-use zdashstitch_zabbix::{VersionedDashboardSnapshot, is_zabbix_id};
+use zdashstitch_zabbix::{AdapterProfile, VersionedDashboardSnapshot, is_zabbix_id};
 
 use super::diff::{StructuralDiff, structural_diff};
 use super::model::{Calculation, FieldKey, HostRef, ReplaceScope, RowDecision};
-use super::report::{ReportInput, SessionContext, report};
+use super::report::{ReportInput, SessionContext, report, report_unknown_fields};
 use super::state::{
     FieldChange, Freshness, KeptList, ReplaceHostLog, RowView, added_references, apply_changes,
     changes, decision_error, kept_list, rows,
 };
 use crate::publisher::CompatibilityReport;
 use crate::resolver::{
-    ReplaceHostRequest, ResolveScope, ResolverLookup, resolve_replace_host_with, source_model,
+    ReplaceHostRequest, ResolveScope, ResolverLookup, resolve_replace_host_with,
+    workcopy_source_model,
 };
 use crate::workcopy::formats::WorkcopyFile;
 use crate::workcopy::operations::{
@@ -234,7 +235,8 @@ impl WorkcopyService {
         let kept = kept_list(&log, &rows)?;
         let changes = changes(&rows);
         let local = materialize(base, &changes)?;
-        let model = source_model(base, &self.registry)
+        let registry = Self::registry_for_version(base.server_version())?;
+        let model = workcopy_source_model(base, &registry)
             .map_err(|error| WorkcopyError::from_resolver(&error))?;
         let scope = log.entry.scope.to_resolve();
         let diff = structural_diff(&model, raw, &rows, &scope, page.as_ref().map(|page| page.0));
@@ -243,7 +245,7 @@ impl WorkcopyService {
             .map(|fresh| added_references(&log.entry.calculation, fresh.calculation))
             .unwrap_or_default();
         let base_version = base.server_version().to_string();
-        let report = report(&ReportInput {
+        let mut report = report(&ReportInput {
             log: &log,
             rows: &rows,
             kept: &kept,
@@ -252,6 +254,9 @@ impl WorkcopyService {
             session,
             added: &added,
         });
+        if base.adapter_id() == AdapterProfile::V8_0.adapter_id() {
+            report_unknown_fields(&mut report, &model, &scope);
+        }
         let entry = log.entry;
         Ok(ReplaceHostPreview {
             local_id: file.workcopy_id.clone(),
@@ -315,7 +320,15 @@ impl WorkcopyService {
         base: &VersionedDashboardSnapshot,
         request: &ReplaceHostRequest,
     ) -> Result<Calculation, WorkcopyError> {
-        let model = source_model(base, &self.registry)
+        if let Some(version) = lookup.server_version()
+            && version != base.server_version()
+        {
+            return Err(WorkcopyError::from_zabbix(
+                &zdashstitch_zabbix::ZabbixError::UnsupportedVersion(version.to_string()),
+            ));
+        }
+        let registry = Self::registry_for_version(base.server_version())?;
+        let model = workcopy_source_model(base, &registry)
             .map_err(|error| WorkcopyError::from_resolver(&error))?;
         let resolution = resolve_replace_host_with(lookup, &model, request)
             .await
@@ -440,6 +453,12 @@ impl WorkcopyService {
         session: SessionContext<'_>,
     ) -> Result<ReplaceHostPreview, WorkcopyError> {
         let (file, base, operations) = self.load_log(local_id)?;
+        if lookup
+            .server_version()
+            .is_some_and(|version| version != base.server_version())
+        {
+            return self.build_preview(&file, &base, &operations, session, None);
+        }
         let entry = ReplaceHostLog::of(&operations)
             .ok_or_else(not_calculated)?
             .entry;

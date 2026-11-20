@@ -25,7 +25,9 @@
 //! }
 //! ```
 
-use zdashstitch_zabbix::{ReadOnlyGateway, VersionedDashboardSnapshot};
+use zdashstitch_zabbix::{
+    AdapterProfile, AdapterRegistry, ReadOnlyGateway, VersionedDashboardSnapshot, WriteContract,
+};
 
 use super::{
     JournalEntry, JournalError, JournalProgress, JournalState, JournalTarget, OperationKind,
@@ -94,6 +96,29 @@ pub fn decide_update_reconciliation(
     if !same_dashboard || observed.connection_id() != entry.connection_id {
         return UpdateEvidence::NotVisible;
     }
+    if let Some(update) = &entry.portable_update {
+        if update.readback.fingerprint(observed).as_deref() == Some(&entry.expected_fingerprint) {
+            return UpdateEvidence::ExpectedFound;
+        }
+        return if observed.server_version().to_string() == entry.server_version
+            && observed.fingerprint() == entry.source_fingerprint
+        {
+            UpdateEvidence::SourceFound
+        } else {
+            UpdateEvidence::OtherFound
+        };
+    }
+    let proven_comparison = observed.adapter_id() == AdapterProfile::V7_4.adapter_id()
+        || AdapterRegistry::resolve_server(observed.server_version().clone()).is_ok_and(
+            |profile| {
+                profile
+                    .dashboard_write_contracts
+                    .is_verified(WriteContract::ReconcileUnknownOutcome)
+            },
+        );
+    if !proven_comparison || observed.server_version().to_string() != entry.server_version {
+        return UpdateEvidence::OtherFound;
+    }
     let matches = |recorded: &str| {
         observed.fingerprint() == recorded || observed.storage_fingerprint() == recorded
     };
@@ -126,8 +151,10 @@ pub async fn reconcile_update(
     if entry.kind != OperationKind::Update {
         return Err(JournalError::new("reconcile_kind_mismatch").with("kind", entry.kind.as_str()));
     }
+    let replay_link = entry.needs_portable_update_projection();
     match entry.progress {
         JournalProgress::NeedsReconciliation => {}
+        JournalProgress::Finished if replay_link => {}
         JournalProgress::Running => return Err(JournalError::new("operation_running")),
         JournalProgress::Abandoned | JournalProgress::Finished => {
             return Err(
@@ -140,6 +167,17 @@ pub async fn reconcile_update(
     }
     if reader.capabilities().version.to_string() != entry.server_version {
         return Err(JournalError::new("reconcile_server_changed").with("what", "version"));
+    }
+    if !reader.capabilities().version.is_supported_7_4()
+        && !reader
+            .matches_live_version()
+            .await
+            .map_err(|error| JournalError::from_zabbix(&error))?
+    {
+        return Err(JournalError::new("reconcile_server_changed").with("what", "version"));
+    }
+    if replay_link {
+        return Ok(entry);
     }
     let JournalTarget::ExistingDashboard { dashboardid, .. } = &entry.target else {
         return Err(JournalError::new("reconcile_kind_mismatch").with("kind", entry.kind.as_str()));
@@ -155,7 +193,13 @@ pub async fn reconcile_update(
         Reconciliation {
             state: evidence.state(),
             evidence: evidence.as_str(),
-            observed_fingerprint: observed.map(|snapshot| snapshot.fingerprint().to_owned()),
+            observed_fingerprint: observed.map(|snapshot| {
+                if evidence == UpdateEvidence::ExpectedFound && entry.portable_update.is_some() {
+                    entry.expected_fingerprint.clone()
+                } else {
+                    snapshot.fingerprint().to_owned()
+                }
+            }),
             created_dashboardid: None,
         },
     )

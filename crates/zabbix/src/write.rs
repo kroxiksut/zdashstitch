@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-//! Closed dashboard publication path of the 7.4 adapter (P0-07, P2-04B).
+//! Closed dashboard publication path for ReplaceHost.
 //!
 //! A [`VerifiedDashboardUpdate`] is built only by
 //! [`verify_widget_field_replacements`] from a freshly read dashboard and a
@@ -38,7 +38,8 @@
 //! without a defined order, and a field changed by `dashboard.update` is
 //! read back at another position; page order, every value and its JSON
 //! kind still have to match exactly (see
-//! [`crate::canonical_document`]).
+//! [`crate::canonical_document`]). The scoped 8.0.0 codec retains array
+//! order and predicts the position of a replaced field in its read-back.
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt::{self, Write as _};
@@ -48,14 +49,20 @@ use secrecy::ExposeSecret;
 use serde_json::{Map, Value, json};
 use sha2::{Digest, Sha256};
 
-use crate::gateway::{ReadMethod, ReadWriteGateway, WriteMethod};
+use crate::gateway::{ReadWriteGateway, WriteMethod};
 use crate::{
-    DashboardWriteContracts, FailureParam, Result, VersionedDashboardSnapshot, WriteContract,
-    ZabbixCapabilities, ZabbixError, ZabbixVersion, is_zabbix_id,
+    AdapterProfile, DashboardWriteContracts, FailureParam, Result, VersionedDashboardSnapshot,
+    WriteContract, ZabbixCapabilities, ZabbixError, ZabbixVersion,
 };
+
+mod item_update_8_0;
+use item_update_8_0::{ItemUpdateEvidence, ScopedItemUpdate};
 
 /// Upper bound of replacements in one verified update.
 pub const MAX_FIELD_REPLACEMENTS: usize = 1_024;
+
+/// Maximum LLD choices shown for a ReplaceHost row.
+pub const MAX_REPLACE_HOST_LLD_CANDIDATES: usize = 50;
 
 /// Widget types whose full read-back `fields` survive a resend on a changed
 /// page (P0-06 laboratory: `item`, `svggraph`; LAB-02, 28.10.2026: classic
@@ -258,11 +265,17 @@ pub struct PublicationContext {
     capabilities: ZabbixCapabilities,
     binding_fingerprint: String,
     live_authenticated: bool,
+    scoped_item_update: Option<ScopedItemUpdate>,
 }
 
 impl PublicationContext {
     pub fn capabilities(&self) -> &ZabbixCapabilities {
         &self.capabilities
+    }
+
+    /// Complete, scoped observation of excluded item matches for confirmation.
+    pub fn outside_pattern_matches(&self) -> Option<usize> {
+        self.scoped_item_update.as_ref()?.outside_pattern_matches()
     }
 
     /// Fingerprint of the publication authority (endpoint, server identity,
@@ -278,6 +291,7 @@ impl PublicationContext {
             capabilities,
             binding_fingerprint: "offline-unpublishable".to_owned(),
             live_authenticated: false,
+            scoped_item_update: None,
         }
     }
 
@@ -289,6 +303,7 @@ impl PublicationContext {
             capabilities,
             binding_fingerprint: "detached-test-authority".to_owned(),
             live_authenticated: true,
+            scoped_item_update: None,
         }
     }
 
@@ -305,7 +320,9 @@ pub struct VerifiedDashboardUpdate {
     dashboard_id: String,
     source_fingerprint: String,
     expected_fingerprint: String,
+    local_fingerprint: String,
     authority_fingerprint: String,
+    item_update_evidence: Option<ItemUpdateEvidence>,
     /// Applied again to the read right before send, so the payload carries
     /// pages, widgets and fields in the order the server returned them then.
     replacements: Vec<WidgetFieldReplacement>,
@@ -334,6 +351,11 @@ impl VerifiedDashboardUpdate {
 
     pub fn expected_fingerprint(&self) -> &str {
         &self.expected_fingerprint
+    }
+
+    /// Fingerprint of the planned local changes, before server read-back ordering.
+    pub fn local_fingerprint(&self) -> &str {
+        &self.local_fingerprint
     }
 
     pub fn authority_fingerprint(&self) -> &str {
@@ -392,21 +414,27 @@ impl VerifiedDashboardUpdate {
         {
             return None;
         }
-        let expected = VersionedDashboardSnapshot::from_adapter_raw(
+        let params = encode_update(
+            &self.dashboard_id,
+            &expected_raw,
+            &requirements.changed_pages,
+        )
+        .ok()?;
+        let local = VersionedDashboardSnapshot::from_adapter_raw(
             self.connection_id.clone(),
             self.server_version.clone(),
             expected_raw,
         )
         .ok()?;
-        if expected.fingerprint() != self.expected_fingerprint {
+        if local.fingerprint() != self.local_fingerprint
+            || expected_readback(local, &self.replacements)
+                .ok()?
+                .fingerprint()
+                != self.expected_fingerprint
+        {
             return None;
         }
-        encode_update(
-            &self.dashboard_id,
-            expected.raw_api_document(),
-            &requirements.changed_pages,
-        )
-        .ok()
+        Some(params)
     }
 }
 
@@ -594,6 +622,15 @@ fn prepare(
     snapshot: &VersionedDashboardSnapshot,
     replacements: &[WidgetFieldReplacement],
 ) -> std::result::Result<Prepared, WriteRejection> {
+    let eight_zero = snapshot.adapter_id() == AdapterProfile::V8_0.adapter_id();
+    if eight_zero && item_update_8_0::contract_shape(snapshot, replacements).is_none() {
+        return Err(
+            WriteRejection::new(WriteRejectionCode::ContractUnverified).with(
+                "contract",
+                WriteContract::UpdateOnePageWithFullFields.as_str(),
+            ),
+        );
+    }
     if replacements.is_empty() || replacements.len() > MAX_FIELD_REPLACEMENTS {
         return Err(
             WriteRejection::new(WriteRejectionCode::ReplacementCountInvalid)
@@ -607,6 +644,10 @@ fn prepare(
         .ok_or_else(shape)?;
     let mut seen = BTreeSet::new();
     let mut contracts: BTreeSet<WriteContract> = WriteContract::PAGE_UPDATE.into_iter().collect();
+    if eight_zero && replacements.len() == 1 {
+        // The scoped single-field shapes contain no widget references.
+        contracts.remove(&WriteContract::PreserveWidgetReferences);
+    }
     let mut kinds = BTreeMap::new();
     let mut changed_pages = BTreeSet::new();
     for replacement in replacements {
@@ -642,7 +683,9 @@ fn prepare(
                 .get("type")
                 .and_then(Value::as_str)
                 .ok_or_else(shape)?;
-            if !RESEND_PROVEN_WIDGET_TYPES.contains(&widget_type) {
+            let resend_proven = RESEND_PROVEN_WIDGET_TYPES.contains(&widget_type)
+                || (eight_zero && widget_type == "clock");
+            if !resend_proven {
                 unproven_widgets.push(UnprovenWidget {
                     page_index: *page_index,
                     widget_index,
@@ -694,6 +737,23 @@ pub fn write_requirements(
     prepare(snapshot, replacements).map(|prepared| prepared.requirements)
 }
 
+fn expected_readback(
+    local: VersionedDashboardSnapshot,
+    replacements: &[WidgetFieldReplacement],
+) -> Result<VersionedDashboardSnapshot> {
+    if local.adapter_id() != AdapterProfile::V8_0.adapter_id() {
+        return Ok(local);
+    }
+    let mut raw = local.raw_api_document().clone();
+    item_update_8_0::project_readback(&mut raw, replacements)
+        .ok_or_else(|| reject("expected field missing from projected read-back"))?;
+    VersionedDashboardSnapshot::from_adapter_raw(
+        local.connection_id().to_owned(),
+        local.server_version().clone(),
+        raw,
+    )
+}
+
 /// Builds the only sendable form of a dashboard update: `replacements`
 /// applied to the freshly read `snapshot`, gated by every contract they
 /// need, for the exact connected version and live authority of `context`.
@@ -715,6 +775,19 @@ pub fn verify_widget_field_replacements(
         expected_raw,
         requirements,
     } = prepare(snapshot, replacements)?;
+    let item_update_evidence = if snapshot.adapter_id() == AdapterProfile::V8_0.adapter_id() {
+        let proof = context
+            .scoped_item_update
+            .as_ref()
+            .filter(|proof| proof.covers(snapshot, replacements))
+            .ok_or_else(|| {
+                WriteRejection::new(WriteRejectionCode::ContractUnverified)
+                    .with("contract", WriteContract::ItemWidgetItemid.as_str())
+            })?;
+        Some(proof.evidence.clone())
+    } else {
+        None
+    };
     if let Some(contract) = requirements
         .missing_contracts(&capabilities.dashboard_write_contracts)
         .first()
@@ -738,19 +811,23 @@ pub fn verify_widget_field_replacements(
         &requirements.changed_pages,
     )
     .map_err(|_| shape())?;
-    let expected = VersionedDashboardSnapshot::from_adapter_raw(
+    let local = VersionedDashboardSnapshot::from_adapter_raw(
         snapshot.connection_id().to_owned(),
         snapshot.server_version().clone(),
         expected_raw,
     )
     .map_err(|_| shape())?;
+    let local_fingerprint = local.fingerprint().to_owned();
+    let expected = expected_readback(local, replacements).map_err(|_| shape())?;
     Ok(VerifiedDashboardUpdate {
         connection_id: snapshot.connection_id().to_owned(),
         server_version: snapshot.server_version().clone(),
         dashboard_id: snapshot.dashboard_id().to_owned(),
         source_fingerprint: snapshot.fingerprint().to_owned(),
         expected_fingerprint: expected.fingerprint().to_owned(),
+        local_fingerprint,
         authority_fingerprint: context.binding_fingerprint.clone(),
+        item_update_evidence,
         replacements: replacements.to_vec(),
         replacement_count: replacements.len(),
         required_contracts: requirements.contracts,
@@ -783,6 +860,7 @@ impl ReadWriteGateway {
             capabilities: self.capabilities().clone(),
             binding_fingerprint,
             live_authenticated: true,
+            scoped_item_update: None,
         }
     }
 
@@ -790,27 +868,7 @@ impl ReadWriteGateway {
     /// `dashboard.get` with `editable` returns only dashboards the user has
     /// write permission to. A read; `false` also for a hidden dashboard.
     pub async fn dashboard_is_editable(&self, dashboardid: &str) -> Result<bool> {
-        if !is_zabbix_id(dashboardid) {
-            return Err(ZabbixError::SnapshotShape(
-                "dashboardid must be a Zabbix ID".to_owned(),
-            ));
-        }
-        let answer = self
-            .reader()
-            .read(
-                ReadMethod::DashboardGet,
-                json!({
-                    "output": ["dashboardid"],
-                    "dashboardids": [dashboardid],
-                    "editable": true
-                }),
-            )
-            .await?;
-        Ok(answer.as_array().is_some_and(|dashboards| {
-            dashboards.iter().any(|dashboard| {
-                dashboard.get("dashboardid").and_then(Value::as_str) == Some(dashboardid)
-            })
-        }))
+        self.reader().dashboard_is_editable(dashboardid).await
     }
 
     /// Mandatory closed publication path: fresh read, canonical fingerprint
@@ -827,7 +885,7 @@ impl ReadWriteGateway {
     /// (`FailedAfterResponse`). Transport loss, an HTTP status (a proxy may
     /// answer after the server committed) or an unusable answer leave the
     /// outcome unknown; reads alone decide it: `ReconciledVerified`,
-    /// `ReconciledFailed`, or `UnknownOutcome` when no read succeeded.
+    /// `ReconciledFailed`, or `UnknownOutcome` when reads cannot decide it.
     /// Nothing is ever resent.
     pub async fn publish_verified_dashboard_update<G>(
         &self,
@@ -850,10 +908,10 @@ impl ReadWriteGateway {
         {
             return DashboardPublishOutcome::FailedBeforeSend;
         }
-        let Ok(before) = self.dashboard_snapshots(update.connection_id()).await else {
+        let Ok(before) = self.read_update_snapshot(update).await else {
             return DashboardPublishOutcome::FailedBeforeSend;
         };
-        let Some(current) = unique_dashboard(&before, update.dashboard_id()) else {
+        let Some(current) = before.as_ref() else {
             return DashboardPublishOutcome::Conflict;
         };
         if current.fingerprint() != update.source_fingerprint() {
@@ -862,6 +920,22 @@ impl ReadWriteGateway {
         let Some(update_params) = update.params_for(current) else {
             return DashboardPublishOutcome::FailedBeforeSend;
         };
+        if let Some(expected) = &update.item_update_evidence {
+            if !matches!(
+                self.eight_zero_item_update_evidence(current, &update.replacements).await,
+                Ok(Some(evidence)) if evidence == *expected
+            ) {
+                return DashboardPublishOutcome::FailedBeforeSend;
+            }
+            // Re-read after inventory and permission checks to avoid using a
+            // dashboard snapshot that changed while gathering evidence.
+            let Ok(latest) = self.read_update_snapshot(update).await else {
+                return DashboardPublishOutcome::FailedBeforeSend;
+            };
+            if latest.is_none_or(|latest| latest.fingerprint() != update.source_fingerprint()) {
+                return DashboardPublishOutcome::Conflict;
+            }
+        }
         if !before_send() {
             return DashboardPublishOutcome::FailedBeforeSend;
         }
@@ -896,13 +970,18 @@ impl ReadWriteGateway {
         };
 
         let mut read_succeeded = false;
+        let mut source_unchanged = false;
         for attempt in 0..3 {
             if attempt > 0 {
                 tokio::time::sleep(Duration::from_millis(50)).await;
             }
-            if let Ok(after) = self.dashboard_snapshots(update.connection_id()).await {
+            if let Ok(after) = self.read_update_snapshot(update).await {
                 read_succeeded = true;
-                if unique_dashboard(&after, update.dashboard_id())
+                source_unchanged = after
+                    .as_ref()
+                    .is_some_and(|snapshot| snapshot.fingerprint() == update.source_fingerprint());
+                if after
+                    .as_ref()
                     .is_some_and(|snapshot| update.matches_expected(snapshot))
                 {
                     return if response_known {
@@ -915,18 +994,38 @@ impl ReadWriteGateway {
         }
         match (response_known, read_succeeded) {
             (true, _) => DashboardPublishOutcome::FailedAfterResponse,
+            (false, _) if update.item_update_evidence.is_some() && !source_unchanged => {
+                DashboardPublishOutcome::UnknownOutcome
+            }
             (false, true) => DashboardPublishOutcome::ReconciledFailed,
             (false, false) => DashboardPublishOutcome::UnknownOutcome,
         }
     }
+
+    async fn read_update_snapshot(
+        &self,
+        update: &VerifiedDashboardUpdate,
+    ) -> Result<Option<VersionedDashboardSnapshot>> {
+        if update.item_update_evidence.is_some() {
+            if !self.reader().matches_live_version().await? {
+                return Err(reject("server version changed during verified update"));
+            }
+            return self
+                .reader()
+                .dashboard_snapshot(update.connection_id(), update.dashboard_id())
+                .await;
+        }
+        let snapshots = self.dashboard_snapshots(update.connection_id()).await?;
+        Ok(unique_dashboard(snapshots, update.dashboard_id()))
+    }
 }
 
-fn unique_dashboard<'a>(
-    snapshots: &'a [VersionedDashboardSnapshot],
+fn unique_dashboard(
+    snapshots: Vec<VersionedDashboardSnapshot>,
     dashboard_id: &str,
-) -> Option<&'a VersionedDashboardSnapshot> {
+) -> Option<VersionedDashboardSnapshot> {
     let mut matching = snapshots
-        .iter()
+        .into_iter()
         .filter(|snapshot| snapshot.dashboard_id() == dashboard_id);
     let dashboard = matching.next()?;
     matching.next().is_none().then_some(dashboard)

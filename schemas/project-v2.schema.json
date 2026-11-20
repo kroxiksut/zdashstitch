@@ -812,6 +812,86 @@
                                         "type": "object",
                                         "required": [
                                           "kind",
+                                          "catalog",
+                                          "metric",
+                                          "hosts",
+                                          "source_key"
+                                        ],
+                                        "properties": {
+                                          "kind": {
+                                            "const": "lld_instance"
+                                          },
+                                          "catalog": {
+                                            "type": "string",
+                                            "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                          },
+                                          "metric": {
+                                            "type": "string",
+                                            "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                          },
+                                          "hosts": {
+                                            "type": "object",
+                                            "required": [
+                                              "role",
+                                              "selection"
+                                            ],
+                                            "properties": {
+                                              "role": {
+                                                "type": "string",
+                                                "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                              },
+                                              "selection": {
+                                                "enum": [
+                                                  "all",
+                                                  "one",
+                                                  "slot"
+                                                ]
+                                              },
+                                              "slot_id": {
+                                                "type": "string",
+                                                "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                              }
+                                            },
+                                            "allOf": [
+                                              {
+                                                "if": {
+                                                  "properties": {
+                                                    "selection": {
+                                                      "const": "slot"
+                                                    }
+                                                  },
+                                                  "required": [
+                                                    "selection"
+                                                  ]
+                                                },
+                                                "then": {
+                                                  "required": [
+                                                    "slot_id"
+                                                  ]
+                                                },
+                                                "else": {
+                                                  "not": {
+                                                    "required": [
+                                                      "slot_id"
+                                                    ]
+                                                  }
+                                                }
+                                              }
+                                            ],
+                                            "additionalProperties": false
+                                          },
+                                          "source_key": {
+                                            "type": "string",
+                                            "minLength": 1,
+                                            "maxLength": 2048
+                                          }
+                                        },
+                                        "additionalProperties": false
+                                      },
+                                      {
+                                        "type": "object",
+                                        "required": [
+                                          "kind",
                                           "object_kind",
                                           "display_name"
                                         ],
@@ -1576,6 +1656,86 @@
                                         }
                                       ],
                                       "additionalProperties": false
+                                    }
+                                  },
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "object",
+                                  "required": [
+                                    "kind",
+                                    "catalog",
+                                    "metric",
+                                    "hosts",
+                                    "source_key"
+                                  ],
+                                  "properties": {
+                                    "kind": {
+                                      "const": "lld_instance"
+                                    },
+                                    "catalog": {
+                                      "type": "string",
+                                      "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                    },
+                                    "metric": {
+                                      "type": "string",
+                                      "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                    },
+                                    "hosts": {
+                                      "type": "object",
+                                      "required": [
+                                        "role",
+                                        "selection"
+                                      ],
+                                      "properties": {
+                                        "role": {
+                                          "type": "string",
+                                          "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                        },
+                                        "selection": {
+                                          "enum": [
+                                            "all",
+                                            "one",
+                                            "slot"
+                                          ]
+                                        },
+                                        "slot_id": {
+                                          "type": "string",
+                                          "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                        }
+                                      },
+                                      "allOf": [
+                                        {
+                                          "if": {
+                                            "properties": {
+                                              "selection": {
+                                                "const": "slot"
+                                              }
+                                            },
+                                            "required": [
+                                              "selection"
+                                            ]
+                                          },
+                                          "then": {
+                                            "required": [
+                                              "slot_id"
+                                            ]
+                                          },
+                                          "else": {
+                                            "not": {
+                                              "required": [
+                                                "slot_id"
+                                              ]
+                                            }
+                                          }
+                                        }
+                                      ],
+                                      "additionalProperties": false
+                                    },
+                                    "source_key": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 2048
                                     }
                                   },
                                   "additionalProperties": false
@@ -2394,6 +2554,86 @@
                                           "type": "object",
                                           "required": [
                                             "kind",
+                                            "catalog",
+                                            "metric",
+                                            "hosts",
+                                            "source_key"
+                                          ],
+                                          "properties": {
+                                            "kind": {
+                                              "const": "lld_instance"
+                                            },
+                                            "catalog": {
+                                              "type": "string",
+                                              "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                            },
+                                            "metric": {
+                                              "type": "string",
+                                              "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                            },
+                                            "hosts": {
+                                              "type": "object",
+                                              "required": [
+                                                "role",
+                                                "selection"
+                                              ],
+                                              "properties": {
+                                                "role": {
+                                                  "type": "string",
+                                                  "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                                },
+                                                "selection": {
+                                                  "enum": [
+                                                    "all",
+                                                    "one",
+                                                    "slot"
+                                                  ]
+                                                },
+                                                "slot_id": {
+                                                  "type": "string",
+                                                  "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                                }
+                                              },
+                                              "allOf": [
+                                                {
+                                                  "if": {
+                                                    "properties": {
+                                                      "selection": {
+                                                        "const": "slot"
+                                                      }
+                                                    },
+                                                    "required": [
+                                                      "selection"
+                                                    ]
+                                                  },
+                                                  "then": {
+                                                    "required": [
+                                                      "slot_id"
+                                                    ]
+                                                  },
+                                                  "else": {
+                                                    "not": {
+                                                      "required": [
+                                                        "slot_id"
+                                                      ]
+                                                    }
+                                                  }
+                                                }
+                                              ],
+                                              "additionalProperties": false
+                                            },
+                                            "source_key": {
+                                              "type": "string",
+                                              "minLength": 1,
+                                              "maxLength": 2048
+                                            }
+                                          },
+                                          "additionalProperties": false
+                                        },
+                                        {
+                                          "type": "object",
+                                          "required": [
+                                            "kind",
                                             "object_kind",
                                             "display_name"
                                           ],
@@ -3174,6 +3414,86 @@
                                           }
                                         ],
                                         "additionalProperties": false
+                                      }
+                                    },
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "object",
+                                    "required": [
+                                      "kind",
+                                      "catalog",
+                                      "metric",
+                                      "hosts",
+                                      "source_key"
+                                    ],
+                                    "properties": {
+                                      "kind": {
+                                        "const": "lld_instance"
+                                      },
+                                      "catalog": {
+                                        "type": "string",
+                                        "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                      },
+                                      "metric": {
+                                        "type": "string",
+                                        "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                      },
+                                      "hosts": {
+                                        "type": "object",
+                                        "required": [
+                                          "role",
+                                          "selection"
+                                        ],
+                                        "properties": {
+                                          "role": {
+                                            "type": "string",
+                                            "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                          },
+                                          "selection": {
+                                            "enum": [
+                                              "all",
+                                              "one",
+                                              "slot"
+                                            ]
+                                          },
+                                          "slot_id": {
+                                            "type": "string",
+                                            "pattern": "^[a-z][a-z0-9_-]{1,63}$"
+                                          }
+                                        },
+                                        "allOf": [
+                                          {
+                                            "if": {
+                                              "properties": {
+                                                "selection": {
+                                                  "const": "slot"
+                                                }
+                                              },
+                                              "required": [
+                                                "selection"
+                                              ]
+                                            },
+                                            "then": {
+                                              "required": [
+                                                "slot_id"
+                                              ]
+                                            },
+                                            "else": {
+                                              "not": {
+                                                "required": [
+                                                  "slot_id"
+                                                ]
+                                              }
+                                            }
+                                          }
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      "source_key": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 2048
                                       }
                                     },
                                     "additionalProperties": false

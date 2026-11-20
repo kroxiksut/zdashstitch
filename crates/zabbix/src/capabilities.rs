@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
 use crate::{Result, WidgetCapabilityRegistry, ZabbixError, ZabbixVersion};
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
+use zdashstitch_core::{Version, VersionRange};
 
 const VERIFIED_DASHBOARD_WRITE_PATCH_MIN: u32 = 16;
 const VERIFIED_DASHBOARD_WRITE_PATCH_MAX: u32 = 16;
@@ -174,6 +177,40 @@ impl WriteContract {
 }
 
 impl DashboardWriteContracts {
+    fn for_eight_zero(version: &ZabbixVersion) -> Self {
+        if !is_eight_zero_item_update_version(version) {
+            return Self::unproven();
+        }
+        // Z80-P5-03 and Z80-P2-03. These contracts apply only to the shapes
+        // and live evidence accepted by the scoped 8.0.0 codec.
+        Self {
+            update_one_page_with_full_fields: CapabilityState::Supported,
+            preserve_untouched_pages: CapabilityState::Supported,
+            preserve_widget_references: CapabilityState::Supported,
+            item_widget_itemid: CapabilityState::Supported,
+            svggraph_dataset_itemids: CapabilityState::Supported,
+            svggraph_dataset_hosts: CapabilityState::Supported,
+            update_several_pages: CapabilityState::Supported,
+            reconcile_unknown_outcome: CapabilityState::Supported,
+            ..Self::unproven()
+        }
+    }
+
+    #[must_use]
+    pub const fn unproven() -> Self {
+        Self {
+            update_one_page_with_full_fields: CapabilityState::Unsupported,
+            preserve_untouched_pages: CapabilityState::Unsupported,
+            item_widget_itemid: CapabilityState::Unsupported,
+            preserve_widget_references: CapabilityState::Unsupported,
+            reconcile_unknown_outcome: CapabilityState::Unsupported,
+            update_several_pages: CapabilityState::Unsupported,
+            svggraph_dataset_itemids: CapabilityState::Unsupported,
+            svggraph_dataset_hosts: CapabilityState::Unsupported,
+            classic_graph_graphid: CapabilityState::Unsupported,
+        }
+    }
+
     #[must_use]
     pub const fn state(&self, contract: WriteContract) -> CapabilityState {
         match contract {
@@ -203,12 +240,104 @@ impl DashboardWriteContracts {
     }
 }
 
+pub(crate) const fn is_eight_zero_item_update_version(version: &ZabbixVersion) -> bool {
+    version.major == 8 && version.minor == 0 && version.patch == 0
+}
+
 #[derive(Clone, Copy, Debug, Default)]
 pub struct AdapterRegistry;
 
+/// Version identity selected from `apiinfo.version` or an explicit offline
+/// version. Selecting a profile does not authorize server reads or writes.
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+pub enum AdapterProfile {
+    #[serde(rename = "7.4")]
+    V7_4,
+    #[serde(rename = "8.0")]
+    V8_0,
+}
+
+impl AdapterProfile {
+    #[must_use]
+    pub const fn adapter_id(self) -> &'static str {
+        match self {
+            Self::V7_4 => "zabbix-7.4",
+            Self::V8_0 => "zabbix-8.0",
+        }
+    }
+
+    #[must_use]
+    pub const fn family(self) -> &'static str {
+        match self {
+            Self::V7_4 => "7.4",
+            Self::V8_0 => "8.0",
+        }
+    }
+
+    /// Range described by the local widget registry. It does not authorize
+    /// any operation on a server in this range.
+    #[must_use]
+    pub const fn widget_version_range(self) -> VersionRange {
+        match self {
+            Self::V7_4 => VersionRange {
+                minimum: Version::new(7, 4, 0),
+                maximum_exclusive: None,
+            },
+            Self::V8_0 => VersionRange {
+                minimum: Version::new(8, 0, 0),
+                maximum_exclusive: Some(Version::new(8, 1, 0)),
+            },
+        }
+    }
+
+    #[must_use]
+    pub fn widget_capabilities(self) -> WidgetCapabilityRegistry {
+        match self {
+            Self::V7_4 => WidgetCapabilityRegistry::v7_4(),
+            Self::V8_0 => WidgetCapabilityRegistry::v8_0(),
+        }
+    }
+
+    pub(crate) fn item_value_type(self, value: Option<&Value>, object: &str) -> Result<u8> {
+        let maximum = match self {
+            Self::V7_4 => 5,
+            Self::V8_0 => 6,
+        };
+        value
+            .and_then(|value| value.as_u64().or_else(|| value.as_str()?.parse().ok()))
+            .and_then(|number| u8::try_from(number).ok())
+            .filter(|number| *number <= maximum)
+            .ok_or_else(|| ZabbixError::SnapshotShape(format!("{object} has no valid value_type")))
+    }
+}
+
 impl AdapterRegistry {
+    /// Structural selection only. Selecting a profile grants no operations.
+    pub fn resolve_profile(version: &ZabbixVersion) -> Result<AdapterProfile> {
+        match (version.major, version.minor) {
+            (7, 4) => Ok(AdapterProfile::V7_4),
+            (8, 0) => Ok(AdapterProfile::V8_0),
+            _ => Err(ZabbixError::UnsupportedVersion(version.to_string())),
+        }
+    }
+
+    /// Server-access selection. The 8.0.0 ReplaceHost update has scoped
+    /// contracts and never enables the general write capability.
+    pub fn resolve_server(version: ZabbixVersion) -> Result<ZabbixCapabilities> {
+        match Self::resolve_profile(&version)? {
+            AdapterProfile::V7_4 => Self::resolve(version),
+            AdapterProfile::V8_0 => Ok(ZabbixCapabilities {
+                dashboard_write_contracts: DashboardWriteContracts::for_eight_zero(&version),
+                version,
+                read_inventory: CapabilityState::Experimental,
+                dashboard_write: CapabilityState::Unsupported,
+                dashboard_create_contracts: DashboardCreateContracts::unproven(),
+            }),
+        }
+    }
+
     pub fn resolve(version: ZabbixVersion) -> Result<ZabbixCapabilities> {
-        if !version.is_supported_7_4() {
+        if Self::resolve_profile(&version)? != AdapterProfile::V7_4 {
             return Err(ZabbixError::UnsupportedVersion(version.to_string()));
         }
         let laboratory_contract = if (VERIFIED_DASHBOARD_WRITE_PATCH_MIN
@@ -258,9 +387,139 @@ impl AdapterRegistry {
     }
 
     pub fn widget_capabilities(version: &ZabbixVersion) -> Result<WidgetCapabilityRegistry> {
-        if !version.is_supported_7_4() {
-            return Err(ZabbixError::UnsupportedVersion(version.to_string()));
+        Ok(Self::resolve_profile(version)?.widget_capabilities())
+    }
+}
+
+#[cfg(test)]
+mod profile_tests {
+    use super::*;
+
+    fn version(raw: &str) -> ZabbixVersion {
+        raw.parse()
+            .unwrap_or_else(|error| panic!("test version {raw}: {error}"))
+    }
+
+    #[test]
+    fn profiles_are_exact_and_never_fall_back() {
+        assert_eq!(
+            AdapterRegistry::resolve_profile(&version("7.4.16"))
+                .unwrap_or_else(|error| panic!("test adapter: {error}")),
+            AdapterProfile::V7_4
+        );
+        assert_eq!(
+            AdapterRegistry::resolve_profile(&version("8.0.0"))
+                .unwrap_or_else(|error| panic!("test adapter: {error}")),
+            AdapterProfile::V8_0
+        );
+        assert_eq!(AdapterProfile::V8_0.adapter_id(), "zabbix-8.0");
+        for raw in ["7.0.19", "7.5.0", "8.1.0", "9.0.0"] {
+            assert!(matches!(
+                AdapterRegistry::resolve_profile(&version(raw)),
+                Err(ZabbixError::UnsupportedVersion(_))
+            ));
         }
-        Ok(WidgetCapabilityRegistry::v7_4())
+        for raw in ["8.0.0alpha1", "8.0.0rc1", "8.0.0-rc1"] {
+            assert!(matches!(
+                raw.parse::<ZabbixVersion>(),
+                Err(ZabbixError::InvalidVersion(_))
+            ));
+        }
+    }
+
+    #[test]
+    fn eight_zero_profile_keeps_general_writes_closed_with_scoped_contracts() {
+        let exact = version("8.0.0");
+        let registry = AdapterRegistry::widget_capabilities(&exact)
+            .unwrap_or_else(|error| panic!("test adapter: {error}"));
+        assert_eq!(registry.adapter(), "8.0");
+        assert!(registry.find("item").is_some());
+        assert!(registry.capabilities().iter().all(|kind| {
+            kind.flags.read && !kind.flags.edit && !kind.flags.create && !kind.flags.preview
+        }));
+        let capabilities = AdapterRegistry::resolve_server(exact.clone())
+            .unwrap_or_else(|error| panic!("test adapter: {error}"));
+        assert_eq!(capabilities.read_inventory, CapabilityState::Experimental);
+        assert_eq!(capabilities.dashboard_write, CapabilityState::Unsupported);
+        assert!(
+            capabilities
+                .dashboard_write_contracts
+                .is_verified(WriteContract::ItemWidgetItemid)
+        );
+        assert!(
+            capabilities
+                .dashboard_write_contracts
+                .item_replacement_is_verified()
+        );
+        assert!(
+            capabilities
+                .dashboard_write_contracts
+                .is_verified(WriteContract::PreserveWidgetReferences)
+        );
+        assert!(
+            capabilities
+                .dashboard_write_contracts
+                .is_verified(WriteContract::SvggraphDatasetItemids)
+        );
+        assert!(
+            capabilities
+                .dashboard_write_contracts
+                .is_verified(WriteContract::UpdateSeveralPages)
+        );
+        assert!(
+            !capabilities
+                .dashboard_write_contracts
+                .is_verified(WriteContract::ClassicGraphGraphid)
+        );
+        assert!(
+            capabilities
+                .dashboard_write_contracts
+                .is_verified(WriteContract::SvggraphDatasetHosts)
+        );
+        assert_eq!(
+            AdapterRegistry::resolve_server(version("8.0.1"))
+                .unwrap_or_else(|error| panic!("neighboring patch: {error}"))
+                .dashboard_write_contracts,
+            DashboardWriteContracts::unproven()
+        );
+        assert!(
+            !capabilities
+                .dashboard_create_contracts
+                .is_verified(CreateContract::CreatePrivateDashboard)
+        );
+        assert!(matches!(
+            AdapterRegistry::resolve(exact),
+            Err(ZabbixError::UnsupportedVersion(_))
+        ));
+    }
+
+    #[test]
+    fn seven_four_contracts_remain_separate() {
+        let capabilities = AdapterRegistry::resolve_server(version("7.4.16"))
+            .unwrap_or_else(|error| panic!("test adapter: {error}"));
+        assert_eq!(capabilities.read_inventory, CapabilityState::Supported);
+        assert!(
+            capabilities
+                .dashboard_write_contracts
+                .is_verified(WriteContract::ItemWidgetItemid)
+        );
+        assert!(
+            capabilities
+                .dashboard_create_contracts
+                .is_verified(CreateContract::CreatePrivateDashboard)
+        );
+        assert_eq!(
+            AdapterRegistry::widget_capabilities(&version("7.4.16"))
+                .unwrap_or_else(|error| panic!("test adapter: {error}"))
+                .capabilities()
+                .len(),
+            32
+        );
+        assert!(
+            !AdapterRegistry::resolve_server(version("7.4.17"))
+                .unwrap_or_else(|error| panic!("test adapter: {error}"))
+                .dashboard_write_contracts
+                .is_verified(WriteContract::ItemWidgetItemid)
+        );
     }
 }

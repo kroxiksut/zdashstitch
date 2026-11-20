@@ -1,0 +1,108 @@
+{
+  "portable_review.title": {
+    "message": "Review dynamic masks",
+    "placeholders": {}
+  },
+  "portable_review.help": {
+    "message": "Connect to the target Zabbix, choose visible hosts for the role and review matches. Other hosts may match the mask. Confirmation is temporary and does not authorize publication.",
+    "placeholders": {}
+  },
+  "portable_review.pattern": {
+    "message": "Mask",
+    "placeholders": {}
+  },
+  "portable_review.search": {
+    "message": "Search hosts",
+    "placeholders": {}
+  },
+  "portable_review.find": {
+    "message": "Find hosts",
+    "placeholders": {}
+  },
+  "portable_review.truncated": {
+    "message": "The host list is incomplete; refine your search.",
+    "placeholders": {}
+  },
+  "portable_review.choose": {
+    "message": "Choose a host",
+    "placeholders": {}
+  },
+  "portable_review.preview": {
+    "message": "Preview matches",
+    "placeholders": {}
+  },
+  "portable_review.matches": {
+    "message": "Matches visible to this account: {count}",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "portable_review.outside": {
+    "message": "Outside the selected hosts",
+    "placeholders": {}
+  },
+  "portable_review.acknowledge_outside": {
+    "message": "I reviewed the visible matches outside the selected hosts.",
+    "placeholders": {}
+  },
+  "portable_review.confirm": {
+    "message": "Confirm reviewed matches",
+    "placeholders": {}
+  },
+  "portable_review.confirmed": {
+    "message": "Matches confirmed for this review. They must be checked again before publication.",
+    "placeholders": {}
+  },
+  "portable_review.failed": {
+    "message": "Review failed or changed. Check the connection and repeat the preview.",
+    "placeholders": {}
+  },
+  "portable_lld.title": {
+    "message": "Source bindings",
+    "placeholders": {}
+  },
+  "portable_lld.help": {
+    "message": "Choose a target host for each slot. For a catalog metric, confirm a matching item on that host.",
+    "placeholders": {}
+  },
+  "portable_lld.field": {
+    "message": "Source field",
+    "placeholders": {}
+  },
+  "portable_lld.find": {
+    "message": "Check source",
+    "placeholders": {}
+  },
+  "portable_lld.candidate": {
+    "message": "Target item",
+    "placeholders": {}
+  },
+  "portable_lld.choose": {
+    "message": "Choose an item",
+    "placeholders": {}
+  },
+  "portable_lld.empty": {
+    "message": "No matching items verified.",
+    "placeholders": {}
+  },
+  "portable_lld.confirm": {
+    "message": "Confirm binding",
+    "placeholders": {}
+  },
+  "portable_lld.confirmed": {
+    "message": "Selection saved locally and checked. It must be checked again before publication.",
+    "placeholders": {}
+  },
+  "portable_lld.failed": {
+    "message": "Unable to verify the binding. Check the draft, connection and access to the source.",
+    "placeholders": {}
+  },
+  "portable_lld.reopen": {
+    "message": "Reopen saved selection",
+    "placeholders": {}
+  },
+  "portable_lld.saved_host": {
+    "message": "Previously selected host",
+    "placeholders": {}
+  }
+}

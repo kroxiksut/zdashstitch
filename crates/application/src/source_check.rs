@@ -41,6 +41,7 @@
 use zdashstitch_zabbix::{ReadOnlyGateway, VersionedDashboardSnapshot, ZabbixError};
 
 use crate::PlanInvalidReason;
+use crate::publication::{RemoteDiff, changed_widgetids, remote_changes};
 use crate::replace_host::{ReplaceHostPreview, SessionContext};
 use crate::workcopy::{
     DraftFreshness, DraftFreshnessState, WorkcopyError, WorkcopyService, now_ms,
@@ -123,6 +124,16 @@ pub(crate) async fn check_snapshot_source(
     local_id: &str,
     base: &VersionedDashboardSnapshot,
 ) -> Result<SourceCheck, WorkcopyError> {
+    read_source_check(reader, local_id, base)
+        .await
+        .map(|(check, _)| check)
+}
+
+async fn read_source_check(
+    reader: &ReadOnlyGateway,
+    local_id: &str,
+    base: &VersionedDashboardSnapshot,
+) -> Result<(SourceCheck, Option<VersionedDashboardSnapshot>), WorkcopyError> {
     let check = |state, checked_at_ms, remote_fingerprint, invalidated| SourceCheck {
         local_id: local_id.to_owned(),
         freshness: DraftFreshness {
@@ -134,11 +145,14 @@ pub(crate) async fn check_snapshot_source(
         invalidated,
     };
     if reader.capabilities().version != *base.server_version() {
-        return Ok(check(
-            DraftFreshnessState::Stale,
+        return Ok((
+            check(
+                DraftFreshnessState::Stale,
+                None,
+                None,
+                Some(PlanInvalidReason::ConnectionChanged),
+            ),
             None,
-            None,
-            Some(PlanInvalidReason::ConnectionChanged),
         ));
     }
     let remote = reader
@@ -146,7 +160,7 @@ pub(crate) async fn check_snapshot_source(
         .await
         .map_err(|error| read_error(&error))?;
     let checked_at_ms = now_ms();
-    Ok(match remote {
+    let check = match &remote {
         None => check(
             DraftFreshnessState::SourceMissing,
             None,
@@ -165,7 +179,8 @@ pub(crate) async fn check_snapshot_source(
             Some(remote.fingerprint().to_owned()),
             Some(PlanInvalidReason::SourceChanged),
         ),
-    })
+    };
+    Ok((check, remote))
 }
 
 /// The publication preview inputs re-checked against the server.
@@ -174,6 +189,8 @@ pub struct ReplaceHostRecheck {
     pub source: SourceCheck,
     /// The stored calculation revalidated with fresh facts.
     pub preview: ReplaceHostPreview,
+    /// Comparison derived from the same Remote used to check the source.
+    pub remote_diff: Option<RemoteDiff>,
 }
 
 impl ReplaceHostRecheck {
@@ -197,11 +214,22 @@ pub async fn recheck_replace_host(
     local_id: &str,
     session: SessionContext<'_>,
 ) -> Result<ReplaceHostRecheck, WorkcopyError> {
-    let source = service
-        .check_source(reader, connection_id, local_id)
-        .await?;
+    let (file, base) = service.load_with_base(local_id)?;
+    if file.source.connection_id != connection_id {
+        return Err(WorkcopyError::new("workcopy_other_connection"));
+    }
+    let (source, remote) = read_source_check(reader, local_id, &base).await?;
     let preview = service
         .revalidate_replace_host(reader, local_id, session)
         .await?;
-    Ok(ReplaceHostRecheck { source, preview })
+    if file.revision != preview.revision || source.base_fingerprint != preview.base_fingerprint {
+        return Err(WorkcopyError::new("workcopy_changed_concurrently"));
+    }
+    let remote_diff = (source.invalidated == Some(PlanInvalidReason::SourceChanged))
+        .then(|| remote_changes(&base, remote.as_ref(), &changed_widgetids(&preview)));
+    Ok(ReplaceHostRecheck {
+        source,
+        preview,
+        remote_diff,
+    })
 }

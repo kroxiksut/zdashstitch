@@ -2,6 +2,7 @@
 
 //! Explicit changes to a disposable portable copy; never mutates a draft.
 
+use crate::compatibility::project_evaluation_profile;
 use crate::portable_scan::{CandidateScan, scan};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
@@ -9,7 +10,7 @@ use zdashstitch_core::formats::{
     Page, ProjectRoot, RegistryState, TypedPortableBundle, Widget, ZabbixWidgetField,
     ZabbixWidgetFieldValue,
 };
-use zdashstitch_zabbix::{WidgetCapabilityRegistry, WidgetFieldType};
+use zdashstitch_zabbix::{AdapterProfile, WidgetCapabilityRegistry, WidgetFieldType};
 
 const MAX_CHANGES: usize = 128;
 
@@ -190,21 +191,37 @@ fn is_item_pattern(widget_type: &str, name: &str) -> bool {
     }
 }
 
-fn opaque_widget(widget_type: &str, state: RegistryState, fields: &[ZabbixWidgetField]) -> bool {
-    let registry = WidgetCapabilityRegistry::v7_4();
-    let Some(capability) = registry.find(widget_type) else {
+fn known_field(
+    registry: Option<&WidgetCapabilityRegistry>,
+    widget_type: &str,
+    field: &ZabbixWidgetField,
+) -> bool {
+    field.registry_state == RegistryState::Known
+        && registry
+            .and_then(|registry| registry.find(widget_type))
+            .is_some_and(|capability| {
+                WidgetFieldType::try_from(field.field_type)
+                    .is_ok_and(|kind| capability.knows_field(&field.name, kind))
+            })
+}
+
+fn opaque_widget(
+    registry: Option<&WidgetCapabilityRegistry>,
+    widget_type: &str,
+    state: RegistryState,
+    fields: &[ZabbixWidgetField],
+) -> bool {
+    let Some(capability) = registry.and_then(|registry| registry.find(widget_type)) else {
         return true;
     };
     state != RegistryState::Known
         || capability.fields.is_empty()
-        || fields.iter().any(|field| {
-            field.registry_state != RegistryState::Known
-                || WidgetFieldType::try_from(field.field_type)
-                    .map_or(true, |kind| !capability.knows_field(&field.name, kind))
-        })
+        || fields
+            .iter()
+            .any(|field| !known_field(registry, widget_type, field))
 }
 
-fn root_has_opaque(root: &ProjectRoot) -> bool {
+fn root_has_opaque(registry: Option<&WidgetCapabilityRegistry>, root: &ProjectRoot) -> bool {
     let pages: Vec<&Page> = match root {
         ProjectRoot::Page(page) => vec![page],
         ProjectRoot::Dashboard(dashboard) => dashboard.pages.iter().collect(),
@@ -218,12 +235,16 @@ fn root_has_opaque(root: &ProjectRoot) -> bool {
                 registry_state,
                 fields,
                 ..
-            } => opaque_widget(widget_type, *registry_state, fields),
+            } => opaque_widget(registry, widget_type, *registry_state, fields),
             _ => false,
         })
 }
 
-fn can_remove_widgets(root: &ProjectRoot, removals: &BTreeSet<(usize, usize)>) -> bool {
+pub(crate) fn can_remove_widgets(
+    registry: Option<&WidgetCapabilityRegistry>,
+    root: &ProjectRoot,
+    removals: &BTreeSet<(usize, usize)>,
+) -> bool {
     let pages: Vec<&Page> = match root {
         ProjectRoot::Page(page) => vec![page],
         ProjectRoot::Dashboard(dashboard) => dashboard.pages.iter().collect(),
@@ -251,7 +272,7 @@ fn can_remove_widgets(root: &ProjectRoot, removals: &BTreeSet<(usize, usize)>) -
             else {
                 continue;
             };
-            if opaque_widget(widget_type, *registry_state, fields) {
+            if opaque_widget(registry, widget_type, *registry_state, fields) {
                 if removals.contains(&(page_index, widget_index)) {
                     removed_opaque = true;
                     continue;
@@ -366,6 +387,7 @@ fn matching_targets(source: &TypedPortableBundle, expected: &str) -> Vec<Redacti
 
 fn original_at<'a>(
     source: &'a TypedPortableBundle,
+    registry: Option<&WidgetCapabilityRegistry>,
     target: &RedactionTarget,
 ) -> Result<&'a str, RedactionError> {
     let page = |index| match &source.project.root {
@@ -410,7 +432,7 @@ fn original_at<'a>(
                 registry_state: RegistryState::Known,
                 fields,
                 ..
-            } if !opaque_widget(widget_type, RegistryState::Known, fields) => Ok(name),
+            } if !opaque_widget(registry, widget_type, RegistryState::Known, fields) => Ok(name),
             Widget::Zabbix { .. } => Err(RedactionError::Protected),
         },
         RedactionTarget::WidgetHostMask {
@@ -434,7 +456,7 @@ fn original_at<'a>(
                 return Err(RedactionError::Protected);
             }
             let field = fields.get(*field_index).ok_or(RedactionError::Invalid)?;
-            if field.registry_state != RegistryState::Known
+            if !known_field(registry, widget_type, field)
                 || field.field_type != 1
                 || !is_svggraph_host_mask(&field.name)
             {
@@ -548,14 +570,7 @@ fn original_at<'a>(
                 return Err(RedactionError::Protected);
             };
             let field = fields.get(*field_index).ok_or(RedactionError::Invalid)?;
-            if field.registry_state != RegistryState::Known
-                || WidgetCapabilityRegistry::v7_4()
-                    .find(widget_type)
-                    .is_none_or(|capability| {
-                        WidgetFieldType::try_from(field.field_type)
-                            .map_or(true, |kind| !capability.knows_field(&field.name, kind))
-                    })
-            {
+            if !known_field(registry, widget_type, field) {
                 return Err(RedactionError::Protected);
             }
             match &field.value {
@@ -580,7 +595,7 @@ fn original_at<'a>(
                 return Err(RedactionError::Protected);
             };
             let field = fields.get(*field_index).ok_or(RedactionError::Invalid)?;
-            if field.registry_state != RegistryState::Known
+            if !known_field(registry, widget_type, field)
                 || field.field_type != 1
                 || !is_safe_text_field(widget_type, &field.name)
             {
@@ -609,7 +624,7 @@ fn original_at<'a>(
                 return Err(RedactionError::Protected);
             };
             let field = fields.get(*field_index).ok_or(RedactionError::Invalid)?;
-            if field.registry_state != RegistryState::Known
+            if !known_field(registry, widget_type, field)
                 || field.field_type != 1
                 || !is_item_pattern(widget_type, &field.name)
             {
@@ -638,6 +653,7 @@ fn original_at<'a>(
 
 fn replace_role_or_slot(
     bundle: &mut TypedPortableBundle,
+    registry: Option<&WidgetCapabilityRegistry>,
     current_roles: &mut [String],
     target: &RedactionTarget,
     replacement: &str,
@@ -709,7 +725,7 @@ fn replace_role_or_slot(
                     fields,
                     ..
                 } => {
-                    if opaque_widget(widget_type, *registry_state, fields) {
+                    if opaque_widget(registry, widget_type, *registry_state, fields) {
                         return Err(RedactionError::Protected);
                     }
                     for field in fields {
@@ -717,7 +733,8 @@ fn replace_role_or_slot(
                             ZabbixWidgetFieldValue::Host { role, slot_id, .. } => {
                                 update(role, slot_id)
                             }
-                            ZabbixWidgetFieldValue::Metric { hosts, .. } => {
+                            ZabbixWidgetFieldValue::Metric { hosts, .. }
+                            | ZabbixWidgetFieldValue::LldInstance { hosts, .. } => {
                                 update(&mut hosts.role, &mut hosts.slot_id)
                             }
                             ZabbixWidgetFieldValue::DynamicPattern {
@@ -762,6 +779,9 @@ pub fn preview(
         return Err(RedactionError::Invalid);
     }
     source.validate().map_err(|_| RedactionError::Invalid)?;
+    let project_registry =
+        project_evaluation_profile(&source.project).map(AdapterProfile::widget_capabilities);
+    let registry = project_registry.as_ref();
     if requested.iter().any(|change| change.apply_to_matching) {
         let mut expanded = Vec::new();
         let mut request_indices = Vec::new();
@@ -794,7 +814,7 @@ pub fn preview(
             {
                 return Err(RedactionError::Protected);
             }
-            let original = original_at(source, &change.target)?;
+            let original = original_at(source, registry, &change.target)?;
             let targets = if change.apply_to_matching {
                 matching_targets(source, original)
             } else {
@@ -825,7 +845,7 @@ pub fn preview(
     let mut removed_pages = BTreeSet::new();
     let mut catalog_renames = Vec::<(String, String)>::new();
     let mut changes = Vec::with_capacity(requested.len());
-    let has_opaque = root_has_opaque(&source.project.root);
+    let has_opaque = root_has_opaque(registry, &source.project.root);
     for (request_index, change) in requested.iter().enumerate() {
         if !seen.insert(change.target.clone())
             || (change.replacement.trim().is_empty()
@@ -957,6 +977,9 @@ pub fn preview(
                             for field in fields {
                                 if let ZabbixWidgetFieldValue::Metric {
                                     catalog, metric, ..
+                                }
+                                | ZabbixWidgetFieldValue::LldInstance {
+                                    catalog, metric, ..
                                 } = &mut field.value
                                     && *catalog == catalog_id
                                     && *metric == old
@@ -987,7 +1010,7 @@ pub fn preview(
             if !change.replacement.is_empty() || change.apply_to_matching {
                 return Err(RedactionError::Invalid);
             }
-            let before = original_at(source, &change.target)?;
+            let before = original_at(source, registry, &change.target)?;
             match change.target {
                 RedactionTarget::CatalogSelectorAliases { catalog_index } => {
                     let catalog = bundle
@@ -1048,7 +1071,7 @@ pub fn preview(
             if !change.replacement.is_empty() || change.apply_to_matching {
                 return Err(RedactionError::Invalid);
             }
-            let before = original_at(source, &change.target)?;
+            let before = original_at(source, registry, &change.target)?;
             removals.insert((page_index, widget_index));
             changes.push(ChangeSummary {
                 target: change.target.clone(),
@@ -1065,6 +1088,7 @@ pub fn preview(
         ) {
             let before = replace_role_or_slot(
                 &mut bundle,
+                registry,
                 &mut current_roles,
                 &change.target,
                 &change.replacement,
@@ -1126,7 +1150,9 @@ pub fn preview(
                         registry_state: RegistryState::Known,
                         fields,
                         ..
-                    } if !opaque_widget(widget_type, RegistryState::Known, fields) => name,
+                    } if !opaque_widget(registry, widget_type, RegistryState::Known, fields) => {
+                        name
+                    }
                     Widget::Zabbix { .. } => return Err(RedactionError::Protected),
                 }
             }
@@ -1153,7 +1179,7 @@ pub fn preview(
                 let field = fields
                     .get_mut(*field_index)
                     .ok_or(RedactionError::Invalid)?;
-                if field.registry_state != RegistryState::Known
+                if !known_field(registry, widget_type, field)
                     || field.field_type != 1
                     || !is_svggraph_host_mask(&field.name)
                 {
@@ -1226,14 +1252,7 @@ pub fn preview(
                 let field = fields
                     .get_mut(*field_index)
                     .ok_or(RedactionError::Invalid)?;
-                if field.registry_state != RegistryState::Known
-                    || WidgetCapabilityRegistry::v7_4()
-                        .find(widget_type)
-                        .is_none_or(|capability| {
-                            WidgetFieldType::try_from(field.field_type)
-                                .map_or(true, |kind| !capability.knows_field(&field.name, kind))
-                        })
-                {
+                if !known_field(registry, widget_type, field) {
                     return Err(RedactionError::Protected);
                 }
                 let ZabbixWidgetFieldValue::Unresolved { display_name, .. } = &mut field.value
@@ -1262,7 +1281,7 @@ pub fn preview(
                 let field = fields
                     .get_mut(*field_index)
                     .ok_or(RedactionError::Invalid)?;
-                if field.registry_state != RegistryState::Known
+                if !known_field(registry, widget_type, field)
                     || field.field_type != 1
                     || !is_safe_text_field(widget_type, &field.name)
                 {
@@ -1294,7 +1313,7 @@ pub fn preview(
                 let field = fields
                     .get_mut(*field_index)
                     .ok_or(RedactionError::Invalid)?;
-                if field.registry_state != RegistryState::Known
+                if !known_field(registry, widget_type, field)
                     || field.field_type != 1
                     || !is_item_pattern(widget_type, &field.name)
                 {
@@ -1366,7 +1385,9 @@ pub fn preview(
                     }
                     Widget::Zabbix { fields, .. } => {
                         for field in fields {
-                            if let ZabbixWidgetFieldValue::Metric { catalog, .. } = &mut field.value
+                            if let ZabbixWidgetFieldValue::Metric { catalog, .. }
+                            | ZabbixWidgetFieldValue::LldInstance { catalog, .. } =
+                                &mut field.value
                                 && *catalog == old
                             {
                                 catalog.clone_from(&new);
@@ -1378,7 +1399,7 @@ pub fn preview(
         }
     }
     if (!removals.is_empty() || !removed_pages.is_empty())
-        && !can_remove_widgets(&bundle.project.root, &removals)
+        && !can_remove_widgets(registry, &bundle.project.root, &removals)
     {
         return Err(RedactionError::Protected);
     }

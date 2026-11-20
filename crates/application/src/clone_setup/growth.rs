@@ -101,6 +101,7 @@ pub(super) fn samples(
                 || dataset.item_references != 0
                 || !dataset.host_patterns.is_empty()
                 || !dataset.item_patterns.is_empty()
+                || (snapshot.server_version().major == 8 && dataset.dataset_type != Some(0))
             {
                 continue;
             }

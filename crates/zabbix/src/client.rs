@@ -102,7 +102,7 @@ impl ZabbixClient {
         version: ZabbixVersion,
         authentication: Authentication,
     ) -> Result<ReadOnlyGateway> {
-        let capabilities = AdapterRegistry::resolve(version.clone())?;
+        let capabilities = AdapterRegistry::resolve_server(version.clone())?;
         let auth_method = authentication.method();
         let (token, login_session, user) = match authentication {
             Authentication::ApiToken(token) => {
@@ -114,7 +114,7 @@ impl ZabbixClient {
                         None,
                     )
                     .await
-                    .map_err(|error| sign_in_error(error, auth_method, false))?;
+                    .map_err(|error| sign_in_error(error, auth_method, false, &version))?;
                 (token, false, user)
             }
             Authentication::UsernamePassword { username, password } => {
@@ -126,9 +126,9 @@ impl ZabbixClient {
                         None,
                     )
                     .await
-                    .map_err(|error| sign_in_error(error, auth_method, false))?;
+                    .map_err(|error| sign_in_error(error, auth_method, false, &version))?;
                 let token = SecretString::from(session);
-                match self.verify_login_session(&token).await {
+                match self.verify_login_session(&token, &version).await {
                     Ok(user) => (token, true, user),
                     Err(error) => {
                         // Best effort: a terminated session cannot be closed.
@@ -159,7 +159,11 @@ impl ZabbixClient {
         })
     }
 
-    async fn verify_login_session(&self, token: &SecretString) -> Result<AuthenticatedUser> {
+    async fn verify_login_session(
+        &self,
+        token: &SecretString,
+        version: &ZabbixVersion,
+    ) -> Result<AuthenticatedUser> {
         let _: serde_json::Value = self
             .transport
             .read(
@@ -168,7 +172,7 @@ impl ZabbixClient {
                 token,
             )
             .await
-            .map_err(|error| sign_in_error(error, AuthMethod::Password, true))?;
+            .map_err(|error| sign_in_error(error, AuthMethod::Password, true, version))?;
         self.transport
             .session(
                 SessionMethod::UserCheckAuthentication,
@@ -176,17 +180,34 @@ impl ZabbixClient {
                 None,
             )
             .await
-            .map_err(|error| sign_in_error(error, AuthMethod::Password, true))
+            .map_err(|error| sign_in_error(error, AuthMethod::Password, true, version))
     }
 }
 
 /// Attributes a server rejection during sign-in to the authentication step.
 /// Transport failures keep their own classification.
-fn sign_in_error(error: ZabbixError, method: AuthMethod, after_login: bool) -> ZabbixError {
+fn sign_in_error(
+    error: ZabbixError,
+    method: AuthMethod,
+    after_login: bool,
+    version: &ZabbixVersion,
+) -> ZabbixError {
     if !matches!(error, ZabbixError::Api { .. }) {
         return error;
     }
     let failure = error.failure();
+    if version.major == 8 && version.minor == 0 {
+        // Exact 7.4 error prose and codes have no 8.0 laboratory contract.
+        // Preserve only structured code and method, never a guessed cause.
+        let mut classified =
+            Failure::new(FailureCode::ApiError).with("auth_method", method.as_str());
+        if let ZabbixError::Api { code, method, .. } = &error {
+            classified = classified
+                .with("method", method.clone())
+                .with("api_code", code.to_string());
+        }
+        return ZabbixError::SignIn(classified);
+    }
     let code = match (method, failure.code) {
         // Right after a successful user.login this means an MFA account.
         (AuthMethod::Password, FailureCode::SessionExpired) if after_login => {

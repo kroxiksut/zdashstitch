@@ -197,11 +197,11 @@
     }
   },
   "package_import.registry_known": {
-    "message": "The local 7.4 registry recognizes the listed widgets and fields. Server support still needs checking.",
+    "message": "The local 7.4 registry recognizes these widgets and fields for format checks. This does not confirm server support, especially on 8.0.",
     "placeholders": {}
   },
   "package_import.registry_unknown": {
-    "message": "The local 7.4 registry cannot assess every widget or field. Server support is not confirmed.",
+    "message": "The local 7.4 registry cannot assess every widget or field. Server support, including 8.0, is not confirmed.",
     "placeholders": {}
   },
   "package_import.registry_incompatible": {
@@ -213,13 +213,13 @@
     "placeholders": {}
   },
   "package_import.registry_min": {
-    "message": "Registry estimate: {version} and later",
+    "message": "Local format estimate: {version} and later; server support is unverified",
     "placeholders": {
       "version": "technical"
     }
   },
   "package_import.registry_range": {
-    "message": "Registry estimate: {minimum} up to, but not including, {maximum}",
+    "message": "Local format estimate: {minimum} up to, but not including, {maximum}; server support is unverified",
     "placeholders": {
       "minimum": "technical",
       "maximum": "technical"
@@ -331,6 +331,26 @@
   },
   "offline_builder.page_name": {
     "message": "Page name",
+    "placeholders": {}
+  },
+  "offline_builder.profile": {
+    "message": "Widget evaluation profile",
+    "placeholders": {}
+  },
+  "offline_builder.profile_choice": {
+    "message": "Zabbix {version}",
+    "placeholders": {"version": "technical"}
+  },
+  "offline_builder.profile_current": {
+    "message": "Widget evaluation profile for this draft — Zabbix {version}",
+    "placeholders": {"version": "technical"}
+  },
+  "offline_builder.profile_unavailable": {
+    "message": "No local widget registry is available for the version declared in this draft.",
+    "placeholders": {}
+  },
+  "offline_builder.profile_help": {
+    "message": "This profile is used for local widget checks. Publishing requires separate verification on the target server.",
     "placeholders": {}
   },
   "offline_builder.choose_catalogs": {
@@ -695,7 +715,19 @@
     "placeholders": {}
   },
   "offline_editor.opaque": {
-    "message": "Fields are preserved as is. Only geometry can be changed in this slice; field editing, deletion and duplication are unavailable.",
+    "message": "Fields are read-only. You can change the layout or remove the entire widget.",
+    "placeholders": {}
+  },
+  "offline_editor.confirm_removal": {
+    "message": "Remove these widgets from the draft?",
+    "placeholders": {}
+  },
+  "offline_editor.confirm_removal_help": {
+    "message": "You can undo this change from the editor history.",
+    "placeholders": {}
+  },
+  "offline_editor.removal_dependency": {
+    "message": "The draft could not be saved because a remaining widget may depend on a removed widget. Undo the removal or remove its dependents together.",
     "placeholders": {}
   },
   "editor.action.undo": {
@@ -839,6 +871,10 @@
   "offline_editor.check.metric_type": {
     "message": "The metric type is unsupported by this widget.",
     "placeholders": {}
+  },
+  "offline_editor.check.unrecognized_fields": {
+    "message": "Fields with unknown compatibility: {count}. Their values are preserved.",
+    "placeholders": {"count": "number"}
   },
   "offline_editor.check.role": {
     "message": "Check role {role} and its source selector.",

@@ -19,6 +19,7 @@ const seriesColor = '#' + (0x102030).toString(16);
 const savedPage: OfflinePage = {
   local_id: 'pg-synthetic', created_at_ms: 1, updated_at_ms: 2, revision: 3,
   catalog_versions: [{ catalog_id: 'synthetic', version: 2 }],
+  widget_evaluation: { profile: '7.4', unrecognized: [] },
   bundle: {
     project: {
       kind: 'page', catalogs: [{ id: 'synthetic', file: 'metrics/synthetic.yaml' }], roles,
@@ -92,6 +93,9 @@ describe('offline page source choices', () => {
       expect(body).toContain('id="offline-role-slots"');
       expect(body).toContain('value="one"');
       expect(body).toContain('value="many"');
+      expect(body).toContain('for="offline-evaluation-profile"');
+      expect(body).toContain('value="8.0" selected');
+      expect(body).toContain('value="7.4"');
       expect(body).toContain(i18n.t('offline_builder.roles'));
       expect(body).not.toContain('offline_builder.');
     }
@@ -100,6 +104,7 @@ describe('offline page source choices', () => {
   it('sends explicit role order and per-series sources through the protected local API', async () => {
     const page: NewOfflinePage = {
       name: 'Synthetic page', catalogs: [{ catalog_id: 'synthetic', version: 2 }], roles,
+      evaluation_profile: '8.0',
       widgets: [
         { kind: 'graph', title: 'Graph', metrics: [{ catalog_id: 'synthetic', metric_id: 'rate', hosts: { role: 'workers', selection: 'all' } }] },
         { kind: 'item_value', title: 'Repeated values', metric: { catalog_id: 'synthetic', metric_id: 'rate' }, hosts: { role: 'workers', selection: 'all' }, expansion: 'widget_per_host' }
@@ -187,6 +192,28 @@ describe('offline page source choices', () => {
     expect(request.widgets.at(-1)).toEqual({ kind: 'preserved', widget_id: 'opaque', layout: { mode: 'fixed', x: 40, y: 20, w: 12, h: 5 } });
     expect(JSON.stringify(request)).not.toContain('vendor.status');
     expect(page.bundle.project.root.widgets.at(-1)).toHaveProperty('fields');
+  });
+
+  it('shows persisted registry findings and rejects a JSON metric in either logical widget', () => {
+    const page = structuredClone(savedPage);
+    page.widget_evaluation = {
+      profile: '8.0',
+      unrecognized: [{ widget_id: 'opaque', widget_type: 'svggraph', unknown_type: false, unknown_field_count: 1 }]
+    };
+    page.bundle.project.root.widgets.push({
+      id: 'opaque', type: 'zabbix', name: 'Preserved graph', widget_type: 'svggraph',
+      registry_state: 'known', fields: [{ name: 'vendor.hint' }], layout: { mode: 'auto', w: 12, h: 5 }
+    });
+    page.bundle.catalogs.synthetic.metrics[0].value_type = 'json';
+    const findings = compositionFindings(pageRequestFromSaved(page), { synthetic: page.bundle.catalogs.synthetic.metrics }, page.widget_evaluation);
+    expect(findings).toContainEqual(expect.objectContaining({
+      code: 'unrecognized_widget_fields', widget_ids: ['opaque'], blocks: [],
+      message: { id: 'offline_editor.check.unrecognized_fields', params: { count: 1 } }
+    }));
+    expect(findings.filter(({ code }) => code === 'metric_type').map(({ widget_ids }) => widget_ids)).toEqual([['stable-graph'], ['stable-item']]);
+    const i18n = createI18n('ru');
+    const { body } = render(OfflinePageBuilder, { props: { i18n, initialPage: page } });
+    expect(body).toContain(i18n.t('offline_builder.profile_current', { version: '8.0' }));
   });
 
   it('reconciles a lost save response by one read, with no second write', async () => {

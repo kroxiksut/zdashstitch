@@ -3,12 +3,12 @@
 //! In-memory preparation of untrusted portable packages. No local storage or
 //! catalogue registration takes place at this stage.
 
+use crate::compatibility::project_evaluation_profile;
 use serde::Serialize;
 use zdashstitch_core::formats::{
     LegacyRootSelection, MAX_FILE_BYTES, PortableBundle, PortableIoError, PortableProject,
     TypedPortableBundle, TypedProject, from_yaml_str, read_package_bytes, read_typed_package_bytes,
 };
-use zdashstitch_zabbix::WidgetCapabilityRegistry;
 
 #[derive(Serialize)]
 pub struct ImportCompatibility {
@@ -19,7 +19,14 @@ pub struct ImportCompatibility {
 
 /// Registry-derived estimate only; it does not prove server capabilities.
 pub fn compatibility(project: &TypedProject) -> ImportCompatibility {
-    let report = crate::analyze_project_compatibility(project, &WidgetCapabilityRegistry::v7_4());
+    let Some(profile) = project_evaluation_profile(project) else {
+        return ImportCompatibility {
+            knowledge: "unknown",
+            calculated: None,
+            declared_outside_registry: false,
+        };
+    };
+    let report = crate::analyze_project_compatibility(project, &profile.widget_capabilities());
     let pages: Vec<_> = match &project.root {
         zdashstitch_core::formats::ProjectRoot::Page(page) => vec![page],
         zdashstitch_core::formats::ProjectRoot::Dashboard(dashboard) => {
@@ -204,6 +211,22 @@ mod tests {
     }
 
     #[test]
+    fn native_global_dashboard_export_is_not_a_portable_project() {
+        let native = br#"zabbix_export:
+  version: '8.0'
+  dashboards:
+    - name: Synthetic global dashboard
+      pages:
+        - name: Overview
+"#;
+        let error = inspect_package(native)
+            .err()
+            .expect("native configuration export refused");
+        assert_eq!(error.typed, "standalone_invalid");
+        assert_eq!(error.legacy, "standalone_invalid");
+    }
+
+    #[test]
     fn unknown_widget_never_claims_registry_compatibility() {
         let root = Path::new(env!("CARGO_MANIFEST_DIR"))
             .ancestors()
@@ -239,7 +262,158 @@ mod tests {
             assert!(!compatibility(&bundle.project).declared_outside_registry);
         }
         bundle.project.declared_compatibility.minimum = zdashstitch_core::Version::new(1, 0, 0);
-        assert!(compatibility(&bundle.project).declared_outside_registry);
+        let unsupported = compatibility(&bundle.project);
+        assert_eq!(unsupported.knowledge, "unknown");
+        assert!(unsupported.calculated.is_none());
+        assert!(!unsupported.declared_outside_registry);
+    }
+
+    #[test]
+    fn portable_package_and_library_copies_keep_versioned_content() {
+        use crate::offline_pages::OfflinePageStore;
+        use crate::page_library::PageLibrary;
+        use crate::portable_redaction::{
+            RedactionChange, RedactionError, RedactionTarget, preview,
+        };
+        use zdashstitch_core::Version;
+        use zdashstitch_core::formats::{CatalogReference, MetricCatalog, MetricsFormat, Widget};
+        use zdashstitch_zabbix::AdapterProfile;
+
+        let workspace = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .ancestors()
+            .nth(2)
+            .expect("workspace");
+        let local = tempfile::tempdir().expect("storage");
+        let store = OfflinePageStore::new(local.path().to_owned());
+        let library = PageLibrary::new(local.path().to_owned());
+        for (profile, knowledge) in [
+            (AdapterProfile::V7_4, "known"),
+            (AdapterProfile::V8_0, "unknown"),
+        ] {
+            let mut source =
+                load_typed_project_file(&workspace.join("examples/clock-page-v2.yaml"))
+                    .expect("fixture");
+            source.project.declared_compatibility = profile.widget_version_range();
+            if profile == AdapterProfile::V8_0 {
+                source.project.declared_compatibility.minimum = Version::new(8, 0, 2);
+                let catalog: MetricCatalog = from_yaml_str(include_str!(
+                    "../../../fixtures/formats/v2/positive/json-mixed-catalog.yaml"
+                ))
+                .expect("8.0 catalog");
+                source.project.catalogs.push(CatalogReference {
+                    id: catalog.catalog_id.clone(),
+                    file: "metrics/linux.yaml".to_owned(),
+                });
+                source.catalogs.insert(catalog.catalog_id.clone(), catalog);
+            }
+            let bytes = build_typed_package_bytes(&source).expect("typed package");
+            let InspectedPackage::Typed(imported) = inspect_package(&bytes).ok().expect("import")
+            else {
+                panic!("typed package");
+            };
+            assert_eq!(imported, source);
+            assert_eq!(compatibility(&imported.project).knowledge, knowledge);
+            let saved = store.save_imported(imported).expect("save draft");
+            let reopened = OfflinePageStore::new(local.path().to_owned())
+                .get(&saved.local_id)
+                .expect("read draft")
+                .expect("saved draft");
+            let entry = library
+                .save_draft(&saved.local_id)
+                .expect("save library page");
+            let duplicate = library
+                .duplicate(&entry.library_id, entry.revision)
+                .expect("duplicate");
+            assert_ne!(entry.library_id, duplicate.library_id);
+            let copy = PageLibrary::new(local.path().to_owned())
+                .take_page(&duplicate.library_id)
+                .expect("open duplicate");
+            assert_ne!(copy.local_id, reopened.local_id);
+            let ProjectRoot::Page(mut expected_page) = source.project.root.clone() else {
+                panic!("page fixture");
+            };
+            let ProjectRoot::Page(copied_page) = &copy.bundle.project.root else {
+                panic!("page copy");
+            };
+            let Widget::Zabbix { id, .. } = &mut expected_page.widgets[0] else {
+                panic!("widget fixture");
+            };
+            assert_ne!(copied_page.widgets[0].id(), id);
+            id.clone_from(&copied_page.widgets[0].id().to_owned());
+            expected_page.id.clone_from(&copy.local_id);
+            assert_eq!(*copied_page, expected_page);
+            assert_eq!(
+                copy.bundle.project.declared_compatibility,
+                source.project.declared_compatibility,
+            );
+            assert_eq!(copy.bundle.catalogs, source.catalogs);
+            assert_eq!(copy.embedded_catalogs, reopened.embedded_catalogs);
+            assert!(copy.catalog_versions.is_empty());
+            let reexport = store
+                .export_package(&copy.local_id)
+                .expect("export")
+                .expect("draft");
+            let InspectedPackage::Typed(exported) =
+                inspect_package(&reexport).ok().expect("read export")
+            else {
+                panic!("typed package");
+            };
+            assert_eq!(exported, copy.bundle);
+            let redacted = preview(
+                &exported,
+                &[RedactionChange {
+                    target: RedactionTarget::PageName { page_index: 0 },
+                    replacement: "Portable copy".to_owned(),
+                    apply_to_matching: false,
+                }],
+            )
+            .expect("redact page title");
+            let redacted_archive =
+                build_typed_package_bytes(&redacted.bundle).expect("redacted ZIP");
+            assert_eq!(
+                read_typed_package_bytes(&redacted_archive).expect("reopen redacted ZIP"),
+                redacted.bundle,
+            );
+            assert_eq!(
+                redacted.bundle.project.declared_compatibility,
+                source.project.declared_compatibility
+            );
+            assert_eq!(redacted.bundle.catalogs, source.catalogs);
+            assert_ne!(redacted.bundle.project.root, reopened.bundle.project.root);
+            assert_eq!(
+                store
+                    .get(&saved.local_id)
+                    .expect("read original")
+                    .expect("original")
+                    .bundle,
+                reopened.bundle
+            );
+            if profile == AdapterProfile::V8_0 {
+                assert!(redacted.remaining.unknown_objects > 0);
+                assert_eq!(redacted.bundle.catalogs["linux"].format, MetricsFormat::V2);
+                assert_eq!(
+                    redacted.bundle.catalogs["linux"]
+                        .source
+                        .export_format_version
+                        .as_deref(),
+                    Some("8.0"),
+                );
+                assert!(matches!(
+                    preview(
+                        &exported,
+                        &[RedactionChange {
+                            target: RedactionTarget::WidgetName {
+                                page_index: 0,
+                                widget_index: 0
+                            },
+                            replacement: "Public widget".to_owned(),
+                            apply_to_matching: false,
+                        }]
+                    ),
+                    Err(RedactionError::Protected)
+                ));
+            }
+        }
     }
 
     #[test]
@@ -382,8 +556,10 @@ mod tests {
                 &saved.local_id,
                 UpdatePage {
                     expected_revision: saved.revision,
+                    confirmed_widget_removals: vec![],
                     page: CreatePage {
                         name: "Renamed".into(),
+                        evaluation_profile: None,
                         catalogs: vec![],
                         roles: saved.bundle.project.roles.clone(),
                         widgets,

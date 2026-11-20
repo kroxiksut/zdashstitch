@@ -43,6 +43,54 @@ export interface PublicationClient {
   quarantine(operationId: string): Promise<void>;
 }
 
+export type PortableUpdateIntent =
+  | { kind: 'append_page'; dashboardid: string; after_pageid?: string; source_page_id?: string }
+  | { kind: 'append_widget'; dashboardid: string; pageid: string; x: number; y: number }
+  | { kind: 'append_widgets'; dashboardid: string; pageid: string; source_page_id: string;
+      widgets: Array<{ widget_id: string; x: number; y: number }> }
+  | { kind: 'update_created'; deployment_id: string }
+  | { kind: 'change_access'; deployment_id: string; access: AccessSelection };
+export type SharingPermission = 'read_only' | 'read_write';
+export type ShareRecipient = { id: string; permission: SharingPermission };
+export type AccessSelection = { private?: boolean; owner?: string; users?: ShareRecipient[]; groups?: ShareRecipient[] };
+export type AccessState = Required<AccessSelection>;
+export type SharingChoice = { id: string; name: string };
+export type AccessChoices = { can_choose_owner: boolean; users: SharingChoice[]; groups: SharingChoice[]; truncated: boolean };
+export type PortableLinkStatus = 'current' | 'changed' | 'missing_or_denied' | 'other_server';
+export type PortableUpdateChange =
+  | { kind: 'add_page'; name: string; number: number }
+  | { kind: 'add_widget'; page: string; name: string; x: number; y: number }
+  | { kind: 'remove_page'; name: string; number: number }
+  | { kind: 'remove_widget'; page: string; name: string; x: number; y: number }
+  | { kind: 'move_page'; name: string; from: number; to: number }
+  | { kind: 'geometry'; page: string; widget: string; before: [number, number, number, number]; after: [number, number, number, number] }
+  | { kind: 'name'; object: 'dashboard' | 'page' | 'widget'; before: string; after: string }
+  | { kind: 'field'; page: string; widget: string; name: string; before: string | null; after: string };
+
+export interface PortablePublicationClient {
+  accessChoices(): Promise<AccessChoices | null>;
+  copySource(localId: string): Promise<{ revision: number; base_fingerprint: string; local_fingerprint: string }>;
+  deploymentAccess(localId: string, deploymentId: string): Promise<AccessState>;
+  planPortable(localId: string, input: { connection_id: string; revision: number; name: string; create_another: boolean; access?: AccessSelection }): Promise<{
+    handle: string;
+    plan: { action: 'create_dashboard'; plan_id: string; target_name: string; page_count: number; widget_count: number; private: boolean; write_requests: number; access?: AccessState };
+  }>;
+  planPortableUpdate(localId: string, input: { connection_id: string; revision: number; intent: PortableUpdateIntent }): Promise<{
+    handle: string;
+    plan: { action: 'append_page' | 'append_widgets' | 'update_created'; plan_id: string; target_name: string; write_requests: number;
+      source_name: string; changes: PortableUpdateChange[]; removes_content: boolean; repeats_append: boolean;
+      access_change?: { before: AccessState; after: AccessState } | null };
+  }>;
+  checkDeployment(localId: string, deploymentId: string): Promise<{
+    state: PortableLinkStatus;
+    remote: import('./model').RemoteDiff | null;
+  }>;
+  deployments(localId: string): Promise<{
+    deployments: Array<{ deployment_id: string; connection_id: string; dashboard_name: string; source_revision: number; dashboard: { dashboardid: string } }>;
+    recovery: JournalEntry[];
+  }>;
+}
+
 // ---------------------------------------------------------------- failures
 
 /** A rejected command of the in-memory client, shaped like an HTTP failure. */
@@ -127,7 +175,7 @@ function checkFromWire(wire: WireCheck): CheckResult {
 }
 
 /** Client over the local server. The CSRF token is read from `/api/session` and kept in memory only. */
-export function createHttpPublicationClient(fetcher: typeof fetch = (...args) => fetch(...args)): PublicationClient {
+export function createHttpPublicationClient(fetcher: typeof fetch = (...args) => fetch(...args)): PublicationClient & PortablePublicationClient {
   let csrf: Promise<string> | null = null;
 
   function ensureCsrf(): Promise<string> {
@@ -156,6 +204,29 @@ export function createHttpPublicationClient(fetcher: typeof fetch = (...args) =>
     `/api/publication/journal/${encodeURIComponent(operationId)}${action === undefined ? '' : `/${action}`}`;
 
   return {
+    accessChoices() {
+      return send('GET', '/api/publication/access-choices');
+    },
+    copySource(localId) {
+      return send('GET', draft(localId, 'copy-source'));
+    },
+    deploymentAccess(localId, deploymentId) {
+      return send('GET', `/api/drafts/${encodeURIComponent(localId)}/deployments/${encodeURIComponent(deploymentId)}/access`);
+    },
+    planPortable(localId, input) {
+      return send('POST', `/api/drafts/${encodeURIComponent(localId)}/portable-publication/plan`, input);
+    },
+    planPortableUpdate(localId, input) {
+      return send('POST', `/api/drafts/${encodeURIComponent(localId)}/portable-publication/update-plan`, input);
+    },
+    checkDeployment(localId, deploymentId) {
+      return send('GET', `/api/drafts/${encodeURIComponent(localId)}/deployments/${encodeURIComponent(deploymentId)}/check`);
+    },
+    async deployments(localId) {
+      type WireDeployments = Omit<Awaited<ReturnType<PortablePublicationClient['deployments']>>, 'recovery'> & { recovery: WireEntry[] };
+      const wire = await send<WireDeployments>('GET', `/api/drafts/${encodeURIComponent(localId)}/deployments`);
+      return { deployments: wire.deployments, recovery: wire.recovery.map(entryFromWire) };
+    },
     async check(localId) {
       return checkFromWire(await send<WireCheck>('POST', draft(localId, 'check')));
     },

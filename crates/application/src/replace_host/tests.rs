@@ -51,11 +51,6 @@ fn read_write(capabilities: &ZabbixCapabilities) -> SessionContext<'_> {
     }
 }
 
-fn base(raw: Value) -> VersionedDashboardSnapshot {
-    VersionedDashboardSnapshot::from_adapter_raw(CONNECTION.to_owned(), version("7.4.16"), raw)
-        .unwrap_or_else(|error| panic!("snapshot: {error}"))
-}
-
 struct Setup {
     dir: tempfile::TempDir,
     service: WorkcopyService,
@@ -89,9 +84,18 @@ fn workcopy_path(root: &Path, local_id: &str) -> PathBuf {
 
 /// Stores Base and one workcopy per `(local_id, page)`.
 fn setup(raw: Value, drafts: &[(&str, Option<&str>)]) -> Setup {
+    setup_for(raw, drafts, "7.4.16")
+}
+
+fn setup_for(raw: Value, drafts: &[(&str, Option<&str>)], server_version: &str) -> Setup {
     let dir = tempfile::tempdir().unwrap_or_else(|error| panic!("temp dir: {error}"));
     let store = LocalStore::at(dir.path().to_path_buf());
-    let base = base(raw);
+    let base = VersionedDashboardSnapshot::from_adapter_raw(
+        CONNECTION.to_owned(),
+        version(server_version),
+        raw,
+    )
+    .unwrap_or_else(|error| panic!("snapshot: {error}"));
     let fingerprint = base.storage_fingerprint().to_owned();
     let dashboardid = base.dashboard_id().to_owned();
     store
@@ -100,7 +104,7 @@ fn setup(raw: Value, drafts: &[(&str, Option<&str>)]) -> Setup {
             storage_scope: LOCAL_ONLY.to_owned(),
             connection_id: CONNECTION.to_owned(),
             adapter_id: base.adapter_id().to_owned(),
-            server_version: "7.4.16".to_owned(),
+            server_version: server_version.to_owned(),
             dashboardid: dashboardid.clone(),
             scope: SnapshotScope::Dashboard,
             first_read_at_ms: 1,
@@ -132,12 +136,13 @@ fn setup(raw: Value, drafts: &[(&str, Option<&str>)]) -> Setup {
                 updated_at_ms: 10,
                 revision: 0,
                 source: WorkcopySource {
+                    server_identity_fingerprint: None,
                     connection_id: CONNECTION.to_owned(),
                     dashboardid: dashboardid.clone(),
                     dashboard_name: "Synthetic".to_owned(),
                     page,
                     adapter_id: base.adapter_id().to_owned(),
-                    server_version: "7.4.16".to_owned(),
+                    server_version: server_version.to_owned(),
                 },
                 base: BaseReference {
                     fingerprint: fingerprint.clone(),
@@ -1334,6 +1339,117 @@ async fn c_revalidation_invalidates_a_chosen_candidate_that_disappeared() {
         })
     );
     assert!(blocker_codes(&checked).contains(&FindingCode::BindingInvalid));
+}
+
+#[tokio::test]
+async fn lld_workcopy_rechecks_current_and_enabled_status_only_when_proven_by_the_adapter() {
+    let mut raw = dashboard();
+    raw["pages"][0]["widgets"] = json!([widget(
+        "2001",
+        "svggraph",
+        vec![field("4", "ds.0.itemids.0", "103")]
+    )]);
+    let lookup = |source: Option<bool>, target: Option<bool>, enabled: Option<bool>| {
+        let mut fixture = fixture();
+        for item in &mut fixture.items {
+            let (current, enabled) = match item.itemid.as_str() {
+                "103" => (source, Some(true)),
+                "203" => (target, enabled),
+                _ => continue,
+            };
+            item.enabled = enabled;
+            item.discovery
+                .as_mut()
+                .unwrap_or_else(|| panic!("discovery link"))
+                .currently_discovered = current;
+        }
+        fixture
+    };
+    for server_version in ["7.4.16", "8.0.0"] {
+        let setup = setup_for(raw.clone(), &[(LOCAL, None)], server_version);
+        let capabilities = AdapterRegistry::resolve_server(version(server_version))
+            .unwrap_or_else(|error| panic!("adapter: {error}"));
+        let session = read_write(&capabilities);
+        let preview = calculate(
+            &setup,
+            &lookup(Some(true), Some(true), Some(true)),
+            LOCAL,
+            session,
+        )
+        .await;
+        let key = row_key(&preview, "2001", "ds.0.itemids.0");
+        let decision = RowDecision::ChooseLldInstance {
+            itemid: "203".to_owned(),
+        };
+        let chosen = ok(setup
+            .service
+            .decide_replace_host(LOCAL, &key, &decision, session));
+        assert_eq!(
+            row(&chosen, "2001", "ds.0.itemids.0").decision_state,
+            DecisionState::Applied
+        );
+        let saved = setup.workcopy_bytes(LOCAL);
+        for changed in [
+            lookup(Some(true), Some(false), Some(true)),
+            lookup(Some(true), None, Some(true)),
+            lookup(Some(true), Some(true), Some(false)),
+            lookup(Some(true), Some(true), None),
+            lookup(Some(false), Some(true), Some(true)),
+        ] {
+            let rechecked = ok(setup
+                .service
+                .revalidate_replace_host(&changed, LOCAL, session)
+                .await);
+            let binding = row(&rechecked, "2001", "ds.0.itemids.0");
+            if server_version == "8.0.0" {
+                assert_eq!(binding.check, RowCheck::Invalid);
+                assert_eq!(binding.check_reason, Some(CheckReason::CandidateNotVisible));
+                assert!(blocker_codes(&rechecked).contains(&FindingCode::BindingInvalid));
+            } else {
+                assert_eq!(binding.check, RowCheck::Checked);
+            }
+            assert_eq!(setup.workcopy_bytes(LOCAL), saved);
+        }
+        if server_version == "8.0.0" {
+            let mut changed_facts = lookup(Some(true), Some(true), Some(true));
+            let item = changed_facts
+                .items
+                .iter_mut()
+                .find(|item| item.itemid == "203")
+                .unwrap_or_else(|| panic!("chosen item"));
+            item.name = "Renamed discovered item".to_owned();
+            item.units = "widgets".to_owned();
+            let rechecked = ok(setup
+                .service
+                .revalidate_replace_host(&changed_facts, LOCAL, session)
+                .await);
+            let binding = row(&rechecked, "2001", "ds.0.itemids.0");
+            assert_eq!(binding.check, RowCheck::Stale);
+            assert_eq!(binding.check_reason, Some(CheckReason::ResolutionChanged));
+            assert_eq!(setup.workcopy_bytes(LOCAL), saved);
+
+            let disabled = calculate(
+                &setup,
+                &lookup(Some(true), Some(true), Some(false)),
+                LOCAL,
+                session,
+            )
+            .await;
+            let binding = row(&disabled, "2001", "ds.0.itemids.0");
+            assert!(
+                binding
+                    .candidates
+                    .iter()
+                    .all(|candidate| candidate.itemid != "203")
+            );
+            assert!(
+                setup
+                    .service
+                    .decide_replace_host(LOCAL, &key, &decision, session)
+                    .is_err()
+            );
+        }
+    }
 }
 
 // ---------- P2-03E: wizard inputs (09-01, 09-02) ----------

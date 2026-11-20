@@ -1,6 +1,7 @@
 import { apiFailure } from '../api';
 import { CSRF_HEADER, loadCsrfToken } from '../session';
 import type { SettingsFileState } from './appearance.svelte';
+import { settingsFileIssue, type SettingsFileIssue } from './file-issue';
 
 export interface EditorPreferences {
   autosave: 'on' | 'off';
@@ -18,6 +19,7 @@ export interface EditorSnapshot {
   file_state: SettingsFileState;
   fingerprint: string;
   session_only: boolean;
+  issue?: SettingsFileIssue | null;
 }
 
 const ENDPOINT = '/api/settings/editor';
@@ -41,7 +43,7 @@ export function createEditorSettingsClient(fetcher: typeof fetch = (...args) => 
     if (!response.ok) throw await apiFailure(response);
     const wire: unknown = await response.json();
     if (!valid(wire)) throw new Error('settings_invalid_response');
-    return wire;
+    return wire.issue === undefined ? wire : { ...wire, issue: settingsFileIssue(wire.issue) };
   }
   return {
     load: () => send({ method: 'GET', headers: { Accept: 'application/json' } }),

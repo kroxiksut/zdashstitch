@@ -1,4 +1,46 @@
 {
+  "publication.portable.source_page": {"message":"Source page","placeholders":{}},
+  "publication.portable.source_widgets": {"message":"Graph widgets to add","placeholders":{}},
+  "publication.portable.append_selected": {"message":"Add selected graphs","placeholders":{}},
+  "publication.portable.check_link": {"message":"Check on the server","placeholders":{}},
+  "publication.portable.current": {"message":"The dashboard matches the saved version.","placeholders":{}},
+  "publication.portable.changed": {"message":"The dashboard changed on the server. Import the current version to review it or explicitly create another dashboard.","placeholders":{}},
+  "publication.portable.missing": {"message":"The dashboard is missing or inaccessible.","placeholders":{}},
+  "publication.portable.other_server": {"message":"The link belongs to another server or connection identity.","placeholders":{}},
+  "publication.portable.page_position": {"message":"Position of the added page","placeholders":{}},
+  "publication.portable.position_end": {"message":"At the end","placeholders":{}},
+  "publication.portable.position_after": {"message":"After “{name}”","placeholders":{"name":"text"}},
+  "publication.portable.preview_source": {"message":"Draft “{name}”","placeholders":{"name":"text"}},
+  "publication.portable.diff_page": {"message":"Add “{name}” as page {number}","placeholders":{"name":"text","number":"number"}},
+  "publication.portable.diff_widget": {"message":"Add “{name}” to “{page}” at X {x}, Y {y}","placeholders":{"name":"text","page":"text","x":"number","y":"number"}},
+  "publication.portable.diff_remove_page": {"message":"Remove page {number} “{name}”","placeholders":{"name":"text","number":"number"}},
+  "publication.portable.diff_remove_widget": {"message":"Remove “{name}” from “{page}” at X {x}, Y {y}","placeholders":{"name":"text","page":"text","x":"number","y":"number"}},
+  "publication.portable.diff_move_page": {"message":"Move “{name}” from page {from} to page {to}","placeholders":{"name":"text","from":"number","to":"number"}},
+  "publication.portable.diff_geometry": {"message":"“{widget}” on “{page}”: X {old_x}, Y {old_y}, {old_w} × {old_h} → X {new_x}, Y {new_y}, {new_w} × {new_h}","placeholders":{"widget":"text","page":"text","old_x":"number","old_y":"number","old_w":"number","old_h":"number","new_x":"number","new_y":"number","new_w":"number","new_h":"number"}},
+  "publication.portable.acknowledge_deletions": {"message":"Remove the listed pages and widgets from the Zabbix dashboard","placeholders":{}},
+  "publication.portable.equivalent_page_exists": {"message":"The target dashboard already contains an identical page.","placeholders":{}},
+  "publication.portable.append_again": {"message":"Add the page again","placeholders":{}},
+  "publication.portable.diff_dashboard_name": {"message":"Dashboard name changes from “{before}” to “{after}”","placeholders":{"before":"text","after":"text"}},
+  "publication.portable.diff_page_name": {"message":"Page name changes from “{before}” to “{after}”","placeholders":{"before":"text","after":"text"}},
+  "publication.portable.diff_widget_name": {"message":"Widget name changes from “{before}” to “{after}”","placeholders":{"before":"text","after":"text"}},
+  "publication.portable.diff_add_field": {"message":"In “{widget}” on “{page}”, add {name} with value “{after}”","placeholders":{"widget":"text","page":"text","name":"text","after":"text"}},
+  "publication.portable.diff_field": {"message":"In “{widget}” on “{page}”, {name} changes from “{before}” to “{after}”","placeholders":{"widget":"text","page":"text","name":"text","before":"text","after":"text"}},
+  "publication.portable.diff_unavailable": {"message":"The previous or selected item is missing or inaccessible. The change cannot be previewed.","placeholders":{}},
+  "publication.portable.update_created": {"message":"Update the created dashboard","placeholders":{}},
+  "publication.portable.choose_target": {"message":"Choose a private dashboard","placeholders":{}},
+  "publication.portable.select": {"message":"Select","placeholders":{}},
+  "publication.portable.target_page": {"message":"Target page","placeholders":{}},
+  "publication.portable.location_x": {"message":"Column X","placeholders":{}},
+  "publication.portable.location_y": {"message":"Row Y","placeholders":{}},
+  "publication.portable.append_page": {"message":"Append the page to the dashboard","placeholders":{}},
+  "publication.portable.append_widget": {"message":"Add the graph to the page","placeholders":{}},
+  "publication.portable.question_update": {"message":"Apply the planned change to “{name}”?","placeholders":{"name":"text"}},
+  "publication.portable.already_deployed": {"message":"A dashboard was already created from this draft on this server.","placeholders":{}},
+  "publication.portable.created": {"message":"Created from this draft","placeholders":{}},
+  "publication.portable.require_connection": {"message":"To publish, connect to Zabbix 8.0.0 and enable write mode.","placeholders":{}},
+  "publication.portable.create_another": {"message":"Create another dashboard from this draft","placeholders":{}},
+  "publication.portable.link_pending": {"message":"The write was verified. Reconcile the result to finish saving the link.","placeholders":{}},
+  "publication.portable.summary": {"message":"Create a dashboard on {profile} with {pages} pages and {widgets} widgets.","placeholders":{"profile":"text","pages":"number","widgets":"number"}},
   "publication.title": {
     "message": "Preview and publish",
     "placeholders": {}
@@ -429,6 +471,14 @@
     "message": "Draft fingerprint",
     "placeholders": {}
   },
+  "publication.tech.expected": {
+    "message": "Expected result fingerprint",
+    "placeholders": {}
+  },
+  "publication.finding.pattern_matches_outside_selection": {
+    "message": "The host selectors exclude item matches on other hosts ({count}).",
+    "placeholders": {"count": "number"}
+  },
   "publication.tech.revision": {
     "message": "Draft revision",
     "placeholders": {}
@@ -619,6 +669,26 @@
       "dashboard_name": "text"
     }
   },
+  "publication.access.owner": {"message":"Owner","placeholders":{}},
+  "publication.access.current_account": {"message":"Current account","placeholders":{}},
+  "publication.access.type": {"message":"Dashboard access","placeholders":{}},
+  "publication.access.private": {"message":"Private","placeholders":{}},
+  "publication.access.public": {"message":"Public","placeholders":{}},
+  "publication.access.public_warning": {"message":"All Zabbix users will be able to see this dashboard.","placeholders":{}},
+  "publication.access.visible_part": {"message":"Only recipients visible to your account are shown.","placeholders":{}},
+  "publication.access.choices_truncated": {"message":"Only the first 500 visible users and groups are available here.","placeholders":{}},
+  "publication.access.users": {"message":"Users","placeholders":{}},
+  "publication.access.groups": {"message":"User groups","placeholders":{}},
+  "publication.access.read_only": {"message":"Read-only","placeholders":{}},
+  "publication.access.read_write": {"message":"Read-write","placeholders":{}},
+  "publication.access.add_user": {"message":"Add a user","placeholders":{}},
+  "publication.access.add_group": {"message":"Add a user group","placeholders":{}},
+  "publication.access.remove": {"message":"Remove {name}","placeholders":{"name":"text"}},
+  "publication.access.edit": {"message":"Edit owner and sharing","placeholders":{}},
+  "publication.access.before": {"message":"Current access","placeholders":{}},
+  "publication.access.rejected": {"message":"The selected owner or access cannot be verified for this connection.","placeholders":{}},
+  "publication.access.after": {"message":"Proposed access","placeholders":{}},
+  "publication.access.restore_source": {"message":"Restore access from the source dashboard","placeholders":{}},
   "publication.access.title": {
     "message": "Owner and sharing",
     "placeholders": {}

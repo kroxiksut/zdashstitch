@@ -30,7 +30,8 @@
 //!    every widget of a changed page); each must be `Supported`;
 //! 9. the adapter builds the update bound to the live publication
 //!    authority (endpoint, server identity, version, credential, write
-//!    epoch), and its expected result must equal Local byte for byte.
+//!    epoch), and its logical result must equal Local. The adapter also
+//!    binds the expected server read-back to the plan and journal.
 //!
 //! [`publish_replace_host_plan`] repeats the draft check (revision, Local,
 //! Base, kept digest), the session generation and the authority right
@@ -71,8 +72,8 @@
 use std::collections::BTreeSet;
 
 use zdashstitch_zabbix::{
-    PublicationContext, ReadWriteGateway, VersionedDashboardSnapshot, WidgetFieldReplacement,
-    verify_widget_field_replacements, write_requirements,
+    AdapterProfile, PublicationContext, ReadWriteGateway, VersionedDashboardSnapshot,
+    WidgetFieldReplacement, verify_widget_field_replacements, write_requirements,
 };
 
 use crate::publish_journal::{PublishJournal, TargetKey};
@@ -132,9 +133,12 @@ pub async fn plan_replace_host(
     if !session.is_current(request.session) {
         return Err(PlanError::Invalidated(PlanInvalidReason::SessionEnded));
     }
-    let base = service
-        .base_snapshot(&request.local_id)
+    let (file, base) = service
+        .load_with_base(&request.local_id)
         .map_err(PlanError::Workcopy)?;
+    if !file.source.matches_publication_identity(gateway.reader()) {
+        return Err(PlanError::Invalidated(PlanInvalidReason::ConnectionChanged));
+    }
     journal
         .check_target(&TargetKey::dashboard(
             base.connection_id(),
@@ -172,6 +176,18 @@ pub async fn plan_replace_host(
         .dashboard_snapshot(local.connection_id(), local.dashboard_id())
         .await
         .map_err(read)?;
+    let context = if let Some(remote) = remote.as_ref().filter(|remote| {
+        remote.adapter_id() == AdapterProfile::V8_0.adapter_id()
+            && remote.fingerprint() == preview.base_fingerprint
+    }) {
+        gateway
+            .verified_replace_host_context(remote, &replacements(&preview.changes)?)
+            .await
+            .map_err(read)?
+            .unwrap_or_else(|| gateway.publication_context())
+    } else {
+        gateway.publication_context()
+    };
     let editable = match remote {
         Some(_) => gateway
             .dashboard_is_editable(local.dashboard_id())
@@ -185,7 +201,7 @@ pub async fn plan_replace_host(
         local: &local,
         remote: remote.as_ref(),
         editable,
-        context: &gateway.publication_context(),
+        context: &context,
     })
 }
 
@@ -272,6 +288,16 @@ pub(crate) fn verify_replace_host_plan(inputs: &PlanInputs<'_>) -> Result<Verifi
     }
 
     let mut report = preview.report.clone();
+    if let Some(count) = context.outside_pattern_matches() {
+        report.findings.push(
+            CompatibilityFinding::new(
+                FindingCode::PatternMatchesOutsideSelection,
+                FindingSeverity::Informational,
+                FindingGroup::Bindings,
+            )
+            .with_param("count", count.to_string()),
+        );
+    }
     if !editable {
         report.findings.push(CompatibilityFinding::new(
             FindingCode::DashboardNotEditable,
@@ -311,7 +337,7 @@ pub(crate) fn verify_replace_host_plan(inputs: &PlanInputs<'_>) -> Result<Verifi
     }
     let update = verify_widget_field_replacements(remote, context, &replacements)
         .map_err(PlanError::Adapter)?;
-    if update.expected_fingerprint() != local.fingerprint() {
+    if update.local_fingerprint() != local.fingerprint() {
         return Err(PlanError::LocalMismatch);
     }
     let binding = WorkcopyBinding {
@@ -347,18 +373,22 @@ pub async fn publish_replace_host_plan(
     let Some(binding) = plan.workcopy_binding().cloned() else {
         return plan.refuse(None);
     };
-    let current = service.replace_host_preview(&binding.local_id, SessionContext::Offline);
-    let unchanged = current.is_ok_and(|preview| {
-        let kept = &preview.kept_on_source;
-        preview.revision == binding.revision
-            && preview.base_fingerprint == binding.base_fingerprint
-            && preview.local_fingerprint == binding.local_fingerprint
-            && (!kept.entries.is_empty()).then(|| kept.digest.clone()) == binding.kept_digest
-    });
-    if !unchanged {
+    let current = || {
+        service
+            .replace_host_preview(&binding.local_id, SessionContext::Offline)
+            .is_ok_and(|preview| {
+                let kept = &preview.kept_on_source;
+                preview.revision == binding.revision
+                    && preview.base_fingerprint == binding.base_fingerprint
+                    && preview.local_fingerprint == binding.local_fingerprint
+                    && (!kept.entries.is_empty()).then_some(&kept.digest)
+                        == binding.kept_digest.as_ref()
+            })
+    };
+    if !current() {
         return plan.refuse(Some(PlanInvalidReason::DraftChanged));
     }
-    send_confirmed(client, journal, plan, stage).await
+    send_confirmed(client, journal, plan, stage, current).await
 }
 
 #[cfg(test)]

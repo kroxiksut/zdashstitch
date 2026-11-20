@@ -27,7 +27,7 @@
   // builds a one-shot plan; the dialog confirms exactly it) and 5 «Запись и проверка». The browser
   // never writes to Zabbix and never holds a plan: only an opaque handle. Without the draft's own
   // connection in read-write mode the steps show the requirements and nothing is written.
-  let { i18n, store, draft, localId, serverReads, connection, publication, recovery, profileName, draftName, copyName = '' }: {
+  let { i18n, store, draft, localId, serverReads, connection, publication, recovery, profileName, draftName, copyName = '', separateCopy = false }: {
     i18n: I18n;
     store: ReplaceHostStore;
     draft: DraftDetail;
@@ -48,6 +48,7 @@
     draftName?: (localId: string) => string | null;
     /** «… (копия N)» for «Скопировать заново» (P2-08A). */
     copyName?: string;
+    separateCopy?: boolean;
   } = $props();
 
   let diffTab = $state('diff-local');
@@ -71,7 +72,7 @@
   const check = $derived(publication?.check ?? null);
   const preview = $derived<ReplaceHostPreview | null>(check?.preview ?? store.preview);
   const conflict = $derived(check !== null && check.source.state !== 'current');
-  const action = $derived(publication?.action ?? null);
+  const action = $derived(separateCopy && publication?.action === 'save_as_copy' ? null : publication?.action ?? null);
   const writable = $derived(serverReads && (check?.mode === 'read_write' || (check === null && connection?.writable === true)));
 
   // For a copy only the blockers of the replacement itself apply (unresolved references, the
@@ -116,6 +117,11 @@
   function select(id: string): void {
     if (!publication) return;
     if (id === 'target' || id === 'checks' || id === 'changes' || id === 'confirm' || id === 'write') publication.goto(id);
+  }
+
+  function chooseCopy(): void {
+    publication?.setAction('save_as_copy');
+    publication?.goto('target');
   }
 
   const targetSummary = $derived<string>(
@@ -218,7 +224,7 @@
     {/if}
 
     {#if view === 'target' && publication}
-      <TargetStep {i18n} store={publication} {preview} {draft} onnext={() => publication.goto('checks')} />
+      <TargetStep {i18n} store={publication} {preview} {draft} {separateCopy} onnext={() => publication.goto('checks')} />
     {:else if view === 'checks' && conflict && check && publication && action !== 'save_as_copy'}
       <ConflictPanel
         {i18n}
@@ -226,10 +232,7 @@
         {check}
         {draft}
         {copyName}
-        onsavecopy={() => {
-          publication.setAction('save_as_copy');
-          publication.goto('target');
-        }}
+        onsavecopy={separateCopy ? undefined : chooseCopy}
       />
     {:else if view === 'checks'}
       <p class="note"><Icon name="info-circle" />{i18n.t('publication.preview.read_only_note')}</p>
@@ -303,7 +306,7 @@
           {#if check?.source.state === 'current'}
             <p><Icon name="circle-check" />{i18n.t('publication.diff.remote_current')}</p>
           {:else if check?.remote && publication}
-            <ConflictPanel {i18n} store={publication} {check} {draft} {copyName} onsavecopy={() => { publication.setAction('save_as_copy'); publication.goto('target'); }} />
+            <ConflictPanel {i18n} store={publication} {check} {draft} {copyName} onsavecopy={separateCopy ? undefined : chooseCopy} />
           {:else}
             <p>{i18n.t('publication.diff.remote_later')}</p>
           {/if}

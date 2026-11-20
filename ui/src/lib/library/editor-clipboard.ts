@@ -2,6 +2,7 @@ import type { CatalogMetric, NewOfflinePage, PageRole } from './client';
 import { canonicalEditorState } from './offline-edit';
 import { singleSource, validSource } from './offline-roles';
 import { validGroup, type FixedLayout } from './editor-geometry';
+import { acceptsMetricType } from './editor-composition';
 
 type Widget = NewOfflinePage['widgets'][number];
 type SupportedWidget = Exclude<Widget, { kind: 'preserved' }>;
@@ -63,7 +64,7 @@ export function inspectPaste(content: ClipboardContent | null, target: Clipboard
   for (const widget of content.widgets) for (const metric of refs(widget)) {
     const candidate = target.metrics[metric.catalog_id]?.find((item) => item.id === metric.metric_id);
     if (!candidate || canonicalEditorState(candidate) !== canonicalEditorState(content.evidence[`${metric.catalog_id}/${metric.metric_id}`])
-      || (widget.kind === 'graph' && !['numeric_float', 'numeric_unsigned'].includes(candidate.value_type)) || candidate.value_type === 'binary') issues.push({ code: 'metric', value: metric.metric_id });
+      || !acceptsMetricType(widget.kind, candidate.value_type)) issues.push({ code: 'metric', value: metric.metric_id });
     if (!validSource(metric.hosts, target.page.roles) || (widget.kind === 'item_value' && (widget.expansion === 'single' ? !singleSource(metric.hosts, target.page.roles) : metric.hosts.selection !== 'all'))) issues.push({ code: 'role', value: metric.hosts.role });
   }
   const existing = target.page.widgets.filter((widget) => !removeIds.includes(widget.widget_id ?? ''));

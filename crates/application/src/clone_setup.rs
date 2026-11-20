@@ -7,7 +7,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use zdashstitch_zabbix::{
-    AdapterRegistry, HostListing, HostObjects, HostSearchFilter, ReadOnlyGateway,
+    AdapterProfile, AdapterRegistry, HostListing, HostObjects, HostSearchFilter, ReadOnlyGateway,
     VersionedDashboardSnapshot, is_valid_dashboard_name, is_zabbix_id,
 };
 
@@ -22,8 +22,10 @@ use crate::clone_mapping::{
 };
 use crate::resolver::{
     Applicability, HostInventory, ReplaceHostRequest, ResolutionRow, ResolveScope, SourceModel,
-    collect_source_facts, collect_target_facts, host_inventory, resolve_replace_host, source_model,
+    clone_source_model, collect_source_facts, collect_target_facts, host_inventory,
+    resolve_replace_host,
 };
+use crate::workcopy::operations::Operation;
 use crate::workcopy::{DraftKind, WorkcopyError, WorkcopyService};
 
 mod growth;
@@ -42,6 +44,7 @@ pub struct CloneSetup {
     pub inventory: HostInventory,
     pub patterns: Vec<ClonePatternRequirement>,
     pub growth_samples: Vec<CloneSeriesOption>,
+    pub review_visible_patterns: bool,
 }
 
 #[derive(Deserialize)]
@@ -121,6 +124,7 @@ impl WorkcopyService {
 
     fn clone_setup_source(
         &self,
+        reader: &ReadOnlyGateway,
         local_id: &str,
         connection_id: &str,
     ) -> Result<(u64, VersionedDashboardSnapshot, SourceModel), WorkcopyError> {
@@ -131,10 +135,24 @@ impl WorkcopyService {
         if file.source.connection_id != connection_id {
             return Err(WorkcopyError::new("workcopy_other_connection"));
         }
+        let mapping = operations
+            .iter()
+            .rev()
+            .find_map(|operation| match operation {
+                Operation::CloneMapping(entry) => Some(&entry.state),
+                _ => None,
+            });
+        if base.server_version() != &reader.capabilities().version
+            || mapping.is_some_and(|state| {
+                state.server_identity_fingerprint != reader.identity().fingerprint()
+            })
+        {
+            return Err(WorkcopyError::new("clone_intent_server_changed"));
+        }
         let local = crate::replace_host::materialize_local_operations(base, &operations)?;
         let registry = AdapterRegistry::widget_capabilities(local.server_version())
             .map_err(|_| WorkcopyError::new("clone_preview_adapter_missing"))?;
-        let model = source_model(&local, &registry)
+        let model = clone_source_model(&local, &registry)
             .map_err(|error| WorkcopyError::from_resolver(&error))?;
         Ok((file.revision, local, model))
     }
@@ -145,10 +163,7 @@ impl WorkcopyService {
         connection_id: &str,
         local_id: &str,
     ) -> Result<CloneSetup, WorkcopyError> {
-        let (revision, local, model) = self.clone_setup_source(local_id, connection_id)?;
-        if local.server_version() != &reader.capabilities().version {
-            return Err(WorkcopyError::new("clone_intent_server_changed"));
-        }
+        let (revision, local, model) = self.clone_setup_source(reader, local_id, connection_id)?;
         let facts = collect_source_facts(reader, &model)
             .await
             .map_err(|error| WorkcopyError::from_resolver(&error))?;
@@ -158,6 +173,7 @@ impl WorkcopyService {
             inventory: host_inventory(&model, &facts),
             patterns: pattern_requirements(&model),
             growth_samples: growth::samples(&local, &model, &facts),
+            review_visible_patterns: model.profile == AdapterProfile::V8_0,
         })
     }
 
@@ -297,12 +313,9 @@ impl WorkcopyService {
         local_id: &str,
         request: &CloneSetupRequest,
     ) -> Result<SetupMappings, WorkcopyError> {
-        let (revision, source, model) = self.clone_setup_source(local_id, connection_id)?;
+        let (revision, source, model) = self.clone_setup_source(reader, local_id, connection_id)?;
         if revision != request.revision || source.fingerprint() != request.source_fingerprint {
             return Err(WorkcopyError::new("clone_intent_source_changed"));
-        }
-        if source.server_version() != &reader.capabilities().version {
-            return Err(WorkcopyError::new("clone_intent_server_changed"));
         }
         let facts = collect_source_facts(reader, &model)
             .await

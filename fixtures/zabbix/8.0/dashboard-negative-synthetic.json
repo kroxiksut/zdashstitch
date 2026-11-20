@@ -1,0 +1,6 @@
+[
+  {"case": "missing_dashboard_id", "document": {"pages": []}},
+  {"case": "pages_not_array", "document": {"dashboardid": "8001", "pages": {}}},
+  {"case": "missing_widget_type", "document": {"dashboardid": "8001", "pages": [{"widgets": [{"fields": []}]}]}},
+  {"case": "fields_not_array", "document": {"dashboardid": "8001", "pages": [{"widgets": [{"type": "item", "fields": {}}]}]}}
+]

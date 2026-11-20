@@ -28,6 +28,7 @@ const LOCAL_MARKER: &str = "zds-local-only-unit-marker";
 
 #[derive(Default)]
 struct Script {
+    version: Option<&'static str>,
     /// Answers of `dashboard.get` with `dashboardids`, consumed in order;
     /// the last one repeats.
     snapshots: VecDeque<Value>,
@@ -48,7 +49,7 @@ async fn rpc(State(script): State<Shared>, Json(body): Json<Value>) -> Json<Valu
         .unwrap_or_else(std::sync::PoisonError::into_inner);
     script.calls.push(body.clone());
     let result = match method.as_str() {
-        "apiinfo.version" => json!("7.4.16"),
+        "apiinfo.version" => json!(script.version.unwrap_or("7.4.16")),
         "user.checkAuthentication" => json!({"userid": "3", "username": "synthetic"}),
         "dashboard.get" if body["params"].get("dashboardids").is_some() => {
             if script.snapshots.len() > 1 {
@@ -430,6 +431,54 @@ async fn invalid_queries_are_rejected_before_any_read() {
         mock.methods().is_empty(),
         "no server call for invalid input"
     );
+}
+
+#[tokio::test]
+async fn eight_zero_workcopy_reopens_versioned_raw_with_partial_json_metadata() {
+    let raw: Value = serde_json::from_str(include_str!(
+        "../../../fixtures/zabbix/8.0/dashboard-get-synthetic.json"
+    ))
+    .unwrap_or_else(|error| panic!("fixture: {error}"));
+    let mock = Mock::start(Script {
+        version: Some("8.0.2"),
+        snapshots: VecDeque::from([json!([raw.clone()])]),
+        list: json!([raw.clone()]),
+        items: Some(json!([
+            {"itemid":"8301", "value_type":"0", "units":""},
+            {"itemid":"8302", "value_type":"6", "units":""}
+        ])),
+        ..Script::default()
+    })
+    .await;
+    let directory = storage();
+    let service = WorkcopyService::new(directory.path().to_path_buf());
+    let list = service
+        .list_server_dashboards(&mock.reader, CONNECTION, &ServerDashboardQuery::default())
+        .await
+        .unwrap_or_else(|error| panic!("8.0 list: {error}"));
+    assert_eq!(list.total, 1);
+    assert_eq!(list.rows[0].editable_widget_count, 0);
+    let mut request = request(ImportScope::Dashboard);
+    request.dashboardid = "8001".to_owned();
+    let outcome = service
+        .import(&mock.reader, CONNECTION, &request)
+        .await
+        .unwrap_or_else(|error| panic!("8.0 import: {error}"));
+    assert_eq!(outcome.item_metadata, ItemMetadataState::Partial);
+    let reopened = WorkcopyService::new(directory.path().to_path_buf());
+    let base = reopened
+        .base_snapshot(&outcome.local_id)
+        .unwrap_or_else(|error| panic!("8.0 reopen: {error}"));
+    assert_eq!(base.adapter_id(), "zabbix-8.0");
+    assert_eq!(base.server_version().to_string(), "8.0.2");
+    assert_eq!(base.storage_fingerprint(), outcome.snapshot_fingerprint);
+    assert_eq!(base.raw_api_document(), &raw);
+    let metadata = reopened
+        .item_metadata(&outcome.local_id)
+        .unwrap_or_else(|error| panic!("8.0 metadata: {error}"));
+    assert_eq!(metadata.missing_items, 2);
+    assert_eq!(metadata.items["8302"].value_type, 6);
+    assert_read_only(&mock.methods());
 }
 
 #[tokio::test]

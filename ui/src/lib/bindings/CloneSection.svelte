@@ -5,6 +5,8 @@
   import type { I18n } from '../i18n';
   import type { MessageId } from '../i18n/generated';
   import { createHttpPublicationClient, outcomeFromWire, publicationFailure } from '../publication/client';
+  import type { AccessChoices, AccessState } from '../publication/client';
+  import DashboardAccessSummary from '../publication/DashboardAccessSummary.svelte';
   import { publicationCodeText, resultBody } from '../publication/messages';
   import type { Outcome, PublicationFailure } from '../publication/model';
   import { CSRF_HEADER, loadCsrfToken } from '../session';
@@ -36,15 +38,15 @@
     field: FieldAddress; kind: 'host' | 'item'; source_pattern: string;
   }
   interface PatternPreview {
-    fingerprint: string; match_count: number; matches: { host: string; name: string }[]; truncated: boolean;
+    fingerprint: string; match_count: number; matches: { host: string; name: string; outside: boolean }[]; truncated: boolean;
   }
   interface PatternEdit {
     action: '' | 'keep' | 'replace';
     value: string;
-    review?: { signature: string; value: string; result: PatternPreview };
+    review?: { signature: string; value: string; action: PatternEdit['action']; result: PatternPreview; acknowledgeOutside: boolean };
   }
   type PatternChoice = { field: FieldAddress; decision:
-    { action: 'keep' } | { action: 'replace'; target_pattern: string; fingerprint: string } };
+    { action: 'keep' } | { action: 'replace'; target_pattern: string; fingerprint: string; acknowledge_visible_outside: boolean } };
   interface SeriesLabel { host: string; item: string; key: string }
   interface SeriesOption {
     field: FieldAddress;
@@ -62,6 +64,7 @@
     patterns: PatternRequirement[];
     unattributed: number;
     growth_samples: SeriesOption[];
+    review_visible_patterns: boolean;
   }
   interface Saved {
     clone_id: string;
@@ -73,10 +76,14 @@
     kept_fields: string[];
     kept_digest: string | null;
     missing_contracts: string[];
+    can_copy_source_access: boolean;
     blocked: string | null;
     last_outcome: Parameters<typeof outcomeFromWire>[0] | null;
   }
-  interface Plan { handle: string; plan_id: string; name: string; pages: number; widgets: number }
+  interface Plan {
+    handle: string; plan_id: string; name: string; pages: number; widgets: number;
+    access: AccessState | null; access_visible_only: boolean;
+  }
 
   const publication = createHttpPublicationClient();
   const path = $derived(`/api/drafts/${encodeURIComponent(localId)}/clone`);
@@ -97,6 +104,9 @@
   let bindingReview = $state<{ signature: string; rows: LldRow[] } | null>(null);
   let lldSelections = $state<Record<string, string>>({});
   let kept = $state(false);
+  let copySourceAccess = $state(true);
+  let acknowledgePublicAccess = $state(false);
+  let accessChoices = $state<AccessChoices | null>(null);
   let busy = $state(false);
   let visible = $state(false);
   let comparisonOpen = $state(false);
@@ -222,13 +232,20 @@
   }));
   const patternChoices = $derived.by(() => {
     const choices: PatternChoice[] = [];
-    for (const row of setup?.patterns ?? []) {
+    if (!setup) return choices;
+    for (const row of setup.patterns) {
       const edit = patternEdits[fieldKey(row.field)];
-      if (edit?.action === 'keep') choices.push({ field: row.field, decision: { action: 'keep' } });
-      if (edit?.action === 'replace') {
-        const preview = currentPatternReview(edit);
-        if (preview) choices.push({ field: row.field, decision: {
-          action: 'replace', target_pattern: edit.value, fingerprint: preview.fingerprint
+      if (!edit?.action) continue;
+      if (edit.action === 'keep' && !setup.review_visible_patterns) {
+        choices.push({ field: row.field, decision: { action: 'keep' } });
+        continue;
+      }
+      const preview = currentPatternReview(row, edit);
+      if (preview && !preview.result.truncated &&
+          (preview.acknowledgeOutside || !preview.result.matches.some(item => item.outside))) {
+        choices.push({ field: row.field, decision: {
+          action: 'replace', target_pattern: preview.value, fingerprint: preview.result.fingerprint,
+          acknowledge_visible_outside: preview.acknowledgeOutside
         } });
       }
     }
@@ -257,21 +274,25 @@
     return JSON.stringify([field.widget.page_index, field.widget.widget_index, field.field_name]);
   }
 
-  function currentPatternReview(edit: PatternEdit): PatternPreview | null {
-    return edit.review?.signature === bindingSignature && edit.review.value === edit.value ? edit.review.result : null;
+  function currentPatternReview(row: PatternRequirement, edit: PatternEdit): PatternEdit['review'] | null {
+    const value = edit.action === 'keep' ? row.source_pattern : edit.value;
+    return edit.review?.signature === bindingSignature && edit.review.value === value &&
+      edit.review.action === edit.action ? edit.review : null;
   }
 
   function previewPattern(row: PatternRequirement): void {
     if (!setup || !canCheckBindings) return;
     const edit = patternEdits[fieldKey(row.field)];
-    if (!edit?.value.trim() || edit.action !== 'replace') return;
-    const value = edit.value;
+    if (!edit?.action || (edit.action === 'keep' && !setup.review_visible_patterns)) return;
+    const action = edit.action;
+    const value = action === 'keep' ? row.source_pattern : edit.value;
+    if (!value.trim()) return;
     const signature = bindingSignature;
     const body = { setup: setupBody(setup), field: row.field, target_pattern: value };
     void run(async () => {
       edit.review = undefined;
       const result = await request<PatternPreview>(`${path}/preview-pattern`, body);
-      edit.review = { signature, value, result };
+      edit.review = { signature, value, action, result, acknowledgeOutside: false };
     });
   }
 
@@ -307,6 +328,7 @@
     void run(async () => {
       saved = await request<Saved>(path, body);
       kept = false;
+      copySourceAccess = true;
       outcome = null;
       remember(saved.clone_id);
       await tick();
@@ -318,9 +340,13 @@
     if (!saved || !writable || saved.blocked || saved.missing_contracts.length > 0 || (saved.kept_digest !== null && !kept)) return;
     const draft = saved;
     void run(async () => {
-      plan = await request<Plan>(`${path}/${encodeURIComponent(draft.clone_id)}/plan`, {
-        kept_digest: kept ? draft.kept_digest : null
+      const next = await request<Plan>(`${path}/${encodeURIComponent(draft.clone_id)}/plan`, {
+        kept_digest: kept ? draft.kept_digest : null,
+        ...(draft.can_copy_source_access ? { copy_source_access: copySourceAccess } : {})
       });
+      acknowledgePublicAccess = false;
+      accessChoices = next.access ? await publication.accessChoices().catch(() => null) : null;
+      plan = next;
     });
   }
 
@@ -336,14 +362,15 @@
   }
 
   function confirm(): void {
-    if (!plan || !saved || busy) return;
+    if (!plan || !saved || busy || (plan.access?.private === false && !acknowledgePublicAccess)) return;
     const current = plan;
     const keptDigest = kept ? saved.kept_digest : null;
     plan = null;
     void run(async () => {
       outcome = await publication.confirm(localId, {
         handle: current.handle, plan_id: current.plan_id, name: current.name,
-        kept_digest: keptDigest, confirmed: true
+        kept_digest: keptDigest, confirmed: true,
+        ...(current.access?.private === false ? { acknowledge_public_access: true } : {})
       });
     });
   }
@@ -370,7 +397,11 @@
   {:else if saved}
     <h3 bind:this={savedHeading} tabindex="-1">{saved.name}</h3>
     <p>{i18n.t('clone.summary', { pages: saved.pages, widgets: saved.widgets, changes: saved.changed })}</p>
-    <p>{i18n.t('clone.private_copy')}</p>
+    {#if saved.can_copy_source_access}
+      <label><input type="checkbox" bind:checked={copySourceAccess} disabled={busy || plan !== null} /> {i18n.t('clone.copy_source_access')}</label>
+    {:else}
+      <p>{i18n.t('clone.private_copy')}</p>
+    {/if}
     <ul aria-label={i18n.t('clone.targets')}>{#each saved.targets as target}<li>{target}</li>{/each}</ul>
     {#if saved.kept_fields.length}
       <h4>{i18n.t('clone.kept')}</h4>
@@ -483,14 +514,15 @@
       <h3>{i18n.t('clone.pattern.title')}</h3>
       {#each setup.patterns as row (fieldKey(row.field))}
         {@const edit = patternEdits[fieldKey(row.field)]}
-        {@const preview = currentPatternReview(edit)}
+        {@const review = currentPatternReview(row, edit)}
+        {@const preview = review?.result}
         <fieldset class="mapping">
           <legend>{i18n.t(row.kind === 'host' ? 'clone.pattern.host_row' : 'clone.pattern.item_row', {
             page: row.field.widget.page_index + 1, widget: row.field.widget.widget_index + 1
           })}</legend>
           <p><code>{row.field.field_name}</code> · <code>{row.source_pattern}</code></p>
           <label class="mapping">{i18n.t('clone.pattern.decision')}
-            <select bind:value={edit.action} disabled={busy}>
+            <select bind:value={edit.action} disabled={busy} onchange={() => { edit.review = undefined; }}>
               <option value="">{i18n.t('clone.pattern.choose')}</option>
               <option value="keep">{i18n.t('clone.pattern.keep')}</option>
               <option value="replace">{i18n.t('clone.pattern.replace')}</option>
@@ -500,18 +532,29 @@
             <p>{i18n.t('clone.keep_patterns')}</p>
           {:else if edit.action === 'replace'}
             <label class="mapping">{i18n.t('clone.pattern.value')}
-              <input type="text" maxlength="255" bind:value={edit.value} disabled={busy} />
+              <input type="text" maxlength="255" bind:value={edit.value} disabled={busy} oninput={() => { edit.review = undefined; }} />
             </label>
-            <p>{i18n.t('clone.pattern.scope')}</p>
+          {/if}
+          {#if edit.action === 'replace' || (edit.action === 'keep' && setup.review_visible_patterns)}
+            <p>{i18n.t(setup.review_visible_patterns ? 'clone.pattern.visible_scope' : 'clone.pattern.scope')}</p>
             <Button {i18n} label={{ id: 'clone.pattern.preview' }} onclick={() => previewPattern(row)}
-              disabled={busy || !canCheckBindings || !edit.value.trim()} />
+              disabled={busy || !canCheckBindings || (edit.action === 'replace' && !edit.value.trim())} />
             <div aria-live="polite">
               {#if preview}
-                <p>{i18n.t('clone.pattern.count', { count: preview.match_count })}</p>
+                <p>{i18n.t(setup.review_visible_patterns ? 'portable_review.matches' : 'clone.pattern.count', { count: preview.match_count })}</p>
                 {#if preview.matches.length}
-                  <ul>{#each preview.matches as item}<li>{item.host === item.name ? item.name : `${item.host} · ${item.name}`}</li>{/each}</ul>
+                  <ul>{#each preview.matches as item}
+                    <li>{!item.name || item.host === item.name ? item.host : `${item.host} · ${item.name}`}
+                      {#if item.outside} · {i18n.t('portable_review.outside')}{/if}
+                    </li>
+                  {/each}</ul>
                 {/if}
                 {#if preview.truncated}<p>{i18n.t('clone.pattern.truncated')}</p>{/if}
+                {#if review && preview.matches.some(item => item.outside)}
+                  <label><input type="checkbox" bind:checked={review.acknowledgeOutside} disabled={busy} />
+                    {i18n.t('portable_review.acknowledge_outside')}
+                  </label>
+                {/if}
               {/if}
             </div>
           {/if}
@@ -531,6 +574,10 @@
   {/if}
   {#if outcome}
     <p role="status">{resolveText(i18n, resultBody(i18n, outcome.state, outcome.kind, outcome.evidence, outcome.invalidated))}</p>
+    {#if outcome.clone_source_check}
+      <p>{i18n.t(outcome.clone_source_check === 'current' ? 'clone.source_current' :
+        outcome.clone_source_check === 'changed' ? 'clone.source_changed' : 'clone.source_unavailable')}</p>
+    {/if}
     {#if outcome.entry?.progress === 'needs_reconciliation'}
       <Button {i18n} label={{ id: 'clone.reconcile' }} onclick={reconcile} disabled={busy || !connected} />
     {/if}
@@ -538,11 +585,23 @@
 </section>
 
 <Dialog {i18n} id="clone-confirm" title={{ id: 'clone.confirm_title' }}
-  description={{ id: 'clone.private_copy' }} open={plan !== null} onclose={cancelPlan}>
-  {#if plan}<p>{plan.name}</p>{/if}
+  description={{ id: 'publication.confirm.question_create', params: { name: plan?.name ?? '' } }}
+  open={plan !== null} onclose={cancelPlan}>
+  {#if plan}
+    {#if plan.access}
+      <DashboardAccessSummary {i18n} access={plan.access} choices={accessChoices} label={i18n.t('publication.access.after')} />
+      {#if plan.access_visible_only}<p>{i18n.t('clone.copied_access_visible_part')}</p>{/if}
+      {#if !plan.access.private}
+        <label><input type="checkbox" bind:checked={acknowledgePublicAccess} /> {i18n.t('publication.access.public_warning')}</label>
+      {/if}
+    {:else}
+      <p>{i18n.t('clone.private_copy')}</p>
+    {/if}
+  {/if}
   {#snippet actions()}
     <Button {i18n} label={{ id: 'clone.cancel' }} onclick={cancelPlan} />
-    <Button {i18n} variant="primary" label={{ id: 'clone.write' }} onclick={confirm} />
+    <Button {i18n} variant="primary" label={{ id: 'clone.write' }} onclick={confirm}
+      disabled={plan?.access?.private === false && !acknowledgePublicAccess} />
   {/snippet}
 </Dialog>
 
