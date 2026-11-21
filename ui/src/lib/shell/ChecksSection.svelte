@@ -9,6 +9,9 @@
   let { i18n, draft }: { i18n: I18n; draft: DraftDetail } = $props();
 
   const checks = $derived(draft.checks);
+  const unbound = $derived(draft.pages.flatMap((page) => page.widgets
+    .filter((widget) => (widget.unbound_sources ?? 0) > 0)
+    .map((widget) => ({ page, widget }))));
   const exportBlocked = $derived(checks ? checks.findings.filter((finding) => finding.blocks.includes('export')).length : 0);
   const publicationBlocked = $derived(
     checks ? checks.findings.filter((finding) => finding.blocks.includes('publication')).length : 0
@@ -40,6 +43,14 @@
       <li><StatusBadge {i18n} label={{ id: 'common.state.coming_later' }} tone="info" /></li>
     {/if}
   </ul>
+
+  {#if unbound.length}
+    <ul class="findings">
+      {#each unbound as { page, widget } (widget.id)}
+        <li>{page.name} · {widget.name} · {i18n.t('reusable.unresolved', { count: widget.unbound_sources ?? 0 })}</li>
+      {/each}
+    </ul>
+  {/if}
 
   {#if checks}
     {#if checks.findings.length === 0}

@@ -81,6 +81,8 @@ interface WireDetail extends WireSummary {
       readonly width: number;
       readonly height: number;
       readonly editable: boolean;
+      readonly unbound_sources?: number;
+      readonly blueprint_id?: string;
     }>;
   }>;
   readonly properties: { readonly display_period: number; readonly auto_start: boolean } | null;

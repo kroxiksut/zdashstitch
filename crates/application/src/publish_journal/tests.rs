@@ -487,6 +487,137 @@ fn a_crash_after_submitting_leaves_an_entry_that_blocks_until_reconciled() {
 }
 
 #[test]
+fn blueprint_restart_requires_full_readback_with_a_distinct_widget_id() {
+    use zdashstitch_zabbix::PortableUpdateReadback;
+    for readback in [
+        PortableUpdateReadback::AppendedBlueprint,
+        PortableUpdateReadback::AppendedBlueprintAt { page: 1, widget: 1 },
+    ] {
+        check_blueprint_restart(readback);
+    }
+}
+
+fn check_blueprint_restart(readback: zdashstitch_zabbix::PortableUpdateReadback) {
+    use zdashstitch_zabbix::PortableUpdateReadback;
+    let (dir, journal) = setup();
+    let id = operation_id();
+    let make = |raw| {
+        VersionedDashboardSnapshot::from_adapter_raw(
+            CONNECTION.to_owned(),
+            "8.0.0".parse().unwrap_or_else(|_| panic!("8.0.0 version")),
+            raw,
+        )
+        .unwrap_or_else(|_| panic!("dashboard snapshot"))
+    };
+    let mut source = json!({
+        "dashboardid":"971", "name":"Blueprint target", "userid":"1", "private":"1",
+        "users":[], "userGroups":[], "pages":[{"dashboard_pageid":"2", "name":"Page",
+           "display_period":"0", "widgets":[{
+              "widgetid":"3", "type":"clock","name":"Clock","x":"0","y":"0",
+              "width":"10","height":"3","view_mode":"0","fields":[]
+           }]}]
+    });
+    let page = usize::from(matches!(
+        readback,
+        PortableUpdateReadback::AppendedBlueprintAt { .. }
+    ));
+    if page == 1 {
+        source["pages"]
+            .as_array_mut()
+            .unwrap_or_else(|| panic!("pages"))
+            .insert(
+                0,
+                json!({
+                    "dashboard_pageid":"5","name":"Untouched", "display_period":"0","widgets":[{
+                        "widgetid":"6","type":"clock","name":"Another clock","x":"0","y":"0",
+                        "width":"10","height":"3","view_mode":"0","fields":[]
+                    }]
+                }),
+            );
+    }
+    let mut after = source.clone();
+    after["pages"][page]["widgets"]
+        .as_array_mut()
+        .unwrap_or_else(|| panic!("widgets"))
+        .push(json!({
+            "widgetid":"4", "type":"item","name":"New widget","x":"0","y":"3",
+            "width":"10","height":"3","view_mode":"0",
+            "fields":[{"name":"itemid.0","type":"4","value":"987654321"}]
+        }));
+    let expected = readback
+        .fingerprint(&make(after.clone()))
+        .unwrap_or_else(|| panic!("append"));
+    let operation = OperationRecord {
+        intent: "append_blueprint",
+        server_version: "8.0.0".into(),
+        source_fingerprint: make(source.clone()).fingerprint().into(),
+        expected_fingerprint: expected,
+        portable_update: Some(crate::portable_update::PortableUpdateRecord {
+            readback,
+            deployment_id: None,
+            mapping: None,
+        }),
+        ..record("971")
+    };
+    let mut handle = begin(&journal, &id, &operation);
+    assert!(handle.admit_send());
+    drop(handle);
+    let restarted = PublishJournal::new(dir.path().to_path_buf());
+    assert_eq!(
+        code(restarted.check_target(&key("971"))),
+        Some("target_blocked")
+    );
+    let entry = restarted
+        .entry(&id)
+        .unwrap_or_else(|error| panic!("{error}"));
+    assert_eq!(entry.sends, 1);
+    assert_eq!(
+        decide_update_reconciliation(&entry, Some(&make(after.clone()))),
+        UpdateEvidence::ExpectedFound
+    );
+    assert_eq!(
+        decide_update_reconciliation(&entry, Some(&make(source))),
+        UpdateEvidence::OtherFound
+    );
+    for (pointer, value) in [
+        (format!("/pages/{page}/widgets/1/widgetid"), "3"),
+        (format!("/pages/{page}/widgets/0/name"), "Other"),
+        (format!("/pages/{page}/widgets/1/fields/0/value"), "123"),
+        (format!("/pages/{page}/name"), "Other"),
+        ("/pages/0/widgets/0/name".to_owned(), "Other"),
+        ("/private".to_owned(), "0"),
+    ] {
+        let mut changed = after.clone();
+        *changed
+            .pointer_mut(&pointer)
+            .unwrap_or_else(|| panic!("mutation target")) = json!(value);
+        assert_eq!(
+            decide_update_reconciliation(&entry, Some(&make(changed))),
+            UpdateEvidence::OtherFound
+        );
+    }
+    if page == 1 {
+        let mut duplicate = after.clone();
+        duplicate["pages"][1]["widgets"][1]["widgetid"] = json!("6");
+        assert_eq!(
+            decide_update_reconciliation(&entry, Some(&make(duplicate))),
+            UpdateEvidence::OtherFound
+        );
+    }
+    let root = dir.path();
+    let files = std::fs::read_dir(root.join("journal")).unwrap_or_else(|error| panic!("{error}"));
+    for file in files {
+        let file = file.unwrap_or_else(|error| panic!("{error}"));
+        if file.path().is_file() {
+            let contents =
+                std::fs::read_to_string(file.path()).unwrap_or_else(|error| panic!("{error}"));
+            assert!(!contents.contains("987654321"));
+            assert!(!contents.contains("New widget"));
+        }
+    }
+}
+
+#[test]
 fn a_failed_fsync_of_submitting_forbids_the_send_and_stays_blocking() {
     let (_dir, journal) = setup();
     let id = operation_id();

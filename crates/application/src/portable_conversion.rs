@@ -19,8 +19,8 @@ use zdashstitch_zabbix::{
 
 use crate::{
     portable_bindings::SnapshotBindings,
-    replace_host::materialize_local_operations,
-    workcopy::{DraftKind, WorkcopyError, WorkcopyService},
+    replace_host::materialize_existing_widgets,
+    workcopy::{DraftKind, WorkcopyError, WorkcopyService, operations::Operation},
 };
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize)]
@@ -60,9 +60,9 @@ impl WorkcopyService {
         if file.kind != DraftKind::Dashboard {
             return Err(WorkcopyError::new("portable_conversion_scope_unsupported"));
         }
-        let local = materialize_local_operations(base, &operations)?;
+        let local = materialize_existing_widgets(base, &operations)?;
         ensure_selected_dashboard_page(&local, page_id)?;
-        preview_page(&local, page_id)
+        preview_page(&local, page_id, &operations)
     }
 
     /// Convert a selected page without reading Zabbix or changing the copy.
@@ -75,7 +75,7 @@ impl WorkcopyService {
         if file.kind != DraftKind::Dashboard {
             return Err(WorkcopyError::new("portable_conversion_scope_unsupported"));
         }
-        let local = materialize_local_operations(base, &operations)?;
+        let local = materialize_existing_widgets(base, &operations)?;
         ensure_selected_dashboard_page(&local, page_id)?;
         let mut random = [0u8; 16];
         getrandom::fill(&mut random)
@@ -87,7 +87,9 @@ impl WorkcopyService {
                 .map(|byte| format!("{byte:02x}"))
                 .collect::<String>()
         );
-        convert_page(&local, page_id, project_id)
+        let mut bundle = convert_page(&local, page_id, project_id)?;
+        append_converted_blueprints(&mut bundle, &local, Some(page_id), &operations)?;
+        Ok(bundle)
     }
 
     /// Checks the current Local state without creating a project or writing.
@@ -96,7 +98,7 @@ impl WorkcopyService {
         local_id: &str,
     ) -> Result<PortableConversionPreview, WorkcopyError> {
         let (file, base, operations) = self.load_log(local_id)?;
-        let local = materialize_local_operations(base, &operations)?;
+        let local = materialize_existing_widgets(base, &operations)?;
         let page_id = match file.kind {
             DraftKind::Dashboard => None,
             DraftKind::Page => Some(
@@ -108,12 +110,16 @@ impl WorkcopyService {
                     .as_str(),
             ),
         };
-        let inventory = inspect(&local, file.kind, page_id)?;
+        let mut inventory = inspect(&local, file.kind, page_id)?;
+        inventory.widgets += blueprint_count(&operations, page_id);
         let result = match page_id {
             Some(page_id) => convert_page(&local, page_id, "pr-preview".to_owned()),
             None => convert_dashboard(&local, "pr-preview".to_owned()),
         };
-        let result = result.and_then(|mut bundle| apply_workcopy_name(&mut bundle, &file.name));
+        let result = result.and_then(|mut bundle| {
+            append_converted_blueprints(&mut bundle, &local, page_id, &operations)?;
+            apply_workcopy_name(&mut bundle, &file.name)
+        });
         let mut blockers = Vec::new();
         if inventory.item_fields + inventory.item_pattern_fields > 0 {
             blockers.push("portable_conversion_item_binding_required");
@@ -154,7 +160,7 @@ impl WorkcopyService {
         local_id: &str,
     ) -> Result<PortableConversionInventory, WorkcopyError> {
         let (file, base, operations) = self.load_log(local_id)?;
-        let local = materialize_local_operations(base, &operations)?;
+        let local = materialize_existing_widgets(base, &operations)?;
         let page_id = match file.kind {
             DraftKind::Dashboard => None,
             DraftKind::Page => Some(
@@ -166,7 +172,9 @@ impl WorkcopyService {
                     .as_str(),
             ),
         };
-        inspect(&local, file.kind, page_id)
+        let mut inventory = inspect(&local, file.kind, page_id)?;
+        inventory.widgets += blueprint_count(&operations, page_id);
+        Ok(inventory)
     }
 
     /// Builds an in-memory page project only when every selected value can be
@@ -179,7 +187,7 @@ impl WorkcopyService {
         if file.kind != DraftKind::Page {
             return Err(WorkcopyError::new("portable_conversion_scope_unsupported"));
         }
-        let local = materialize_local_operations(base, &operations)?;
+        let local = materialize_existing_widgets(base, &operations)?;
         let page_id = &file
             .source
             .page
@@ -197,6 +205,7 @@ impl WorkcopyService {
                 .collect::<String>()
         );
         let mut bundle = convert_page(&local, page_id, project_id)?;
+        append_converted_blueprints(&mut bundle, &local, Some(page_id), &operations)?;
         apply_workcopy_name(&mut bundle, &file.name)?;
         Ok(bundle)
     }
@@ -210,7 +219,7 @@ impl WorkcopyService {
         if file.kind != DraftKind::Dashboard {
             return Err(WorkcopyError::new("portable_conversion_scope_unsupported"));
         }
-        let local = materialize_local_operations(base, &operations)?;
+        let local = materialize_existing_widgets(base, &operations)?;
         let mut random = [0u8; 16];
         getrandom::fill(&mut random)
             .map_err(|_| WorkcopyError::new("random_source_unavailable"))?;
@@ -222,9 +231,61 @@ impl WorkcopyService {
                 .collect::<String>()
         );
         let mut bundle = convert_dashboard(&local, project_id)?;
+        append_converted_blueprints(&mut bundle, &local, None, &operations)?;
         apply_workcopy_name(&mut bundle, &file.name)?;
         Ok(bundle)
     }
+}
+
+fn blueprint_count(operations: &[Operation], page_id: Option<&str>) -> usize {
+    operations.iter().filter(|operation| matches!(
+        operation, Operation::AddWidget(entry) if page_id.is_none_or(|id| id == entry.page_id)
+    )).count()
+}
+
+/// Server IDs bound while inserting a blueprint remain local to the copy.
+/// The portable widget preserves its layout and literals and asks for new
+/// bindings on each host/item source.
+pub(crate) fn append_converted_blueprints(
+    bundle: &mut TypedPortableBundle,
+    snapshot: &VersionedDashboardSnapshot,
+    page_id: Option<&str>,
+    operations: &[Operation],
+) -> Result<(), WorkcopyError> {
+    if blueprint_count(operations, page_id) == 0 {
+        return Ok(());
+    }
+    let source_pages = snapshot.raw_api_document()["pages"]
+        .as_array()
+        .ok_or_else(|| WorkcopyError::new("snapshot_corrupt"))?;
+    let sources = if page_id.is_none() {
+        conversion_order(source_pages)?
+    } else {
+        Vec::new()
+    };
+    for operation in operations {
+        let Operation::AddWidget(entry) = operation else {
+            continue;
+        };
+        let destination = match &mut bundle.project.root {
+            ProjectRoot::Page(page) if page_id == Some(entry.page_id.as_str()) => page,
+            ProjectRoot::Page(_) => continue,
+            ProjectRoot::Dashboard(dashboard) => {
+                let index = sources
+                    .iter()
+                    .position(|(_, page)| page["dashboard_pageid"] == entry.page_id)
+                    .ok_or_else(|| WorkcopyError::new("workcopy_corrupt"))?;
+                dashboard
+                    .pages
+                    .get_mut(index)
+                    .ok_or_else(|| WorkcopyError::new("workcopy_corrupt"))?
+            }
+        };
+        destination.widgets.push(entry.portable_widget()?);
+    }
+    bundle
+        .validate()
+        .map_err(|_| WorkcopyError::new("portable_conversion_unsupported_data"))
 }
 
 fn ensure_selected_dashboard_page(
@@ -248,9 +309,13 @@ fn ensure_selected_dashboard_page(
 fn preview_page(
     local: &VersionedDashboardSnapshot,
     page_id: &str,
+    operations: &[Operation],
 ) -> Result<PortableConversionPreview, WorkcopyError> {
-    let inventory = inspect(local, DraftKind::Page, Some(page_id))?;
-    let result = convert_page(local, page_id, "pr-preview".to_owned());
+    let mut inventory = inspect(local, DraftKind::Page, Some(page_id))?;
+    inventory.widgets += blueprint_count(operations, Some(page_id));
+    let result = convert_page(local, page_id, "pr-preview".to_owned()).and_then(|mut bundle| {
+        append_converted_blueprints(&mut bundle, local, Some(page_id), operations)
+    });
     let mut blockers = Vec::new();
     if inventory.item_fields + inventory.item_pattern_fields > 0 {
         blockers.push("portable_conversion_item_binding_required");
@@ -299,6 +364,26 @@ fn convert_dashboard(
     project_id: String,
 ) -> Result<TypedPortableBundle, WorkcopyError> {
     convert_dashboard_bound(snapshot, project_id, None)
+}
+
+fn conversion_order(raw_pages: &[Value]) -> Result<Vec<(Option<u16>, &Value)>, WorkcopyError> {
+    let mut ordered = raw_pages
+        .iter()
+        .map(|page| {
+            page.get("sortorder")
+                .map(number_u16)
+                .transpose()
+                .map(|sortorder| (sortorder, page))
+        })
+        .collect::<Result<Vec<_>, _>>()?;
+    if raw_pages.len() > 1 && ordered.iter().any(|(sortorder, _)| sortorder.is_none()) {
+        return Err(WorkcopyError::new("portable_conversion_unsupported_data"));
+    }
+    ordered.sort_by_key(|(sortorder, _)| *sortorder);
+    if ordered.windows(2).any(|pair| pair[0].0 == pair[1].0) && ordered.len() > 1 {
+        return Err(WorkcopyError::new("portable_conversion_unsupported_data"));
+    }
+    Ok(ordered)
 }
 
 pub(crate) fn convert_dashboard_bound(
@@ -355,22 +440,7 @@ pub(crate) fn convert_dashboard_bound(
     let raw_pages = raw["pages"]
         .as_array()
         .ok_or_else(|| WorkcopyError::new("snapshot_corrupt"))?;
-    let mut ordered = raw_pages
-        .iter()
-        .map(|page| {
-            page.get("sortorder")
-                .map(number_u16)
-                .transpose()
-                .map(|sortorder| (sortorder, page))
-        })
-        .collect::<Result<Vec<_>, _>>()?;
-    if raw_pages.len() > 1 && ordered.iter().any(|(sortorder, _)| sortorder.is_none()) {
-        return Err(WorkcopyError::new("portable_conversion_unsupported_data"));
-    }
-    ordered.sort_by_key(|(sortorder, _)| *sortorder);
-    if ordered.windows(2).any(|pair| pair[0].0 == pair[1].0) && ordered.len() > 1 {
-        return Err(WorkcopyError::new("portable_conversion_unsupported_data"));
-    }
+    let ordered = conversion_order(raw_pages)?;
     let mut pages = Vec::with_capacity(ordered.len());
     let mut used_references = BTreeSet::new();
     for (index, (_, raw_page)) in ordered.into_iter().enumerate() {

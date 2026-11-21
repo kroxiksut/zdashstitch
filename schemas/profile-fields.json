@@ -1,0 +1,151 @@
+{
+  "item": {
+    "integer": [
+      "desc_h_pos",
+      "desc_v_pos",
+      "desc_size",
+      "desc_bold",
+      "value_h_pos",
+      "value_v_pos",
+      "value_size",
+      "value_bold",
+      "decimal_places",
+      "decimal_size",
+      "units_show",
+      "units_pos",
+      "units_size",
+      "units_bold",
+      "time_h_pos",
+      "time_v_pos",
+      "time_size",
+      "time_bold",
+      "sparkline.width",
+      "sparkline.fill"
+    ],
+    "string": [
+      "units"
+    ],
+    "color": [
+      "desc_color",
+      "value_color",
+      "units_color",
+      "time_color",
+      "up_color",
+      "down_color",
+      "updown_color",
+      "bg_color",
+      "sparkline.color"
+    ]
+  },
+  "svggraph": {
+    "integer": [
+      "lefty",
+      "righty",
+      "axisx",
+      "legend",
+      "legend_statistic",
+      "legend_aggregation",
+      "legend_lines_mode",
+      "legend_lines",
+      "legend_columns",
+      "show_problems",
+      "graph_item_problems",
+      "simple_triggers",
+      "working_time",
+      "percentile_left",
+      "percentile_right",
+      "lefty_units",
+      "righty_units"
+    ],
+    "string": [
+      "lefty_min",
+      "lefty_max",
+      "righty_min",
+      "righty_max",
+      "lefty_static_units",
+      "righty_static_units",
+      "percentile_left_value",
+      "percentile_right_value"
+    ]
+  },
+  "dataset_fields": [
+    "type",
+    "stacked",
+    "width",
+    "pointsize",
+    "transparency",
+    "fill",
+    "axisy",
+    "missingdatafunc"
+  ],
+  "blueprint_extra": {
+    "item": {
+      "integer": [
+        "show.#",
+        "aggregate_function",
+        "history",
+        "sparkline.history"
+      ],
+      "string": [
+        "description",
+        "time_period.from",
+        "time_period.to",
+        "sparkline.time_period.from",
+        "sparkline.time_period.to",
+        "thresholds.#.threshold"
+      ],
+      "color": [
+        "thresholds.#.color"
+      ],
+      "host": [
+        "override_hostid.#"
+      ],
+      "metric": [
+        "itemid.0"
+      ]
+    },
+    "svggraph": {
+      "integer": [
+        "ds.#.dataset_type",
+        "ds.#.color_palette",
+        "ds.#.aggregate_function",
+        "ds.#.aggregate_grouping",
+        "ds.#.approximation",
+        "source",
+        "severities.#",
+        "evaltype",
+        "tags.#.operator"
+      ],
+      "string": [
+        "ds.#.timeshift",
+        "ds.#.aggregate_interval",
+        "ds.#.data_set_label",
+        "time_period.from",
+        "time_period.to",
+        "problem_name",
+        "tags.#.tag",
+        "tags.#.value"
+      ],
+      "color": [
+        "ds.#.color",
+        "ds.#.color.#"
+      ],
+      "host": [
+        "override_hostid.#"
+      ],
+      "pattern_host": [
+        "ds.#.hosts.#",
+        "problemhosts.#"
+      ],
+      "metric": [
+        "ds.#.itemids.#"
+      ],
+      "pattern_metric": [
+        "ds.#.items.#"
+      ]
+    }
+  },
+  "empty_color_resets": {
+    "8.0": ["item.bg_color"]
+  }
+}

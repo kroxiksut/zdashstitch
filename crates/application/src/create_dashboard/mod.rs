@@ -142,6 +142,12 @@ pub struct SaveAsCopySource {
 impl WorkcopyService {
     fn eight_zero_copy_source(&self, local_id: &str) -> Result<EightZeroCopySource, WorkcopyError> {
         let (file, base, operations) = self.load_log(local_id)?;
+        if operations
+            .iter()
+            .any(|op| matches!(op, Operation::Style(_) | Operation::AddWidget(_)))
+        {
+            return Err(WorkcopyError::new("reusable_workcopy_publish_unsupported"));
+        }
         if file.kind != DraftKind::Dashboard
             || file.source.page.is_some()
             || base.server_version().to_string() != "8.0.0"
@@ -1613,9 +1619,10 @@ impl WorkcopyService {
             created_at_ms: now,
             name: expectation.name.clone(),
         });
+        let revision = file.revision;
         file.revision = file.revision.saturating_add(1);
         file.updated_at_ms = now.max(file.updated_at_ms);
-        self.store.replace_workcopy(&file)
+        self.store.replace_workcopy_if_revision(&file, revision)
     }
 }
 

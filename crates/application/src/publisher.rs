@@ -329,6 +329,8 @@ enum PlanOrigin {
     Direct,
     /// P2-04B: the ReplaceHost changes of a workcopy.
     ReplaceHost(WorkcopyBinding),
+    Style(WorkcopyBinding),
+    Blueprint(WorkcopyBinding),
 }
 
 impl PlanOrigin {
@@ -336,6 +338,8 @@ impl PlanOrigin {
         match self {
             Self::Direct => "replace_item_fields",
             Self::ReplaceHost(_) => "replace_host",
+            Self::Style(_) => "apply_style_profile",
+            Self::Blueprint(_) => "append_blueprint",
         }
     }
 }
@@ -414,7 +418,7 @@ pub struct PlanPreview {
     pub replacement_kinds: Vec<(&'static str, usize)>,
     /// Remote fingerprint at plan time (equals Base for a workcopy plan).
     pub source_fingerprint: String,
-    /// Fingerprint the read-back must show (equals Local).
+    /// Fingerprint expected after the adapter's read-back projection.
     pub expected_fingerprint: String,
     pub local_id: Option<String>,
     pub revision: Option<u64>,
@@ -585,9 +589,34 @@ impl VerifiedPlan {
         )
     }
 
+    pub(crate) fn for_workcopy_style(
+        update: VerifiedDashboardUpdate,
+        compatibility: CompatibilityReport,
+        binding: WorkcopyBinding,
+        session: SessionGeneration,
+    ) -> Self {
+        Self::new(update, compatibility, PlanOrigin::Style(binding), session)
+    }
+
+    pub(crate) fn for_workcopy_blueprint(
+        update: VerifiedDashboardUpdate,
+        compatibility: CompatibilityReport,
+        binding: WorkcopyBinding,
+        session: SessionGeneration,
+    ) -> Self {
+        Self::new(
+            update,
+            compatibility,
+            PlanOrigin::Blueprint(binding),
+            session,
+        )
+    }
+
     pub fn preview(&self) -> PlanPreview {
         let binding = match &self.origin {
-            PlanOrigin::ReplaceHost(binding) => Some(binding),
+            PlanOrigin::ReplaceHost(binding)
+            | PlanOrigin::Style(binding)
+            | PlanOrigin::Blueprint(binding) => Some(binding),
             PlanOrigin::Direct => None,
         };
         PlanPreview {
@@ -645,6 +674,12 @@ impl VerifiedPlan {
 }
 
 impl ConfirmedPlan {
+    pub(crate) fn is_blueprint(&self) -> bool {
+        matches!(self.origin, PlanOrigin::Blueprint(_))
+    }
+    pub(crate) fn is_style(&self) -> bool {
+        matches!(self.origin, PlanOrigin::Style(_))
+    }
     pub fn plan_id(&self) -> &str {
         &self.plan_id
     }
@@ -657,7 +692,9 @@ impl ConfirmedPlan {
 
     pub(crate) fn workcopy_binding(&self) -> Option<&WorkcopyBinding> {
         match &self.origin {
-            PlanOrigin::ReplaceHost(binding) => Some(binding),
+            PlanOrigin::ReplaceHost(binding)
+            | PlanOrigin::Style(binding)
+            | PlanOrigin::Blueprint(binding) => Some(binding),
             PlanOrigin::Direct => None,
         }
     }
@@ -817,7 +854,13 @@ fn operation_record(client: &ReadWriteGateway, plan: &ConfirmedPlan) -> Operatio
     let identity = client.reader().identity();
     OperationRecord {
         planned_deployment: None,
-        portable_update: None,
+        portable_update: plan.update.blueprint_readback().map(|readback| {
+            crate::portable_update::PortableUpdateRecord {
+                readback,
+                deployment_id: None,
+                mapping: None,
+            }
+        }),
         kind: OperationKind::Update,
         intent: plan.origin.operation(),
         connection_id: plan.update.connection_id().to_owned(),
@@ -934,7 +977,7 @@ pub(crate) fn requirement_findings(
 /// proven (param `widget_type`).
 pub const CONTRACT_RESEND_WIDGET_TYPE: &str = "resend_widget_type";
 
-fn compatibility_report(
+pub(crate) fn compatibility_report(
     snapshot: &VersionedDashboardSnapshot,
     context: &PublicationContext,
     requirements: &WriteRequirements,

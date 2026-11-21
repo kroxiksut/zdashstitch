@@ -24,6 +24,7 @@
     "offline_dashboard",
     "page_library",
     "snapshot_library",
-    "portable_review"
+    "portable_review",
+    "reusable"
   ]
 }

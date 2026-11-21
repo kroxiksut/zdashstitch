@@ -40,8 +40,12 @@ use crate::{
     security::LocalSecurity,
 };
 
+#[path = "reusable_routes.rs"]
+mod reusable_routes;
+
 pub(super) fn routes() -> Router<LocalSecurity> {
     Router::new()
+        .merge(reusable_routes::routes())
         .route("/library/export-jobs", post(create_export_job))
         .route("/library/export-jobs/{id}", get(export_job_status))
         .route("/library/export-jobs/{id}/cancel", post(cancel_export_job))
@@ -1551,11 +1555,16 @@ async fn update_page(
     let token = editor_token(&headers);
     let result = blocking(move || {
         let root = handle.root()?;
-        Ok(sessions
+        sessions
             .with_owner(root.clone(), id.clone(), token.as_deref(), || {
-                OfflinePageStore::new(root).update(&id, request)
+                let store = OfflinePageStore::new(root);
+                store.update(&id, request)?;
+                store.open(&id)
             })?
-            .view()?)
+            .ok_or(Failure::Code(
+                StatusCode::NOT_FOUND,
+                "offline_page_not_found",
+            ))
     })
     .await;
     respond(StatusCode::OK, result)

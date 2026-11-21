@@ -1746,6 +1746,123 @@ export const catalogs = {
     "redaction.widget_text": "Text field {field} in widget {widget}, page {page}",
     "redaction.with_value": "{target}: {value}",
     "replace_host.source": "Host to replace",
+    "reusable.adapter": "Zabbix adapter",
+    "reusable.all": "All sources",
+    "reusable.apply": "Apply",
+    "reusable.assignment_invalid": "Check that the selected roles, slots and metrics match the blueprint.",
+    "reusable.before_default": "Default",
+    "reusable.blueprint_action": "Insert blueprint",
+    "reusable.blueprint_catalog": "Catalog version",
+    "reusable.blueprint_catalog_missing": "Import a metric catalog first.",
+    "reusable.blueprint_copy_hint": "Choose a blueprint and place the widget. Select the sources or leave them for binding later.",
+    "reusable.blueprint_host": "Host",
+    "reusable.blueprint_host_search": "Search hosts",
+    "reusable.blueprint_host_truncated": "More hosts match. Narrow the search.",
+    "reusable.blueprint_inventory_incomplete": "The host item list is incomplete.",
+    "reusable.blueprint_keep_unbound": "Leave these sources unbound",
+    "reusable.blueprint_placement": "This widget does not fit at the selected position.",
+    "reusable.blueprint_rebind": "Change blueprint sources",
+    "reusable.blueprint_rebind_hint": "Select the widget sources again. The widget stays in its current position.",
+    "reusable.blueprint_source_missing": "The selected host item is missing, ambiguous or incompatible.",
+    "reusable.blueprint_x": "Column",
+    "reusable.blueprint_y": "Row",
+    "reusable.blueprints": "Widget blueprints",
+    "reusable.builtin": "Built-in",
+    "reusable.builtin_bars": "Database growth — bars",
+    "reusable.builtin_line": "CPU load — line",
+    "reusable.cancel": "Cancel",
+    "reusable.cancel_import": "Cancel import",
+    "reusable.changed": "The draft was updated.",
+    "reusable.choose": "Choose an object",
+    "reusable.choose_file": "Choose a YAML file",
+    "reusable.choose_value": "Choose…",
+    "reusable.collision": "A library object already uses this ID.",
+    "reusable.compatible": "Compatible",
+    "reusable.confirm_delete": "Delete object",
+    "reusable.confirm_publish_blueprint": "Add “{widget}” to “{page}” on the “{dashboard}” dashboard?",
+    "reusable.conflict": "The object changed. Reload its current version and try again.",
+    "reusable.copy_blueprint_publish": "The widget is saved locally. Review its bindings and other draft changes before publishing.",
+    "reusable.copy_style_publish": "The style is saved in this copy. Convert it to a local draft to review publishing.",
+    "reusable.copy_style_review_publish": "Review saved style changes in Publication.",
+    "reusable.copy_style_skipped": "Widgets without verified colors were skipped ({count}).",
+    "reusable.create_style": "New style profile",
+    "reusable.delete": "Delete",
+    "reusable.delete_prompt": "Delete “{name}” from the library? Values already copied into widgets will stay in the draft.",
+    "reusable.description": "Description",
+    "reusable.detach": "Detach from profile",
+    "reusable.details": "Version {version} · Zabbix {adapter}",
+    "reusable.duplicate": "Duplicate",
+    "reusable.edit": "Edit",
+    "reusable.empty": "No matching profiles or blueprints.",
+    "reusable.export": "Export YAML",
+    "reusable.export_ack": "I reviewed the file contents.",
+    "reusable.export_blocked": "The file contains text that looks like credentials.",
+    "reusable.export_findings": "Found {count} text or identifier candidates.",
+    "reusable.export_info": "Check the name, descriptions, and other text before sharing this file.",
+    "reusable.export_review": "Review export",
+    "reusable.extract": "Save selected widget to the library",
+    "reusable.extract_blueprint_help": "Stores the widget configuration and source parameters. Choose the roles and metrics when inserting it.",
+    "reusable.extract_style_help": "Copies the verified Graph series colors.",
+    "reusable.file": "Imported file",
+    "reusable.format_newer": "This file uses a newer format.",
+    "reusable.from_profile": "From “{name}”, version {version}",
+    "reusable.history_action": "library widget edit",
+    "reusable.import": "Import",
+    "reusable.import_invalid": "The file could not be imported ({code}).",
+    "reusable.incompatible": "Unavailable for this widget",
+    "reusable.insert": "Insert",
+    "reusable.insert_ready": "The widget can be inserted.",
+    "reusable.inspect_file": "Review file",
+    "reusable.item": "Item value",
+    "reusable.loaded": "Saved to the library.",
+    "reusable.local": "Created here",
+    "reusable.metric": "Metric for {param}",
+    "reusable.mode": "Mode",
+    "reusable.mode_keep": "Keep local values",
+    "reusable.mode_merge": "Merge",
+    "reusable.mode_replace": "Replace",
+    "reusable.name": "Name",
+    "reusable.no_changes": "There are no changes to apply.",
+    "reusable.no_objects": "No matching library objects are available.",
+    "reusable.open_file": "Open file…",
+    "reusable.operation_failed": "The action could not be completed ({code}).",
+    "reusable.origin": "Source",
+    "reusable.palette": "Graph series colors, one per line",
+    "reusable.palette_hint": "Use six uppercase hexadecimal digits per color.",
+    "reusable.partial": "Some fields are supported",
+    "reusable.profile_deleted": "The profile is no longer in the library.",
+    "reusable.profile_outdated": "Profile version {version} is available.",
+    "reusable.profiles": "Style profiles",
+    "reusable.publish_blueprint": "Publish inserted widget",
+    "reusable.publish_style": "Publish style changes",
+    "reusable.rename": "Edit details",
+    "reusable.replace": "Replace previous version",
+    "reusable.request_save": "Save the page before using an object from the library.",
+    "reusable.review": "Preview changes",
+    "reusable.role": "Role for {param}",
+    "reusable.save": "Save",
+    "reusable.save_copy": "Import as a copy",
+    "reusable.save_file": "Save to file…",
+    "reusable.saving": "Saving…",
+    "reusable.scope": "Widgets",
+    "reusable.scope_dashboard": "All widgets on this dashboard",
+    "reusable.scope_page": "All widgets on this page",
+    "reusable.scope_selection": "Selected widgets ({count})",
+    "reusable.search": "Search styles and blueprints",
+    "reusable.slot": "Slot {slot}",
+    "reusable.storage_failed": "The widget library could not be loaded.",
+    "reusable.style_action": "Apply style",
+    "reusable.style_source_unsupported": "Series colors are unavailable for this widget.",
+    "reusable.svggraph": "Graph",
+    "reusable.tags": "Tags, one per line",
+    "reusable.title": "Widget library",
+    "reusable.unbound": "Needs binding",
+    "reusable.unresolved": "{count} references will need binding before publishing.",
+    "reusable.unsupported_adapter": "The file’s Zabbix adapter is unavailable for this draft.",
+    "reusable.unsupported_blueprint": "This widget configuration cannot be inserted in this draft.",
+    "reusable.unverified": "Unverified adapter",
+    "reusable.unverified_blueprint_publish": "Publication has not been verified for this widget and target configuration.",
+    "reusable.update_profile": "Update from profile",
     "server.action.clone": "Clone",
     "server.action.copy": "Copy from server",
     "server.action.open_copy": "Open copy",
@@ -3772,6 +3889,123 @@ export const catalogs = {
     "redaction.widget_text": "Текстовое поле {field} виджета {widget}, страница {page}",
     "redaction.with_value": "{target}: {value}",
     "replace_host.source": "Заменяемый узел сети",
+    "reusable.adapter": "Адаптер Zabbix",
+    "reusable.all": "Все источники",
+    "reusable.apply": "Применить",
+    "reusable.assignment_invalid": "Проверьте соответствие ролей, слотов и метрик параметрам заготовки.",
+    "reusable.before_default": "По умолчанию",
+    "reusable.blueprint_action": "Вставить заготовку",
+    "reusable.blueprint_catalog": "Версия каталога",
+    "reusable.blueprint_catalog_missing": "Сначала импортируйте каталог метрик.",
+    "reusable.blueprint_copy_hint": "Выберите заготовку и укажите место виджета. Выберите источники или оставьте их для дальнейшей привязки.",
+    "reusable.blueprint_host": "Узел сети",
+    "reusable.blueprint_host_search": "Поиск узлов сети",
+    "reusable.blueprint_host_truncated": "Найдены и другие узлы сети. Уточните запрос.",
+    "reusable.blueprint_inventory_incomplete": "Список элементов данных узла сети неполный.",
+    "reusable.blueprint_keep_unbound": "Оставить эти источники без привязки",
+    "reusable.blueprint_placement": "Виджет не помещается в выбранном месте.",
+    "reusable.blueprint_rebind": "Изменить источники заготовки",
+    "reusable.blueprint_rebind_hint": "Заново выберите источники виджета. Виджет останется на прежнем месте.",
+    "reusable.blueprint_source_missing": "Элемент данных не найден, неоднозначен или несовместим.",
+    "reusable.blueprint_x": "Столбец",
+    "reusable.blueprint_y": "Строка",
+    "reusable.blueprints": "Заготовки виджетов",
+    "reusable.builtin": "Встроенный",
+    "reusable.builtin_bars": "Рост БД — столбцы",
+    "reusable.builtin_line": "Нагрузка CPU — линия",
+    "reusable.cancel": "Отмена",
+    "reusable.cancel_import": "Отменить импорт",
+    "reusable.changed": "Черновик обновлён.",
+    "reusable.choose": "Выберите объект",
+    "reusable.choose_file": "Выбрать файл YAML",
+    "reusable.choose_value": "Выберите…",
+    "reusable.collision": "Объект с таким идентификатором уже есть в библиотеке.",
+    "reusable.compatible": "Совместим",
+    "reusable.confirm_delete": "Удалить объект",
+    "reusable.confirm_publish_blueprint": "Добавить виджет «{widget}» на страницу «{page}» панели «{dashboard}»?",
+    "reusable.conflict": "Объект изменился. Загрузите текущую версию и повторите действие.",
+    "reusable.copy_blueprint_publish": "Виджет сохранён локально. Перед публикацией проверьте его привязки и остальные изменения черновика.",
+    "reusable.copy_style_publish": "Оформление сохраняется в этой копии. Преобразуйте её в локальный черновик, чтобы проверить возможность публикации.",
+    "reusable.copy_style_review_publish": "Проверьте сохранённые изменения оформления в разделе «Публикация».",
+    "reusable.copy_style_skipped": "Пропущены виджеты без проверенных цветов ({count}).",
+    "reusable.create_style": "Новый профиль оформления",
+    "reusable.delete": "Удалить",
+    "reusable.delete_prompt": "Удалить «{name}» из библиотеки? Скопированные в виджеты значения останутся в черновике.",
+    "reusable.description": "Описание",
+    "reusable.detach": "Отвязать от профиля",
+    "reusable.details": "Версия {version} · Zabbix {adapter}",
+    "reusable.duplicate": "Дублировать",
+    "reusable.edit": "Изменить",
+    "reusable.empty": "Подходящих профилей или заготовок нет.",
+    "reusable.export": "Экспортировать YAML",
+    "reusable.export_ack": "Я проверил содержимое файла.",
+    "reusable.export_blocked": "В файле есть текст, похожий на учётные данные.",
+    "reusable.export_findings": "Найдено полей с текстом или идентификаторами: {count}.",
+    "reusable.export_info": "Перед передачей файла проверьте название, описания и другой текст.",
+    "reusable.export_review": "Проверить экспорт",
+    "reusable.extract": "Сохранить выбранный виджет в библиотеку",
+    "reusable.extract_blueprint_help": "Заготовка сохраняет настройки виджета и параметры источников. Роли и метрики выбираются при вставке.",
+    "reusable.extract_style_help": "В профиль копируются проверенные цвета рядов графика.",
+    "reusable.file": "Из файла",
+    "reusable.format_newer": "Файл использует более новый формат.",
+    "reusable.from_profile": "Из профиля «{name}», версия {version}",
+    "reusable.history_action": "изменение из библиотеки",
+    "reusable.import": "Импортировать",
+    "reusable.import_invalid": "Не удалось импортировать файл ({code}).",
+    "reusable.incompatible": "Недоступно для этого виджета",
+    "reusable.insert": "Вставить",
+    "reusable.insert_ready": "Виджет готов к вставке.",
+    "reusable.inspect_file": "Проверить файл",
+    "reusable.item": "Значение элемента данных",
+    "reusable.loaded": "Сохранено в библиотеке.",
+    "reusable.local": "Мой",
+    "reusable.metric": "Метрика для {param}",
+    "reusable.mode": "Режим",
+    "reusable.mode_keep": "Сохранить локальные значения",
+    "reusable.mode_merge": "Объединить",
+    "reusable.mode_replace": "Заменить",
+    "reusable.name": "Название",
+    "reusable.no_changes": "Нет изменений для применения.",
+    "reusable.no_objects": "Подходящих объектов в библиотеке нет.",
+    "reusable.open_file": "Открыть файл…",
+    "reusable.operation_failed": "Действие не выполнено ({code}).",
+    "reusable.origin": "Источник",
+    "reusable.palette": "Цвета рядов графика, по одному на строку",
+    "reusable.palette_hint": "Укажите шесть шестнадцатеричных символов в верхнем регистре для каждого цвета.",
+    "reusable.partial": "Доступна часть полей",
+    "reusable.profile_deleted": "Профиля больше нет в библиотеке.",
+    "reusable.profile_outdated": "Доступна версия профиля {version}.",
+    "reusable.profiles": "Профили оформления",
+    "reusable.publish_blueprint": "Опубликовать вставленный виджет",
+    "reusable.publish_style": "Публикация оформления",
+    "reusable.rename": "Изменить сведения",
+    "reusable.replace": "Заменить новой версией",
+    "reusable.request_save": "Сохраните страницу перед использованием объекта из библиотеки.",
+    "reusable.review": "Предпросмотр изменений",
+    "reusable.role": "Роль для {param}",
+    "reusable.save": "Сохранить",
+    "reusable.save_copy": "Импортировать как копию",
+    "reusable.save_file": "Сохранить в файл…",
+    "reusable.saving": "Сохранение…",
+    "reusable.scope": "Виджеты",
+    "reusable.scope_dashboard": "Все виджеты этой панели",
+    "reusable.scope_page": "Все виджеты на этой странице",
+    "reusable.scope_selection": "Выбранные виджеты ({count})",
+    "reusable.search": "Поиск профилей и заготовок",
+    "reusable.slot": "Слот {slot}",
+    "reusable.storage_failed": "Не удалось загрузить библиотеку виджетов.",
+    "reusable.style_action": "Применить оформление",
+    "reusable.style_source_unsupported": "Цвета рядов этого виджета недоступны для сохранения.",
+    "reusable.svggraph": "График",
+    "reusable.tags": "Метки, по одной на строку",
+    "reusable.title": "Библиотека виджетов",
+    "reusable.unbound": "Нужна привязка",
+    "reusable.unresolved": "До публикации потребуется привязать ссылки ({count}).",
+    "reusable.unsupported_adapter": "Адаптер Zabbix из файла недоступен для этого черновика.",
+    "reusable.unsupported_blueprint": "Эту конфигурацию виджета нельзя вставить в черновик.",
+    "reusable.unverified": "Непроверенный адаптер",
+    "reusable.unverified_blueprint_publish": "Публикация для такой конфигурации виджета и панели не подтверждена.",
+    "reusable.update_profile": "Обновить из профиля",
     "server.action.clone": "Клонировать",
     "server.action.copy": "Скопировать с сервера",
     "server.action.open_copy": "Открыть копию",
@@ -6578,6 +6812,155 @@ export const placeholderTypes = {
     "value": "text"
   },
   "replace_host.source": {},
+  "reusable.adapter": {},
+  "reusable.all": {},
+  "reusable.apply": {},
+  "reusable.assignment_invalid": {},
+  "reusable.before_default": {},
+  "reusable.blueprint_action": {},
+  "reusable.blueprint_catalog": {},
+  "reusable.blueprint_catalog_missing": {},
+  "reusable.blueprint_copy_hint": {},
+  "reusable.blueprint_host": {},
+  "reusable.blueprint_host_search": {},
+  "reusable.blueprint_host_truncated": {},
+  "reusable.blueprint_inventory_incomplete": {},
+  "reusable.blueprint_keep_unbound": {},
+  "reusable.blueprint_placement": {},
+  "reusable.blueprint_rebind": {},
+  "reusable.blueprint_rebind_hint": {},
+  "reusable.blueprint_source_missing": {},
+  "reusable.blueprint_x": {},
+  "reusable.blueprint_y": {},
+  "reusable.blueprints": {},
+  "reusable.builtin": {},
+  "reusable.builtin_bars": {},
+  "reusable.builtin_line": {},
+  "reusable.cancel": {},
+  "reusable.cancel_import": {},
+  "reusable.changed": {},
+  "reusable.choose": {},
+  "reusable.choose_file": {},
+  "reusable.choose_value": {},
+  "reusable.collision": {},
+  "reusable.compatible": {},
+  "reusable.confirm_delete": {},
+  "reusable.confirm_publish_blueprint": {
+    "widget": "text",
+    "page": "text",
+    "dashboard": "text"
+  },
+  "reusable.conflict": {},
+  "reusable.copy_blueprint_publish": {},
+  "reusable.copy_style_publish": {},
+  "reusable.copy_style_review_publish": {},
+  "reusable.copy_style_skipped": {
+    "count": "number"
+  },
+  "reusable.create_style": {},
+  "reusable.delete": {},
+  "reusable.delete_prompt": {
+    "name": "text"
+  },
+  "reusable.description": {},
+  "reusable.detach": {},
+  "reusable.details": {
+    "version": "number",
+    "adapter": "text"
+  },
+  "reusable.duplicate": {},
+  "reusable.edit": {},
+  "reusable.empty": {},
+  "reusable.export": {},
+  "reusable.export_ack": {},
+  "reusable.export_blocked": {},
+  "reusable.export_findings": {
+    "count": "number"
+  },
+  "reusable.export_info": {},
+  "reusable.export_review": {},
+  "reusable.extract": {},
+  "reusable.extract_blueprint_help": {},
+  "reusable.extract_style_help": {},
+  "reusable.file": {},
+  "reusable.format_newer": {},
+  "reusable.from_profile": {
+    "name": "text",
+    "version": "number"
+  },
+  "reusable.history_action": {},
+  "reusable.import": {},
+  "reusable.import_invalid": {
+    "code": "text"
+  },
+  "reusable.incompatible": {},
+  "reusable.insert": {},
+  "reusable.insert_ready": {},
+  "reusable.inspect_file": {},
+  "reusable.item": {},
+  "reusable.loaded": {},
+  "reusable.local": {},
+  "reusable.metric": {
+    "param": "text"
+  },
+  "reusable.mode": {},
+  "reusable.mode_keep": {},
+  "reusable.mode_merge": {},
+  "reusable.mode_replace": {},
+  "reusable.name": {},
+  "reusable.no_changes": {},
+  "reusable.no_objects": {},
+  "reusable.open_file": {},
+  "reusable.operation_failed": {
+    "code": "text"
+  },
+  "reusable.origin": {},
+  "reusable.palette": {},
+  "reusable.palette_hint": {},
+  "reusable.partial": {},
+  "reusable.profile_deleted": {},
+  "reusable.profile_outdated": {
+    "version": "number"
+  },
+  "reusable.profiles": {},
+  "reusable.publish_blueprint": {},
+  "reusable.publish_style": {},
+  "reusable.rename": {},
+  "reusable.replace": {},
+  "reusable.request_save": {},
+  "reusable.review": {},
+  "reusable.role": {
+    "param": "text"
+  },
+  "reusable.save": {},
+  "reusable.save_copy": {},
+  "reusable.save_file": {},
+  "reusable.saving": {},
+  "reusable.scope": {},
+  "reusable.scope_dashboard": {},
+  "reusable.scope_page": {},
+  "reusable.scope_selection": {
+    "count": "number"
+  },
+  "reusable.search": {},
+  "reusable.slot": {
+    "slot": "text"
+  },
+  "reusable.storage_failed": {},
+  "reusable.style_action": {},
+  "reusable.style_source_unsupported": {},
+  "reusable.svggraph": {},
+  "reusable.tags": {},
+  "reusable.title": {},
+  "reusable.unbound": {},
+  "reusable.unresolved": {
+    "count": "number"
+  },
+  "reusable.unsupported_adapter": {},
+  "reusable.unsupported_blueprint": {},
+  "reusable.unverified": {},
+  "reusable.unverified_blueprint_publish": {},
+  "reusable.update_profile": {},
   "server.action.clone": {},
   "server.action.copy": {},
   "server.action.open_copy": {},
@@ -12340,6 +12723,361 @@ export interface MessageParamsById {
     "value": string;
   };
   "replace_host.source": {
+
+  };
+  "reusable.adapter": {
+
+  };
+  "reusable.all": {
+
+  };
+  "reusable.apply": {
+
+  };
+  "reusable.assignment_invalid": {
+
+  };
+  "reusable.before_default": {
+
+  };
+  "reusable.blueprint_action": {
+
+  };
+  "reusable.blueprint_catalog": {
+
+  };
+  "reusable.blueprint_catalog_missing": {
+
+  };
+  "reusable.blueprint_copy_hint": {
+
+  };
+  "reusable.blueprint_host": {
+
+  };
+  "reusable.blueprint_host_search": {
+
+  };
+  "reusable.blueprint_host_truncated": {
+
+  };
+  "reusable.blueprint_inventory_incomplete": {
+
+  };
+  "reusable.blueprint_keep_unbound": {
+
+  };
+  "reusable.blueprint_placement": {
+
+  };
+  "reusable.blueprint_rebind": {
+
+  };
+  "reusable.blueprint_rebind_hint": {
+
+  };
+  "reusable.blueprint_source_missing": {
+
+  };
+  "reusable.blueprint_x": {
+
+  };
+  "reusable.blueprint_y": {
+
+  };
+  "reusable.blueprints": {
+
+  };
+  "reusable.builtin": {
+
+  };
+  "reusable.builtin_bars": {
+
+  };
+  "reusable.builtin_line": {
+
+  };
+  "reusable.cancel": {
+
+  };
+  "reusable.cancel_import": {
+
+  };
+  "reusable.changed": {
+
+  };
+  "reusable.choose": {
+
+  };
+  "reusable.choose_file": {
+
+  };
+  "reusable.choose_value": {
+
+  };
+  "reusable.collision": {
+
+  };
+  "reusable.compatible": {
+
+  };
+  "reusable.confirm_delete": {
+
+  };
+  "reusable.confirm_publish_blueprint": {
+    "widget": string;
+    "page": string;
+    "dashboard": string;
+  };
+  "reusable.conflict": {
+
+  };
+  "reusable.copy_blueprint_publish": {
+
+  };
+  "reusable.copy_style_publish": {
+
+  };
+  "reusable.copy_style_review_publish": {
+
+  };
+  "reusable.copy_style_skipped": {
+    "count": number;
+  };
+  "reusable.create_style": {
+
+  };
+  "reusable.delete": {
+
+  };
+  "reusable.delete_prompt": {
+    "name": string;
+  };
+  "reusable.description": {
+
+  };
+  "reusable.detach": {
+
+  };
+  "reusable.details": {
+    "version": number;
+    "adapter": string;
+  };
+  "reusable.duplicate": {
+
+  };
+  "reusable.edit": {
+
+  };
+  "reusable.empty": {
+
+  };
+  "reusable.export": {
+
+  };
+  "reusable.export_ack": {
+
+  };
+  "reusable.export_blocked": {
+
+  };
+  "reusable.export_findings": {
+    "count": number;
+  };
+  "reusable.export_info": {
+
+  };
+  "reusable.export_review": {
+
+  };
+  "reusable.extract": {
+
+  };
+  "reusable.extract_blueprint_help": {
+
+  };
+  "reusable.extract_style_help": {
+
+  };
+  "reusable.file": {
+
+  };
+  "reusable.format_newer": {
+
+  };
+  "reusable.from_profile": {
+    "name": string;
+    "version": number;
+  };
+  "reusable.history_action": {
+
+  };
+  "reusable.import": {
+
+  };
+  "reusable.import_invalid": {
+    "code": string;
+  };
+  "reusable.incompatible": {
+
+  };
+  "reusable.insert": {
+
+  };
+  "reusable.insert_ready": {
+
+  };
+  "reusable.inspect_file": {
+
+  };
+  "reusable.item": {
+
+  };
+  "reusable.loaded": {
+
+  };
+  "reusable.local": {
+
+  };
+  "reusable.metric": {
+    "param": string;
+  };
+  "reusable.mode": {
+
+  };
+  "reusable.mode_keep": {
+
+  };
+  "reusable.mode_merge": {
+
+  };
+  "reusable.mode_replace": {
+
+  };
+  "reusable.name": {
+
+  };
+  "reusable.no_changes": {
+
+  };
+  "reusable.no_objects": {
+
+  };
+  "reusable.open_file": {
+
+  };
+  "reusable.operation_failed": {
+    "code": string;
+  };
+  "reusable.origin": {
+
+  };
+  "reusable.palette": {
+
+  };
+  "reusable.palette_hint": {
+
+  };
+  "reusable.partial": {
+
+  };
+  "reusable.profile_deleted": {
+
+  };
+  "reusable.profile_outdated": {
+    "version": number;
+  };
+  "reusable.profiles": {
+
+  };
+  "reusable.publish_blueprint": {
+
+  };
+  "reusable.publish_style": {
+
+  };
+  "reusable.rename": {
+
+  };
+  "reusable.replace": {
+
+  };
+  "reusable.request_save": {
+
+  };
+  "reusable.review": {
+
+  };
+  "reusable.role": {
+    "param": string;
+  };
+  "reusable.save": {
+
+  };
+  "reusable.save_copy": {
+
+  };
+  "reusable.save_file": {
+
+  };
+  "reusable.saving": {
+
+  };
+  "reusable.scope": {
+
+  };
+  "reusable.scope_dashboard": {
+
+  };
+  "reusable.scope_page": {
+
+  };
+  "reusable.scope_selection": {
+    "count": number;
+  };
+  "reusable.search": {
+
+  };
+  "reusable.slot": {
+    "slot": string;
+  };
+  "reusable.storage_failed": {
+
+  };
+  "reusable.style_action": {
+
+  };
+  "reusable.style_source_unsupported": {
+
+  };
+  "reusable.svggraph": {
+
+  };
+  "reusable.tags": {
+
+  };
+  "reusable.title": {
+
+  };
+  "reusable.unbound": {
+
+  };
+  "reusable.unresolved": {
+    "count": number;
+  };
+  "reusable.unsupported_adapter": {
+
+  };
+  "reusable.unsupported_blueprint": {
+
+  };
+  "reusable.unverified": {
+
+  };
+  "reusable.unverified_blueprint_publish": {
+
+  };
+  "reusable.update_profile": {
 
   };
   "server.action.clone": {

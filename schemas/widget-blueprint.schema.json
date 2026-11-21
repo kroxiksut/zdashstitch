@@ -1,0 +1,1394 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zdashstitch.example/schemas/widget-blueprint.schema.json",
+  "title": "ZDashstitch widget blueprint v1",
+  "type": "object",
+  "properties": {
+    "format": {
+      "const": "zdashstitch.widget-blueprint/v1"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255,
+      "pattern": "^[^\\u0000-\\u001F\\u007F-\\u009F]*\\S[^\\u0000-\\u001F\\u007F-\\u009F]*(?![\\s\\S])"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 0,
+      "maxLength": 2000
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 40
+      },
+      "minItems": 0,
+      "maxItems": 20,
+      "uniqueItems": true
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 4294967295
+    },
+    "adapter": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+(?![\\s\\S])"
+    },
+    "declared_compatibility": {
+      "type": "object",
+      "properties": {
+        "minimum": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*\\.[0-9]+(?:\\.[0-9]+)?(?:[A-Za-z][A-Za-z0-9._-]*)?(?![\\s\\S])"
+        },
+        "maximum_exclusive": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*\\.[0-9]+(?:\\.[0-9]+)?(?:[A-Za-z][A-Za-z0-9._-]*)?(?![\\s\\S])"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "minimum"
+      ]
+    },
+    "blueprint_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}(?![\\s\\S])"
+    },
+    "widget_type": {
+      "enum": [
+        "item",
+        "svggraph"
+      ]
+    },
+    "default_size": {
+      "type": "object",
+      "properties": {
+        "width": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 72
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 64
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "width",
+        "height"
+      ]
+    },
+    "attributes": {
+      "type": "object",
+      "properties": {
+        "view_mode": {
+          "enum": [
+            0,
+            1
+          ]
+        },
+        "rf_rate": {
+          "type": "integer",
+          "minimum": -2147483648,
+          "maximum": 2147483647
+        }
+      },
+      "additionalProperties": false
+    },
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "param": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_-]{1,63}(?![\\s\\S])"
+              },
+              "cardinality": {
+                "enum": [
+                  "one",
+                  "many"
+                ]
+              },
+              "slots": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_-]{1,63}(?![\\s\\S])"
+                },
+                "minItems": 1,
+                "maxItems": 256,
+                "uniqueItems": true
+              },
+              "description": {
+                "type": "string",
+                "minLength": 0,
+                "maxLength": 500
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "param",
+              "cardinality"
+            ],
+            "allOf": [
+              {
+                "if": {
+                  "required": [
+                    "slots"
+                  ]
+                },
+                "then": {
+                  "properties": {
+                    "cardinality": {
+                      "const": "many"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "minItems": 0,
+          "maxItems": 64
+        },
+        "metrics": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "param": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_-]{1,63}(?![\\s\\S])"
+              },
+              "value_type": {
+                "enum": [
+                  "numeric_float",
+                  "numeric_unsigned",
+                  "character",
+                  "log",
+                  "text"
+                ]
+              },
+              "units": {
+                "type": "string",
+                "minLength": 0,
+                "maxLength": 255
+              },
+              "description": {
+                "type": "string",
+                "minLength": 0,
+                "maxLength": 500
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "param"
+            ]
+          },
+          "minItems": 0,
+          "maxItems": 1024
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "roles",
+        "metrics"
+      ]
+    },
+    "fields": {
+      "type": "array",
+      "maxItems": 1024,
+      "minItems": 1
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "format",
+    "blueprint_id",
+    "name",
+    "version",
+    "adapter",
+    "widget_type",
+    "default_size",
+    "parameters",
+    "fields"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "widget_type": {
+            "const": "item"
+          }
+        }
+      },
+      "then": {
+        "if": {
+          "properties": {
+            "adapter": {
+              "enum": [
+                "8.0"
+              ]
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "fields": {
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "enum": [
+                          "bg_color"
+                        ]
+                      },
+                      "field_type": {
+                        "const": 1
+                      },
+                      "value": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "const": "string"
+                          },
+                          "value": {
+                            "const": ""
+                          }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                          "kind",
+                          "value"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false,
+                    "required": [
+                      "name",
+                      "field_type",
+                      "value"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "maxLength": 128,
+                        "pattern": "^(?:desc_h_pos|desc_v_pos|desc_size|desc_bold|value_h_pos|value_v_pos|value_size|value_bold|decimal_places|decimal_size|units_show|units_pos|units_size|units_bold|time_h_pos|time_v_pos|time_size|time_bold|sparkline\\.width|sparkline\\.fill|show\\.(?:0|[1-9][0-9]*)|aggregate_function|history|sparkline\\.history)(?![\\s\\S])"
+                      },
+                      "field_type": {
+                        "const": 0
+                      },
+                      "value": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "const": "integer"
+                          },
+                          "value": {
+                            "type": "integer",
+                            "minimum": -2147483648,
+                            "maximum": 2147483647
+                          }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                          "kind",
+                          "value"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false,
+                    "required": [
+                      "name",
+                      "field_type",
+                      "value"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "maxLength": 128,
+                        "pattern": "^(?:units|description|time_period\\.from|time_period\\.to|sparkline\\.time_period\\.from|sparkline\\.time_period\\.to|thresholds\\.(?:0|[1-9][0-9]*)\\.threshold)(?![\\s\\S])"
+                      },
+                      "field_type": {
+                        "const": 1
+                      },
+                      "value": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "const": "string"
+                          },
+                          "value": {
+                            "type": "string",
+                            "minLength": 0,
+                            "maxLength": 2048
+                          }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                          "kind",
+                          "value"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false,
+                    "required": [
+                      "name",
+                      "field_type",
+                      "value"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "maxLength": 128,
+                        "pattern": "^(?:desc_color|value_color|units_color|time_color|up_color|down_color|updown_color|bg_color|sparkline\\.color|thresholds\\.(?:0|[1-9][0-9]*)\\.color)(?![\\s\\S])"
+                      },
+                      "field_type": {
+                        "const": 1
+                      },
+                      "value": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "const": "string"
+                          },
+                          "value": {
+                            "type": "string",
+                            "pattern": "^[0-9A-F]{6}(?![\\s\\S])"
+                          }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                          "kind",
+                          "value"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false,
+                    "required": [
+                      "name",
+                      "field_type",
+                      "value"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "maxLength": 128,
+                        "pattern": "^(?:override_hostid\\.(?:0|[1-9][0-9]*))(?![\\s\\S])"
+                      },
+                      "field_type": {
+                        "const": 3
+                      },
+                      "value": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "const": "host"
+                              },
+                              "role": {
+                                "type": "string",
+                                "pattern": "^\\$[a-z][a-z0-9_-]{1,63}(?![\\s\\S])"
+                              },
+                              "selection": {
+                                "enum": [
+                                  "one",
+                                  "slot"
+                                ]
+                              },
+                              "slot_id": {
+                                "type": "string",
+                                "pattern": "^[a-z][a-z0-9_-]{1,63}(?![\\s\\S])"
+                              }
+                            },
+                            "additionalProperties": false,
+                            "required": [
+                              "kind",
+                              "role",
+                              "selection"
+                            ],
+                            "allOf": [
+                              {
+                                "if": {
+                                  "properties": {
+                                    "selection": {
+                                      "const": "slot"
+                                    }
+                                  }
+                                },
+                                "then": {
+                                  "required": [
+                                    "slot_id"
+                                  ]
+                                },
+                                "else": {
+                                  "not": {
+                                    "required": [
+                                      "slot_id"
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "const": "unbound"
+                              },
+                              "object": {
+                                "const": "host"
+                              }
+                            },
+                            "additionalProperties": false,
+                            "required": [
+                              "kind",
+                              "object"
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "additionalProperties": false,
+                    "required": [
+                      "name",
+                      "field_type",
+                      "value"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "maxLength": 128,
+                        "pattern": "^(?:itemid\\.0)(?![\\s\\S])"
+                      },
+                      "field_type": {
+                        "const": 4
+                      },
+                      "value": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "const": "metric"
+                              },
+                              "role": {
+                                "type": "string",
+                                "pattern": "^\\$[a-z][a-z0-9_-]{1,63}(?![\\s\\S])"
+                              },
+                              "selection": {
+                                "enum": [
+                                  "one",
+                                  "slot"
+                                ]
+                              },
+                              "slot_id": {
+                                "type": "string",
+                                "pattern": "^[a-z][a-z0-9_-]{1,63}(?![\\s\\S])"
+                              },
+                              "metric": {
+                                "type": "string",
+                                "pattern": "^\\$[a-z][a-z0-9_-]{1,63}(?![\\s\\S])"
+                              }
+                            },
+                            "additionalProperties": false,
+                            "required": [
+                              "kind",
+                              "role",
+                              "selection",
+                              "metric"
+                            ],
+                            "allOf": [
+                              {
+                                "if": {
+                                  "properties": {
+                                    "selection": {
+                                      "const": "slot"
+                                    }
+                                  }
+                                },
+                                "then": {
+                                  "required": [
+                                    "slot_id"
+                                  ]
+                                },
+                                "else": {
+                                  "not": {
+                                    "required": [
+                                      "slot_id"
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "const": "unbound"
+                              },
+                              "object": {
+                                "const": "item"
+                              }
+                            },
+                            "additionalProperties": false,
+                            "required": [
+                              "kind",
+                              "object"
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "additionalProperties": false,
+                    "required": [
+                      "name",
+                      "field_type",
+                      "value"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "else": {
+          "properties": {
+            "fields": {
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "maxLength": 128,
+                        "pattern": "^(?:desc_h_pos|desc_v_pos|desc_size|desc_bold|value_h_pos|value_v_pos|value_size|value_bold|decimal_places|decimal_size|units_show|units_pos|units_size|units_bold|time_h_pos|time_v_pos|time_size|time_bold|sparkline\\.width|sparkline\\.fill|show\\.(?:0|[1-9][0-9]*)|aggregate_function|history|sparkline\\.history)(?![\\s\\S])"
+                      },
+                      "field_type": {
+                        "const": 0
+                      },
+                      "value": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "const": "integer"
+                          },
+                          "value": {
+                            "type": "integer",
+                            "minimum": -2147483648,
+                            "maximum": 2147483647
+                          }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                          "kind",
+                          "value"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false,
+                    "required": [
+                      "name",
+                      "field_type",
+                      "value"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "maxLength": 128,
+                        "pattern": "^(?:units|description|time_period\\.from|time_period\\.to|sparkline\\.time_period\\.from|sparkline\\.time_period\\.to|thresholds\\.(?:0|[1-9][0-9]*)\\.threshold)(?![\\s\\S])"
+                      },
+                      "field_type": {
+                        "const": 1
+                      },
+                      "value": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "const": "string"
+                          },
+                          "value": {
+                            "type": "string",
+                            "minLength": 0,
+                            "maxLength": 2048
+                          }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                          "kind",
+                          "value"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false,
+                    "required": [
+                      "name",
+                      "field_type",
+                      "value"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "maxLength": 128,
+                        "pattern": "^(?:desc_color|value_color|units_color|time_color|up_color|down_color|updown_color|bg_color|sparkline\\.color|thresholds\\.(?:0|[1-9][0-9]*)\\.color)(?![\\s\\S])"
+                      },
+                      "field_type": {
+                        "const": 1
+                      },
+                      "value": {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "const": "string"
+                          },
+                          "value": {
+                            "type": "string",
+                            "pattern": "^[0-9A-F]{6}(?![\\s\\S])"
+                          }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                          "kind",
+                          "value"
+                        ]
+                      }
+                    },
+                    "additionalProperties": false,
+                    "required": [
+                      "name",
+                      "field_type",
+                      "value"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "maxLength": 128,
+                        "pattern": "^(?:override_hostid\\.(?:0|[1-9][0-9]*))(?![\\s\\S])"
+                      },
+                      "field_type": {
+                        "const": 3
+                      },
+                      "value": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "const": "host"
+                              },
+                              "role": {
+                                "type": "string",
+                                "pattern": "^\\$[a-z][a-z0-9_-]{1,63}(?![\\s\\S])"
+                              },
+                              "selection": {
+                                "enum": [
+                                  "one",
+                                  "slot"
+                                ]
+                              },
+                              "slot_id": {
+                                "type": "string",
+                                "pattern": "^[a-z][a-z0-9_-]{1,63}(?![\\s\\S])"
+                              }
+                            },
+                            "additionalProperties": false,
+                            "required": [
+                              "kind",
+                              "role",
+                              "selection"
+                            ],
+                            "allOf": [
+                              {
+                                "if": {
+                                  "properties": {
+                                    "selection": {
+                                      "const": "slot"
+                                    }
+                                  }
+                                },
+                                "then": {
+                                  "required": [
+                                    "slot_id"
+                                  ]
+                                },
+                                "else": {
+                                  "not": {
+                                    "required": [
+                                      "slot_id"
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "const": "unbound"
+                              },
+                              "object": {
+                                "const": "host"
+                              }
+                            },
+                            "additionalProperties": false,
+                            "required": [
+                              "kind",
+                              "object"
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "additionalProperties": false,
+                    "required": [
+                      "name",
+                      "field_type",
+                      "value"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "maxLength": 128,
+                        "pattern": "^(?:itemid\\.0)(?![\\s\\S])"
+                      },
+                      "field_type": {
+                        "const": 4
+                      },
+                      "value": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "const": "metric"
+                              },
+                              "role": {
+                                "type": "string",
+                                "pattern": "^\\$[a-z][a-z0-9_-]{1,63}(?![\\s\\S])"
+                              },
+                              "selection": {
+                                "enum": [
+                                  "one",
+                                  "slot"
+                                ]
+                              },
+                              "slot_id": {
+                                "type": "string",
+                                "pattern": "^[a-z][a-z0-9_-]{1,63}(?![\\s\\S])"
+                              },
+                              "metric": {
+                                "type": "string",
+                                "pattern": "^\\$[a-z][a-z0-9_-]{1,63}(?![\\s\\S])"
+                              }
+                            },
+                            "additionalProperties": false,
+                            "required": [
+                              "kind",
+                              "role",
+                              "selection",
+                              "metric"
+                            ],
+                            "allOf": [
+                              {
+                                "if": {
+                                  "properties": {
+                                    "selection": {
+                                      "const": "slot"
+                                    }
+                                  }
+                                },
+                                "then": {
+                                  "required": [
+                                    "slot_id"
+                                  ]
+                                },
+                                "else": {
+                                  "not": {
+                                    "required": [
+                                      "slot_id"
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "const": "unbound"
+                              },
+                              "object": {
+                                "const": "item"
+                              }
+                            },
+                            "additionalProperties": false,
+                            "required": [
+                              "kind",
+                              "object"
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "additionalProperties": false,
+                    "required": [
+                      "name",
+                      "field_type",
+                      "value"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "widget_type": {
+            "const": "svggraph"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "fields": {
+            "items": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "maxLength": 128,
+                      "pattern": "^(?:lefty|righty|axisx|legend|legend_statistic|legend_aggregation|legend_lines_mode|legend_lines|legend_columns|show_problems|graph_item_problems|simple_triggers|working_time|percentile_left|percentile_right|lefty_units|righty_units|ds\\.(?:0|[1-9][0-9]*)\\.dataset_type|ds\\.(?:0|[1-9][0-9]*)\\.color_palette|ds\\.(?:0|[1-9][0-9]*)\\.aggregate_function|ds\\.(?:0|[1-9][0-9]*)\\.aggregate_grouping|ds\\.(?:0|[1-9][0-9]*)\\.approximation|source|severities\\.(?:0|[1-9][0-9]*)|evaltype|tags\\.(?:0|[1-9][0-9]*)\\.operator|ds\\.(?:0|[1-9][0-9]*)\\.type|ds\\.(?:0|[1-9][0-9]*)\\.stacked|ds\\.(?:0|[1-9][0-9]*)\\.width|ds\\.(?:0|[1-9][0-9]*)\\.pointsize|ds\\.(?:0|[1-9][0-9]*)\\.transparency|ds\\.(?:0|[1-9][0-9]*)\\.fill|ds\\.(?:0|[1-9][0-9]*)\\.axisy|ds\\.(?:0|[1-9][0-9]*)\\.missingdatafunc)(?![\\s\\S])"
+                    },
+                    "field_type": {
+                      "const": 0
+                    },
+                    "value": {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "const": "integer"
+                        },
+                        "value": {
+                          "type": "integer",
+                          "minimum": -2147483648,
+                          "maximum": 2147483647
+                        }
+                      },
+                      "additionalProperties": false,
+                      "required": [
+                        "kind",
+                        "value"
+                      ]
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "name",
+                    "field_type",
+                    "value"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "maxLength": 128,
+                      "pattern": "^(?:lefty_min|lefty_max|righty_min|righty_max|lefty_static_units|righty_static_units|percentile_left_value|percentile_right_value|ds\\.(?:0|[1-9][0-9]*)\\.timeshift|ds\\.(?:0|[1-9][0-9]*)\\.aggregate_interval|ds\\.(?:0|[1-9][0-9]*)\\.data_set_label|time_period\\.from|time_period\\.to|problem_name|tags\\.(?:0|[1-9][0-9]*)\\.tag|tags\\.(?:0|[1-9][0-9]*)\\.value)(?![\\s\\S])"
+                    },
+                    "field_type": {
+                      "const": 1
+                    },
+                    "value": {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "const": "string"
+                        },
+                        "value": {
+                          "type": "string",
+                          "minLength": 0,
+                          "maxLength": 2048
+                        }
+                      },
+                      "additionalProperties": false,
+                      "required": [
+                        "kind",
+                        "value"
+                      ]
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "name",
+                    "field_type",
+                    "value"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "maxLength": 128,
+                      "pattern": "^(?:ds\\.(?:0|[1-9][0-9]*)\\.color|ds\\.(?:0|[1-9][0-9]*)\\.color\\.(?:0|[1-9][0-9]*))(?![\\s\\S])"
+                    },
+                    "field_type": {
+                      "const": 1
+                    },
+                    "value": {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "const": "string"
+                        },
+                        "value": {
+                          "type": "string",
+                          "pattern": "^[0-9A-F]{6}(?![\\s\\S])"
+                        }
+                      },
+                      "additionalProperties": false,
+                      "required": [
+                        "kind",
+                        "value"
+                      ]
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "name",
+                    "field_type",
+                    "value"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "maxLength": 128,
+                      "pattern": "^(?:override_hostid\\.(?:0|[1-9][0-9]*))(?![\\s\\S])"
+                    },
+                    "field_type": {
+                      "const": 3
+                    },
+                    "value": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "const": "host"
+                            },
+                            "role": {
+                              "type": "string",
+                              "pattern": "^\\$[a-z][a-z0-9_-]{1,63}(?![\\s\\S])"
+                            },
+                            "selection": {
+                              "enum": [
+                                "one",
+                                "slot"
+                              ]
+                            },
+                            "slot_id": {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9_-]{1,63}(?![\\s\\S])"
+                            }
+                          },
+                          "additionalProperties": false,
+                          "required": [
+                            "kind",
+                            "role",
+                            "selection"
+                          ],
+                          "allOf": [
+                            {
+                              "if": {
+                                "properties": {
+                                  "selection": {
+                                    "const": "slot"
+                                  }
+                                }
+                              },
+                              "then": {
+                                "required": [
+                                  "slot_id"
+                                ]
+                              },
+                              "else": {
+                                "not": {
+                                  "required": [
+                                    "slot_id"
+                                  ]
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "const": "unbound"
+                            },
+                            "object": {
+                              "const": "host"
+                            }
+                          },
+                          "additionalProperties": false,
+                          "required": [
+                            "kind",
+                            "object"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "name",
+                    "field_type",
+                    "value"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "maxLength": 128,
+                      "pattern": "^(?:ds\\.(?:0|[1-9][0-9]*)\\.hosts\\.(?:0|[1-9][0-9]*)|problemhosts\\.(?:0|[1-9][0-9]*))(?![\\s\\S])"
+                    },
+                    "field_type": {
+                      "const": 1
+                    },
+                    "value": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "const": "host"
+                            },
+                            "role": {
+                              "type": "string",
+                              "pattern": "^\\$[a-z][a-z0-9_-]{1,63}(?![\\s\\S])"
+                            },
+                            "selection": {
+                              "enum": [
+                                "all",
+                                "one",
+                                "slot"
+                              ]
+                            },
+                            "slot_id": {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9_-]{1,63}(?![\\s\\S])"
+                            }
+                          },
+                          "additionalProperties": false,
+                          "required": [
+                            "kind",
+                            "role",
+                            "selection"
+                          ],
+                          "allOf": [
+                            {
+                              "if": {
+                                "properties": {
+                                  "selection": {
+                                    "const": "slot"
+                                  }
+                                }
+                              },
+                              "then": {
+                                "required": [
+                                  "slot_id"
+                                ]
+                              },
+                              "else": {
+                                "not": {
+                                  "required": [
+                                    "slot_id"
+                                  ]
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "const": "unbound"
+                            },
+                            "object": {
+                              "const": "host"
+                            }
+                          },
+                          "additionalProperties": false,
+                          "required": [
+                            "kind",
+                            "object"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "name",
+                    "field_type",
+                    "value"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "maxLength": 128,
+                      "pattern": "^(?:ds\\.(?:0|[1-9][0-9]*)\\.itemids\\.(?:0|[1-9][0-9]*))(?![\\s\\S])"
+                    },
+                    "field_type": {
+                      "const": 4
+                    },
+                    "value": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "const": "metric"
+                            },
+                            "role": {
+                              "type": "string",
+                              "pattern": "^\\$[a-z][a-z0-9_-]{1,63}(?![\\s\\S])"
+                            },
+                            "selection": {
+                              "enum": [
+                                "one",
+                                "slot"
+                              ]
+                            },
+                            "slot_id": {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9_-]{1,63}(?![\\s\\S])"
+                            },
+                            "metric": {
+                              "type": "string",
+                              "pattern": "^\\$[a-z][a-z0-9_-]{1,63}(?![\\s\\S])"
+                            }
+                          },
+                          "additionalProperties": false,
+                          "required": [
+                            "kind",
+                            "role",
+                            "selection",
+                            "metric"
+                          ],
+                          "allOf": [
+                            {
+                              "if": {
+                                "properties": {
+                                  "selection": {
+                                    "const": "slot"
+                                  }
+                                }
+                              },
+                              "then": {
+                                "required": [
+                                  "slot_id"
+                                ]
+                              },
+                              "else": {
+                                "not": {
+                                  "required": [
+                                    "slot_id"
+                                  ]
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "const": "unbound"
+                            },
+                            "object": {
+                              "const": "item"
+                            }
+                          },
+                          "additionalProperties": false,
+                          "required": [
+                            "kind",
+                            "object"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "name",
+                    "field_type",
+                    "value"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "maxLength": 128,
+                      "pattern": "^(?:ds\\.(?:0|[1-9][0-9]*)\\.items\\.(?:0|[1-9][0-9]*))(?![\\s\\S])"
+                    },
+                    "field_type": {
+                      "const": 1
+                    },
+                    "value": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "const": "metric"
+                            },
+                            "role": {
+                              "type": "string",
+                              "pattern": "^\\$[a-z][a-z0-9_-]{1,63}(?![\\s\\S])"
+                            },
+                            "selection": {
+                              "enum": [
+                                "all",
+                                "one",
+                                "slot"
+                              ]
+                            },
+                            "slot_id": {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9_-]{1,63}(?![\\s\\S])"
+                            },
+                            "metric": {
+                              "type": "string",
+                              "pattern": "^\\$[a-z][a-z0-9_-]{1,63}(?![\\s\\S])"
+                            }
+                          },
+                          "additionalProperties": false,
+                          "required": [
+                            "kind",
+                            "role",
+                            "selection",
+                            "metric"
+                          ],
+                          "allOf": [
+                            {
+                              "if": {
+                                "properties": {
+                                  "selection": {
+                                    "const": "slot"
+                                  }
+                                }
+                              },
+                              "then": {
+                                "required": [
+                                  "slot_id"
+                                ]
+                              },
+                              "else": {
+                                "not": {
+                                  "required": [
+                                    "slot_id"
+                                  ]
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "const": "unbound"
+                            },
+                            "object": {
+                              "const": "item"
+                            }
+                          },
+                          "additionalProperties": false,
+                          "required": [
+                            "kind",
+                            "object"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "name",
+                    "field_type",
+                    "value"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -11,6 +11,7 @@ mod io;
 mod local_bindings;
 mod metrics;
 mod portable_io;
+mod profiles;
 mod project;
 pub mod strict;
 mod validation;
@@ -34,6 +35,12 @@ pub use portable_io::{
     build_typed_yaml_bytes, load_project_file, load_typed_project_file, package_entry_hashes,
     read_package, read_package_bytes, read_typed_package, read_typed_package_bytes, write_package,
     write_typed_package,
+};
+pub use profiles::{
+    BLUEPRINT_FORMAT, BlueprintAttributes, BlueprintField, BlueprintFieldValue, BlueprintMetric,
+    BlueprintObject, BlueprintParameters, BlueprintRole, BlueprintSize, PROFILE_FORMAT,
+    ReusableWidgetType, StyleAttributes, StyleProfile, StyleSection, StyleThreshold,
+    WidgetBlueprint,
 };
 pub use project::{
     Cardinality, CatalogReference, Dashboard, DashboardKind, GraphExpansion, GraphSeries,

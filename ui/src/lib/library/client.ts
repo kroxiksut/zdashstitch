@@ -18,6 +18,74 @@ export interface CatalogSummary {
 export interface PackagePreview { file: string; sha256: string; size_bytes: number; entry_hashes: Record<string, string> | null; outcome: { status: 'ready' | 'invalid'; version?: 'v1' | 'v2'; kind?: 'page' | 'dashboard'; name?: string; pages?: number; widgets?: number; catalogs?: number; declared_compatibility?: { minimum: string; maximum_exclusive?: string }; registry_compatibility?: { knowledge: 'known' | 'unknown' | 'incompatible'; calculated: { minimum: string; maximum_exclusive?: string } | null; declared_outside_registry: boolean }; dashboards?: Array<{ id: string; name: string; pages: Array<{ id: string; name: string }> }> } }
 export interface PackageDownload { id: string; display_name: string; sha256: string; size_bytes: number; entry_hashes: Record<string, string> }
 export interface SensitiveScan { revision: number; findings: Array<{ kind: 'url' | 'email' | 'ip' | 'macro' | 'unknown' | 'metric_key' | 'mask' | 'path' | 'fqdn' | 'credential' | 'identifier' | 'free_text'; location: string; evidence: 'structural' | 'heuristic' | 'unanalysed' }>; truncated: boolean; unknown_objects: number; credential_candidates: number }
+export type ReusableWidgetType = 'item' | 'svggraph';
+export type ReusableOrigin = 'builtin' | 'file' | 'local';
+export type ReusableKind = 'style_profile' | 'widget_blueprint';
+export type ReusableCompatibility = 'compatible' | 'partial' | 'incompatible';
+export interface ReusableMetadata { name: string; description?: string; tags?: string[] }
+interface ReusableCommon extends ReusableMetadata {
+  adapter: string;
+  version: number;
+  declared_compatibility?: { minimum: string; maximum_exclusive?: string };
+}
+export interface ReusableStyle extends ReusableCommon {
+  format: 'zdashstitch.style-profile/v1';
+  profile_id: string;
+  widget_types: Partial<Record<ReusableWidgetType, {
+    series_palette?: string[]; color_palette?: number; widget_fields?: Record<string, unknown>; [other: string]: unknown;
+  }>>;
+}
+export interface BlueprintRole { param: string; cardinality: 'one' | 'many'; slots?: string[]; description?: string }
+export interface BlueprintMetric { param: string; value_type?: string; units?: string; description?: string }
+export interface ReusableBlueprint extends ReusableCommon {
+  format: 'zdashstitch.widget-blueprint/v1';
+  blueprint_id: string;
+  widget_type: ReusableWidgetType;
+  parameters: { roles: BlueprintRole[]; metrics: BlueprintMetric[] };
+}
+export type ReusableAsset = { kind: 'style_profile'; document: ReusableStyle }
+  | { kind: 'widget_blueprint'; document: ReusableBlueprint };
+export interface ReusableEntry { revision: number; origin: ReusableOrigin; asset: ReusableAsset }
+export interface ReusableImport { name: string; kind: ReusableKind; adapter: string; version: number; existing: [number, ReusableOrigin] | null }
+export type ReusableImportMode = { mode: 'new' | 'copy' } | { mode: 'replace'; expected_revision: number };
+export type RoleAssignment = { role: string; slots: Record<string, string> };
+export type MetricAssignment = { catalog: string; metric: string };
+export interface ReusableAction {
+  asset_id: string; asset_revision: number; expected_revision: number;
+  operation: { kind: 'style'; widget_ids: string[]; mode: 'replace' | 'keep_local' | 'merge'; entire_dashboard?: boolean }
+    | { kind: 'insert'; roles: Record<string, RoleAssignment>; metrics: Record<string, MetricAssignment | null> };
+}
+export type ReusablePreview = { kind: 'style'; widgets: Array<{ page_id: string; page_name: string; widget_id: string; widget_name: string; state: ReusableCompatibility; changes: Array<{ name: string; before: string | null; after: string }> }> }
+  | { kind: 'insert'; unresolved: number };
+export interface CopyStyleState {
+  revision: number;
+  has_style: boolean;
+  undo: boolean;
+  publication: { base_fingerprint: string; local_fingerprint: string; changes: CopyStyleChange[] } | null;
+}
+export interface CopyStyleRequest { expected_revision: number; profile_id: string; profile_revision: number; page: number; widgets?: number[] }
+export interface CopyStyleChange { page: number; widget: number; field: string; before: string; after: string }
+export interface CopyStylePreview { revision: number; skipped: number; changes: CopyStyleChange[] }
+export type CopyBlueprintMetric = { catalog_id: string; version: number; metric_id: string };
+export interface CopyBlueprintRequest {
+  expected_revision: number; blueprint_id: string; blueprint_revision: number; page_id: string;
+  rebind_widget?: string;
+  roles: Record<string, { host: string | null; slots: Record<string, string | null> }>;
+  metrics: Record<string, CopyBlueprintMetric | null>;
+  x: number; y: number;
+}
+export interface CopyBlueprintPreview {
+  revision: number;
+  widget: { id: string; name: string; x: number; y: number; width: number; height: number };
+  unresolved: string[];
+  fingerprint: string;
+}
+export interface CopyBlueprintState {
+  revision: number;
+  has_blueprint: boolean;
+  publication: { base_fingerprint: string; local_fingerprint: string; page_name: string; widget: CopyBlueprintPreview['widget'] } | null;
+}
+export const reusableId = (asset: ReusableAsset): string => asset.kind === 'style_profile' ? asset.document.profile_id : asset.document.blueprint_id;
 export type RedactionTarget = { kind: 'project_id' } | { kind: 'dashboard_id' } | { kind: 'page_id'; page_index: number } | { kind: 'widget_id'; page_index: number; widget_index: number } | { kind: 'dashboard_name' } | { kind: 'page_name'; page_index: number } | { kind: 'widget_name'; page_index: number; widget_index: number } | { kind: 'widget_host_mask'; page_index: number; widget_index: number; field_index: number } | { kind: 'role_alias'; role_index: number } | { kind: 'slot_alias'; role_index: number; slot_index: number } | { kind: 'role_description'; role_index: number } | { kind: 'widget_unresolved_name'; page_index: number; widget_index: number; field_index: number } | { kind: 'widget_text'; page_index: number; widget_index: number; field_index: number } | { kind: 'widget_item_pattern'; page_index: number; widget_index: number; field_index: number } | { kind: 'catalog_template_name'; catalog_index: number } | { kind: 'catalog_metric_name'; catalog_index: number; metric_index: number } | { kind: 'catalog_metric_units'; catalog_index: number; metric_index: number } | { kind: 'catalog_metric_id'; catalog_index: number; metric_index: number } | { kind: 'catalog_id'; catalog_index: number } | { kind: 'catalog_selector_aliases'; catalog_index: number } | { kind: 'catalog_clear_uuids'; catalog_index: number } | { kind: 'catalog_clear_source'; catalog_index: number } | { kind: 'clear_provenance' } | { kind: 'remove_page'; page_index: number } | { kind: 'remove_widget'; page_index: number; widget_index: number };
 export interface RedactionChange { target: RedactionTarget; replacement: string; apply_to_matching?: boolean }
 export interface RedactionPreview { revision: number; sha256: string; changes: Array<{ target: RedactionTarget; request_index: number; before_chars: number; after_chars: number; before_masked: string }>; remaining: Omit<SensitiveScan, 'revision'> }
@@ -47,6 +115,7 @@ export interface OfflinePage {
   catalog_versions: Array<{ catalog_id: string; version: number }>;
   embedded_catalogs?: string[];
   recovery?: { may_have_unsaved_changes: boolean; last_saved_at_ms: number };
+  reusable?: { marks: Record<string, { profile_id: string; profile_version: number; profile_name: string; fields: Record<string, string>; applied_at_ms: number }>; undo: boolean; redo: boolean };
   widget_evaluation: OfflineWidgetEvaluation;
   bundle: {
     project: {
@@ -209,6 +278,49 @@ export function createCatalogClient(fetcher: typeof fetch = (...args) => fetch(.
   }
 
   return {
+    copyStyleState: (id: string) => request<CopyStyleState>(`/api/drafts/${encodeURIComponent(id)}/reusable-style`),
+    copyBlueprintState: (id: string) => request<CopyBlueprintState>(`/api/drafts/${encodeURIComponent(id)}/reusable-blueprint`),
+    copyBlueprint: (id: string, action: CopyBlueprintRequest, approved_fingerprint?: string, allow_unbound = false) =>
+      request<CopyBlueprintPreview>(`/api/drafts/${encodeURIComponent(id)}/reusable-blueprint`, 'POST', { action, approved_fingerprint, allow_unbound }),
+    copyBlueprintHosts: (id: string, search: string) =>
+      request<{ hosts: Array<{ hostid: string; name: string }>; truncated: boolean }>(
+        `/api/drafts/${encodeURIComponent(id)}/reusable-blueprint-hosts`, 'POST', { search }),
+    copyStyle: (id: string, action: CopyStyleRequest, apply: boolean) =>
+      request<CopyStylePreview>(`/api/drafts/${encodeURIComponent(id)}/reusable-style`, 'POST', { action, apply }),
+    undoCopyStyle: (id: string, expected_revision: number) =>
+      request<CopyStyleState>(`/api/drafts/${encodeURIComponent(id)}/reusable-style-undo`, 'POST', { expected_revision }),
+    reusable: () => request<ReusableEntry[]>(`${base}/reusable`),
+    createReusable: (asset: ReusableAsset) => request<ReusableEntry>(`${base}/reusable`, 'POST', asset),
+    renameReusable: (id: string, expected_revision: number, metadata: ReusableMetadata) =>
+      request<ReusableEntry>(`${base}/reusable/${encodeURIComponent(id)}/metadata`, 'POST', { expected_revision, metadata }),
+    updateReusableStyle: (document: ReusableStyle, expected_revision: number) =>
+      request<ReusableEntry>(`${base}/reusable/${encodeURIComponent(document.profile_id)}/style`, 'POST', { expected_revision, document }),
+    duplicateReusable: (id: string, expected_revision: number) =>
+      request<ReusableEntry>(`${base}/reusable/${encodeURIComponent(id)}/duplicate`, 'POST', { expected_revision }),
+    deleteReusable: (id: string, expected_revision: number) =>
+      request<{}>(`${base}/reusable/${encodeURIComponent(id)}/delete`, 'POST', { expected_revision }),
+    scanReusable: (id: string) => request<{ revision: number; scan: Omit<SensitiveScan, 'revision'> }>(`${base}/reusable/${encodeURIComponent(id)}/scan`),
+    exportReusable: (id: string, expected_revision: number) =>
+      request<{ id: string; display_name: string }>(`${base}/reusable/${encodeURIComponent(id)}/export`, 'POST', { expected_revision, acknowledged: true }),
+    saveReusable: (id: string, expected_revision: number) =>
+      request<{ cancelled: boolean }>(`${base}/reusable/${encodeURIComponent(id)}/save`, 'POST', { expected_revision, acknowledged: true }),
+    chooseReusable: () => request<{ id: string; preview: ReusableImport } | { id: null }>(`${base}/reusable/import-choose`, 'POST'),
+    async inspectReusable(file: File): Promise<{ id: string; preview: ReusableImport }> {
+      const { id } = await request<{ id: string }>('/api/upload-sets', 'POST');
+      const encoded = encodeURIComponent(id);
+      await request(`/api/uploads/${encoded}/files/${encodeURIComponent(file.name)}`, 'POST', file);
+      return request<{ id: string; preview: ReusableImport }>(`${base}/reusable/import/${encoded}/inspect`, 'POST');
+    },
+    runReusableImport: (id: string, mode: ReusableImportMode) =>
+      request<ReusableEntry>(`${base}/reusable/import/${encodeURIComponent(id)}/run`, 'POST', mode),
+    reusableAction: (id: string, action: ReusableAction, apply: boolean) =>
+      request<{ preview: ReusablePreview; page?: OfflinePage }>(`${pageBase}/${encodeURIComponent(id)}/reusable`, 'POST', { action, apply }, editHeaders(id)),
+    reusableHistory: (id: string, expected_revision: number, redo: boolean) =>
+      request<OfflinePage>(`${pageBase}/${encodeURIComponent(id)}/reusable-history`, 'POST', { expected_revision, action: { kind: 'switch', redo } }, editHeaders(id)),
+    detachReusable: (id: string, expected_revision: number, widget_id: string) =>
+      request<OfflinePage>(`${pageBase}/${encodeURIComponent(id)}/reusable-history`, 'POST', { expected_revision, action: { kind: 'detach', widget_id } }, editHeaders(id)),
+    extractReusable: (id: string, expected_revision: number, widget_id: string, name: string, kind: ReusableKind) =>
+      request<ReusableEntry>(`${pageBase}/${encodeURIComponent(id)}/reusable-extract`, 'POST', { expected_revision, widget_id, name, kind }),
     index: () => request<LibraryIndex>(`${base}/index`),
     snapshots: () => request<{ snapshots: SnapshotSummary[]; damaged: Array<{ library_id: string; code: string }>; references_incomplete: boolean }>(`${base}/snapshots`),
     compareSnapshots: (left: string, right: string) => request<SnapshotComparison>(`${base}/snapshots/compare`, 'POST', { left, right }),

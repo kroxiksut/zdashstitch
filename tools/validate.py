@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import copy
 import json
+import math
 import os
 from pathlib import Path
 import re
@@ -151,6 +152,97 @@ def assert_valid(data, sc):
     problems = list(Draft202012Validator(sc, format_checker=FormatChecker()).iter_errors(data))
     if problems:
         raise ValueError('Schema: ' + ' | '.join(x.message for x in problems[:5]))
+
+
+REUSABLE_SCHEMAS = {
+    'zdashstitch.style-profile/v1': 'style-profile.schema.json',
+    'zdashstitch.widget-blueprint/v1': 'widget-blueprint.schema.json',
+}
+
+
+def validate_reusable(data):
+    """Check standalone profile/blueprint shape and parameter relationships."""
+    format_name = data.get('format') if isinstance(data, dict) else None
+    name = REUSABLE_SCHEMAS.get(format_name) if isinstance(format_name, str) else None
+    if name is None:
+        raise ValueError('Unsupported profile or blueprint format')
+    assert_valid(data, schema(name))
+    validate_reusable_integer_shapes(data)
+    tags = data.get('tags', [])
+    if len(tags) != len({tag.lower() for tag in tags}):
+        raise ValueError('Duplicate tags')
+    compatible = data.get('declared_compatibility', {})
+    for value in compatible.values():
+        if any(part > 2**32 - 1 for part in parsed_version(value)[:3]):
+            raise ValueError('Compatibility version component is outside u32')
+    if ('maximum_exclusive' in compatible
+            and parsed_version(compatible['minimum']) >= parsed_version(compatible['maximum_exclusive'])):
+        raise ValueError('Empty compatibility range')
+    if 'widget_types' in data:
+        thresholds = [entry['threshold'] for entry in data['widget_types'].get('item', {}).get('thresholds', [])]
+        if len(thresholds) != len(set(thresholds)) or any(not math.isfinite(float(v)) for v in thresholds):
+            raise ValueError('Duplicate or invalid threshold')
+    else:
+        validate_blueprint_references(data)
+    return data
+
+
+def validate_reusable_integer_shapes(value):
+    if isinstance(value, float):
+        raise ValueError('Integer fields require integer syntax')
+    if isinstance(value, dict):
+        for child in value.values():
+            validate_reusable_integer_shapes(child)
+    elif isinstance(value, list):
+        for child in value:
+            validate_reusable_integer_shapes(child)
+
+
+def validate_blueprint_references(data):
+    roles = {obj['param']: obj for obj in data['parameters']['roles']}
+    metrics = {obj['param']: obj for obj in data['parameters']['metrics']}
+    if (len(roles) != len(data['parameters']['roles'])
+            or len(metrics) != len(data['parameters']['metrics']) or roles.keys() & metrics):
+        raise ValueError('Duplicate blueprint parameter')
+    fields = {field['name']: field['value'] for field in data['fields']}
+    if len(fields) != len(data['fields']):
+        raise ValueError('Duplicate blueprint field')
+    used = set()
+    pattern_hosts, pattern_metrics = {}, []
+    for name, value in fields.items():
+        if value['kind'] not in ('host', 'metric'):
+            continue
+        role = value['role'][1:]
+        selection, slot = value['selection'], value.get('slot_id')
+        if role not in roles:
+            raise ValueError('Undeclared blueprint role')
+        if (selection == 'one' and roles[role]['cardinality'] != 'one'
+                or selection == 'slot' and slot not in roles[role].get('slots', [])):
+            raise ValueError('Invalid blueprint selection')
+        used.add(role)
+        source = (role, selection, slot)
+        if value['kind'] == 'metric':
+            metric = value['metric'][1:]
+            if metric not in metrics:
+                raise ValueError('Undeclared blueprint metric')
+            used.add(metric)
+            if '.items.' in name:
+                pattern_metrics.append((name.split('.items.', 1)[0], source))
+        elif '.hosts.' in name:
+            pattern_hosts.setdefault(name.split('.hosts.', 1)[0], set()).add(source)
+    if used != roles.keys() | metrics:
+        raise ValueError('Unused blueprint parameter')
+    if any(source not in pattern_hosts.get(dataset, ()) for dataset, source in pattern_metrics):
+        raise ValueError('Pattern metric has no matching explicit host selection')
+    if data['widget_type'] == 'item':
+        complete = 'itemid.0' in fields
+    else:
+        complete = any(
+            name.endswith('.itemids.0')
+            or name.endswith('.items.0') and name.removesuffix('.items.0') + '.hosts.0' in fields
+            for name in fields)
+    if not complete:
+        raise ValueError('Widget source missing')
 
 
 def catalog_normalized_source(entry):
@@ -730,8 +822,13 @@ if __name__ == '__main__':
             print('PASS package', argv[1])
         else:
             p = Path(argv[0]) if argv else ROOT / 'examples/db-pilot.yaml'
-            validate_project(p)
-            print('PASS project', p)
+            data = load(p)
+            if isinstance(data, dict) and isinstance(data.get('format'), str) and data['format'] in REUSABLE_SCHEMAS:
+                validate_reusable(data)
+                print('PASS reusable widget file', p)
+            else:
+                validate_project(p)
+                print('PASS project', p)
     except (OSError, ValueError, zipfile.BadZipFile, yaml.YAMLError) as exc:
         print('FAIL', exc, file=sys.stderr)
         raise SystemExit(1)

@@ -298,7 +298,7 @@ impl WorkcopyService {
         parse_log(&file.operations, &file.base.fingerprint)?;
         file.revision = file.revision.saturating_add(1);
         file.updated_at_ms = crate::workcopy::now_ms().max(file.updated_at_ms);
-        self.store.replace_workcopy(&file)?;
+        self.store.replace_workcopy_if_revision(&file, revision)?;
         Ok(file)
     }
 
@@ -643,6 +643,15 @@ impl WorkcopyService {
         local_id: &str,
     ) -> Result<VersionedDashboardSnapshot, WorkcopyError> {
         let (_, base, operations) = self.load_log(local_id)?;
+        // Existing server write planners use this accessor. A new local
+        // operation needs an independently validated protocol before it can
+        // enter those plans. Portable conversion can replay it separately.
+        if operations
+            .iter()
+            .any(|op| matches!(op, Operation::Style(_)))
+        {
+            return Err(WorkcopyError::new("reusable_workcopy_publish_unsupported"));
+        }
         materialize_local_operations(base, &operations)
     }
 }
@@ -651,17 +660,32 @@ pub(crate) fn materialize_local_operations(
     base: VersionedDashboardSnapshot,
     operations: &[Operation],
 ) -> Result<VersionedDashboardSnapshot, WorkcopyError> {
-    let Some(log) = ReplaceHostLog::of(operations) else {
-        return Ok(base);
+    if operations
+        .iter()
+        .any(|op| matches!(op, Operation::AddWidget(_)))
+    {
+        return Err(WorkcopyError::new("reusable_workcopy_publish_unsupported"));
+    }
+    materialize_existing_widgets(base, operations)
+}
+
+pub(crate) fn materialize_existing_widgets(
+    base: VersionedDashboardSnapshot,
+    operations: &[Operation],
+) -> Result<VersionedDashboardSnapshot, WorkcopyError> {
+    let local = if let Some(log) = ReplaceHostLog::of(operations) {
+        let current = rows(
+            &log,
+            &Freshness {
+                server_version: None,
+                fresh: None,
+            },
+        );
+        materialize(&base, &changes(&current))?
+    } else {
+        base
     };
-    let current = rows(
-        &log,
-        &Freshness {
-            server_version: None,
-            fresh: None,
-        },
-    );
-    materialize(&base, &changes(&current))
+    crate::workcopy::reusable::overlay_style(local, operations)
 }
 
 #[cfg(test)]

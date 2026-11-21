@@ -1,0 +1,607 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zdashstitch.example/schemas/style-profile.schema.json",
+  "title": "ZDashstitch style profile v1",
+  "type": "object",
+  "properties": {
+    "format": {
+      "const": "zdashstitch.style-profile/v1"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120,
+      "pattern": "^[^\\u0000-\\u001F\\u007F-\\u009F]*\\S[^\\u0000-\\u001F\\u007F-\\u009F]*(?![\\s\\S])"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 0,
+      "maxLength": 2000
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 40
+      },
+      "minItems": 0,
+      "maxItems": 20,
+      "uniqueItems": true
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 4294967295
+    },
+    "adapter": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+(?![\\s\\S])"
+    },
+    "declared_compatibility": {
+      "type": "object",
+      "properties": {
+        "minimum": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*\\.[0-9]+(?:\\.[0-9]+)?(?:[A-Za-z][A-Za-z0-9._-]*)?(?![\\s\\S])"
+        },
+        "maximum_exclusive": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*\\.[0-9]+(?:\\.[0-9]+)?(?:[A-Za-z][A-Za-z0-9._-]*)?(?![\\s\\S])"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "minimum"
+      ]
+    },
+    "profile_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}(?![\\s\\S])"
+    },
+    "widget_types": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "type": "object",
+          "properties": {
+            "widget_fields": {
+              "type": "object",
+              "properties": {
+                "desc_h_pos": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "desc_v_pos": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "desc_size": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "desc_bold": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "value_h_pos": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "value_v_pos": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "value_size": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "value_bold": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "decimal_places": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "decimal_size": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "units_show": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "units_pos": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "units_size": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "units_bold": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "time_h_pos": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "time_v_pos": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "time_size": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "time_bold": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "sparkline.width": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "sparkline.fill": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "units": {
+                  "type": "string",
+                  "minLength": 0,
+                  "maxLength": 255
+                },
+                "desc_color": {
+                  "type": "string",
+                  "pattern": "^[0-9A-F]{6}(?![\\s\\S])"
+                },
+                "value_color": {
+                  "type": "string",
+                  "pattern": "^[0-9A-F]{6}(?![\\s\\S])"
+                },
+                "units_color": {
+                  "type": "string",
+                  "pattern": "^[0-9A-F]{6}(?![\\s\\S])"
+                },
+                "time_color": {
+                  "type": "string",
+                  "pattern": "^[0-9A-F]{6}(?![\\s\\S])"
+                },
+                "up_color": {
+                  "type": "string",
+                  "pattern": "^[0-9A-F]{6}(?![\\s\\S])"
+                },
+                "down_color": {
+                  "type": "string",
+                  "pattern": "^[0-9A-F]{6}(?![\\s\\S])"
+                },
+                "updown_color": {
+                  "type": "string",
+                  "pattern": "^[0-9A-F]{6}(?![\\s\\S])"
+                },
+                "bg_color": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^[0-9A-F]{6}(?![\\s\\S])"
+                    },
+                    {
+                      "const": ""
+                    }
+                  ]
+                },
+                "sparkline.color": {
+                  "type": "string",
+                  "pattern": "^[0-9A-F]{6}(?![\\s\\S])"
+                },
+                "show": {
+                  "type": "array",
+                  "items": {
+                    "enum": [
+                      1,
+                      2,
+                      3,
+                      4,
+                      5
+                    ]
+                  },
+                  "minItems": 1,
+                  "maxItems": 5,
+                  "uniqueItems": true
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "show"
+              ]
+            },
+            "thresholds": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "threshold": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 32,
+                    "pattern": "^[+-]?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?(?![\\s\\S])"
+                  },
+                  "color": {
+                    "type": "string",
+                    "pattern": "^[0-9A-F]{6}(?![\\s\\S])"
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "threshold",
+                  "color"
+                ]
+              },
+              "minItems": 0,
+              "maxItems": 64
+            },
+            "thresholds_units": {
+              "type": "string",
+              "minLength": 0,
+              "maxLength": 32
+            },
+            "attributes": {
+              "type": "object",
+              "properties": {
+                "view_mode": {
+                  "enum": [
+                    0,
+                    1
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "view_mode"
+              ]
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "widget_fields"
+          ],
+          "dependentSchemas": {
+            "thresholds_units": {
+              "required": [
+                "thresholds"
+              ],
+              "properties": {
+                "thresholds": {
+                  "minItems": 1
+                }
+              }
+            }
+          }
+        },
+        "svggraph": {
+          "type": "object",
+          "properties": {
+            "widget_fields": {
+              "type": "object",
+              "properties": {
+                "lefty": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "righty": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "axisx": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "legend": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "legend_statistic": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "legend_aggregation": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "legend_lines_mode": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "legend_lines": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "legend_columns": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "show_problems": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "graph_item_problems": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "simple_triggers": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "working_time": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "percentile_left": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "percentile_right": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "lefty_units": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "righty_units": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "lefty_min": {
+                  "type": "string",
+                  "minLength": 0,
+                  "maxLength": 2048
+                },
+                "lefty_max": {
+                  "type": "string",
+                  "minLength": 0,
+                  "maxLength": 2048
+                },
+                "righty_min": {
+                  "type": "string",
+                  "minLength": 0,
+                  "maxLength": 2048
+                },
+                "righty_max": {
+                  "type": "string",
+                  "minLength": 0,
+                  "maxLength": 2048
+                },
+                "lefty_static_units": {
+                  "type": "string",
+                  "minLength": 0,
+                  "maxLength": 2048
+                },
+                "righty_static_units": {
+                  "type": "string",
+                  "minLength": 0,
+                  "maxLength": 2048
+                },
+                "percentile_left_value": {
+                  "type": "string",
+                  "minLength": 0,
+                  "maxLength": 2048
+                },
+                "percentile_right_value": {
+                  "type": "string",
+                  "minLength": 0,
+                  "maxLength": 2048
+                }
+              },
+              "additionalProperties": false
+            },
+            "dataset_fields": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "stacked": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "width": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "pointsize": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "transparency": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "fill": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "axisy": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                },
+                "missingdatafunc": {
+                  "type": "integer",
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
+                }
+              },
+              "additionalProperties": false
+            },
+            "series_palette": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[0-9A-F]{6}(?![\\s\\S])"
+              },
+              "minItems": 1,
+              "maxItems": 64
+            },
+            "color_palette": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2147483647
+            },
+            "attributes": {
+              "type": "object",
+              "properties": {
+                "view_mode": {
+                  "enum": [
+                    0,
+                    1
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "view_mode"
+              ]
+            }
+          },
+          "additionalProperties": false,
+          "anyOf": [
+            {
+              "required": [
+                "widget_fields"
+              ],
+              "properties": {
+                "widget_fields": {
+                  "minProperties": 1
+                }
+              }
+            },
+            {
+              "required": [
+                "dataset_fields"
+              ],
+              "properties": {
+                "dataset_fields": {
+                  "minProperties": 1
+                }
+              }
+            },
+            {
+              "required": [
+                "series_palette"
+              ]
+            },
+            {
+              "required": [
+                "color_palette"
+              ]
+            },
+            {
+              "required": [
+                "attributes"
+              ]
+            }
+          ],
+          "not": {
+            "required": [
+              "series_palette",
+              "color_palette"
+            ]
+          }
+        }
+      },
+      "additionalProperties": false,
+      "minProperties": 1
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "format",
+    "profile_id",
+    "name",
+    "version",
+    "adapter",
+    "widget_types"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "adapter": {
+            "not": {
+              "enum": [
+                "8.0"
+              ]
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "widget_types": {
+            "properties": {
+              "item": {
+                "properties": {
+                  "widget_fields": {
+                    "properties": {
+                      "bg_color": {
+                        "type": "string",
+                        "pattern": "^[0-9A-F]{6}(?![\\s\\S])"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -18,6 +18,7 @@
   import type { ActiveConnection, ConnectionProfile } from '../connections/client';
   import RedactionPreview from './RedactionPreview.svelte';
   import SaveAsButton from './SaveAsButton.svelte';
+  import ReusablePageActions from './ReusablePageActions.svelte';
   import type { FixedLayout } from './editor-geometry';
   import { PageEditingSession, type EditorAccess } from './editor-session';
   import { PageClipboard, type ClipboardCode, type ClipboardContent, type ClipboardContext, type ClipboardIssue } from './editor-clipboard';
@@ -210,6 +211,19 @@
     commitChange('editor.op.edit_field');
     const snapshot = redo ? memoryHistory?.redo() : memoryHistory?.undo();
     if (snapshot) applySnapshot(snapshot);
+    else if (opened && !dirty && (redo ? opened.reusable?.redo : opened.reusable?.undo)) {
+      void moveReusableHistory(opened, redo);
+    }
+  }
+  async function moveReusableHistory(page: OfflinePage, redo: boolean): Promise<void> {
+    busy = true; error = false;
+    try { const updated = await client.reusableHistory(page.local_id, page.revision, redo); hydrate(updated); onchanged?.(updated); }
+    catch (failure) {
+      if (failure instanceof ApiFailure && failure.response?.code === 'offline_page_edit_lost') editingSession.lost();
+      else if (failure instanceof ApiFailure && failure.response?.code === 'offline_page_conflict') conflict = true;
+      else error = true;
+    }
+    finally { busy = false; }
   }
   function titleOf(widget: NewOfflinePage['widgets'][number]): string {
     if (widget.kind !== 'preserved') return widget.title;
@@ -561,8 +575,8 @@
   {/if}
   {#if opened?.recovery?.may_have_unsaved_changes}<p role="alert">{i18n.t('offline_editor.recovery', { time: opened.recovery.last_saved_at_ms })}</p>{/if}
   <div class="actions">
-    <button type="button" disabled={busy || conflict || undoAction === null || selected.length > 0 || !!widgetTitle.trim() || !!roleId.trim() || !!slotLines.trim()} onclick={() => undo()}>{i18n.t('editor.action.undo', { action: undoAction ? i18n.t(undoAction, { field: i18n.t('offline_builder.widgets') }) : i18n.t('offline_editor.no_history') })}</button>
-    <button type="button" disabled={busy || conflict || redoAction === null || selected.length > 0 || !!widgetTitle.trim() || !!roleId.trim() || !!slotLines.trim()} onclick={() => undo(true)}>{i18n.t('editor.action.redo', { action: redoAction ? i18n.t(redoAction, { field: i18n.t('offline_builder.widgets') }) : i18n.t('offline_editor.no_history') })}</button>
+    <button type="button" disabled={busy || !canEdit || conflict || (undoAction === null && (dirty || !opened?.reusable?.undo)) || pendingInput} onclick={() => undo()}>{i18n.t('editor.action.undo', { action: undoAction ? i18n.t(undoAction, { field: i18n.t('offline_builder.widgets') }) : i18n.t(opened?.reusable?.undo ? 'reusable.history_action' : 'offline_editor.no_history') })}</button>
+    <button type="button" disabled={busy || !canEdit || conflict || (redoAction === null && (dirty || !opened?.reusable?.redo)) || pendingInput} onclick={() => undo(true)}>{i18n.t('editor.action.redo', { action: redoAction ? i18n.t(redoAction, { field: i18n.t('offline_builder.widgets') }) : i18n.t(opened?.reusable?.redo ? 'reusable.history_action' : 'offline_editor.no_history') })}</button>
   </div>
   {#if historyTruncated}<p>{i18n.t('offline_editor.history_limit')}</p>{/if}
   <p class="muted">{i18n.t('settings.autosave.title')}: {i18n.t(autosaveEnabled ? 'settings.editor.on' : 'settings.editor.off')} · <a href={settingsPath('editor')}>{i18n.t('settings.editor.title')}</a></p>
@@ -636,6 +650,9 @@
   <input id="offline-page-name" maxlength="200" disabled={busy} readonly={!canEdit} bind:value={name}
     oninput={() => { void tick().then(() => { if (opened) autosaver.changed(); }); }}
     onblur={() => commitChange('editor.op.page')} onkeydown={(event) => { if (event.key === 'Enter') commitChange('editor.op.page'); }} />
+  {#if opened}
+    <ReusablePageActions {i18n} {client} page={opened} {selectedWidgetIds} allowDashboardScope={dashboardId !== undefined} disabled={dirty || busy || conflict || !canEdit} onpending={(pending) => { busy = pending; }} onupdated={(page) => { hydrate(page); onchanged?.(page); }} />
+  {/if}
   {#if opened || widgets.length > 0}<EditorCanvas {i18n} {widgets} {defaultZoom} {showGrid} titles={widgets.map(titleOf)} {findings} selectedIds={selectedWidgetIds} onselection={(ids) => selectedWidgetIds = ids} ongroupmove={groupGeometry} ongroupremove={removeSelection} disabled={busy || conflict || !canEdit} onchange={geometry} onremove={removeWidget} onduplicate={duplicateWidget} />{/if}
   <fieldset class="editor-fields" disabled={!canEdit}>
   <fieldset disabled={busy || dashboardId !== undefined}>

@@ -76,10 +76,11 @@ pub use widget_capabilities::{
     WidgetFieldType,
 };
 pub use write::{
-    DashboardPublishOutcome, MAX_FIELD_REPLACEMENTS, MAX_REPLACE_HOST_LLD_CANDIDATES,
-    PublicationContext, RESEND_PROVEN_WIDGET_TYPES, UnprovenWidget, VerifiedDashboardUpdate,
-    WidgetFieldReplacement, WriteRejection, WriteRejectionCode, WriteRequirements,
-    verify_widget_field_replacements, write_requirements,
+    BlueprintItemBinding, DashboardPublishOutcome, MAX_FIELD_REPLACEMENTS,
+    MAX_REPLACE_HOST_LLD_CANDIDATES, PublicationContext, RESEND_PROVEN_WIDGET_TYPES,
+    UnprovenWidget, VerifiedDashboardUpdate, WidgetFieldReplacement, WriteRejection,
+    WriteRejectionCode, WriteRequirements, can_preview_blueprint_append,
+    verify_widget_field_replacements, verify_workcopy_style_replacements, write_requirements,
 };
 
 /// Adapter family targeted by the current MVP.

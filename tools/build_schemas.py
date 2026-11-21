@@ -1,6 +1,7 @@
 import json
 import copy
 from pathlib import Path
+from profile_schemas import reusable_schemas
 root=Path(__file__).resolve().parent.parent
 slug={'type':'string','pattern':'^[a-z][a-z0-9_-]{1,63}$'}
 nonempty={'type':'string','minLength':1,'maxLength':200}
@@ -150,6 +151,6 @@ deployment_v2['properties'].update({'root_id':slug,'source_revision':{'type':'in
     'adapter_id':{'type':'string','pattern':'^[a-z][a-z0-9._-]{1,63}$'},
  'dashboard_name':{'type':'string','minLength':1,'maxLength':255}})
 
-for filename,obj in [('project-v1.schema.json',project),('project-v2.schema.json',project_v2),('metrics-v1.schema.json',metric_schema),('metrics-v2.schema.json',metric_schema_v2),('local-bindings-v1.schema.json',local),('deployment-state-v1.schema.json',deployment),('deployment-state-v2.schema.json',deployment_v2)]:
+for filename,obj in [('project-v1.schema.json',project),('project-v2.schema.json',project_v2),('metrics-v1.schema.json',metric_schema),('metrics-v2.schema.json',metric_schema_v2),('local-bindings-v1.schema.json',local),('deployment-state-v1.schema.json',deployment),('deployment-state-v2.schema.json',deployment_v2),*reusable_schemas(root)]:
  (root/'schemas'/filename).write_bytes((json.dumps(obj,ensure_ascii=False,indent=2)+'\n').encode('utf-8'))
  print(filename)

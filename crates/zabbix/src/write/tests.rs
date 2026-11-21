@@ -45,6 +45,7 @@ fn all_contracts() -> DashboardWriteContracts {
         svggraph_dataset_itemids: supported,
         svggraph_dataset_hosts: supported,
         classic_graph_graphid: supported,
+        ..DashboardWriteContracts::unproven()
     }
 }
 

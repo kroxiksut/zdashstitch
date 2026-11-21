@@ -178,7 +178,7 @@
 | `tags` | array[string] | нет | ≤ 20 элементов, каждый 1–40, уникальны без учёта регистра |
 | `version` | integer | да | ≥ 1 |
 | `adapter` | string | да | enum `["7.4"]` в v1 этой версии приложения; иное значение — не ошибка схемы, а состояние `unknown` при импорте (`adapter_unsupported`) — схема допускает `^[0-9]+\.[0-9]+$` |
-| `declared_compatibility` | object | нет | `{minimum: "7.4.0", maximum?: "7.4.x"}` по O-029; `maximum ≥ minimum` |
+| `declared_compatibility` | object | нет | `{minimum: "7.4.0", maximum_exclusive?: "8.0.0"}`; одна семантика с `project/v2`, `maximum_exclusive > minimum` |
 | `widget_types` | object | да | ≥ 1 ключ; ключи enum `svggraph`, `item` |
 | `widget_types.svggraph` | object | — | `widget_fields` (object), `dataset_fields` (object), `series_palette` (array[color], ≤ 64), `color_palette` (integer ≥ 0), `attributes` (object); хотя бы одно из `widget_fields`/`dataset_fields`/`series_palette`/`color_palette`/`attributes` непусто; `series_palette` и `color_palette` взаимоисключающие |
 | `widget_types.svggraph.widget_fields` | object | — | ключи только из §3.1 «профиль»+«по выбору» уровня виджета; типы: integer для 0-полей, string для 1-полей (`lefty_min`, `lefty_max`, `righty_min`, `righty_max`, `lefty_static_units`, `righty_static_units`, `percentile_*_value`) |
@@ -187,7 +187,7 @@
 | `widget_types.item.widget_fields` | object | — | ключи из §3.1 для `item`; цвета — color; `units` — string ≤ 255 |
 | `widget_types.item.thresholds[]` | object | — | `{threshold: string (число, ≤ 32), color: color}`, оба обязательны; ≤ 64 элементов; `threshold` уникальны |
 | `*.attributes` | object | — | `view_mode`: integer 0/1 (только класс «по выбору») |
-| color | string | — | `^[0-9A-F]{6}$` (верхний регистр, как хранит Zabbix) |
+| color | string | — | `^[0-9A-F]{6}$` (верхний регистр, как хранит Zabbix); пустая строка означает сброс только у поля с независимым подтверждением для адаптера (OQ-P4-05) |
 
 Пример (как в P1-06A §4, дополнен): см. §8.3.
 
@@ -203,11 +203,13 @@
 | `default_size` | object | да | `{width: 1–72, height: 1–64}` целые |
 | `attributes` | object | нет | `view_mode` 0/1, `rf_rate` integer (допустимые значения Zabbix, проверка `application`) |
 | `parameters` | object | да | `roles` (array), `metrics` (array); суммарно ≥ 0; имена `param` уникальны между ролями и метриками, `^[a-z][a-z0-9_-]{1,63}$` |
-| `parameters.roles[]` | object | — | `{param, cardinality: one|many, description?: ≤ 500}` |
+| `parameters.roles[]` | object | — | `{param, cardinality: one|many, slots?: [slug], description?: ≤ 500}`; `slots` называет разрешённые слоты роли `many` |
 | `parameters.metrics[]` | object | — | `{param, value_type?: enum numeric_float|numeric_unsigned|character|log|text, units?: ≤ 255, description?}`; ключа элемента, каталога или селектора нет и не будет (В-14): метрика выбирается при вставке |
-| `fields[]` | array[object] | да | ≥ 1; каждый `{name, field_type, value}`: `name` — имя поля API `^[a-z][a-z0-9_.]{0,127}$`, уникально; `field_type` — целое `ZBX_WIDGET_FIELD_TYPE_*` (P1-IN-10); `value` — одно из: `{kind: integer, value: int}`, `{kind: string, value: string ≤ 2048}`, `{kind: host, role: "$<param>", selection: all|one}` (только для типов-ссылок на узлы), `{kind: metric, metric: "$<param>"}` (ссылки на элементы), `{kind: unbound, object: host|item}` (без отображаемого имени — в заготовке оно запрещено) |
+| `fields[]` | array[object] | да | ≥ 1; каждый `{name, field_type, value}`: `name` — имя поля API `^[a-z][a-z0-9_.]{0,127}$`, уникально; `field_type` — целое `ZBX_WIDGET_FIELD_TYPE_*` (P1-IN-10); `value` — одно из: `{kind: integer, value: int}`, `{kind: string, value: string ≤ 2048}`, `{kind: host, role: "$<param>", selection: all|one|slot, slot_id?: slug}`, `{kind: metric, metric: "$<param>", role: "$<param>", selection: one|slot, slot_id?: slug}`, `{kind: unbound, object: host|item}` (без отображаемого имени) |
 | запреты в `fields[].name` | — | — | `reference`; любое `*._reference`; `or.*` (`or.N.*`); `problemhosts.N`, `hostids.N`, `groupids.N` литералом (только `{kind: host}` или `unbound`); `ds.N.hosts.M`, `ds.N.items.M`, `ds.N.itemids.M`, `itemid.N`, `override_hostid.N` литералом (только `host`/`metric`/`unbound`) |
 | связность | — | — | каждый `$param` в `fields` объявлен; каждый объявленный параметр использован ≥ 1 раз; `item` содержит `itemid.0`; `svggraph` содержит ≥ 1 набор `ds.N` с (`hosts.0` и `items.0`) или `itemids.0` |
+
+Для прямой ссылки на элемент переход к `project/v2` требует ровно одного узла сети. `one` ссылается на роль `one`, `slot` указывает описанный в роли `many` именованный слот. Для `ds.N.items.M` ссылка также содержит собственную роль и выбор. Связанные поля `ds.N.hosts.M` должны описывать те же источники. Возможность представить параметр в файле и возможность локального преобразования или записи конкретной формы проверяются отдельно.
 
 ### 8.3 Примеры (эталоны для fixtures)
 
@@ -226,7 +228,7 @@ widget_types:
     dataset_fields: { type: 3, stacked: 1, transparency: 3 }
     series_palette: ["3156A3", "8B5CF6", "1F6B43"]
   item:
-    widget_fields: { show: [1, 2], value_size: 45, value_bold: 1, units_show: 1, units_size: 35, bg_color: "" }
+    widget_fields: { show: [1, 2], value_size: 45, value_bold: 1, units_show: 1, units_size: 35, bg_color: "FFFFFF" }
     thresholds: [{ threshold: "80", color: "E8A33D" }, { threshold: "95", color: "A32935" }]
     thresholds_units: "%"
 ```
@@ -240,19 +242,17 @@ adapter: "7.4"
 widget_type: svggraph
 default_size: { width: 24, height: 6 }
 parameters:
-  roles:   [{ param: cpu_hosts, cardinality: many, description: "Узлы для графика CPU" }]
+  roles:   [{ param: cpu_hosts, cardinality: many, slots: [cpu-primary, cpu-secondary], description: "Узлы для графика CPU" }]
   metrics:
     - { param: cpu_util, value_type: numeric_float, units: "%", description: "Загрузка CPU" }
     - { param: load_avg, value_type: numeric_float, description: "Средняя нагрузка" }
 fields:
-  - { name: ds.0.dataset_type, field_type: 0, value: { kind: integer, value: 1 } }
-  - { name: ds.0.hosts.0,      field_type: 1, value: { kind: host, role: "$cpu_hosts", selection: all } }
-  - { name: ds.0.items.0,      field_type: 1, value: { kind: metric, metric: "$cpu_util" } }
+  - { name: ds.0.dataset_type, field_type: 0, value: { kind: integer, value: 0 } }
+  - { name: ds.0.itemids.0,    field_type: 4, value: { kind: metric, metric: "$cpu_util", role: "$cpu_hosts", selection: slot, slot_id: cpu-primary } }
   - { name: ds.0.type,         field_type: 0, value: { kind: integer, value: 0 } }
   - { name: ds.0.width,        field_type: 0, value: { kind: integer, value: 2 } }
-  - { name: ds.1.dataset_type, field_type: 0, value: { kind: integer, value: 1 } }
-  - { name: ds.1.hosts.0,      field_type: 1, value: { kind: host, role: "$cpu_hosts", selection: all } }
-  - { name: ds.1.items.0,      field_type: 1, value: { kind: metric, metric: "$load_avg" } }
+  - { name: ds.1.dataset_type, field_type: 0, value: { kind: integer, value: 0 } }
+  - { name: ds.1.itemids.0,    field_type: 4, value: { kind: metric, metric: "$load_avg", role: "$cpu_hosts", selection: slot, slot_id: cpu-secondary } }
   - { name: ds.1.axisy,        field_type: 0, value: { kind: integer, value: 1 } }
   - { name: lefty_min,         field_type: 1, value: { kind: string, value: "0" } }
 ```
@@ -275,7 +275,7 @@ fields:
 | `profile_section_empty` | раздел без полей, палитры, порогов и атрибутов | профиль |
 | `profile_unknown_field` | ключ `widget_fields`/`dataset_fields` вне списка §3.1 (в том числе поля класса «никогда» — например `ds.0.hosts.0`, `aggregate_function`; для них текст `profiles.field.unknown_for_type` уточняется подсказкой «никогда не входит в профиль») | профиль |
 | `profile_field_type_mismatch` | строка вместо целого и наоборот | профиль |
-| `profile_colour_format` | цвет не `^[0-9A-F]{6}$` | оба |
+| `profile_colour_format` | цвет не `^[0-9A-F]{6}$` и не подтверждённый сброс к умолчанию (OQ-P4-05) | оба |
 | `profile_palette_exclusive` | `series_palette` и `color_palette` вместе | профиль |
 | `profile_palette_too_long` | > 64 цветов | профиль |
 | `profile_show_required` | `item.widget_fields.show` отсутствует или пуст | профиль |

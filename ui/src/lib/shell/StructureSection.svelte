@@ -2,6 +2,8 @@
   import type { I18n } from '../i18n';
   import { Button, Checkbox, SelectField, TreeList, type DisplayText, type LocalizedText, type UserText } from '../components';
   import ComingLater from './ComingLater.svelte';
+  import WorkcopyStyleAction from '../library/WorkcopyStyleAction.svelte';
+  import WorkcopyBlueprintAction from '../library/WorkcopyBlueprintAction.svelte';
   import { widgetCount, type DraftDetail } from './drafts';
   import { dashboardPropertiesText, displayName, numberedPageName, periodText, widgetGeometry, widgetTypeName } from './format';
   import {
@@ -17,10 +19,12 @@
   // but unavailable (P1-01H §6). Synthetic data is off and unavailable until P1-04I is built.
   // `readonly` (P2-05E, a server dashboard before copying): no structure or editor actions at all,
   // since a server dashboard is never edited in place.
-  let { i18n, draft, readonly = false }: {
+  let { i18n, draft, readonly = false, copyStyle, copyBlueprint }: {
     i18n: I18n;
     draft: Pick<DraftDetail, 'kind' | 'name' | 'pages' | 'properties' | 'compatibility'>;
     readonly?: boolean;
+    copyStyle?: { id: string; serverVersion: string };
+    copyBlueprint?: { id: string; serverVersion: string; connected: boolean; onchanged: () => void };
   } = $props();
 
   type NodeRef =
@@ -133,6 +137,18 @@
             </ComingLater>
           {/if}
         </section>
+      {/if}
+      {#if !readonly && copyStyle && page && (selectedRef?.kind !== 'widget' || !page.widgets[selectedRef.widget]?.id.startsWith('local-widget-'))}
+        {#key `${copyStyle.id}/${pageIndex}/${selectedRef?.kind === 'widget' ? selectedRef.widget : 'page'}`}
+          <WorkcopyStyleAction {i18n} id={copyStyle.id} serverVersion={copyStyle.serverVersion} page={pageIndex} widget={selectedRef?.kind === 'widget' ? selectedRef.widget : undefined} widgetNames={page.widgets.map((widget) => displayName(widget.name, widgetTypeName(i18n, widget.type)))} />
+        {/key}
+      {/if}
+      {#if !readonly && copyBlueprint && page}
+        {@const selected = selectedRef?.kind === 'widget' ? page.widgets[selectedRef.widget] : undefined}
+        {#key `${copyBlueprint.id}/${page.id}/${selected?.blueprint_id ? selected.id : ''}`}
+          <WorkcopyBlueprintAction {i18n} id={copyBlueprint.id} serverVersion={copyBlueprint.serverVersion} pageId={page.id}
+            connected={copyBlueprint.connected} rebind={selected?.blueprint_id ? selected : undefined} onchanged={copyBlueprint.onchanged} />
+        {/key}
       {/if}
     </div>
 

@@ -211,7 +211,13 @@ pub struct JournalEntry {
 
 impl JournalEntry {
     pub fn is_portable_update(&self) -> bool {
-        self.portable_update.is_some()
+        self.portable_update.is_some() && self.intent != "append_blueprint"
+    }
+
+    pub fn blueprint_readback(&self) -> Option<&zdashstitch_zabbix::PortableUpdateReadback> {
+        self.portable_update
+            .as_ref()
+            .and_then(|update| update.readback.is_blueprint().then_some(&update.readback))
     }
 
     pub fn needs_portable_update_projection(&self) -> bool {

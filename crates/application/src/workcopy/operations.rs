@@ -22,6 +22,8 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use zdashstitch_zabbix::is_zabbix_id;
 
+use super::blueprint::{ADD_WIDGET, AddWidgetEntry};
+use super::reusable::{APPLY_STYLE, StyleEntry};
 use super::{WorkcopyError, is_fingerprint};
 use crate::clone_mapping::CloneMappingState;
 use crate::replace_host::{
@@ -97,6 +99,8 @@ pub(crate) enum Operation {
     Decision(DecisionEntry),
     ConfirmKept(ConfirmKeptEntry),
     CloneMapping(CloneMappingEntry),
+    Style(StyleEntry),
+    AddWidget(AddWidgetEntry),
 }
 
 impl Operation {
@@ -106,6 +110,8 @@ impl Operation {
             Self::Decision(entry) => entry.seq,
             Self::ConfirmKept(entry) => entry.seq,
             Self::CloneMapping(entry) => entry.seq,
+            Self::Style(entry) => entry.seq,
+            Self::AddWidget(entry) => entry.seq,
         }
     }
 
@@ -115,6 +121,8 @@ impl Operation {
             Self::Decision(_) => OP_REPLACE_HOST_DECISION,
             Self::ConfirmKept(_) => OP_REPLACE_HOST_CONFIRM_KEPT,
             Self::CloneMapping(_) => OP_CLONE_MAPPING_SET,
+            Self::Style(_) => APPLY_STYLE,
+            Self::AddWidget(_) => ADD_WIDGET,
         }
     }
 
@@ -124,6 +132,8 @@ impl Operation {
             Self::Decision(entry) => entry.recorded_at_ms,
             Self::ConfirmKept(entry) => entry.recorded_at_ms,
             Self::CloneMapping(entry) => entry.recorded_at_ms,
+            Self::Style(entry) => entry.recorded_at_ms,
+            Self::AddWidget(entry) => entry.recorded_at_ms,
         }
     }
 
@@ -134,6 +144,8 @@ impl Operation {
             Self::Decision(entry) => Some(entry.replace_seq),
             Self::ConfirmKept(entry) => Some(entry.replace_seq),
             Self::CloneMapping(_) => None,
+            Self::Style(_) => None,
+            Self::AddWidget(_) => None,
         }
     }
 
@@ -143,6 +155,8 @@ impl Operation {
             Self::Decision(entry) => serde_json::to_value(entry),
             Self::ConfirmKept(entry) => serde_json::to_value(entry),
             Self::CloneMapping(entry) => serde_json::to_value(entry),
+            Self::Style(entry) => serde_json::to_value(entry),
+            Self::AddWidget(entry) => serde_json::to_value(entry),
         };
         value.map_err(|_| WorkcopyError::new("workcopy_corrupt"))
     }
@@ -187,6 +201,12 @@ fn parse_entry(entry: &Value) -> Result<Operation, WorkcopyError> {
             .ok(),
         (Some(OP_CLONE_MAPPING_SET), Some(1)) => serde_json::from_value(entry.clone())
             .map(Operation::CloneMapping)
+            .ok(),
+        (Some(APPLY_STYLE), Some(1)) => serde_json::from_value(entry.clone())
+            .map(Operation::Style)
+            .ok(),
+        (Some(ADD_WIDGET), Some(1)) => serde_json::from_value(entry.clone())
+            .map(Operation::AddWidget)
             .ok(),
         _ => return Err(unsupported(entry)),
     };
@@ -249,6 +269,12 @@ pub(crate) fn parse_log(
                 }
                 valid
             }
+            Operation::Style(entry) => {
+                entry.op == APPLY_STYLE
+                    && entry.op_version == OP_VERSION_1
+                    && entry.well_formed(base_fingerprint)
+            }
+            Operation::AddWidget(entry) => entry.well_formed(base_fingerprint),
         };
         if !well_formed {
             return Err(corrupt(seq));

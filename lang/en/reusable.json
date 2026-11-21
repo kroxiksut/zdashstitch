@@ -1,0 +1,460 @@
+{
+  "reusable.blueprint_rebind": { "message": "Change blueprint sources", "placeholders": {} },
+  "reusable.blueprint_rebind_hint": { "message": "Select the widget sources again. The widget stays in its current position.", "placeholders": {} },
+  "reusable.blueprint_keep_unbound": { "message": "Leave these sources unbound", "placeholders": {} },
+  "reusable.blueprint_copy_hint": { "message": "Choose a blueprint and place the widget. Select the sources or leave them for binding later.", "placeholders": {} },
+  "reusable.blueprint_host_search": { "message": "Search hosts", "placeholders": {} },
+  "reusable.blueprint_host_truncated": { "message": "More hosts match. Narrow the search.", "placeholders": {} },
+  "reusable.blueprint_host": { "message": "Host", "placeholders": {} },
+  "reusable.blueprint_catalog": { "message": "Catalog version", "placeholders": {} },
+  "reusable.blueprint_x": { "message": "Column", "placeholders": {} },
+  "reusable.blueprint_y": { "message": "Row", "placeholders": {} },
+  "reusable.blueprint_placement": { "message": "This widget does not fit at the selected position.", "placeholders": {} },
+  "reusable.blueprint_source_missing": { "message": "The selected host item is missing, ambiguous or incompatible.", "placeholders": {} },
+  "reusable.blueprint_inventory_incomplete": { "message": "The host item list is incomplete.", "placeholders": {} },
+  "reusable.blueprint_catalog_missing": { "message": "Import a metric catalog first.", "placeholders": {} },
+  "reusable.title": {
+    "message": "Widget library",
+    "placeholders": {}
+  },
+  "reusable.profiles": {
+    "message": "Style profiles",
+    "placeholders": {}
+  },
+  "reusable.blueprints": {
+    "message": "Widget blueprints",
+    "placeholders": {}
+  },
+  "reusable.search": {
+    "message": "Search styles and blueprints",
+    "placeholders": {}
+  },
+  "reusable.origin": {
+    "message": "Source",
+    "placeholders": {}
+  },
+  "reusable.builtin": {
+    "message": "Built-in",
+    "placeholders": {}
+  },
+  "reusable.file": {
+    "message": "Imported file",
+    "placeholders": {}
+  },
+  "reusable.local": {
+    "message": "Created here",
+    "placeholders": {}
+  },
+  "reusable.all": {
+    "message": "All sources",
+    "placeholders": {}
+  },
+  "reusable.empty": {
+    "message": "No matching profiles or blueprints.",
+    "placeholders": {}
+  },
+  "reusable.unverified": {
+    "message": "Unverified adapter",
+    "placeholders": {}
+  },
+  "reusable.details": {
+    "message": "Version {version} · Zabbix {adapter}",
+    "placeholders": {
+      "version": "number",
+      "adapter": "text"
+    }
+  },
+  "reusable.choose_file": {
+    "message": "Choose a YAML file",
+    "placeholders": {}
+  },
+  "reusable.inspect_file": {
+    "message": "Review file",
+    "placeholders": {}
+  },
+  "reusable.import": {
+    "message": "Import",
+    "placeholders": {}
+  },
+  "reusable.replace": {
+    "message": "Replace previous version",
+    "placeholders": {}
+  },
+  "reusable.save_copy": {
+    "message": "Import as a copy",
+    "placeholders": {}
+  },
+  "reusable.collision": {
+    "message": "A library object already uses this ID.",
+    "placeholders": {}
+  },
+  "reusable.cancel": {
+    "message": "Cancel",
+    "placeholders": {}
+  },
+  "reusable.duplicate": {
+    "message": "Duplicate",
+    "placeholders": {}
+  },
+  "reusable.delete": {
+    "message": "Delete",
+    "placeholders": {}
+  },
+  "reusable.delete_prompt": {
+    "message": "Delete “{name}” from the library? Values already copied into widgets will stay in the draft.",
+    "placeholders": {
+      "name": "text"
+    }
+  },
+  "reusable.edit": {
+    "message": "Edit",
+    "placeholders": {}
+  },
+  "reusable.rename": {
+    "message": "Edit details",
+    "placeholders": {}
+  },
+  "reusable.name": {
+    "message": "Name",
+    "placeholders": {}
+  },
+  "reusable.description": {
+    "message": "Description",
+    "placeholders": {}
+  },
+  "reusable.tags": {
+    "message": "Tags, one per line",
+    "placeholders": {}
+  },
+  "reusable.save": {
+    "message": "Save",
+    "placeholders": {}
+  },
+  "reusable.saving": {
+    "message": "Saving…",
+    "placeholders": {}
+  },
+  "reusable.create_style": {
+    "message": "New style profile",
+    "placeholders": {}
+  },
+  "reusable.palette": {
+    "message": "Graph series colors, one per line",
+    "placeholders": {}
+  },
+  "reusable.palette_hint": {
+    "message": "Use six uppercase hexadecimal digits per color.",
+    "placeholders": {}
+  },
+  "reusable.adapter": {
+    "message": "Zabbix adapter",
+    "placeholders": {}
+  },
+  "reusable.export": {
+    "message": "Export YAML",
+    "placeholders": {}
+  },
+  "reusable.export_review": {
+    "message": "Review export",
+    "placeholders": {}
+  },
+  "reusable.export_info": {
+    "message": "Check the name, descriptions, and other text before sharing this file.",
+    "placeholders": {}
+  },
+  "reusable.export_ack": {
+    "message": "I reviewed the file contents.",
+    "placeholders": {}
+  },
+  "reusable.export_blocked": {
+    "message": "The file contains text that looks like credentials.",
+    "placeholders": {}
+  },
+  "reusable.export_findings": {
+    "message": "Found {count} text or identifier candidates.",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "reusable.loaded": {
+    "message": "Saved to the library.",
+    "placeholders": {}
+  },
+  "reusable.operation_failed": {
+    "message": "The action could not be completed ({code}).",
+    "placeholders": {
+      "code": "text"
+    }
+  },
+  "reusable.storage_failed": {
+    "message": "The widget library could not be loaded.",
+    "placeholders": {}
+  },
+  "reusable.format_newer": {
+    "message": "This file uses a newer format.",
+    "placeholders": {}
+  },
+  "reusable.import_invalid": {
+    "message": "The file could not be imported ({code}).",
+    "placeholders": {
+      "code": "text"
+    }
+  },
+  "reusable.conflict": {
+    "message": "The object changed. Reload its current version and try again.",
+    "placeholders": {}
+  },
+  "reusable.unsupported_adapter": {
+    "message": "The file’s Zabbix adapter is unavailable for this draft.",
+    "placeholders": {}
+  },
+  "reusable.unsupported_blueprint": {
+    "message": "This widget configuration cannot be inserted in this draft.",
+    "placeholders": {}
+  },
+  "reusable.assignment_invalid": {
+    "message": "Check that the selected roles, slots and metrics match the blueprint.",
+    "placeholders": {}
+  },
+  "reusable.no_objects": {
+    "message": "No matching library objects are available.",
+    "placeholders": {}
+  },
+  "reusable.style_action": {
+    "message": "Apply style",
+    "placeholders": {}
+  },
+  "reusable.blueprint_action": {
+    "message": "Insert blueprint",
+    "placeholders": {}
+  },
+  "reusable.request_save": {
+    "message": "Save the page before using an object from the library.",
+    "placeholders": {}
+  },
+  "reusable.choose": {
+    "message": "Choose an object",
+    "placeholders": {}
+  },
+  "reusable.scope": {
+    "message": "Widgets",
+    "placeholders": {}
+  },
+  "reusable.scope_page": {
+    "message": "All widgets on this page",
+    "placeholders": {}
+  },
+  "reusable.scope_selection": {
+    "message": "Selected widgets ({count})",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "reusable.mode": {
+    "message": "Mode",
+    "placeholders": {}
+  },
+  "reusable.mode_replace": {
+    "message": "Replace",
+    "placeholders": {}
+  },
+  "reusable.mode_keep": {
+    "message": "Keep local values",
+    "placeholders": {}
+  },
+  "reusable.review": {
+    "message": "Preview changes",
+    "placeholders": {}
+  },
+  "reusable.apply": {
+    "message": "Apply",
+    "placeholders": {}
+  },
+  "reusable.insert": {
+    "message": "Insert",
+    "placeholders": {}
+  },
+  "reusable.compatible": {
+    "message": "Compatible",
+    "placeholders": {}
+  },
+  "reusable.partial": {
+    "message": "Some fields are supported",
+    "placeholders": {}
+  },
+  "reusable.incompatible": {
+    "message": "Unavailable for this widget",
+    "placeholders": {}
+  },
+  "reusable.no_changes": {
+    "message": "There are no changes to apply.",
+    "placeholders": {}
+  },
+  "reusable.before_default": {
+    "message": "Default",
+    "placeholders": {}
+  },
+  "reusable.role": {
+    "message": "Role for {param}",
+    "placeholders": {
+      "param": "text"
+    }
+  },
+  "reusable.slot": {
+    "message": "Slot {slot}",
+    "placeholders": {
+      "slot": "text"
+    }
+  },
+  "reusable.metric": {
+    "message": "Metric for {param}",
+    "placeholders": {
+      "param": "text"
+    }
+  },
+  "reusable.choose_value": {
+    "message": "Choose…",
+    "placeholders": {}
+  },
+  "reusable.unbound": {
+    "message": "Needs binding",
+    "placeholders": {}
+  },
+  "reusable.unresolved": {
+    "message": "{count} references will need binding before publishing.",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "reusable.insert_ready": {
+    "message": "The widget can be inserted.",
+    "placeholders": {}
+  },
+  "reusable.changed": {
+    "message": "The draft was updated.",
+    "placeholders": {}
+  },
+  "reusable.item": {
+    "message": "Item value",
+    "placeholders": {}
+  },
+  "reusable.svggraph": {
+    "message": "Graph",
+    "placeholders": {}
+  },
+  "reusable.builtin_bars": {
+    "message": "Database growth — bars",
+    "placeholders": {}
+  },
+  "reusable.builtin_line": {
+    "message": "CPU load — line",
+    "placeholders": {}
+  },
+  "reusable.confirm_delete": {
+    "message": "Delete object",
+    "placeholders": {}
+  },
+  "reusable.cancel_import": {
+    "message": "Cancel import",
+    "placeholders": {}
+  },
+  "reusable.extract": {
+    "message": "Save selected widget to the library",
+    "placeholders": {}
+  },
+  "reusable.extract_style_help": {
+    "message": "Copies the verified Graph series colors.",
+    "placeholders": {}
+  },
+  "reusable.extract_blueprint_help": {
+    "message": "Stores the widget configuration and source parameters. Choose the roles and metrics when inserting it.",
+    "placeholders": {}
+  },
+  "reusable.style_source_unsupported": {
+    "message": "Series colors are unavailable for this widget.",
+    "placeholders": {}
+  },
+  "reusable.open_file": {
+    "message": "Open file…",
+    "placeholders": {}
+  },
+  "reusable.save_file": {
+    "message": "Save to file…",
+    "placeholders": {}
+  },
+  "reusable.history_action": {
+    "message": "library widget edit",
+    "placeholders": {}
+  },
+  "reusable.from_profile": {
+    "message": "From “{name}”, version {version}",
+    "placeholders": {
+      "name": "text",
+      "version": "number"
+    }
+  },
+  "reusable.update_profile": {
+    "message": "Update from profile",
+    "placeholders": {}
+  },
+  "reusable.mode_merge": {
+    "message": "Merge",
+    "placeholders": {}
+  },
+  "reusable.profile_deleted": {
+    "message": "The profile is no longer in the library.",
+    "placeholders": {}
+  },
+  "reusable.copy_style_publish": {
+    "message": "The style is saved in this copy. Convert it to a local draft to review publishing.",
+    "placeholders": {}
+  },
+  "reusable.copy_style_review_publish": {
+    "message": "Review saved style changes in Publication.",
+    "placeholders": {}
+  },
+  "reusable.publish_style": {
+    "message": "Publish style changes",
+    "placeholders": {}
+  },
+  "reusable.publish_blueprint": {
+    "message": "Publish inserted widget",
+    "placeholders": {}
+  },
+  "reusable.copy_blueprint_publish": {
+    "message": "The widget is saved locally. Review its bindings and other draft changes before publishing.",
+    "placeholders": {}
+  },
+  "reusable.unverified_blueprint_publish": {
+    "message": "Publication has not been verified for this widget and target configuration.",
+    "placeholders": {}
+  },
+  "reusable.confirm_publish_blueprint": {
+    "message": "Add “{widget}” to “{page}” on the “{dashboard}” dashboard?",
+    "placeholders": {
+      "widget": "text",
+      "page": "text",
+      "dashboard": "text"
+    }
+  },
+  "reusable.copy_style_skipped": {
+    "message": "Widgets without verified colors were skipped ({count}).",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "reusable.scope_dashboard": {
+    "message": "All widgets on this dashboard",
+    "placeholders": {}
+  },
+  "reusable.detach": {
+    "message": "Detach from profile",
+    "placeholders": {}
+  },
+  "reusable.profile_outdated": {
+    "message": "Profile version {version} is available.",
+    "placeholders": {
+      "version": "number"
+    }
+  }
+}

@@ -1,0 +1,460 @@
+{
+  "reusable.blueprint_rebind": { "message": "Изменить источники заготовки", "placeholders": {} },
+  "reusable.blueprint_rebind_hint": { "message": "Заново выберите источники виджета. Виджет останется на прежнем месте.", "placeholders": {} },
+  "reusable.blueprint_keep_unbound": { "message": "Оставить эти источники без привязки", "placeholders": {} },
+  "reusable.blueprint_copy_hint": { "message": "Выберите заготовку и укажите место виджета. Выберите источники или оставьте их для дальнейшей привязки.", "placeholders": {} },
+  "reusable.blueprint_host_search": { "message": "Поиск узлов сети", "placeholders": {} },
+  "reusable.blueprint_host_truncated": { "message": "Найдены и другие узлы сети. Уточните запрос.", "placeholders": {} },
+  "reusable.blueprint_host": { "message": "Узел сети", "placeholders": {} },
+  "reusable.blueprint_catalog": { "message": "Версия каталога", "placeholders": {} },
+  "reusable.blueprint_x": { "message": "Столбец", "placeholders": {} },
+  "reusable.blueprint_y": { "message": "Строка", "placeholders": {} },
+  "reusable.blueprint_placement": { "message": "Виджет не помещается в выбранном месте.", "placeholders": {} },
+  "reusable.blueprint_source_missing": { "message": "Элемент данных не найден, неоднозначен или несовместим.", "placeholders": {} },
+  "reusable.blueprint_inventory_incomplete": { "message": "Список элементов данных узла сети неполный.", "placeholders": {} },
+  "reusable.blueprint_catalog_missing": { "message": "Сначала импортируйте каталог метрик.", "placeholders": {} },
+  "reusable.title": {
+    "message": "Библиотека виджетов",
+    "placeholders": {}
+  },
+  "reusable.profiles": {
+    "message": "Профили оформления",
+    "placeholders": {}
+  },
+  "reusable.blueprints": {
+    "message": "Заготовки виджетов",
+    "placeholders": {}
+  },
+  "reusable.search": {
+    "message": "Поиск профилей и заготовок",
+    "placeholders": {}
+  },
+  "reusable.origin": {
+    "message": "Источник",
+    "placeholders": {}
+  },
+  "reusable.builtin": {
+    "message": "Встроенный",
+    "placeholders": {}
+  },
+  "reusable.file": {
+    "message": "Из файла",
+    "placeholders": {}
+  },
+  "reusable.local": {
+    "message": "Мой",
+    "placeholders": {}
+  },
+  "reusable.all": {
+    "message": "Все источники",
+    "placeholders": {}
+  },
+  "reusable.empty": {
+    "message": "Подходящих профилей или заготовок нет.",
+    "placeholders": {}
+  },
+  "reusable.unverified": {
+    "message": "Непроверенный адаптер",
+    "placeholders": {}
+  },
+  "reusable.details": {
+    "message": "Версия {version} · Zabbix {adapter}",
+    "placeholders": {
+      "version": "number",
+      "adapter": "text"
+    }
+  },
+  "reusable.choose_file": {
+    "message": "Выбрать файл YAML",
+    "placeholders": {}
+  },
+  "reusable.inspect_file": {
+    "message": "Проверить файл",
+    "placeholders": {}
+  },
+  "reusable.import": {
+    "message": "Импортировать",
+    "placeholders": {}
+  },
+  "reusable.replace": {
+    "message": "Заменить новой версией",
+    "placeholders": {}
+  },
+  "reusable.save_copy": {
+    "message": "Импортировать как копию",
+    "placeholders": {}
+  },
+  "reusable.collision": {
+    "message": "Объект с таким идентификатором уже есть в библиотеке.",
+    "placeholders": {}
+  },
+  "reusable.cancel": {
+    "message": "Отмена",
+    "placeholders": {}
+  },
+  "reusable.duplicate": {
+    "message": "Дублировать",
+    "placeholders": {}
+  },
+  "reusable.delete": {
+    "message": "Удалить",
+    "placeholders": {}
+  },
+  "reusable.delete_prompt": {
+    "message": "Удалить «{name}» из библиотеки? Скопированные в виджеты значения останутся в черновике.",
+    "placeholders": {
+      "name": "text"
+    }
+  },
+  "reusable.edit": {
+    "message": "Изменить",
+    "placeholders": {}
+  },
+  "reusable.rename": {
+    "message": "Изменить сведения",
+    "placeholders": {}
+  },
+  "reusable.name": {
+    "message": "Название",
+    "placeholders": {}
+  },
+  "reusable.description": {
+    "message": "Описание",
+    "placeholders": {}
+  },
+  "reusable.tags": {
+    "message": "Метки, по одной на строку",
+    "placeholders": {}
+  },
+  "reusable.save": {
+    "message": "Сохранить",
+    "placeholders": {}
+  },
+  "reusable.saving": {
+    "message": "Сохранение…",
+    "placeholders": {}
+  },
+  "reusable.create_style": {
+    "message": "Новый профиль оформления",
+    "placeholders": {}
+  },
+  "reusable.palette": {
+    "message": "Цвета рядов графика, по одному на строку",
+    "placeholders": {}
+  },
+  "reusable.palette_hint": {
+    "message": "Укажите шесть шестнадцатеричных символов в верхнем регистре для каждого цвета.",
+    "placeholders": {}
+  },
+  "reusable.adapter": {
+    "message": "Адаптер Zabbix",
+    "placeholders": {}
+  },
+  "reusable.export": {
+    "message": "Экспортировать YAML",
+    "placeholders": {}
+  },
+  "reusable.export_review": {
+    "message": "Проверить экспорт",
+    "placeholders": {}
+  },
+  "reusable.export_info": {
+    "message": "Перед передачей файла проверьте название, описания и другой текст.",
+    "placeholders": {}
+  },
+  "reusable.export_ack": {
+    "message": "Я проверил содержимое файла.",
+    "placeholders": {}
+  },
+  "reusable.export_blocked": {
+    "message": "В файле есть текст, похожий на учётные данные.",
+    "placeholders": {}
+  },
+  "reusable.export_findings": {
+    "message": "Найдено полей с текстом или идентификаторами: {count}.",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "reusable.loaded": {
+    "message": "Сохранено в библиотеке.",
+    "placeholders": {}
+  },
+  "reusable.operation_failed": {
+    "message": "Действие не выполнено ({code}).",
+    "placeholders": {
+      "code": "text"
+    }
+  },
+  "reusable.storage_failed": {
+    "message": "Не удалось загрузить библиотеку виджетов.",
+    "placeholders": {}
+  },
+  "reusable.format_newer": {
+    "message": "Файл использует более новый формат.",
+    "placeholders": {}
+  },
+  "reusable.import_invalid": {
+    "message": "Не удалось импортировать файл ({code}).",
+    "placeholders": {
+      "code": "text"
+    }
+  },
+  "reusable.conflict": {
+    "message": "Объект изменился. Загрузите текущую версию и повторите действие.",
+    "placeholders": {}
+  },
+  "reusable.unsupported_adapter": {
+    "message": "Адаптер Zabbix из файла недоступен для этого черновика.",
+    "placeholders": {}
+  },
+  "reusable.unsupported_blueprint": {
+    "message": "Эту конфигурацию виджета нельзя вставить в черновик.",
+    "placeholders": {}
+  },
+  "reusable.assignment_invalid": {
+    "message": "Проверьте соответствие ролей, слотов и метрик параметрам заготовки.",
+    "placeholders": {}
+  },
+  "reusable.no_objects": {
+    "message": "Подходящих объектов в библиотеке нет.",
+    "placeholders": {}
+  },
+  "reusable.style_action": {
+    "message": "Применить оформление",
+    "placeholders": {}
+  },
+  "reusable.blueprint_action": {
+    "message": "Вставить заготовку",
+    "placeholders": {}
+  },
+  "reusable.request_save": {
+    "message": "Сохраните страницу перед использованием объекта из библиотеки.",
+    "placeholders": {}
+  },
+  "reusable.choose": {
+    "message": "Выберите объект",
+    "placeholders": {}
+  },
+  "reusable.scope": {
+    "message": "Виджеты",
+    "placeholders": {}
+  },
+  "reusable.scope_page": {
+    "message": "Все виджеты на этой странице",
+    "placeholders": {}
+  },
+  "reusable.scope_selection": {
+    "message": "Выбранные виджеты ({count})",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "reusable.mode": {
+    "message": "Режим",
+    "placeholders": {}
+  },
+  "reusable.mode_replace": {
+    "message": "Заменить",
+    "placeholders": {}
+  },
+  "reusable.mode_keep": {
+    "message": "Сохранить локальные значения",
+    "placeholders": {}
+  },
+  "reusable.review": {
+    "message": "Предпросмотр изменений",
+    "placeholders": {}
+  },
+  "reusable.apply": {
+    "message": "Применить",
+    "placeholders": {}
+  },
+  "reusable.insert": {
+    "message": "Вставить",
+    "placeholders": {}
+  },
+  "reusable.compatible": {
+    "message": "Совместим",
+    "placeholders": {}
+  },
+  "reusable.partial": {
+    "message": "Доступна часть полей",
+    "placeholders": {}
+  },
+  "reusable.incompatible": {
+    "message": "Недоступно для этого виджета",
+    "placeholders": {}
+  },
+  "reusable.no_changes": {
+    "message": "Нет изменений для применения.",
+    "placeholders": {}
+  },
+  "reusable.before_default": {
+    "message": "По умолчанию",
+    "placeholders": {}
+  },
+  "reusable.role": {
+    "message": "Роль для {param}",
+    "placeholders": {
+      "param": "text"
+    }
+  },
+  "reusable.slot": {
+    "message": "Слот {slot}",
+    "placeholders": {
+      "slot": "text"
+    }
+  },
+  "reusable.metric": {
+    "message": "Метрика для {param}",
+    "placeholders": {
+      "param": "text"
+    }
+  },
+  "reusable.choose_value": {
+    "message": "Выберите…",
+    "placeholders": {}
+  },
+  "reusable.unbound": {
+    "message": "Нужна привязка",
+    "placeholders": {}
+  },
+  "reusable.unresolved": {
+    "message": "До публикации потребуется привязать ссылки ({count}).",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "reusable.insert_ready": {
+    "message": "Виджет готов к вставке.",
+    "placeholders": {}
+  },
+  "reusable.changed": {
+    "message": "Черновик обновлён.",
+    "placeholders": {}
+  },
+  "reusable.item": {
+    "message": "Значение элемента данных",
+    "placeholders": {}
+  },
+  "reusable.svggraph": {
+    "message": "График",
+    "placeholders": {}
+  },
+  "reusable.builtin_bars": {
+    "message": "Рост БД — столбцы",
+    "placeholders": {}
+  },
+  "reusable.builtin_line": {
+    "message": "Нагрузка CPU — линия",
+    "placeholders": {}
+  },
+  "reusable.confirm_delete": {
+    "message": "Удалить объект",
+    "placeholders": {}
+  },
+  "reusable.cancel_import": {
+    "message": "Отменить импорт",
+    "placeholders": {}
+  },
+  "reusable.extract": {
+    "message": "Сохранить выбранный виджет в библиотеку",
+    "placeholders": {}
+  },
+  "reusable.extract_style_help": {
+    "message": "В профиль копируются проверенные цвета рядов графика.",
+    "placeholders": {}
+  },
+  "reusable.extract_blueprint_help": {
+    "message": "Заготовка сохраняет настройки виджета и параметры источников. Роли и метрики выбираются при вставке.",
+    "placeholders": {}
+  },
+  "reusable.style_source_unsupported": {
+    "message": "Цвета рядов этого виджета недоступны для сохранения.",
+    "placeholders": {}
+  },
+  "reusable.open_file": {
+    "message": "Открыть файл…",
+    "placeholders": {}
+  },
+  "reusable.save_file": {
+    "message": "Сохранить в файл…",
+    "placeholders": {}
+  },
+  "reusable.history_action": {
+    "message": "изменение из библиотеки",
+    "placeholders": {}
+  },
+  "reusable.from_profile": {
+    "message": "Из профиля «{name}», версия {version}",
+    "placeholders": {
+      "name": "text",
+      "version": "number"
+    }
+  },
+  "reusable.update_profile": {
+    "message": "Обновить из профиля",
+    "placeholders": {}
+  },
+  "reusable.mode_merge": {
+    "message": "Объединить",
+    "placeholders": {}
+  },
+  "reusable.profile_deleted": {
+    "message": "Профиля больше нет в библиотеке.",
+    "placeholders": {}
+  },
+  "reusable.copy_style_publish": {
+    "message": "Оформление сохраняется в этой копии. Преобразуйте её в локальный черновик, чтобы проверить возможность публикации.",
+    "placeholders": {}
+  },
+  "reusable.copy_style_review_publish": {
+    "message": "Проверьте сохранённые изменения оформления в разделе «Публикация».",
+    "placeholders": {}
+  },
+  "reusable.publish_style": {
+    "message": "Публикация оформления",
+    "placeholders": {}
+  },
+  "reusable.publish_blueprint": {
+    "message": "Опубликовать вставленный виджет",
+    "placeholders": {}
+  },
+  "reusable.copy_blueprint_publish": {
+    "message": "Виджет сохранён локально. Перед публикацией проверьте его привязки и остальные изменения черновика.",
+    "placeholders": {}
+  },
+  "reusable.unverified_blueprint_publish": {
+    "message": "Публикация для такой конфигурации виджета и панели не подтверждена.",
+    "placeholders": {}
+  },
+  "reusable.confirm_publish_blueprint": {
+    "message": "Добавить виджет «{widget}» на страницу «{page}» панели «{dashboard}»?",
+    "placeholders": {
+      "widget": "text",
+      "page": "text",
+      "dashboard": "text"
+    }
+  },
+  "reusable.copy_style_skipped": {
+    "message": "Пропущены виджеты без проверенных цветов ({count}).",
+    "placeholders": {
+      "count": "number"
+    }
+  },
+  "reusable.scope_dashboard": {
+    "message": "Все виджеты этой панели",
+    "placeholders": {}
+  },
+  "reusable.detach": {
+    "message": "Отвязать от профиля",
+    "placeholders": {}
+  },
+  "reusable.profile_outdated": {
+    "message": "Доступна версия профиля {version}.",
+    "placeholders": {
+      "version": "number"
+    }
+  }
+}

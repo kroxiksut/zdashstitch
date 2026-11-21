@@ -833,9 +833,13 @@ impl WorkcopyService {
 
     /// One draft with pages and widgets materialized from the verified Base.
     pub fn draft(&self, local_id: &str) -> Result<DraftDetail, WorkcopyError> {
-        let (file, snapshot) = self.load_with_base(local_id)?;
+        let (file, snapshot, log) = self.load_log(local_id)?;
         let registry = Self::registry_for_version(snapshot.server_version())?;
-        view::materialize(&file, snapshot.raw_api_document(), &registry)
+        let mut detail = view::materialize(&file, snapshot.raw_api_document(), &registry)?;
+        super::blueprint::apply_to_view(&mut detail, &log)?;
+        detail.summary.counts.widgets =
+            count(detail.pages.iter().map(|page| page.widgets.len()).sum());
+        Ok(detail)
     }
 
     /// «Переименовать» (P1-03F): changes the local draft name only. Base,
@@ -843,10 +847,11 @@ impl WorkcopyService {
     pub fn rename_draft(&self, local_id: &str, name: &str) -> Result<DraftSummary, WorkcopyError> {
         let name = draft_name(name)?;
         let mut file = self.load(local_id)?;
+        let revision = file.revision;
         file.name = name;
         file.revision = file.revision.saturating_add(1);
         file.updated_at_ms = now_ms().max(file.updated_at_ms);
-        self.store.replace_workcopy(&file)?;
+        self.store.replace_workcopy_if_revision(&file, revision)?;
         Ok(view::summary(&file))
     }
 

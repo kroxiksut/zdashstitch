@@ -131,6 +131,11 @@ pub struct DashboardWriteContracts {
     pub svggraph_dataset_hosts: CapabilityState,
     /// Classic `graph` widget `graphid.N` (P2-04H, O-003; LAB-02).
     pub classic_graph_graphid: CapabilityState,
+    pub item_background_color: CapabilityState,
+    pub item_background_reset: CapabilityState,
+    pub svggraph_series_color: CapabilityState,
+    pub append_blueprint_item: CapabilityState,
+    pub append_blueprint_graph: CapabilityState,
 }
 
 /// One laboratory write contract. A mutation lists the contracts it relies
@@ -147,6 +152,11 @@ pub enum WriteContract {
     SvggraphDatasetHosts,
     ClassicGraphGraphid,
     UpdateSeveralPages,
+    ItemBackgroundColor,
+    ItemBackgroundReset,
+    SvggraphSeriesColor,
+    AppendBlueprintItem,
+    AppendBlueprintGraph,
 }
 
 impl WriteContract {
@@ -172,6 +182,11 @@ impl WriteContract {
             Self::SvggraphDatasetHosts => "svggraph_dataset_hosts",
             Self::ClassicGraphGraphid => "classic_graph_graphid",
             Self::UpdateSeveralPages => "update_several_pages",
+            Self::ItemBackgroundColor => "item_background_color",
+            Self::ItemBackgroundReset => "item_background_reset",
+            Self::SvggraphSeriesColor => "svggraph_series_color",
+            Self::AppendBlueprintItem => "append_blueprint_item",
+            Self::AppendBlueprintGraph => "append_blueprint_graph",
         }
     }
 }
@@ -192,6 +207,11 @@ impl DashboardWriteContracts {
             svggraph_dataset_hosts: CapabilityState::Supported,
             update_several_pages: CapabilityState::Supported,
             reconcile_unknown_outcome: CapabilityState::Supported,
+            item_background_color: CapabilityState::Supported,
+            item_background_reset: CapabilityState::Supported,
+            svggraph_series_color: CapabilityState::Supported,
+            append_blueprint_item: CapabilityState::Supported,
+            append_blueprint_graph: CapabilityState::Supported,
             ..Self::unproven()
         }
     }
@@ -208,6 +228,11 @@ impl DashboardWriteContracts {
             svggraph_dataset_itemids: CapabilityState::Unsupported,
             svggraph_dataset_hosts: CapabilityState::Unsupported,
             classic_graph_graphid: CapabilityState::Unsupported,
+            item_background_color: CapabilityState::Unsupported,
+            item_background_reset: CapabilityState::Unsupported,
+            svggraph_series_color: CapabilityState::Unsupported,
+            append_blueprint_item: CapabilityState::Unsupported,
+            append_blueprint_graph: CapabilityState::Unsupported,
         }
     }
 
@@ -223,6 +248,11 @@ impl DashboardWriteContracts {
             WriteContract::SvggraphDatasetHosts => self.svggraph_dataset_hosts,
             WriteContract::ClassicGraphGraphid => self.classic_graph_graphid,
             WriteContract::UpdateSeveralPages => self.update_several_pages,
+            WriteContract::ItemBackgroundColor => self.item_background_color,
+            WriteContract::ItemBackgroundReset => self.item_background_reset,
+            WriteContract::SvggraphSeriesColor => self.svggraph_series_color,
+            WriteContract::AppendBlueprintItem => self.append_blueprint_item,
+            WriteContract::AppendBlueprintGraph => self.append_blueprint_graph,
         }
     }
 
@@ -364,6 +394,7 @@ impl AdapterRegistry {
                 svggraph_dataset_itemids: laboratory_contract,
                 svggraph_dataset_hosts: laboratory_contract,
                 classic_graph_graphid: laboratory_contract,
+                ..DashboardWriteContracts::unproven()
             },
             dashboard_create_contracts: DashboardCreateContracts {
                 // LAB-02: private by default, owner is the caller, empty

@@ -28,13 +28,7 @@ pub struct CandidateScan {
 
 pub fn scan(bundle: &TypedPortableBundle) -> Result<CandidateScan, serde_json::Error> {
     let value = serde_json::to_value(bundle)?;
-    let mut result = CandidateScan {
-        findings: Vec::new(),
-        truncated: false,
-        unknown_objects: 0,
-        credential_candidates: 0,
-    };
-    visit(&value, "", &mut result);
+    let mut result = scan_data(&value);
     let registry =
         project_evaluation_profile(&bundle.project).map(AdapterProfile::widget_capabilities);
     let pages: Vec<_> = match &bundle.project.root {
@@ -76,6 +70,17 @@ pub fn scan(bundle: &TypedPortableBundle) -> Result<CandidateScan, serde_json::E
         }
     }
     Ok(result)
+}
+
+pub(crate) fn scan_data(value: &Value) -> CandidateScan {
+    let mut result = CandidateScan {
+        findings: Vec::new(),
+        truncated: false,
+        unknown_objects: 0,
+        credential_candidates: 0,
+    };
+    visit(value, "", &mut result);
+    result
 }
 
 fn add(result: &mut CandidateScan, kind: &'static str, location: &str) {

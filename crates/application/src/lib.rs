@@ -51,6 +51,8 @@ mod publisher;
 pub mod replace_host;
 mod replace_host_plan;
 pub mod resolver;
+pub mod reusable_library;
+pub mod reusable_widgets;
 mod session;
 mod settings;
 mod source_check;
@@ -98,7 +100,10 @@ pub use publisher::{
     PlanError, PlanInvalidReason, PlanPreview, PublishReport, VerifiedPlan, build_verified_plan,
     publish_confirmed_plan,
 };
-pub use replace_host_plan::{ReplaceHostPlanRequest, plan_replace_host, publish_replace_host_plan};
+pub use replace_host_plan::{
+    ReplaceHostPlanRequest, plan_replace_host, plan_workcopy_blueprint, plan_workcopy_style,
+    publish_replace_host_plan,
+};
 pub use session::{
     EndSessionRequest, LocalSession, SessionEndError, SessionEnded, SessionGeneration, WriteStage,
 };

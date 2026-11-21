@@ -59,6 +59,7 @@ use zdashstitch_application::{
     VerifiedCreatePlan, VerifiedPlan,
     connections::ConnectionService,
     plan_eight_zero_save_as_copy, plan_portable_dashboard_with_access, plan_replace_host,
+    plan_workcopy_blueprint, plan_workcopy_style,
     publication::{self, RemoteDiff},
     publish_portable_dashboard_plan, publish_replace_host_plan, publish_save_as_copy_plan,
     recheck_replace_host, reconcile_create, reconcile_update,
@@ -684,6 +685,16 @@ enum PlanRequestBody {
         #[serde(default)]
         kept_digest: Option<String>,
     },
+    UpdateStyle {
+        revision: u64,
+        base_fingerprint: String,
+        local_fingerprint: String,
+    },
+    UpdateBlueprint {
+        revision: u64,
+        base_fingerprint: String,
+        local_fingerprint: String,
+    },
     /// «Сохранить копию».
     SaveAsCopy {
         revision: u64,
@@ -1057,7 +1068,14 @@ async fn advance(
     let Some(reader) = connection.reader() else {
         return;
     };
-    match workcopies.advance_base(reader, &published).await {
+    let result = if let Some(readback) = entry.blueprint_readback() {
+        workcopies
+            .advance_blueprint_base(reader, &published, readback)
+            .await
+    } else {
+        workcopies.advance_base(reader, &published).await
+    };
+    match result {
         Ok(advanced) => {
             body.base_advanced = Some(AdvancedBody {
                 revision: advanced.revision,
@@ -1389,7 +1407,53 @@ async fn plan(
                 ensure_draft_connection(&guard, &draft).map_err(failure)?;
                 let context_generation = guard.active().map_or(0, |(_, generation, _)| generation);
                 let handle = new_handle()?;
+                let blueprint = matches!(request, PlanRequestBody::UpdateBlueprint { .. });
                 let (held, preview) = match request {
+                    PlanRequestBody::UpdateStyle {
+                        revision,
+                        base_fingerprint,
+                        local_fingerprint,
+                    }
+                    | PlanRequestBody::UpdateBlueprint {
+                        revision,
+                        base_fingerprint,
+                        local_fingerprint,
+                    } => {
+                        let writer = guard
+                            .replace_host_writer()
+                            .ok_or_else(|| code(StatusCode::CONFLICT, "write_mode_required"))?;
+                        let request = ReplaceHostPlanRequest {
+                            local_id: local_id.clone(),
+                            connection_id: draft.clone(),
+                            revision,
+                            base_fingerprint,
+                            local_fingerprint,
+                            kept_digest: None,
+                            session: admitted,
+                        };
+                        let plan = if blueprint {
+                            plan_workcopy_blueprint(
+                                &workcopies,
+                                &journal,
+                                &session,
+                                writer,
+                                &request,
+                            )
+                            .await
+                        } else {
+                            plan_workcopy_style(&workcopies, &journal, &session, writer, &request)
+                                .await
+                        }
+                        .map_err(plan_failure)?;
+                        let preview = PlanPreviewBody::from(&plan.preview());
+                        (
+                            HeldPlan::Update {
+                                plan: Box::new(plan),
+                                kept_digest: None,
+                            },
+                            preview,
+                        )
+                    }
                     PlanRequestBody::UpdateSource {
                         revision,
                         base_fingerprint,
@@ -1891,6 +1955,7 @@ async fn confirm(
                     HeldPlan::Update { plan, kept_digest } => {
                         if request.acknowledge_deletions
                             || request.acknowledge_repeat_append
+                            || request.acknowledge_public_access
                             || request.name.is_some()
                             || request.kept_digest != kept_digest
                         {

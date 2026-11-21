@@ -8,12 +8,14 @@
   import type { PublicationStore, RecoveryStore } from '../publication/store.svelte';
   import RecoveryBanner from '../publication/RecoveryBanner.svelte';
   import SaveCopyPublication from '../publication/SaveCopyPublication.svelte';
+  import StylePublication from '../publication/StylePublication.svelte';
   import { copyDraftName, copyNaming } from '../workcopy/server';
+  import { createHttpWorkcopyClients } from '../workcopy/client';
   import { Breadcrumb, EmptyState, Skeleton, StatusBadge, resolveText, type LocalizedText } from '../components';
   import ChecksSection from './ChecksSection.svelte';
   import OverviewSection from './OverviewSection.svelte';
   import StructureSection from './StructureSection.svelte';
-  import { widgetCount, type DraftLoadResult } from './drafts';
+  import { widgetCount, type DraftDetail, type DraftLoadResult } from './drafts';
   import { originSummaryText, sourceText } from './format';
   import { rowsUsed } from './preview';
   import {
@@ -76,7 +78,17 @@
     untrack(() => replaceHost.open(id));
   });
 
-  const draft = $derived(result?.status === 'ready' ? result.draft : null);
+  let refreshed = $state<DraftDetail | null>(null);
+  const draft = $derived(result?.status === 'ready'
+    ? (refreshed?.local_id === result.draft.local_id && refreshed.updated_at >= result.draft.updated_at
+      ? refreshed : result.draft)
+    : null);
+  const draftClient = createHttpWorkcopyClients().drafts;
+  async function refreshCopy(): Promise<void> {
+    const id = localId;
+    const loaded = await draftClient.load(id);
+    if (id === localId && loaded.status === 'ready') refreshed = loaded.draft;
+  }
   // Server reads for bindings go only through the connection the copy was made with.
   const serverReads = $derived(
     demo || (activeConnectionId !== null && draft?.source?.connection_local_id !== undefined && activeConnectionId === draft.source.connection_local_id)
@@ -150,11 +162,20 @@
       {#if recovery && section !== 'publication'}
         <RecoveryBanner {i18n} store={recovery} {localId} {profileName} {draftName} activeConnectionId={activeConnectionId} />
       {/if}
+      {#if !demo && section === 'publication' && draft.origin === 'server_copy' && draft.source?.server_version === '8.0.0'}
+        {#key localId}
+          <StylePublication {i18n} {draft} writable={serverReads && connection?.writable === true} />
+          <StylePublication {i18n} {draft} blueprint writable={serverReads && connection?.writable === true} onchanged={() => void refreshCopy()} />
+        {/key}
+      {/if}
 
       {#if section === 'overview'}
         <OverviewSection {i18n} {draft} {connected} />
       {:else if section === 'structure'}
-        <StructureSection {i18n} {draft} />
+        <StructureSection {i18n} {draft}
+          copyStyle={draft.origin === 'server_copy' && draft.source?.server_version ? { id: draft.local_id, serverVersion: draft.source.server_version } : undefined}
+          copyBlueprint={!demo && draft.origin === 'server_copy' && draft.source?.server_version
+            ? { id: draft.local_id, serverVersion: draft.source.server_version, connected: serverReads, onchanged: () => void refreshCopy() } : undefined} />
       {:else if section === 'bindings' && replaceHost}
         {#if !demo && draft.kind === 'dashboard' && draft.origin === 'server_copy'}
           {#key localId}

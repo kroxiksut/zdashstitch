@@ -59,7 +59,8 @@ def test_typed_deployment_records_the_dashboard_root_and_only_confirmed_results(
 def test_b9_all_schemas_generated_without_drift():
     paths=[ROOT/'schemas'/f for f in ['project-v1.schema.json','project-v2.schema.json','metrics-v1.schema.json','metrics-v2.schema.json',
                                      'local-bindings-v1.schema.json','deployment-state-v1.schema.json',
-                                     'deployment-state-v2.schema.json']]
+                                     'deployment-state-v2.schema.json', 'style-profile.schema.json',
+                                     'widget-blueprint.schema.json']]
     before=[x.read_bytes() for x in paths]
     result=subprocess.run([sys.executable,str(ROOT/'tools/build_schemas.py')],capture_output=True,text=True)
     assert result.returncode==0, result.stderr

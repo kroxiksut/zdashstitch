@@ -71,7 +71,7 @@ fn has_exact_keys(object: &Value, keys: &[&str]) -> bool {
     })
 }
 
-fn rows(value: &Value) -> &[Value] {
+pub(super) fn rows(value: &Value) -> &[Value] {
     value.as_array().map_or(&[], Vec::as_slice)
 }
 
@@ -94,7 +94,7 @@ pub(super) enum Provider<'a> {
     Pattern { widget: &'a Value, target: &'a str },
 }
 
-fn is_page(page: &Value) -> bool {
+pub(super) fn is_page(page: &Value) -> bool {
     has_exact_keys(
         page,
         &["dashboard_pageid", "name", "display_period", "widgets"],
@@ -104,7 +104,7 @@ fn is_page(page: &Value) -> bool {
         && page["widgets"].is_array()
 }
 
-fn is_widget(widget: &Value, kind: &str) -> bool {
+pub(super) fn is_widget(widget: &Value, kind: &str) -> bool {
     has_exact_keys(
         widget,
         &[
@@ -145,7 +145,7 @@ fn matches_item(widget: &Value, replacement: &WidgetFieldReplacement) -> bool {
         && field["value"] == replacement.expected_value
 }
 
-fn graph_row<'a>(widget: &'a Value, name: &str, kind: i64) -> Option<&'a str> {
+pub(super) fn graph_row<'a>(widget: &'a Value, name: &str, kind: i64) -> Option<&'a str> {
     let fields = rows(&widget["fields"]);
     let mut matching = fields.iter().filter(|field| field["name"] == name);
     let field = matching.next()?;

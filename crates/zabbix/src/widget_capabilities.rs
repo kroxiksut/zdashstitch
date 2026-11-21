@@ -284,6 +284,8 @@ const V8_0_READ_FIELDS: &[(&str, &[KnownWidgetField])] = &[
             TIME_REFERENCE,
             KnownWidgetField::one("itemid.#", ITEM),
             KnownWidgetField::one("itemid._reference", S),
+            KnownWidgetField::one("show.0", I),
+            KnownWidgetField::one("bg_color", S),
         ],
     ),
     (

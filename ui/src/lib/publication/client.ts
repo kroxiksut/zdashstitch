@@ -317,7 +317,7 @@ function entryOf(operationId: string, localId: string, request: PlanRequest, sta
  * pretends to reach a server: every outcome is the fixture's.
  */
 export function createMemoryPublicationClient(fixture: MemoryPublicationFixture): PublicationClient {
-  const plans = new Map<string, { localId: string; request: PlanRequest; plan: PlanPreview }>();
+  const plans = new Map<string, { localId: string; request: Extract<PlanRequest, { action: 'update_source' | 'save_as_copy' }>; plan: PlanPreview }>();
   const unfinished = new Map<string, JournalEntry>((fixture.journal?.unfinished ?? []).map((entry) => [entry.operation_id, entry]));
   const damaged = new Map<string, DamagedJournal>((fixture.journal?.damaged ?? []).map((entry) => [entry.operation_id, entry]));
   const entries = new Map<string, JournalEntry>(unfinished);
@@ -337,6 +337,7 @@ export function createMemoryPublicationClient(fixture: MemoryPublicationFixture)
       return { ...draftOf(localId).check, source: { ...draftOf(localId).check.source, checked_at: Date.now() } };
     },
     async plan(localId, request) {
+      if (request.action !== 'update_source' && request.action !== 'save_as_copy') throw new PublicationMemoryFailure('write_contract_unverified');
       const draft = draftOf(localId);
       if (draft.check.mode !== 'read_write') throw new PublicationMemoryFailure('write_mode_required');
       if (request.action === 'update_source' && draft.check.source.state !== 'current') {

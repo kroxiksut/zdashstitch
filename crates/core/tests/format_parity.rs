@@ -622,3 +622,87 @@ fn tagged_unit_provenance_rejects_extra_fields() {
         );
     }
 }
+
+#[test]
+fn reusable_formats_share_examples_and_negative_cases_with_python() {
+    use serde_json::Value;
+    use zdashstitch_core::formats::{StyleProfile, WidgetBlueprint, strict};
+
+    let profile_source = read("examples/style-profile.yaml");
+    let blueprint_source = read("examples/widget-blueprint.yaml");
+    let profile = from_yaml_str::<StyleProfile>(&profile_source)
+        .unwrap_or_else(|error| panic!("profile: {error}"));
+    let blueprint = from_yaml_str::<WidgetBlueprint>(&blueprint_source)
+        .unwrap_or_else(|error| panic!("blueprint: {error}"));
+    assert_eq!(
+        from_yaml_str::<StyleProfile>(&to_yaml_string(&profile).unwrap_or_else(|e| panic!("{e}")))
+            .unwrap_or_else(|e| panic!("{e}")),
+        profile
+    );
+    assert_eq!(
+        from_yaml_str::<WidgetBlueprint>(
+            &to_yaml_string(&blueprint).unwrap_or_else(|e| panic!("{e}"))
+        )
+        .unwrap_or_else(|e| panic!("{e}")),
+        blueprint
+    );
+    let sources: BTreeMap<&str, Value> =
+        [("profile", profile_source), ("blueprint", blueprint_source)]
+            .into_iter()
+            .map(|(kind, yaml)| {
+                (
+                    kind,
+                    strict::yaml_from_str(&yaml).unwrap_or_else(|e| panic!("{e}")),
+                )
+            })
+            .collect();
+    let cases: Vec<Vec<Value>> =
+        serde_json::from_str(&read("fixtures/formats/profiles/negative-cases.json"))
+            .unwrap_or_else(|e| panic!("{e}"));
+    for case in cases {
+        let kind = case[0].as_str().unwrap_or_default();
+        let mut value = sources[kind].clone();
+        let path = case[2].as_array().unwrap_or_else(|| panic!("path array"));
+        let (key, parents) = path
+            .split_last()
+            .unwrap_or_else(|| panic!("last path part"));
+        let mut node = &mut value;
+        for part in parents {
+            node = if let Some(index) = part.as_u64() {
+                &mut node[usize::try_from(index).unwrap_or_default()]
+            } else {
+                &mut node[part.as_str().unwrap_or_default()]
+            };
+        }
+        if let Some(index) = key.as_u64() {
+            let index = usize::try_from(index).unwrap_or_default();
+            let array = node
+                .as_array_mut()
+                .unwrap_or_else(|| panic!("target array"));
+            match case.get(3) {
+                None => {
+                    array.remove(index);
+                }
+                Some(replacement) if index == array.len() => array.push(replacement.clone()),
+                Some(replacement) => array[index] = replacement.clone(),
+            }
+        } else {
+            let name = key.as_str().unwrap_or_default();
+            let mapping = node
+                .as_object_mut()
+                .unwrap_or_else(|| panic!("target object"));
+            if let Some(replacement) = case.get(3) {
+                mapping.insert(name.to_owned(), replacement.clone());
+            } else {
+                mapping.remove(name);
+            }
+        }
+        let raw = serde_json::to_string(&value).unwrap_or_else(|e| panic!("{e}"));
+        let rejected = if kind == "profile" {
+            from_json_str::<StyleProfile>(&raw).is_err()
+        } else {
+            from_json_str::<WidgetBlueprint>(&raw).is_err()
+        };
+        assert!(rejected, "unexpectedly accepted {}", case[1]);
+    }
+}

@@ -181,6 +181,20 @@ fn workcopy_status(code: &str) -> StatusCode {
         return status;
     }
     match code {
+        "reusable_not_found" => StatusCode::NOT_FOUND,
+        "reusable_conflict"
+        | "reusable_builtin_read_only"
+        | "reusable_workcopy_publish_unsupported"
+        | "workcopy_changed_concurrently" => StatusCode::CONFLICT,
+        "source_binding_required" | "catalog_missing" => StatusCode::UNPROCESSABLE_ENTITY,
+        "reusable_storage_invalid" => StatusCode::INTERNAL_SERVER_ERROR,
+        "format_newer" | "reusable_one_file" => StatusCode::UNPROCESSABLE_ENTITY,
+        code if code.starts_with("reusable_")
+            || code.starts_with("blueprint_")
+            || code.starts_with("profile_") =>
+        {
+            StatusCode::UNPROCESSABLE_ENTITY
+        }
         "workcopy_not_found"
         | "offline_page_not_found"
         | "page_library_not_found"
@@ -863,6 +877,14 @@ struct DraftWidgetBody {
     width: u32,
     height: u32,
     editable: bool,
+    #[serde(skip_serializing_if = "is_zero")]
+    unbound_sources: u32,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    blueprint_id: Option<String>,
+}
+
+fn is_zero(count: &u32) -> bool {
+    *count == 0
 }
 
 #[derive(Serialize)]
@@ -912,6 +934,8 @@ impl From<&DraftDetail> for DraftDetailBody {
                             width: widget.width,
                             height: widget.height,
                             editable: widget.editable,
+                            unbound_sources: widget.unbound_sources,
+                            blueprint_id: widget.blueprint_id.clone(),
                         })
                         .collect(),
                 })

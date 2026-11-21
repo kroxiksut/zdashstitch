@@ -50,6 +50,7 @@ The maintainer's current execution queue is local and intentionally ignored as `
 - [`adr/ADR-011.md`](adr/ADR-011.md) — multi-version adapter boundary.
 - [`adr/ADR-012.md`](adr/ADR-012.md) — v0.6 format, package and `VerifiedPlan` corrections.
 - [`adr/ADR-013.md`](adr/ADR-013.md) — code/documentation licensing split.
+- [`adr/ADR-014.md`](adr/ADR-014.md) — standalone style profiles and widget blueprints.
 
 ### Governance and evidence
 

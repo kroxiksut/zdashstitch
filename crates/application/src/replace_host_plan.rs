@@ -73,13 +73,14 @@ use std::collections::BTreeSet;
 
 use zdashstitch_zabbix::{
     AdapterProfile, PublicationContext, ReadWriteGateway, VersionedDashboardSnapshot,
-    WidgetFieldReplacement, verify_widget_field_replacements, write_requirements,
+    WidgetFieldReplacement, verify_widget_field_replacements, verify_workcopy_style_replacements,
+    write_requirements,
 };
 
 use crate::publish_journal::{PublishJournal, TargetKey};
 use crate::publisher::{
     CompatibilityFinding, FindingCode, FindingGroup, FindingSeverity, PlanError, PlanInvalidReason,
-    WorkcopyBinding, requirement_findings, send_confirmed,
+    WorkcopyBinding, compatibility_report, requirement_findings, send_confirmed,
 };
 use crate::replace_host::{FieldChange, FieldValue, ReplaceHostPreview, SessionContext};
 use crate::workcopy::WorkcopyService;
@@ -105,6 +106,203 @@ pub struct ReplaceHostPlanRequest {
     pub kept_digest: Option<String>,
     /// Generation the request was admitted under.
     pub session: SessionGeneration,
+}
+
+/// Builds a plan for the style-only log the user reviewed. The adapter
+/// independently checks the exact snapshot shape and visual write contracts.
+pub async fn plan_workcopy_style(
+    service: &WorkcopyService,
+    journal: &PublishJournal,
+    session: &LocalSession,
+    gateway: &ReadWriteGateway,
+    request: &ReplaceHostPlanRequest,
+) -> Result<VerifiedPlan, PlanError> {
+    if !session.is_current(request.session) {
+        return Err(PlanError::Invalidated(PlanInvalidReason::SessionEnded));
+    }
+    let (file, base, log) = service
+        .load_log(&request.local_id)
+        .map_err(PlanError::Workcopy)?;
+    let binding = WorkcopyBinding {
+        local_id: request.local_id.clone(),
+        connection_id: request.connection_id.clone(),
+        revision: request.revision,
+        base_fingerprint: request.base_fingerprint.clone(),
+        local_fingerprint: request.local_fingerprint.clone(),
+        kept_digest: None,
+    };
+    if request.kept_digest.is_some() || !style_binding_matches(&binding, &file, &base, &log) {
+        return Err(PlanError::Invalidated(PlanInvalidReason::DraftChanged));
+    }
+    if !file.source.matches_publication_identity(gateway.reader()) {
+        return Err(PlanError::Invalidated(PlanInvalidReason::ConnectionChanged));
+    }
+    journal
+        .check_target(&TargetKey::dashboard(
+            base.connection_id(),
+            Some(
+                gateway
+                    .reader()
+                    .identity()
+                    .endpoint_fingerprint()
+                    .to_owned(),
+            ),
+            base.dashboard_id(),
+        ))
+        .map_err(PlanError::Journal)?;
+    let read = |error: zdashstitch_zabbix::ZabbixError| PlanError::Read(error.failure());
+    let remote = gateway
+        .reader()
+        .dashboard_snapshot(base.connection_id(), base.dashboard_id())
+        .await
+        .map_err(read)?
+        .filter(|remote| remote.fingerprint() == base.fingerprint())
+        .ok_or(PlanError::Invalidated(PlanInvalidReason::SourceChanged))?;
+    let replacements =
+        crate::workcopy::reusable::style_replacements(&base, &log).map_err(PlanError::Workcopy)?;
+    let context = gateway.publication_context();
+    let requirements = write_requirements(&remote, &replacements).map_err(PlanError::Adapter)?;
+    let mut report = compatibility_report(&remote, &context, &requirements);
+    if !gateway
+        .dashboard_is_editable(base.dashboard_id())
+        .await
+        .map_err(read)?
+    {
+        report.findings.push(CompatibilityFinding::new(
+            FindingCode::DashboardNotEditable,
+            FindingSeverity::BlocksPublication,
+            FindingGroup::Connection,
+        ));
+    }
+    if !report.allows_publication() {
+        return Err(PlanError::Incompatible(report));
+    }
+    let update = verify_workcopy_style_replacements(&remote, &context, &replacements)
+        .map_err(PlanError::Adapter)?;
+    if update.local_fingerprint() != binding.local_fingerprint {
+        return Err(PlanError::LocalMismatch);
+    }
+    Ok(VerifiedPlan::for_workcopy_style(
+        update,
+        report,
+        binding,
+        request.session,
+    ))
+}
+
+pub async fn plan_workcopy_blueprint(
+    service: &WorkcopyService,
+    journal: &PublishJournal,
+    session: &LocalSession,
+    gateway: &ReadWriteGateway,
+    request: &ReplaceHostPlanRequest,
+) -> Result<VerifiedPlan, PlanError> {
+    if !session.is_current(request.session) {
+        return Err(PlanError::Invalidated(PlanInvalidReason::SessionEnded));
+    }
+    let (file, base, log) = service
+        .load_log(&request.local_id)
+        .map_err(PlanError::Workcopy)?;
+    let binding = WorkcopyBinding {
+        local_id: request.local_id.clone(),
+        connection_id: request.connection_id.clone(),
+        revision: request.revision,
+        base_fingerprint: request.base_fingerprint.clone(),
+        local_fingerprint: request.local_fingerprint.clone(),
+        kept_digest: None,
+    };
+    let entry = blueprint_binding_entry(&binding, &file, &base, &log)
+        .filter(|_| request.kept_digest.is_none())
+        .ok_or(PlanError::Invalidated(PlanInvalidReason::DraftChanged))?;
+    let reader = gateway.reader();
+    if file.source.server_identity_fingerprint.as_deref() != Some(reader.identity().fingerprint())
+        || &reader.capabilities().version != base.server_version()
+    {
+        return Err(PlanError::Invalidated(PlanInvalidReason::ConnectionChanged));
+    }
+    journal
+        .check_target(&TargetKey::dashboard(
+            base.connection_id(),
+            Some(reader.identity().endpoint_fingerprint().to_owned()),
+            base.dashboard_id(),
+        ))
+        .map_err(PlanError::Journal)?;
+    let read = |error: zdashstitch_zabbix::ZabbixError| PlanError::Read(error.failure());
+    let remote = reader
+        .dashboard_snapshot(base.connection_id(), base.dashboard_id())
+        .await
+        .map_err(read)?
+        .filter(|remote| remote.fingerprint() == base.fingerprint())
+        .ok_or(PlanError::Invalidated(PlanInvalidReason::SourceChanged))?;
+    let unsupported = || {
+        PlanError::Workcopy(crate::workcopy::WorkcopyError::new(
+            "reusable_blueprint_shape_unsupported",
+        ))
+    };
+    let (widget, bindings) = entry.publication_input().ok_or_else(unsupported)?;
+    let update = gateway
+        .verify_blueprint_append(
+            &remote,
+            &entry.page_id,
+            widget,
+            bindings,
+            binding.local_fingerprint.clone(),
+        )
+        .await
+        .map_err(read)?
+        .map_err(PlanError::Adapter)?;
+    let report = compatibility_report(
+        &remote,
+        &gateway.publication_context(),
+        &zdashstitch_zabbix::WriteRequirements {
+            contracts: update.required_contracts().clone(),
+            changed_pages: update.changed_pages().iter().copied().collect(),
+            kinds: update.replacement_kinds().clone(),
+            unproven_widgets: Vec::new(),
+        },
+    );
+    if !report.allows_publication() {
+        return Err(PlanError::Incompatible(report));
+    }
+    Ok(VerifiedPlan::for_workcopy_blueprint(
+        update,
+        report,
+        binding,
+        request.session,
+    ))
+}
+
+fn blueprint_binding_entry<'a>(
+    binding: &WorkcopyBinding,
+    file: &crate::workcopy::formats::WorkcopyFile,
+    base: &VersionedDashboardSnapshot,
+    log: &'a [crate::workcopy::operations::Operation],
+) -> Option<&'a crate::workcopy::blueprint::AddWidgetEntry> {
+    let entry = crate::workcopy::blueprint::only_blueprint(log)?;
+    (file.revision == binding.revision
+        && base.connection_id() == binding.connection_id
+        && base.fingerprint() == binding.base_fingerprint
+        && entry
+            .fingerprint()
+            .is_ok_and(|digest| digest == binding.local_fingerprint))
+    .then_some(entry)
+}
+
+fn style_binding_matches(
+    binding: &WorkcopyBinding,
+    file: &crate::workcopy::formats::WorkcopyFile,
+    base: &VersionedDashboardSnapshot,
+    operations: &[crate::workcopy::operations::Operation],
+) -> bool {
+    file.revision == binding.revision
+        && base.connection_id() == binding.connection_id
+        && base.fingerprint() == binding.base_fingerprint
+        && !operations.is_empty()
+        && operations
+            .iter()
+            .all(|op| matches!(op, crate::workcopy::operations::Operation::Style(_)))
+        && crate::workcopy::reusable::overlay_style(base.clone(), operations)
+            .is_ok_and(|local| local.fingerprint() == binding.local_fingerprint)
 }
 
 /// Facts gathered by [`plan_replace_host`]; verified by a pure function.
@@ -373,7 +571,23 @@ pub async fn publish_replace_host_plan(
     let Some(binding) = plan.workcopy_binding().cloned() else {
         return plan.refuse(None);
     };
+    let style = plan.is_style();
+    let blueprint = plan.is_blueprint();
     let current = || {
+        if blueprint {
+            return service
+                .load_log(&binding.local_id)
+                .is_ok_and(|(file, base, log)| {
+                    blueprint_binding_entry(&binding, &file, &base, &log).is_some()
+                });
+        }
+        if style {
+            return service
+                .load_log(&binding.local_id)
+                .is_ok_and(|(file, base, log)| {
+                    style_binding_matches(&binding, &file, &base, &log)
+                });
+        }
         service
             .replace_host_preview(&binding.local_id, SessionContext::Offline)
             .is_ok_and(|preview| {

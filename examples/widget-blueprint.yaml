@@ -1,0 +1,21 @@
+format: zdashstitch.widget-blueprint/v1
+blueprint_id: 91c0d2e4-6a1b-4f3c-8e5d-7b9a0c1d2e3f
+name: "Загрузка и нагрузка CPU"     # не совпадает с именем встроенного профиля «Нагрузка CPU — линия» (§14 п. 8)
+version: 1
+adapter: "7.4"
+widget_type: svggraph
+default_size: { width: 24, height: 6 }
+parameters:
+  roles:   [{ param: cpu_hosts, cardinality: many, slots: [cpu-primary, cpu-secondary], description: "Узлы для графика CPU" }]
+  metrics:
+    - { param: cpu_util, value_type: numeric_float, units: "%", description: "Загрузка CPU" }
+    - { param: load_avg, value_type: numeric_float, description: "Средняя нагрузка" }
+fields:
+  - { name: ds.0.dataset_type, field_type: 0, value: { kind: integer, value: 0 } }
+  - { name: ds.0.itemids.0,    field_type: 4, value: { kind: metric, metric: "$cpu_util", role: "$cpu_hosts", selection: slot, slot_id: cpu-primary } }
+  - { name: ds.0.type,         field_type: 0, value: { kind: integer, value: 0 } }
+  - { name: ds.0.width,        field_type: 0, value: { kind: integer, value: 2 } }
+  - { name: ds.1.dataset_type, field_type: 0, value: { kind: integer, value: 0 } }
+  - { name: ds.1.itemids.0,    field_type: 4, value: { kind: metric, metric: "$load_avg", role: "$cpu_hosts", selection: slot, slot_id: cpu-secondary } }
+  - { name: ds.1.axisy,        field_type: 0, value: { kind: integer, value: 1 } }
+  - { name: lefty_min,         field_type: 1, value: { kind: string, value: "0" } }

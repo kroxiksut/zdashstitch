@@ -35,8 +35,10 @@
 //! RFC 3339 UTC (O-035).
 
 mod advance;
+pub(crate) mod blueprint;
 pub(crate) mod formats;
 pub(crate) mod operations;
+pub(crate) mod reusable;
 mod service;
 pub(crate) mod store;
 mod view;
@@ -46,10 +48,12 @@ use std::fmt;
 use zdashstitch_zabbix::{FailureParam, ZabbixError};
 
 pub use advance::{AdvancedBase, PublishedUpdate};
+pub use blueprint::{CopyBlueprintPreview, CopyBlueprintRequest, CopyBlueprintState};
 pub use formats::{
     DraftKind, ItemMetadataState, LocalMetadata, StoredItemMetadata, StoredValueMap,
     StoredValueMapping,
 };
+pub use reusable::{CopyStyleChange, CopyStylePreview, CopyStyleRequest, CopyStyleState};
 pub use service::{
     AccessCounts, AccessFilter, DashboardAccess, DashboardOwner, ExistingCopy, ImportOutcome,
     ImportPreview, ImportRequest, ImportScope, MAX_DRAFT_NAME_CHARS, MAX_IMPORT_ATTEMPTS,

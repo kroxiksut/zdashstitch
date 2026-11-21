@@ -124,6 +124,8 @@ export function intentText(intent: string): LocalizedText {
       return { id: 'intent.save_as_copy' };
     case 'replace_item_fields':
       return { id: 'intent.replace_item_fields' };
+    case 'apply_style_profile':
+      return { id: 'reusable.publish_style' };
     default:
       return { id: 'intent.unknown', params: { code: intent } };
   }
@@ -154,6 +156,10 @@ export const PUBLICATION_ERROR_CODES: ReadonlyArray<string> = [...Object.keys(ER
 /** User-facing text of a refused publication command. */
 export function publicationCodeText(i18n: I18n, failure: Pick<PublicationFailure, 'code' | 'params'>): LocalizedText {
   const { code, params } = failure;
+  if (params.step === 'blueprint_target' || params.step === 'blueprint_widget' || code === 'reusable_blueprint_shape_unsupported') {
+    return { id: 'reusable.unverified_blueprint_publish' };
+  }
+  if (params.step === 'blueprint_binding_or_permission') return { id: 'reusable.copy_blueprint_publish' };
   if (code in ERRORS) return { id: ERRORS[code as keyof typeof ERRORS] } as LocalizedText;
   switch (code) {
     case 'plan_invalidated':

@@ -152,6 +152,8 @@ pub struct DraftWidget {
     /// The capability registry (P0-09) knows the type and every field and
     /// allows editing; `false` means «Editing not supported».
     pub editable: bool,
+    pub unbound_sources: u32,
+    pub blueprint_id: Option<String>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -287,6 +289,8 @@ pub(crate) fn page_view(page: &Value, registry: &WidgetCapabilityRegistry) -> Dr
                 width: small(widget.get("width")),
                 height: small(widget.get("height")),
                 editable: widget_editable(widget, registry),
+                unbound_sources: 0,
+                blueprint_id: None,
             })
             .collect(),
     }
@@ -312,10 +316,8 @@ pub(crate) fn find_page<'a>(raw: &'a Value, dashboard_pageid: &str) -> Option<(u
         })
 }
 
-/// Draft structure: pages, widgets and geometry of the draft scope. The
-/// operations of this build (`replace_host`, P2-03) change only widget field
-/// values, never structure, so the structure equals Base; field values of
-/// Local come from `WorkcopyService::local_snapshot`.
+/// Pages, widgets and geometry from Base. The service applies local
+/// structural operations after building this view.
 pub(crate) fn materialize(
     file: &WorkcopyFile,
     raw: &Value,

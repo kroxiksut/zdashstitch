@@ -55,8 +55,8 @@ pub use report::{
     CONTRACT_SEVERAL_PAGES, CONTRACT_SVGGRAPH_HOSTS, CONTRACT_SVGGRAPH_ITEMIDS, SessionContext,
     capability_state_str,
 };
-pub(crate) use service::materialize_local_operations;
 pub use service::{OperationRecord, ReplaceHostOperation, ReplaceHostPreview};
+pub(crate) use service::{materialize_existing_widgets, materialize_local_operations};
 pub use state::{
     ChangeState, CheckReason, DecisionState, FieldChange, KeptEntry, KeptList, RowCheck, RowView,
 };

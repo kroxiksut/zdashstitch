@@ -23,6 +23,11 @@ use crate::compatibility::project_evaluation_profile;
 
 use crate::{
     catalog_library::CatalogLibrary,
+    reusable_library::ReusableLibrary,
+    reusable_widgets::{
+        self, PageReusableState, ReusableAction, ReusableActionResult, ReusableHistoryAction,
+        ReusableInfo,
+    },
     workcopy::{
         WorkcopyError,
         store::{LocalStore, read_bounded, write_atomic},
@@ -208,6 +213,8 @@ pub struct OfflinePageView {
     pub composition: LogicalComposition,
     pub widget_evaluation: OfflineWidgetEvaluation,
     pub recovery: RecoveryInfo,
+    #[serde(skip_serializing_if = "ReusableInfo::is_empty")]
+    pub reusable: ReusableInfo,
 }
 
 /// Local registry recognition only. Logical composition and the authorization
@@ -250,6 +257,7 @@ impl OfflinePage {
             page: self,
             composition,
             widget_evaluation,
+            reusable: ReusableInfo::default(),
         })
     }
 }
@@ -329,6 +337,8 @@ struct PageFile {
     pages: Vec<OfflinePage>,
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     removed_widgets: BTreeMap<String, RemovedWidgets>,
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    reusable: BTreeMap<String, PageReusableState>,
 }
 
 impl Default for PageFile {
@@ -337,6 +347,7 @@ impl Default for PageFile {
             format: "zdashstitch.offline-pages/v0".to_owned(),
             pages: Vec::new(),
             removed_widgets: BTreeMap::new(),
+            reusable: BTreeMap::new(),
         }
     }
 }
@@ -590,12 +601,21 @@ impl OfflinePageStore {
     }
 
     pub fn open(&self, local_id: &str) -> Result<Option<OfflinePageView>, WorkcopyError> {
-        let Some(page) = self.get(local_id)? else {
+        let mut file = self.load()?;
+        let Some(index) = file
+            .pages
+            .iter()
+            .position(|entry| entry.local_id == local_id)
+        else {
             return Ok(None);
         };
+        let page = file.pages.swap_remove(index);
         let attempted = self.save_attempts()?.attempts.get(local_id).copied();
         let revision = page.revision;
         let mut view = page.view()?;
+        if let Some(info) = file.reusable.get(local_id) {
+            view.reusable = info.info(revision);
+        }
         view.recovery.may_have_unsaved_changes =
             attempted.is_some_and(|attempt| attempt >= revision);
         Ok(Some(view))
@@ -702,6 +722,14 @@ impl OfflinePageStore {
             file.removed_widgets.insert(local_id.to_owned(), removed);
         }
         page.bundle = bundle;
+        if let Some(state) = file.reusable.get_mut(local_id)
+            && let ProjectRoot::Page(data) = &page.bundle.project.root
+        {
+            state.edited(data);
+            if state.is_empty() {
+                file.reusable.remove(local_id);
+            }
+        }
         page.catalog_versions = catalogs;
         page.revision = page.revision.checked_add(1).ok_or_else(corrupt)?;
         page.updated_at_ms = now_ms().max(page.updated_at_ms).max(page.created_at_ms);
@@ -713,6 +741,99 @@ impl OfflinePageStore {
         }
         self.write(&file)?;
         Ok(result)
+    }
+
+    pub fn reusable_action(
+        &self,
+        local_id: &str,
+        request: &ReusableAction,
+        apply: bool,
+    ) -> Result<ReusableActionResult, WorkcopyError> {
+        let _lock = WRITE_LOCK
+            .lock()
+            .map_err(|_| WorkcopyError::new("storage_write_failed"))?;
+        let mut file = self.load()?;
+        let page = file
+            .pages
+            .iter_mut()
+            .find(|entry| entry.local_id == local_id)
+            .ok_or_else(|| WorkcopyError::new("offline_page_not_found"))?;
+        if page.revision != request.expected_revision {
+            return Err(WorkcopyError::new("offline_page_conflict"));
+        }
+        let ProjectRoot::Page(current_page) = &page.bundle.project.root else {
+            return Err(corrupt());
+        };
+        let asset = ReusableLibrary::new(self.root.clone()).get(&request.asset_id)?;
+        let state = file.reusable.get(local_id);
+        let (next, preview) =
+            reusable_widgets::plan(&page.bundle, &current_page.id, &asset, request, state)?;
+        if !apply || !preview.has_changes() {
+            return Ok(ReusableActionResult {
+                preview,
+                page: None,
+            });
+        }
+        page.revision = page.revision.checked_add(1).ok_or_else(corrupt)?;
+        page.updated_at_ms = now_ms().max(page.updated_at_ms).max(page.created_at_ms);
+        let state = file.reusable.entry(local_id.to_owned()).or_default();
+        state.record(
+            current_page.clone(),
+            page.revision,
+            page.updated_at_ms,
+            &asset,
+            &preview,
+        );
+        page.bundle = next;
+        let mut view = page.clone().view()?;
+        view.reusable = state.info(page.revision);
+        self.mark_save_attempt(local_id, request.expected_revision)?;
+        self.write(&file)?;
+        Ok(ReusableActionResult {
+            preview,
+            page: Some(view),
+        })
+    }
+
+    pub fn reusable_history(
+        &self,
+        local_id: &str,
+        revision: u64,
+        action: &ReusableHistoryAction,
+    ) -> Result<OfflinePageView, WorkcopyError> {
+        let _lock = WRITE_LOCK
+            .lock()
+            .map_err(|_| WorkcopyError::new("storage_write_failed"))?;
+        let mut file = self.load()?;
+        let page = file
+            .pages
+            .iter_mut()
+            .find(|entry| entry.local_id == local_id)
+            .ok_or_else(|| WorkcopyError::new("offline_page_not_found"))?;
+        if page.revision != revision {
+            return Err(WorkcopyError::new("offline_page_conflict"));
+        }
+        let ProjectRoot::Page(data) = &mut page.bundle.project.root else {
+            return Err(corrupt());
+        };
+        let state = file
+            .reusable
+            .get_mut(local_id)
+            .ok_or_else(|| WorkcopyError::new("reusable_history_unavailable"))?;
+        match action {
+            ReusableHistoryAction::Switch { redo } => state.history(data, revision, *redo)?,
+            ReusableHistoryAction::Detach { widget_id } => {
+                state.detach(data, revision, widget_id)?
+            }
+        }
+        page.bundle.validate().map_err(|_| corrupt())?;
+        page.revision = page.revision.checked_add(1).ok_or_else(corrupt)?;
+        page.updated_at_ms = now_ms().max(page.updated_at_ms);
+        let mut view = page.clone().view()?;
+        view.reusable = state.info(page.revision);
+        self.mark_save_attempt(local_id, revision)?;
+        self.write(&file)?;
+        Ok(view)
     }
 
     fn write(&self, file: &PageFile) -> Result<(), WorkcopyError> {

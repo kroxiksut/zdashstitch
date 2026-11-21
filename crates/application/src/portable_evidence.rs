@@ -15,8 +15,11 @@ use crate::{
         PortableHostChoice, PortableItemChoice, PortablePatternChoice, add_graphs,
         add_host_choices, add_pattern_choices, metric_matches, validate_choices,
     },
-    portable_conversion::{apply_workcopy_name, convert_dashboard_bound, convert_page_bound},
-    replace_host::materialize_local_operations,
+    portable_conversion::{
+        append_converted_blueprints, apply_workcopy_name, convert_dashboard_bound,
+        convert_page_bound,
+    },
+    replace_host::materialize_existing_widgets,
     resolver::{SourceFacts, SourceKind, collect_source_facts, source_model},
     workcopy::{DraftKind, WorkcopyError, WorkcopyService},
 };
@@ -89,7 +92,7 @@ impl WorkcopyService {
         if file.source.connection_id != connection_id {
             return Err(WorkcopyError::new("workcopy_other_connection"));
         }
-        let local = materialize_local_operations(base, &operations)?;
+        let local = materialize_existing_widgets(base, &operations)?;
         if local.server_version() != &reader.capabilities().version {
             return Err(WorkcopyError::new("clone_intent_server_changed"));
         }
@@ -173,7 +176,7 @@ impl WorkcopyService {
         }
         let (current, base, operations) = self.load_log(local_id)?;
         if current.revision != file.revision
-            || materialize_local_operations(base, &operations)?.storage_fingerprint() != fingerprint
+            || materialize_existing_widgets(base, &operations)?.storage_fingerprint() != fingerprint
         {
             return Err(WorkcopyError::new("workcopy_revision_conflict"));
         }
@@ -235,7 +238,7 @@ impl WorkcopyService {
         if file.revision != expected_revision {
             return Err(WorkcopyError::new("workcopy_revision_conflict"));
         }
-        let local = materialize_local_operations(base, &operations)?;
+        let local = materialize_existing_widgets(base, &operations)?;
         if local.server_version() != &reader.capabilities().version {
             return Err(WorkcopyError::new("clone_intent_server_changed"));
         }
@@ -290,9 +293,10 @@ impl WorkcopyService {
             Some(id) => convert_page_bound(&scoped, id, "portable".to_owned(), Some(evidence))?,
             None => convert_dashboard_bound(&scoped, "portable".to_owned(), Some(evidence))?,
         };
+        append_converted_blueprints(&mut bundle, &scoped, page_id.as_deref(), &operations)?;
         apply_workcopy_name(&mut bundle, &file.name)?;
         let (current, current_base, current_operations) = self.load_log(local_id)?;
-        let current_local = materialize_local_operations(current_base, &current_operations)?;
+        let current_local = materialize_existing_widgets(current_base, &current_operations)?;
         if current.revision != expected_revision
             || current_local.storage_fingerprint() != fingerprint
         {
@@ -324,7 +328,7 @@ impl WorkcopyService {
         if file.source.connection_id != connection_id {
             return Err(WorkcopyError::new("workcopy_other_connection"));
         }
-        let local = materialize_local_operations(base, &operations)?;
+        let local = materialize_existing_widgets(base, &operations)?;
         if local.server_version() != &reader.capabilities().version {
             return Err(WorkcopyError::new("clone_intent_server_changed"));
         }
@@ -363,7 +367,7 @@ impl WorkcopyService {
             .map_err(|error| WorkcopyError::from_resolver(&error))?;
         // The workcopy can change while the network request is in flight.
         let (current, current_base, current_operations) = self.load_log(local_id)?;
-        let current_local = materialize_local_operations(current_base, &current_operations)?;
+        let current_local = materialize_existing_widgets(current_base, &current_operations)?;
         if current.revision != file.revision
             || current_local.storage_fingerprint() != local_fingerprint
         {

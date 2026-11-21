@@ -417,6 +417,9 @@ pub(crate) fn check_operation(
     {
         return Err(corrupt("portable_update"));
     }
+    if operation.intent == "append_blueprint" && operation.portable_update.is_none() {
+        return Err(corrupt("portable_update"));
+    }
     if !is_code(&operation.intent)
         || !is_connection_id(&operation.connection_id)
         || operation.server_version.is_empty()

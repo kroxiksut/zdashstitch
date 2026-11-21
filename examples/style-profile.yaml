@@ -1,0 +1,17 @@
+format: zdashstitch.style-profile/v1
+profile_id: 7a2f3c10-5b7e-4c8a-9d21-0f6e4b1a2c3d
+name: "Рост БД — столбцы"
+description: "Столбцы с накоплением для графиков роста размера баз данных"
+tags: [базы, рост]
+version: 3
+adapter: "7.4"
+declared_compatibility: { minimum: "7.4.0" }
+widget_types:
+  svggraph:
+    widget_fields: { legend: 1, legend_lines: 2, lefty: 1, lefty_min: "0", show_problems: 1 }
+    dataset_fields: { type: 3, stacked: 1, transparency: 3 }
+    series_palette: ["3156A3", "8B5CF6", "1F6B43"]
+  item:
+    widget_fields: { show: [1, 2], value_size: 45, value_bold: 1, units_show: 1, units_size: 35, bg_color: "FFFFFF" }
+    thresholds: [{ threshold: "80", color: "E8A33D" }, { threshold: "95", color: "A32935" }]
+    thresholds_units: "%"

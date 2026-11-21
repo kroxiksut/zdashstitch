@@ -400,9 +400,32 @@ impl LocalStore {
     }
 
     /// Replaces `workcopy.json` of an existing workcopy (temp → sync → rename).
+    #[cfg(test)]
     pub(crate) fn replace_workcopy(&self, file: &WorkcopyFile) -> Result<(), WorkcopyError> {
+        self.replace_workcopy_at_revision(file, None)
+    }
+
+    pub(crate) fn replace_workcopy_if_revision(
+        &self,
+        file: &WorkcopyFile,
+        expected_revision: u64,
+    ) -> Result<(), WorkcopyError> {
+        self.replace_workcopy_at_revision(file, Some(expected_revision))
+    }
+
+    fn replace_workcopy_at_revision(
+        &self,
+        file: &WorkcopyFile,
+        expected_revision: Option<u64>,
+    ) -> Result<(), WorkcopyError> {
         let _guard =
             crate::snapshot_guard::lock().map_err(|_| WorkcopyError::new("storage_unavailable"))?;
+        if let Some(expected) = expected_revision
+            && (self.load_workcopy(&file.workcopy_id)?.revision != expected
+                || expected.checked_add(1) != Some(file.revision))
+        {
+            return Err(WorkcopyError::new("workcopy_changed_concurrently"));
+        }
         let (_, base) = self.load_snapshot(
             &file.source.connection_id,
             &file.source.dashboardid,

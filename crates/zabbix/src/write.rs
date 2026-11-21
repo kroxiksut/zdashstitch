@@ -55,7 +55,11 @@ use crate::{
     WriteContract, ZabbixCapabilities, ZabbixError, ZabbixVersion,
 };
 
+mod blueprint_8_0;
 mod item_update_8_0;
+mod style_8_0;
+use blueprint_8_0::BlueprintAppend;
+pub use blueprint_8_0::{BlueprintItemBinding, can_preview_blueprint_append};
 use item_update_8_0::{ItemUpdateEvidence, ScopedItemUpdate};
 
 /// Upper bound of replacements in one verified update.
@@ -323,6 +327,7 @@ pub struct VerifiedDashboardUpdate {
     local_fingerprint: String,
     authority_fingerprint: String,
     item_update_evidence: Option<ItemUpdateEvidence>,
+    blueprint_append: Option<BlueprintAppend>,
     /// Applied again to the read right before send, so the payload carries
     /// pages, widgets and fields in the order the server returned them then.
     replacements: Vec<WidgetFieldReplacement>,
@@ -380,12 +385,23 @@ impl VerifiedDashboardUpdate {
         &self.kinds
     }
 
+    pub fn blueprint_readback(&self) -> Option<crate::PortableUpdateReadback> {
+        self.blueprint_append
+            .as_ref()
+            .map(|append| append.readback.clone())
+    }
+
     /// Read-back check on the canonical fingerprint (module rules).
     fn matches_expected(&self, snapshot: &VersionedDashboardSnapshot) -> bool {
         snapshot.connection_id() == self.connection_id
             && snapshot.server_version() == &self.server_version
             && snapshot.dashboard_id() == self.dashboard_id
-            && snapshot.fingerprint() == self.expected_fingerprint
+            && self.blueprint_readback().map_or_else(
+                || snapshot.fingerprint() == self.expected_fingerprint,
+                |readback| {
+                    readback.fingerprint(snapshot).as_deref() == Some(&self.expected_fingerprint)
+                },
+            )
     }
 
     /// `dashboard.update` params for `current`, a read whose canonical
@@ -401,6 +417,9 @@ impl VerifiedDashboardUpdate {
             || current.fingerprint() != self.source_fingerprint
         {
             return None;
+        }
+        if let Some(append) = &self.blueprint_append {
+            return append.params(current);
         }
         let Prepared {
             expected_raw,
@@ -458,6 +477,10 @@ fn field_kind(widget_type: &str, name: &str, field_type: Option<i64>) -> Option<
     let parts = name.split('.').collect::<Vec<_>>();
     match (widget_type, parts.as_slice(), field_type) {
         ("item", ["itemid", n], Some(4)) if index(n) => Some(WriteContract::ItemWidgetItemid),
+        ("item", ["bg_color"], Some(1)) => Some(WriteContract::ItemBackgroundColor),
+        ("svggraph", ["ds", "0", "color", "0" | "1" | "2"], Some(1)) => {
+            Some(WriteContract::SvggraphSeriesColor)
+        }
         ("svggraph", ["ds", n, "itemids", m], Some(4)) if index(n) && index(m) => {
             Some(WriteContract::SvggraphDatasetItemids)
         }
@@ -488,7 +511,18 @@ fn check_values(
     replacement: &WidgetFieldReplacement,
 ) -> std::result::Result<(), WriteRejection> {
     let rejection = |code| WriteRejection::new(code).at(replacement);
-    if kind == WriteContract::SvggraphDatasetHosts {
+    if matches!(
+        kind,
+        WriteContract::ItemBackgroundColor | WriteContract::SvggraphSeriesColor
+    ) {
+        let valid = |value: &str| {
+            style_8_0::color(value)
+                || (kind == WriteContract::ItemBackgroundColor && value.is_empty())
+        };
+        if !valid(&replacement.expected_value) || !valid(&replacement.replacement_value) {
+            return Err(rejection(WriteRejectionCode::ReplacementValueInvalid));
+        }
+    } else if kind == WriteContract::SvggraphDatasetHosts {
         if replacement.expected_value.contains('*') {
             return Err(
                 rejection(WriteRejectionCode::FieldKindUnsupported).with("field_kind", "host_mask")
@@ -623,7 +657,8 @@ fn prepare(
     replacements: &[WidgetFieldReplacement],
 ) -> std::result::Result<Prepared, WriteRejection> {
     let eight_zero = snapshot.adapter_id() == AdapterProfile::V8_0.adapter_id();
-    if eight_zero && item_update_8_0::contract_shape(snapshot, replacements).is_none() {
+    let style = eight_zero && style_8_0::contract_shape(snapshot, replacements);
+    if eight_zero && !style && item_update_8_0::contract_shape(snapshot, replacements).is_none() {
         return Err(
             WriteRejection::new(WriteRejectionCode::ContractUnverified).with(
                 "contract",
@@ -644,7 +679,7 @@ fn prepare(
         .ok_or_else(shape)?;
     let mut seen = BTreeSet::new();
     let mut contracts: BTreeSet<WriteContract> = WriteContract::PAGE_UPDATE.into_iter().collect();
-    if eight_zero && replacements.len() == 1 {
+    if style || (eight_zero && replacements.len() == 1) {
         // The scoped single-field shapes contain no widget references.
         contracts.remove(&WriteContract::PreserveWidgetReferences);
     }
@@ -660,6 +695,9 @@ fn prepare(
         }
         let kind = apply_one(pages, replacement)?;
         contracts.insert(kind);
+        if kind == WriteContract::ItemBackgroundColor && replacement.replacement_value.is_empty() {
+            contracts.insert(WriteContract::ItemBackgroundReset);
+        }
         *kinds.entry(kind).or_insert(0) += 1;
         changed_pages.insert(replacement.page_index);
     }
@@ -762,6 +800,23 @@ pub fn verify_widget_field_replacements(
     context: &PublicationContext,
     replacements: &[WidgetFieldReplacement],
 ) -> std::result::Result<VerifiedDashboardUpdate, WriteRejection> {
+    verify_replacements(snapshot, context, replacements, false)
+}
+
+pub fn verify_workcopy_style_replacements(
+    snapshot: &VersionedDashboardSnapshot,
+    context: &PublicationContext,
+    replacements: &[WidgetFieldReplacement],
+) -> std::result::Result<VerifiedDashboardUpdate, WriteRejection> {
+    verify_replacements(snapshot, context, replacements, true)
+}
+
+fn verify_replacements(
+    snapshot: &VersionedDashboardSnapshot,
+    context: &PublicationContext,
+    replacements: &[WidgetFieldReplacement],
+    allow_style: bool,
+) -> std::result::Result<VerifiedDashboardUpdate, WriteRejection> {
     let capabilities = context.capabilities();
     if !context.live_authenticated {
         return Err(WriteRejection::new(WriteRejectionCode::AuthorityOffline));
@@ -775,19 +830,26 @@ pub fn verify_widget_field_replacements(
         expected_raw,
         requirements,
     } = prepare(snapshot, replacements)?;
-    let item_update_evidence = if snapshot.adapter_id() == AdapterProfile::V8_0.adapter_id() {
-        let proof = context
-            .scoped_item_update
-            .as_ref()
-            .filter(|proof| proof.covers(snapshot, replacements))
-            .ok_or_else(|| {
-                WriteRejection::new(WriteRejectionCode::ContractUnverified)
-                    .with("contract", WriteContract::ItemWidgetItemid.as_str())
-            })?;
-        Some(proof.evidence.clone())
-    } else {
-        None
-    };
+    let style = style_8_0::contract_shape(snapshot, replacements);
+    if allow_style != style {
+        return Err(WriteRejection::new(
+            WriteRejectionCode::FieldKindUnsupported,
+        ));
+    }
+    let item_update_evidence =
+        if snapshot.adapter_id() == AdapterProfile::V8_0.adapter_id() && !style {
+            let proof = context
+                .scoped_item_update
+                .as_ref()
+                .filter(|proof| proof.covers(snapshot, replacements))
+                .ok_or_else(|| {
+                    WriteRejection::new(WriteRejectionCode::ContractUnverified)
+                        .with("contract", WriteContract::ItemWidgetItemid.as_str())
+                })?;
+            Some(proof.evidence.clone())
+        } else {
+            None
+        };
     if let Some(contract) = requirements
         .missing_contracts(&capabilities.dashboard_write_contracts)
         .first()
@@ -828,6 +890,7 @@ pub fn verify_widget_field_replacements(
         local_fingerprint,
         authority_fingerprint: context.binding_fingerprint.clone(),
         item_update_evidence,
+        blueprint_append: None,
         replacements: replacements.to_vec(),
         replacement_count: replacements.len(),
         required_contracts: requirements.contracts,
@@ -908,6 +971,11 @@ impl ReadWriteGateway {
         {
             return DashboardPublishOutcome::FailedBeforeSend;
         }
+        if let Some(append) = &update.blueprint_append
+            && !matches!(append.recheck(self, update.dashboard_id()).await, Ok(true))
+        {
+            return DashboardPublishOutcome::FailedBeforeSend;
+        }
         let Ok(before) = self.read_update_snapshot(update).await else {
             return DashboardPublishOutcome::FailedBeforeSend;
         };
@@ -936,7 +1004,12 @@ impl ReadWriteGateway {
                 return DashboardPublishOutcome::Conflict;
             }
         }
-        if !before_send() {
+        if update
+            .blueprint_append
+            .as_ref()
+            .is_some_and(|append| !append.reserve_send())
+            || !before_send()
+        {
             return DashboardPublishOutcome::FailedBeforeSend;
         }
 
@@ -952,9 +1025,13 @@ impl ReadWriteGateway {
             .await;
         let response_known = match dispatch {
             Ok(result)
-                if result["dashboardids"]
-                    .as_array()
-                    .is_some_and(|ids| ids.iter().any(|id| id == update.dashboard_id())) =>
+                if result["dashboardids"].as_array().is_some_and(|ids| {
+                    if update.blueprint_append.is_some() {
+                        ids == &[json!(update.dashboard_id())]
+                    } else {
+                        ids.iter().any(|id| id == update.dashboard_id())
+                    }
+                }) =>
             {
                 true
             }
@@ -992,9 +1069,12 @@ impl ReadWriteGateway {
                 }
             }
         }
+        if update.blueprint_append.is_some() {
+            return DashboardPublishOutcome::UnknownOutcome;
+        }
         match (response_known, read_succeeded) {
             (true, _) => DashboardPublishOutcome::FailedAfterResponse,
-            (false, _) if update.item_update_evidence.is_some() && !source_unchanged => {
+            (false, _) if update.server_version.major == 8 && !source_unchanged => {
                 DashboardPublishOutcome::UnknownOutcome
             }
             (false, true) => DashboardPublishOutcome::ReconciledFailed,
@@ -1006,7 +1086,7 @@ impl ReadWriteGateway {
         &self,
         update: &VerifiedDashboardUpdate,
     ) -> Result<Option<VersionedDashboardSnapshot>> {
-        if update.item_update_evidence.is_some() {
+        if update.server_version.major == 8 {
             if !self.reader().matches_live_version().await? {
                 return Err(reject("server version changed during verified update"));
             }

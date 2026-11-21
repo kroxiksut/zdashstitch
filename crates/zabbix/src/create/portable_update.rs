@@ -73,6 +73,11 @@ pub struct NewGraphIds {
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 pub enum PortableUpdateReadback {
     Exact,
+    AppendedBlueprint,
+    AppendedBlueprintAt {
+        page: usize,
+        widget: usize,
+    },
     UpdatedGraph,
     AddedPage {
         page: usize,
@@ -101,6 +106,13 @@ pub enum PortableUpdateReadback {
 }
 
 impl PortableUpdateReadback {
+    pub const fn is_blueprint(&self) -> bool {
+        matches!(
+            self,
+            Self::AppendedBlueprint | Self::AppendedBlueprintAt { .. }
+        )
+    }
+
     pub fn fingerprint(&self, snapshot: &VersionedDashboardSnapshot) -> Option<String> {
         if !graph_8_0::exact_version(snapshot.server_version()) {
             return None;
@@ -109,6 +121,35 @@ impl PortableUpdateReadback {
             return Some(snapshot.fingerprint().to_owned());
         }
         let raw = snapshot.raw_api_document();
+        if self.is_blueprint() {
+            let mut projection = raw.clone();
+            let pages = projection["pages"].as_array_mut()?;
+            let (page, widget) = match self {
+                Self::AppendedBlueprint if pages.len() == 1 => (0, 1),
+                Self::AppendedBlueprintAt { page, widget } => (*page, *widget),
+                _ => return None,
+            };
+            let mut ids = BTreeSet::new();
+            for page in &*pages {
+                for widget in page["widgets"].as_array()? {
+                    if !widget["widgetid"].as_str().is_some_and(|id| {
+                        is_zabbix_id(id) && !id.starts_with('0') && ids.insert(id)
+                    }) {
+                        return None;
+                    }
+                }
+            }
+            let widgets = pages.get_mut(page)?["widgets"].as_array_mut()?;
+            if widgets.len() != widget.checked_add(1)? {
+                return None;
+            }
+            let added = widgets.get_mut(widget)?;
+            added.as_object_mut()?.remove("widgetid")?;
+            added["fields"]
+                .as_array_mut()?
+                .sort_by_cached_key(Value::to_string);
+            return snapshot_fingerprint(snapshot, projection);
+        }
         supported_target(raw, raw["userid"].as_str()?)?;
         let mut raw = raw.clone();
         let pages = raw["pages"].as_array_mut()?;
@@ -118,7 +159,9 @@ impl PortableUpdateReadback {
         }
         let added = *self != Self::UpdatedGraph;
         let (page, first_widget, count) = match *self {
-            Self::Exact => return None,
+            Self::Exact | Self::AppendedBlueprint | Self::AppendedBlueprintAt { .. } => {
+                return None;
+            }
             Self::UpdatedGraph => {
                 let [page] = pages.as_mut_slice() else {
                     return None;
@@ -785,6 +828,8 @@ fn differences(
 ) -> Option<Vec<PortableUpdateDifference>> {
     use PortableUpdateDifference::*;
     match *readback {
+        PortableUpdateReadback::AppendedBlueprint
+        | PortableUpdateReadback::AppendedBlueprintAt { .. } => None,
         PortableUpdateReadback::LinkedComposition { .. } => composition::differences(before, after),
         PortableUpdateReadback::AddedPage { page }
         | PortableUpdateReadback::InsertedPage { page, .. } => Some(vec![AddPage {

@@ -3,6 +3,7 @@
   import { ApiFailure } from '../api';
   import { Button } from '../components';
   import type { I18n } from '../i18n';
+  import ReusableLibrary from './ReusableLibrary.svelte';
   import { createCatalogClient, type CatalogDeletionPreview, type CatalogPreview, type CatalogSummary, type LibraryIndex, type LibraryPageSummary, type OfflinePage, type SnapshotSummary, type SnapshotComparison, type SnapshotDeletionPreview } from './client';
 
   let { i18n, ontaken }: { i18n: I18n; ontaken?: (page: OfflinePage) => void } = $props();
@@ -414,6 +415,7 @@
       {/each}
     </ul>{/if}
   </section>
+  <ReusableLibrary {i18n} />
 </div>
 
 <style>

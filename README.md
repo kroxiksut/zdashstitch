@@ -104,7 +104,7 @@ The original P0-01 shell is only the starting point; later work adds parts of an
 
 ## Why Python still exists
 
-Python is a **temporary executable specification**, not a planned product runtime. It deterministically generates the six JSON Schemas, validates portable YAML/data-only ZIP and cross-file invariants, and supplies positive/negative fixtures that the Rust implementation must match.
+Python is a **temporary executable specification** for development. It deterministically generates the JSON Schemas, validates portable YAML/data-only ZIP and cross-file invariants, and supplies positive and negative fixtures for parity with Rust.
 
 P0-02 and P0-03 now provide equivalent Rust models, semantic validators and a safe directory/data-only ZIP layer. Python remains developer-only as the single schema generator and an independent regression oracle; it is no longer needed in the normal product workflow and is never shipped with the GUI.
 
@@ -116,9 +116,9 @@ P0-02 and P0-03 now provide equivalent Rust models, semantic validators and a sa
 | [`docs/MVP_TRACEABILITY.md`](docs/MVP_TRACEABILITY.md) | MVP use cases mapped to P0–P6 tasks, G0–G6 gates and acceptance evidence |
 | [`ROADMAP.md`](ROADMAP.md) / [`ROADMAP.ru.md`](ROADMAP.ru.md) | Consolidated post-MVP directions |
 | [`AGENTS.md`](AGENTS.md) | Mandatory start point and safety rules for coding agents |
-| [`docs/adr/`](docs/adr/) | Accepted architecture and licensing decisions 001–013 |
+| [`docs/adr/`](docs/adr/) | Accepted architecture and licensing decisions 001–014 |
 | [`docs/architecture/`](docs/architecture/) | Adapter and portable-format contracts |
-| [`schemas/`](schemas/) | Six generated JSON Schemas |
+| [`schemas/`](schemas/) | Generated JSON Schemas |
 | [`examples/`](examples/) | Synthetic dashboard, metric catalogs, local-state examples |
 | [`fixtures/formats/v1/`](fixtures/formats/v1/) | Positive and negative fixtures shared by Python and Rust |
 | [`tools/` and `tests/`](tools/) | Python reference validators and tests; not the product runtime |

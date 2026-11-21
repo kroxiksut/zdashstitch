@@ -97,10 +97,13 @@ pub fn decide_update_reconciliation(
         return UpdateEvidence::NotVisible;
     }
     if let Some(update) = &entry.portable_update {
-        if update.readback.fingerprint(observed).as_deref() == Some(&entry.expected_fingerprint) {
+        if observed.server_version().to_string() == entry.server_version
+            && update.readback.fingerprint(observed).as_deref() == Some(&entry.expected_fingerprint)
+        {
             return UpdateEvidence::ExpectedFound;
         }
-        return if observed.server_version().to_string() == entry.server_version
+        return if entry.blueprint_readback().is_none()
+            && observed.server_version().to_string() == entry.server_version
             && observed.fingerprint() == entry.source_fingerprint
         {
             UpdateEvidence::SourceFound

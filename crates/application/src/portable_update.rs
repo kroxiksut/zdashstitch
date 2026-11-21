@@ -111,6 +111,17 @@ impl PortableUpdateRecord {
                 && mapping.valid_pages();
         }
         match (intent, &self.readback, &self.deployment_id) {
+            ("append_blueprint", PortableUpdateReadback::AppendedBlueprint, None) => {
+                crate::workcopy::is_workcopy_id(id)
+            }
+            (
+                "append_blueprint",
+                PortableUpdateReadback::AppendedBlueprintAt {
+                    page: 0..=49,
+                    widget: 0..=255,
+                },
+                None,
+            ) => crate::workcopy::is_workcopy_id(id),
             ("append_page", PortableUpdateReadback::AddedPage { page: 1..=49 }, None) => {
                 page || dashboard
             }

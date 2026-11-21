@@ -27,6 +27,11 @@ use crate::{
         UpdatePage,
     },
     page_library::PageLibrary,
+    reusable_library::ReusableLibrary,
+    reusable_widgets::{
+        self, PageReusableState, ReusableAction, ReusableActionResult, ReusableHistoryAction,
+        ReusableOperation,
+    },
     workcopy::{
         WorkcopyError,
         store::{LocalStore, read_bounded, write_atomic},
@@ -115,6 +120,8 @@ struct DashboardFile {
     dashboards: Vec<OfflineDashboard>,
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     removed_widgets: BTreeMap<String, BTreeMap<String, RemovedWidgets>>,
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    reusable: BTreeMap<String, BTreeMap<String, PageReusableState>>,
 }
 
 pub struct OfflineDashboardStore {
@@ -289,18 +296,24 @@ impl OfflineDashboardStore {
         dashboard_id: &str,
         page_id: &str,
     ) -> Result<Option<OfflinePageView>, WorkcopyError> {
-        let Some(dashboard) = self.get(dashboard_id)? else {
+        let mut file = self.load()?;
+        let Some(index) = file
+            .dashboards
+            .iter()
+            .position(|entry| entry.local_id == dashboard_id)
+        else {
             return Ok(None);
         };
+        let dashboard = file.dashboards.swap_remove(index);
         let ProjectRoot::Dashboard(root) = &dashboard.bundle.project.root else {
             return Err(corrupt());
         };
         let Some(page) = root.pages.iter().find(|page| page.id == page_id) else {
             return Ok(None);
         };
-        self.page_snapshot(&dashboard, page.clone())?
-            .view()
-            .map(Some)
+        let mut view = self.page_snapshot(&dashboard, page.clone())?.view()?;
+        set_reusable_info(&mut view, &file.reusable, dashboard_id, page_id);
+        Ok(Some(view))
     }
 
     fn page_snapshot(
@@ -397,9 +410,150 @@ impl OfflineDashboardStore {
             .map_err(|_| invalid())?;
         dashboard.revision = dashboard.revision.checked_add(1).ok_or_else(corrupt)?;
         dashboard.updated_at_ms = now_ms().max(dashboard.updated_at_ms);
-        let snapshot = self.page_snapshot(dashboard, new_page)?.view()?;
+        if let Some(state) = file
+            .reusable
+            .get_mut(dashboard_id)
+            .and_then(|pages| pages.get_mut(page_id))
+        {
+            state.edited(&new_page);
+        }
+        let mut snapshot = self.page_snapshot(dashboard, new_page)?.view()?;
+        set_reusable_info(&mut snapshot, &file.reusable, dashboard_id, page_id);
         self.write(&file)?;
         Ok(snapshot)
+    }
+
+    pub fn reusable_action(
+        &self,
+        dashboard_id: &str,
+        page_id: &str,
+        request: &ReusableAction,
+        apply: bool,
+    ) -> Result<ReusableActionResult, WorkcopyError> {
+        let _lock = WRITE_LOCK
+            .lock()
+            .map_err(|_| WorkcopyError::new("storage_write_failed"))?;
+        let mut file = self.load()?;
+        let dashboard = file
+            .dashboards
+            .iter_mut()
+            .find(|entry| entry.local_id == dashboard_id)
+            .ok_or_else(|| WorkcopyError::new("offline_dashboard_not_found"))?;
+        if dashboard.revision != request.expected_revision {
+            return Err(WorkcopyError::new("offline_page_conflict"));
+        }
+        let asset = ReusableLibrary::new(self.root.clone()).get(&request.asset_id)?;
+        let states = file.reusable.get(dashboard_id);
+        let state = states.and_then(|pages| pages.get(page_id));
+        dashboard_page(&dashboard.bundle, page_id)?;
+        let (next, preview) = if matches!(
+            request.operation,
+            ReusableOperation::Style {
+                entire_dashboard: true,
+                ..
+            }
+        ) {
+            reusable_widgets::plan_dashboard_style(&dashboard.bundle, &asset, request, states)?
+        } else {
+            reusable_widgets::plan(&dashboard.bundle, page_id, &asset, request, state)?
+        };
+        if !apply || !preview.has_changes() {
+            return Ok(ReusableActionResult {
+                preview,
+                page: None,
+            });
+        }
+        dashboard.revision = dashboard.revision.checked_add(1).ok_or_else(corrupt)?;
+        dashboard.updated_at_ms = now_ms().max(dashboard.updated_at_ms);
+        let states = file.reusable.entry(dashboard_id.to_owned()).or_default();
+        for changed_page in preview.changed_pages(page_id) {
+            let old_page = dashboard_page(&dashboard.bundle, &changed_page)?.clone();
+            states.entry(changed_page).or_default().record(
+                old_page,
+                dashboard.revision,
+                dashboard.updated_at_ms,
+                &asset,
+                &preview,
+            );
+        }
+        dashboard.bundle = next;
+        let page = dashboard_page(&dashboard.bundle, page_id)?;
+        let mut view = self.page_snapshot(dashboard, page.clone())?.view()?;
+        set_reusable_info(&mut view, &file.reusable, dashboard_id, page_id);
+        self.write(&file)?;
+        Ok(ReusableActionResult {
+            preview,
+            page: Some(view),
+        })
+    }
+
+    pub fn reusable_history(
+        &self,
+        dashboard_id: &str,
+        page_id: &str,
+        revision: u64,
+        action: &ReusableHistoryAction,
+    ) -> Result<OfflinePageView, WorkcopyError> {
+        let _lock = WRITE_LOCK
+            .lock()
+            .map_err(|_| WorkcopyError::new("storage_write_failed"))?;
+        let mut file = self.load()?;
+        let dashboard = file
+            .dashboards
+            .iter_mut()
+            .find(|entry| entry.local_id == dashboard_id)
+            .ok_or_else(|| WorkcopyError::new("offline_dashboard_not_found"))?;
+        if dashboard.revision != revision {
+            return Err(WorkcopyError::new("offline_page_conflict"));
+        }
+        let ProjectRoot::Dashboard(root) = &mut dashboard.bundle.project.root else {
+            return Err(corrupt());
+        };
+        let states = file
+            .reusable
+            .get_mut(dashboard_id)
+            .ok_or_else(|| WorkcopyError::new("reusable_history_unavailable"))?;
+        match action {
+            ReusableHistoryAction::Switch { redo } => {
+                let mut restored = false;
+                for page in &mut root.pages {
+                    if let Some(state) = states.get_mut(&page.id) {
+                        let info = state.info(revision);
+                        if if *redo { info.redo } else { info.undo } {
+                            state.history(page, revision, *redo)?;
+                            restored = true;
+                        }
+                    }
+                }
+                if !restored {
+                    return Err(WorkcopyError::new("reusable_history_unavailable"));
+                }
+            }
+            ReusableHistoryAction::Detach { widget_id } => {
+                let page = root
+                    .pages
+                    .iter()
+                    .find(|page| page.id == page_id)
+                    .ok_or_else(|| WorkcopyError::new("offline_page_not_found"))?;
+                let state = states
+                    .get_mut(page_id)
+                    .ok_or_else(|| WorkcopyError::new("reusable_history_unavailable"))?;
+                state.detach(page, revision, widget_id)?;
+            }
+        }
+        let page = root
+            .pages
+            .iter()
+            .find(|page| page.id == page_id)
+            .cloned()
+            .ok_or_else(corrupt)?;
+        dashboard.bundle.validate().map_err(|_| corrupt())?;
+        dashboard.revision = dashboard.revision.checked_add(1).ok_or_else(corrupt)?;
+        dashboard.updated_at_ms = now_ms().max(dashboard.updated_at_ms);
+        let mut view = self.page_snapshot(dashboard, page)?.view()?;
+        set_reusable_info(&mut view, &file.reusable, dashboard_id, page_id);
+        self.write(&file)?;
+        Ok(view)
     }
 
     pub fn create(&self, request: CreateDashboard) -> Result<OfflineDashboard, WorkcopyError> {
@@ -466,6 +620,21 @@ impl OfflineDashboardStore {
             .find(|item| item.local_id == id)
             .ok_or_else(corrupt)?;
         dashboard.bundle = bundle;
+        if let Some(states) = file.reusable.get_mut(id) {
+            let ProjectRoot::Dashboard(root) = &dashboard.bundle.project.root else {
+                return Err(corrupt());
+            };
+            states.retain(|page_id, state| {
+                let Some(page) = root.pages.iter().find(|page| &page.id == page_id) else {
+                    return false;
+                };
+                state.edited(page);
+                !state.is_empty()
+            });
+            if states.is_empty() {
+                file.reusable.remove(id);
+            }
+        }
         if let Some(archived) = file.removed_widgets.get_mut(id) {
             let ProjectRoot::Dashboard(root) = &dashboard.bundle.project.root else {
                 return Err(corrupt());
@@ -708,6 +877,38 @@ impl Default for DashboardFile {
             format: "zdashstitch.offline-dashboards/v0".to_owned(),
             dashboards: Vec::new(),
             removed_widgets: BTreeMap::new(),
+            reusable: BTreeMap::new(),
+        }
+    }
+}
+
+fn dashboard_page<'a>(
+    bundle: &'a TypedPortableBundle,
+    page_id: &str,
+) -> Result<&'a Page, WorkcopyError> {
+    let ProjectRoot::Dashboard(root) = &bundle.project.root else {
+        return Err(corrupt());
+    };
+    root.pages
+        .iter()
+        .find(|page| page.id == page_id)
+        .ok_or_else(|| WorkcopyError::new("offline_page_not_found"))
+}
+
+fn set_reusable_info(
+    view: &mut OfflinePageView,
+    states: &BTreeMap<String, BTreeMap<String, PageReusableState>>,
+    dashboard_id: &str,
+    page_id: &str,
+) {
+    if let Some(pages) = states.get(dashboard_id) {
+        if let Some(state) = pages.get(page_id) {
+            view.reusable = state.info(view.page.revision);
+        }
+        for state in pages.values() {
+            let info = state.info(view.page.revision);
+            view.reusable.undo |= info.undo;
+            view.reusable.redo |= info.redo;
         }
     }
 }

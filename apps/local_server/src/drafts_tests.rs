@@ -109,6 +109,17 @@ async fn rpc(
         }
         "dashboard.get" if script.list["lld_fixture"] == true => json!([]),
         "dashboard.get" => script.list.clone(),
+        "host.get" if script.list["blueprint_fixture"] == true
+            && body["params"]["hostids"] == json!(["40002"]) =>
+        {
+            json!([{"hostid":"40002","host":"synthetic-target","name":"Synthetic target"}])
+        }
+        "item.get" if script.list["blueprint_fixture"] == true
+            && body["params"]["hostids"] == json!(["40002"]) =>
+        {
+            json!([{"itemid":"30002","hostid":"40002","key_":"synthetic.rate","name":"Rate",
+                "value_type":"0","units":"","status":"0","flags":"0","templateid":"0"}])
+        }
         "host.get" | "item.get" | "itemprototype.get" if script.list["clone_8_0"] == true => {
             clone_8_0::lookup(&script.list, &method, &body["params"])
         }
@@ -2494,6 +2505,158 @@ async fn list_preview_import_and_drafts_round_trip() {
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn a_blueprint_can_be_inserted_into_a_copy_without_server_writes() {
+    let mut source = dashboard("Synthetic blueprint target");
+    source["pages"][0]["widgets"][0]["type"] = json!("clock");
+    source["pages"][0]["widgets"][0]["fields"] = json!([]);
+    let app = App::start(Script {
+        snapshots: VecDeque::from([json!([source])]),
+        list: json!({"blueprint_fixture": true}),
+        methods: Vec::new(),
+    })
+    .await;
+    let connection = app.connect().await;
+    let (status, imported) = app
+        .call(
+            "POST",
+            &format!("/api/server/{connection}/dashboards/501/import"),
+            Some(json!({"scope": "page", "dashboard_pageid": "5010"})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::CREATED);
+    let local_id = imported["local_id"]
+        .as_str()
+        .unwrap_or_else(|| panic!("copy id"));
+    let asset = json!({
+        "kind": "widget_blueprint",
+        "document": {
+            "format": "zdashstitch.widget-blueprint/v1",
+            "blueprint_id": "91c0d2e4-6a1b-4f3c-8e5d-7b9a0c1d2e3f",
+            "name": "Synthetic blueprint",
+            "version": 1, "adapter": "7.4", "widget_type": "item",
+            "default_size": {"width": 12, "height": 3},
+            "parameters": {"roles": [{"param": "source_host", "cardinality": "one"}],
+                "metrics": [{"param": "rate", "value_type": "numeric_float"}]},
+            "fields": [{"name": "itemid.0", "field_type": 4,
+                "value": {"kind": "metric", "metric": "$rate", "role": "$source_host", "selection": "one"}}]
+        }
+    });
+    let (status, asset) = app.call("POST", "/api/library/reusable", Some(asset)).await;
+    assert_eq!(status, StatusCode::CREATED, "{asset}");
+    let path = format!("/api/drafts/{local_id}/reusable-blueprint");
+    let (_, style) = app
+        .call(
+            "GET",
+            &format!("/api/drafts/{local_id}/reusable-style"),
+            None,
+        )
+        .await;
+    let mut action = json!({
+        "expected_revision": style["revision"],
+        "blueprint_id": asset["asset"]["document"]["blueprint_id"],
+        "blueprint_revision": asset["revision"],
+        "page_id": "5010", "x": 0, "y": 0,
+        "roles": {"source_host": {"host": null, "slots": {}}}, "metrics": {"rate": null}
+    });
+    let methods = app.methods();
+    let (status, conflict) = app
+        .call("POST", &path, Some(json!({"action": action})))
+        .await;
+    assert_eq!(status, StatusCode::UNPROCESSABLE_ENTITY);
+    assert_eq!(conflict["code"], "reusable_blueprint_placement");
+    action["x"] = json!(12);
+    let (status, preview) = app
+        .call("POST", &path, Some(json!({"action": action})))
+        .await;
+    assert_eq!(status, StatusCode::OK, "{preview}");
+    assert_eq!(preview["unresolved"], json!(["itemid.0"]));
+    let (status, _) = app
+        .call(
+            "POST",
+            &path,
+            Some(json!({"action": action, "approved_fingerprint": "stale"})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::CONFLICT);
+    let (status, inserted) = app.call(
+        "POST", &path, Some(json!({"action": action, "approved_fingerprint": preview["fingerprint"], "allow_unbound": true})),
+    ).await;
+    assert_eq!(status, StatusCode::OK, "{inserted}");
+    let (status, detail) = app
+        .call("GET", &format!("/api/drafts/{local_id}"), None)
+        .await;
+    assert_eq!(status, StatusCode::OK, "{detail}");
+    assert_eq!(detail["counts"]["widgets"], 2);
+    assert_eq!(detail["pages"][0]["widgets"][1]["unbound_sources"], 1);
+    assert_eq!(app.methods(), methods, "the local operation called Zabbix");
+
+    let imported = inspect_template_file(
+        "synthetic.json",
+        br#"{"zabbix_export":{"version":"7.4","templates":[{"template":"Synthetic metrics","items":[{"name":"Rate","key":"synthetic.rate","value_type":"FLOAT"}]}]}}"#,
+    ).unwrap_or_else(|| panic!("known extension")).unwrap_or_else(|error| panic!("{error}"));
+    action["metrics"]["rate"] = json!({"catalog_id": imported[0].catalog.catalog_id,
+        "metric_id": imported[0].catalog.metrics[0].id, "version": 1});
+    CatalogLibrary::new(app.storage.path().to_owned())
+        .save(imported)
+        .unwrap_or_else(|error| panic!("{error}"));
+    action["roles"]["source_host"]["host"] = json!("40002");
+    action["expected_revision"] = inserted["revision"].clone();
+    action["rebind_widget"] = inserted["widget"]["id"].clone();
+    let (status, rebound) = app
+        .call("POST", &path, Some(json!({"action": action})))
+        .await;
+    assert_eq!(status, StatusCode::OK, "{rebound}");
+    assert_eq!(rebound["unresolved"], json!([]));
+    let (status, rebound) = app
+        .call(
+            "POST",
+            &path,
+            Some(json!({"action": action, "approved_fingerprint": rebound["fingerprint"]})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK, "{rebound}");
+    assert_eq!(rebound["widget"], inserted["widget"]);
+    let (status, publication) = app.call("GET", &path, None).await;
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(
+        publication,
+        json!({
+            "revision": rebound["revision"], "has_blueprint": true, "publication": null,
+        })
+    );
+    let (status, _) = app
+        .call(
+            "POST",
+            &format!("/api/drafts/{local_id}/publication/plan"),
+            Some(json!({
+                "action": "update_blueprint",
+                "revision": rebound["revision"],
+                "base_fingerprint": "0".repeat(64),
+                "local_fingerprint": "1".repeat(64),
+                "widgetid": "30002",
+            })),
+        )
+        .await;
+    assert_eq!(status, StatusCode::BAD_REQUEST);
+    let service =
+        zdashstitch_application::workcopy::WorkcopyService::new(app.storage.path().to_owned());
+    let bundle = service
+        .convert_dependency_free_page(local_id)
+        .unwrap_or_else(|error| panic!("{error}"));
+    let converted = serde_json::to_value(bundle).unwrap_or_else(|error| panic!("{error}"));
+    assert_eq!(
+        converted["project"]["root"]["widgets"][1]["fields"][0]["value"]["kind"],
+        "unresolved"
+    );
+    assert_eq!(
+        converted["project"]["root"]["widgets"][1]["layout"]["x"],
+        12
+    );
+    assert!(!converted.to_string().contains("30002"));
+    assert_reads_only(&app.methods());
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn selected_dashboard_workcopy_page_is_independent_and_protected() {
     let source = json!({
         "dashboardid": "801", "name": "Synthetic", "userid": "3", "private": "1",
@@ -3779,4 +3942,125 @@ async fn hidden_dashboard_is_not_visible_or_denied() {
         .await;
     assert_eq!(status, StatusCode::NOT_FOUND);
     assert_eq!(body["code"], "not_visible_or_denied");
+}
+
+#[tokio::test]
+async fn reusable_style_requires_session_confirmation_and_retains_local_sources() {
+    use zdashstitch_application::{
+        offline_pages::OfflinePageStore, reusable_library::ReusableDocument,
+    };
+    use zdashstitch_core::formats::{StyleProfile, from_yaml_str, load_typed_project_file};
+
+    let app = App::start(Script::default()).await;
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../examples");
+    let bundle = load_typed_project_file(&root.join("page-v2.yaml"))
+        .unwrap_or_else(|error| panic!("fixture: {error}"));
+    let store = OfflinePageStore::new(app.storage.path().to_path_buf());
+    let draft = store
+        .save_imported(bundle)
+        .unwrap_or_else(|error| panic!("{error}"));
+    let mut style: StyleProfile =
+        from_yaml_str(include_str!("../../../examples/style-profile.yaml"))
+            .unwrap_or_else(|error| panic!("{error}"));
+    style.name = "Synthetic graph palette".into();
+    let document = serde_json::to_value(ReusableDocument::StyleProfile(style))
+        .unwrap_or_else(|error| panic!("{error}"));
+    let mut no_csrf = app.request("POST", "/api/library/reusable", Some(&document.to_string()));
+    no_csrf.headers_mut().remove(CSRF_HEADER);
+    assert_eq!(app.send(no_csrf).await.0, StatusCode::FORBIDDEN);
+    let (status, asset) = app
+        .call("POST", "/api/library/reusable", Some(document))
+        .await;
+    assert_eq!(status, StatusCode::CREATED, "{asset}");
+    let asset_id = asset["asset"]["document"]["profile_id"]
+        .as_str()
+        .unwrap_or_default();
+    let path = format!("/api/library/offline-pages/{}/reusable", draft.local_id);
+    let action = json!({
+        "asset_id":asset_id, "asset_revision":asset["revision"], "expected_revision":draft.revision,
+        "operation":{"kind":"style","widget_ids":["os-memory"],"mode":"replace"}
+    });
+    let (status, refusal) = app
+        .call("POST", &path, Some(json!({"action":action,"apply":true})))
+        .await;
+    assert_eq!(status, StatusCode::CONFLICT);
+    assert_eq!(refusal["code"], "offline_page_edit_lost");
+    let (status, lease) = app
+        .call(
+            "POST",
+            &format!("/api/library/offline-pages/{}/edit-session", draft.local_id),
+            Some(json!({"take_over":false})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK);
+    let token = lease["token"].as_str().unwrap_or_default();
+    let (status, preview) = app
+        .editor_call(&path, token, json!({"action":action,"apply":false}))
+        .await;
+    assert_eq!(status, StatusCode::OK, "{preview}");
+    assert!(preview.get("page").is_none());
+    assert_eq!(
+        preview["preview"]["widgets"][0]["changes"][0]["after"],
+        "#3156A3"
+    );
+    let (status, applied) = app
+        .editor_call(&path, token, json!({"action":action,"apply":true}))
+        .await;
+    assert_eq!(status, StatusCode::OK, "{applied}");
+    assert_eq!(
+        applied["page"]["reusable"]["marks"]["os-memory"]["profile_id"],
+        asset_id
+    );
+    assert!(
+        applied["page"]["bundle"]["project"]
+            .get("reusable")
+            .is_none()
+    );
+    assert_eq!(
+        applied["page"]["bundle"]["project"]["root"]["widgets"][0]["series"][0]["metric"]["metric"],
+        "memory_used"
+    );
+    let (status, restored) = app
+        .editor_call(
+            &format!("{path}-history"),
+            token,
+            json!({"expected_revision":applied["page"]["revision"],"action":{"kind":"switch","redo":false}}),
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK, "{restored}");
+    assert_eq!(
+        restored["bundle"]["project"]["root"]["widgets"][0]["series"][0].get("color"),
+        None
+    );
+    assert_eq!(restored["reusable"]["redo"], true);
+    let export_path = format!("/api/library/reusable/{asset_id}/export");
+    let (status, _) = app
+        .call(
+            "POST",
+            &export_path,
+            Some(json!({"expected_revision":asset["revision"],"acknowledged": false})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::CONFLICT);
+    let (status, download) = app
+        .call(
+            "POST",
+            &export_path,
+            Some(json!({"expected_revision":asset["revision"],"acknowledged": true})),
+        )
+        .await;
+    assert_eq!(status, StatusCode::CREATED, "{download}");
+    let (status, yaml) = app
+        .send(app.request(
+            "GET",
+            &format!(
+                "/api/downloads/{}",
+                download["id"].as_str().unwrap_or_default()
+            ),
+            None,
+        ))
+        .await;
+    assert_eq!(status, StatusCode::OK);
+    assert!(yaml.contains("zdashstitch.style-profile/v1"));
+    assert!(!yaml.contains("reusable") && !yaml.contains("os-memory"));
 }

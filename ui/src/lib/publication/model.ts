@@ -69,6 +69,12 @@ export interface CheckResult {
 
 export type PlanRequest =
   | {
+      readonly action: 'update_style' | 'update_blueprint';
+      readonly revision: number;
+      readonly base_fingerprint: string;
+      readonly local_fingerprint: string;
+    }
+  | {
       readonly action: 'update_source';
       readonly revision: number;
       readonly base_fingerprint: string;

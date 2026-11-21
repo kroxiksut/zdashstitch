@@ -1751,6 +1751,123 @@ impl MessageId {
     pub const REDACTION_WIDGET_TEXT: Self = Self("redaction.widget_text");
     pub const REDACTION_WITH_VALUE: Self = Self("redaction.with_value");
     pub const REPLACE_HOST_SOURCE: Self = Self("replace_host.source");
+    pub const REUSABLE_ADAPTER: Self = Self("reusable.adapter");
+    pub const REUSABLE_ALL: Self = Self("reusable.all");
+    pub const REUSABLE_APPLY: Self = Self("reusable.apply");
+    pub const REUSABLE_ASSIGNMENT_INVALID: Self = Self("reusable.assignment_invalid");
+    pub const REUSABLE_BEFORE_DEFAULT: Self = Self("reusable.before_default");
+    pub const REUSABLE_BLUEPRINT_ACTION: Self = Self("reusable.blueprint_action");
+    pub const REUSABLE_BLUEPRINT_CATALOG: Self = Self("reusable.blueprint_catalog");
+    pub const REUSABLE_BLUEPRINT_CATALOG_MISSING: Self = Self("reusable.blueprint_catalog_missing");
+    pub const REUSABLE_BLUEPRINT_COPY_HINT: Self = Self("reusable.blueprint_copy_hint");
+    pub const REUSABLE_BLUEPRINT_HOST: Self = Self("reusable.blueprint_host");
+    pub const REUSABLE_BLUEPRINT_HOST_SEARCH: Self = Self("reusable.blueprint_host_search");
+    pub const REUSABLE_BLUEPRINT_HOST_TRUNCATED: Self = Self("reusable.blueprint_host_truncated");
+    pub const REUSABLE_BLUEPRINT_INVENTORY_INCOMPLETE: Self = Self("reusable.blueprint_inventory_incomplete");
+    pub const REUSABLE_BLUEPRINT_KEEP_UNBOUND: Self = Self("reusable.blueprint_keep_unbound");
+    pub const REUSABLE_BLUEPRINT_PLACEMENT: Self = Self("reusable.blueprint_placement");
+    pub const REUSABLE_BLUEPRINT_REBIND: Self = Self("reusable.blueprint_rebind");
+    pub const REUSABLE_BLUEPRINT_REBIND_HINT: Self = Self("reusable.blueprint_rebind_hint");
+    pub const REUSABLE_BLUEPRINT_SOURCE_MISSING: Self = Self("reusable.blueprint_source_missing");
+    pub const REUSABLE_BLUEPRINT_X: Self = Self("reusable.blueprint_x");
+    pub const REUSABLE_BLUEPRINT_Y: Self = Self("reusable.blueprint_y");
+    pub const REUSABLE_BLUEPRINTS: Self = Self("reusable.blueprints");
+    pub const REUSABLE_BUILTIN: Self = Self("reusable.builtin");
+    pub const REUSABLE_BUILTIN_BARS: Self = Self("reusable.builtin_bars");
+    pub const REUSABLE_BUILTIN_LINE: Self = Self("reusable.builtin_line");
+    pub const REUSABLE_CANCEL: Self = Self("reusable.cancel");
+    pub const REUSABLE_CANCEL_IMPORT: Self = Self("reusable.cancel_import");
+    pub const REUSABLE_CHANGED: Self = Self("reusable.changed");
+    pub const REUSABLE_CHOOSE: Self = Self("reusable.choose");
+    pub const REUSABLE_CHOOSE_FILE: Self = Self("reusable.choose_file");
+    pub const REUSABLE_CHOOSE_VALUE: Self = Self("reusable.choose_value");
+    pub const REUSABLE_COLLISION: Self = Self("reusable.collision");
+    pub const REUSABLE_COMPATIBLE: Self = Self("reusable.compatible");
+    pub const REUSABLE_CONFIRM_DELETE: Self = Self("reusable.confirm_delete");
+    pub const REUSABLE_CONFIRM_PUBLISH_BLUEPRINT: Self = Self("reusable.confirm_publish_blueprint");
+    pub const REUSABLE_CONFLICT: Self = Self("reusable.conflict");
+    pub const REUSABLE_COPY_BLUEPRINT_PUBLISH: Self = Self("reusable.copy_blueprint_publish");
+    pub const REUSABLE_COPY_STYLE_PUBLISH: Self = Self("reusable.copy_style_publish");
+    pub const REUSABLE_COPY_STYLE_REVIEW_PUBLISH: Self = Self("reusable.copy_style_review_publish");
+    pub const REUSABLE_COPY_STYLE_SKIPPED: Self = Self("reusable.copy_style_skipped");
+    pub const REUSABLE_CREATE_STYLE: Self = Self("reusable.create_style");
+    pub const REUSABLE_DELETE: Self = Self("reusable.delete");
+    pub const REUSABLE_DELETE_PROMPT: Self = Self("reusable.delete_prompt");
+    pub const REUSABLE_DESCRIPTION: Self = Self("reusable.description");
+    pub const REUSABLE_DETACH: Self = Self("reusable.detach");
+    pub const REUSABLE_DETAILS: Self = Self("reusable.details");
+    pub const REUSABLE_DUPLICATE: Self = Self("reusable.duplicate");
+    pub const REUSABLE_EDIT: Self = Self("reusable.edit");
+    pub const REUSABLE_EMPTY: Self = Self("reusable.empty");
+    pub const REUSABLE_EXPORT: Self = Self("reusable.export");
+    pub const REUSABLE_EXPORT_ACK: Self = Self("reusable.export_ack");
+    pub const REUSABLE_EXPORT_BLOCKED: Self = Self("reusable.export_blocked");
+    pub const REUSABLE_EXPORT_FINDINGS: Self = Self("reusable.export_findings");
+    pub const REUSABLE_EXPORT_INFO: Self = Self("reusable.export_info");
+    pub const REUSABLE_EXPORT_REVIEW: Self = Self("reusable.export_review");
+    pub const REUSABLE_EXTRACT: Self = Self("reusable.extract");
+    pub const REUSABLE_EXTRACT_BLUEPRINT_HELP: Self = Self("reusable.extract_blueprint_help");
+    pub const REUSABLE_EXTRACT_STYLE_HELP: Self = Self("reusable.extract_style_help");
+    pub const REUSABLE_FILE: Self = Self("reusable.file");
+    pub const REUSABLE_FORMAT_NEWER: Self = Self("reusable.format_newer");
+    pub const REUSABLE_FROM_PROFILE: Self = Self("reusable.from_profile");
+    pub const REUSABLE_HISTORY_ACTION: Self = Self("reusable.history_action");
+    pub const REUSABLE_IMPORT: Self = Self("reusable.import");
+    pub const REUSABLE_IMPORT_INVALID: Self = Self("reusable.import_invalid");
+    pub const REUSABLE_INCOMPATIBLE: Self = Self("reusable.incompatible");
+    pub const REUSABLE_INSERT: Self = Self("reusable.insert");
+    pub const REUSABLE_INSERT_READY: Self = Self("reusable.insert_ready");
+    pub const REUSABLE_INSPECT_FILE: Self = Self("reusable.inspect_file");
+    pub const REUSABLE_ITEM: Self = Self("reusable.item");
+    pub const REUSABLE_LOADED: Self = Self("reusable.loaded");
+    pub const REUSABLE_LOCAL: Self = Self("reusable.local");
+    pub const REUSABLE_METRIC: Self = Self("reusable.metric");
+    pub const REUSABLE_MODE: Self = Self("reusable.mode");
+    pub const REUSABLE_MODE_KEEP: Self = Self("reusable.mode_keep");
+    pub const REUSABLE_MODE_MERGE: Self = Self("reusable.mode_merge");
+    pub const REUSABLE_MODE_REPLACE: Self = Self("reusable.mode_replace");
+    pub const REUSABLE_NAME: Self = Self("reusable.name");
+    pub const REUSABLE_NO_CHANGES: Self = Self("reusable.no_changes");
+    pub const REUSABLE_NO_OBJECTS: Self = Self("reusable.no_objects");
+    pub const REUSABLE_OPEN_FILE: Self = Self("reusable.open_file");
+    pub const REUSABLE_OPERATION_FAILED: Self = Self("reusable.operation_failed");
+    pub const REUSABLE_ORIGIN: Self = Self("reusable.origin");
+    pub const REUSABLE_PALETTE: Self = Self("reusable.palette");
+    pub const REUSABLE_PALETTE_HINT: Self = Self("reusable.palette_hint");
+    pub const REUSABLE_PARTIAL: Self = Self("reusable.partial");
+    pub const REUSABLE_PROFILE_DELETED: Self = Self("reusable.profile_deleted");
+    pub const REUSABLE_PROFILE_OUTDATED: Self = Self("reusable.profile_outdated");
+    pub const REUSABLE_PROFILES: Self = Self("reusable.profiles");
+    pub const REUSABLE_PUBLISH_BLUEPRINT: Self = Self("reusable.publish_blueprint");
+    pub const REUSABLE_PUBLISH_STYLE: Self = Self("reusable.publish_style");
+    pub const REUSABLE_RENAME: Self = Self("reusable.rename");
+    pub const REUSABLE_REPLACE: Self = Self("reusable.replace");
+    pub const REUSABLE_REQUEST_SAVE: Self = Self("reusable.request_save");
+    pub const REUSABLE_REVIEW: Self = Self("reusable.review");
+    pub const REUSABLE_ROLE: Self = Self("reusable.role");
+    pub const REUSABLE_SAVE: Self = Self("reusable.save");
+    pub const REUSABLE_SAVE_COPY: Self = Self("reusable.save_copy");
+    pub const REUSABLE_SAVE_FILE: Self = Self("reusable.save_file");
+    pub const REUSABLE_SAVING: Self = Self("reusable.saving");
+    pub const REUSABLE_SCOPE: Self = Self("reusable.scope");
+    pub const REUSABLE_SCOPE_DASHBOARD: Self = Self("reusable.scope_dashboard");
+    pub const REUSABLE_SCOPE_PAGE: Self = Self("reusable.scope_page");
+    pub const REUSABLE_SCOPE_SELECTION: Self = Self("reusable.scope_selection");
+    pub const REUSABLE_SEARCH: Self = Self("reusable.search");
+    pub const REUSABLE_SLOT: Self = Self("reusable.slot");
+    pub const REUSABLE_STORAGE_FAILED: Self = Self("reusable.storage_failed");
+    pub const REUSABLE_STYLE_ACTION: Self = Self("reusable.style_action");
+    pub const REUSABLE_STYLE_SOURCE_UNSUPPORTED: Self = Self("reusable.style_source_unsupported");
+    pub const REUSABLE_SVGGRAPH: Self = Self("reusable.svggraph");
+    pub const REUSABLE_TAGS: Self = Self("reusable.tags");
+    pub const REUSABLE_TITLE: Self = Self("reusable.title");
+    pub const REUSABLE_UNBOUND: Self = Self("reusable.unbound");
+    pub const REUSABLE_UNRESOLVED: Self = Self("reusable.unresolved");
+    pub const REUSABLE_UNSUPPORTED_ADAPTER: Self = Self("reusable.unsupported_adapter");
+    pub const REUSABLE_UNSUPPORTED_BLUEPRINT: Self = Self("reusable.unsupported_blueprint");
+    pub const REUSABLE_UNVERIFIED: Self = Self("reusable.unverified");
+    pub const REUSABLE_UNVERIFIED_BLUEPRINT_PUBLISH: Self = Self("reusable.unverified_blueprint_publish");
+    pub const REUSABLE_UPDATE_PROFILE: Self = Self("reusable.update_profile");
     pub const SERVER_ACTION_CLONE: Self = Self("server.action.clone");
     pub const SERVER_ACTION_COPY: Self = Self("server.action.copy");
     pub const SERVER_ACTION_OPEN_COPY: Self = Self("server.action.open_copy");
@@ -3778,6 +3895,123 @@ impl MessageId {
         Self::REDACTION_WIDGET_TEXT,
         Self::REDACTION_WITH_VALUE,
         Self::REPLACE_HOST_SOURCE,
+        Self::REUSABLE_ADAPTER,
+        Self::REUSABLE_ALL,
+        Self::REUSABLE_APPLY,
+        Self::REUSABLE_ASSIGNMENT_INVALID,
+        Self::REUSABLE_BEFORE_DEFAULT,
+        Self::REUSABLE_BLUEPRINT_ACTION,
+        Self::REUSABLE_BLUEPRINT_CATALOG,
+        Self::REUSABLE_BLUEPRINT_CATALOG_MISSING,
+        Self::REUSABLE_BLUEPRINT_COPY_HINT,
+        Self::REUSABLE_BLUEPRINT_HOST,
+        Self::REUSABLE_BLUEPRINT_HOST_SEARCH,
+        Self::REUSABLE_BLUEPRINT_HOST_TRUNCATED,
+        Self::REUSABLE_BLUEPRINT_INVENTORY_INCOMPLETE,
+        Self::REUSABLE_BLUEPRINT_KEEP_UNBOUND,
+        Self::REUSABLE_BLUEPRINT_PLACEMENT,
+        Self::REUSABLE_BLUEPRINT_REBIND,
+        Self::REUSABLE_BLUEPRINT_REBIND_HINT,
+        Self::REUSABLE_BLUEPRINT_SOURCE_MISSING,
+        Self::REUSABLE_BLUEPRINT_X,
+        Self::REUSABLE_BLUEPRINT_Y,
+        Self::REUSABLE_BLUEPRINTS,
+        Self::REUSABLE_BUILTIN,
+        Self::REUSABLE_BUILTIN_BARS,
+        Self::REUSABLE_BUILTIN_LINE,
+        Self::REUSABLE_CANCEL,
+        Self::REUSABLE_CANCEL_IMPORT,
+        Self::REUSABLE_CHANGED,
+        Self::REUSABLE_CHOOSE,
+        Self::REUSABLE_CHOOSE_FILE,
+        Self::REUSABLE_CHOOSE_VALUE,
+        Self::REUSABLE_COLLISION,
+        Self::REUSABLE_COMPATIBLE,
+        Self::REUSABLE_CONFIRM_DELETE,
+        Self::REUSABLE_CONFIRM_PUBLISH_BLUEPRINT,
+        Self::REUSABLE_CONFLICT,
+        Self::REUSABLE_COPY_BLUEPRINT_PUBLISH,
+        Self::REUSABLE_COPY_STYLE_PUBLISH,
+        Self::REUSABLE_COPY_STYLE_REVIEW_PUBLISH,
+        Self::REUSABLE_COPY_STYLE_SKIPPED,
+        Self::REUSABLE_CREATE_STYLE,
+        Self::REUSABLE_DELETE,
+        Self::REUSABLE_DELETE_PROMPT,
+        Self::REUSABLE_DESCRIPTION,
+        Self::REUSABLE_DETACH,
+        Self::REUSABLE_DETAILS,
+        Self::REUSABLE_DUPLICATE,
+        Self::REUSABLE_EDIT,
+        Self::REUSABLE_EMPTY,
+        Self::REUSABLE_EXPORT,
+        Self::REUSABLE_EXPORT_ACK,
+        Self::REUSABLE_EXPORT_BLOCKED,
+        Self::REUSABLE_EXPORT_FINDINGS,
+        Self::REUSABLE_EXPORT_INFO,
+        Self::REUSABLE_EXPORT_REVIEW,
+        Self::REUSABLE_EXTRACT,
+        Self::REUSABLE_EXTRACT_BLUEPRINT_HELP,
+        Self::REUSABLE_EXTRACT_STYLE_HELP,
+        Self::REUSABLE_FILE,
+        Self::REUSABLE_FORMAT_NEWER,
+        Self::REUSABLE_FROM_PROFILE,
+        Self::REUSABLE_HISTORY_ACTION,
+        Self::REUSABLE_IMPORT,
+        Self::REUSABLE_IMPORT_INVALID,
+        Self::REUSABLE_INCOMPATIBLE,
+        Self::REUSABLE_INSERT,
+        Self::REUSABLE_INSERT_READY,
+        Self::REUSABLE_INSPECT_FILE,
+        Self::REUSABLE_ITEM,
+        Self::REUSABLE_LOADED,
+        Self::REUSABLE_LOCAL,
+        Self::REUSABLE_METRIC,
+        Self::REUSABLE_MODE,
+        Self::REUSABLE_MODE_KEEP,
+        Self::REUSABLE_MODE_MERGE,
+        Self::REUSABLE_MODE_REPLACE,
+        Self::REUSABLE_NAME,
+        Self::REUSABLE_NO_CHANGES,
+        Self::REUSABLE_NO_OBJECTS,
+        Self::REUSABLE_OPEN_FILE,
+        Self::REUSABLE_OPERATION_FAILED,
+        Self::REUSABLE_ORIGIN,
+        Self::REUSABLE_PALETTE,
+        Self::REUSABLE_PALETTE_HINT,
+        Self::REUSABLE_PARTIAL,
+        Self::REUSABLE_PROFILE_DELETED,
+        Self::REUSABLE_PROFILE_OUTDATED,
+        Self::REUSABLE_PROFILES,
+        Self::REUSABLE_PUBLISH_BLUEPRINT,
+        Self::REUSABLE_PUBLISH_STYLE,
+        Self::REUSABLE_RENAME,
+        Self::REUSABLE_REPLACE,
+        Self::REUSABLE_REQUEST_SAVE,
+        Self::REUSABLE_REVIEW,
+        Self::REUSABLE_ROLE,
+        Self::REUSABLE_SAVE,
+        Self::REUSABLE_SAVE_COPY,
+        Self::REUSABLE_SAVE_FILE,
+        Self::REUSABLE_SAVING,
+        Self::REUSABLE_SCOPE,
+        Self::REUSABLE_SCOPE_DASHBOARD,
+        Self::REUSABLE_SCOPE_PAGE,
+        Self::REUSABLE_SCOPE_SELECTION,
+        Self::REUSABLE_SEARCH,
+        Self::REUSABLE_SLOT,
+        Self::REUSABLE_STORAGE_FAILED,
+        Self::REUSABLE_STYLE_ACTION,
+        Self::REUSABLE_STYLE_SOURCE_UNSUPPORTED,
+        Self::REUSABLE_SVGGRAPH,
+        Self::REUSABLE_TAGS,
+        Self::REUSABLE_TITLE,
+        Self::REUSABLE_UNBOUND,
+        Self::REUSABLE_UNRESOLVED,
+        Self::REUSABLE_UNSUPPORTED_ADAPTER,
+        Self::REUSABLE_UNSUPPORTED_BLUEPRINT,
+        Self::REUSABLE_UNVERIFIED,
+        Self::REUSABLE_UNVERIFIED_BLUEPRINT_PUBLISH,
+        Self::REUSABLE_UPDATE_PROFILE,
         Self::SERVER_ACTION_CLONE,
         Self::SERVER_ACTION_COPY,
         Self::SERVER_ACTION_OPEN_COPY,

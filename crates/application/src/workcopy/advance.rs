@@ -14,7 +14,7 @@
 //! [`ReadOnlyGateway`]; the old snapshot stays on disk.
 
 use serde_json::Value;
-use zdashstitch_zabbix::ReadOnlyGateway;
+use zdashstitch_zabbix::{PortableUpdateReadback, ReadOnlyGateway};
 
 use super::formats::{BaseReference, LOCAL_ONLY, SNAPSHOT_FORMAT, SnapshotFile, SnapshotScope};
 use super::service::{count, local_metadata, now_ms, referenced_items, zabbix_error};
@@ -60,6 +60,28 @@ impl WorkcopyService {
         reader: &ReadOnlyGateway,
         published: &PublishedUpdate,
     ) -> Result<AdvancedBase, WorkcopyError> {
+        self.advance_with_readback(reader, published, None).await
+    }
+
+    pub async fn advance_blueprint_base(
+        &self,
+        reader: &ReadOnlyGateway,
+        published: &PublishedUpdate,
+        readback: &PortableUpdateReadback,
+    ) -> Result<AdvancedBase, WorkcopyError> {
+        if !readback.is_blueprint() {
+            return Err(WorkcopyError::new("base_advance_mismatch").with("what", "remote"));
+        }
+        self.advance_with_readback(reader, published, Some(readback))
+            .await
+    }
+
+    async fn advance_with_readback(
+        &self,
+        reader: &ReadOnlyGateway,
+        published: &PublishedUpdate,
+        readback: Option<&PortableUpdateReadback>,
+    ) -> Result<AdvancedBase, WorkcopyError> {
         let (file, base) = self.load_with_base(&published.local_id)?;
         if file.source.connection_id != published.connection_id {
             return Err(WorkcopyError::new("workcopy_other_connection"));
@@ -70,13 +92,28 @@ impl WorkcopyService {
         if base.fingerprint() != published.source_fingerprint {
             return Err(WorkcopyError::new("base_advance_mismatch").with("what", "base"));
         }
+        if readback.is_some()
+            && (!file.source.matches_publication_identity(reader)
+                || !reader
+                    .matches_live_version()
+                    .await
+                    .map_err(|error| zabbix_error(&error))?)
+        {
+            return Err(WorkcopyError::new("base_advance_mismatch").with("what", "remote"));
+        }
         let first_read_at_ms = now_ms();
         let remote = reader
             .dashboard_snapshot(&file.source.connection_id, &file.source.dashboardid)
             .await
             .map_err(|error| zabbix_error(&error))?
             .ok_or_else(|| WorkcopyError::new("base_advance_mismatch").with("what", "missing"))?;
-        if remote.fingerprint() != published.expected_fingerprint
+        let matches = readback.map_or_else(
+            || remote.fingerprint() == published.expected_fingerprint,
+            |readback| {
+                readback.fingerprint(&remote).as_deref() == Some(&published.expected_fingerprint)
+            },
+        );
+        if !matches
             || remote.server_version() != base.server_version()
             || remote.adapter_id() != base.adapter_id()
         {
@@ -147,7 +184,8 @@ impl WorkcopyService {
         current.local_metadata = metadata;
         current.revision = current.revision.saturating_add(1);
         current.updated_at_ms = read_at_ms.max(current.updated_at_ms);
-        self.store.replace_workcopy(&current)?;
+        self.store
+            .replace_workcopy_if_revision(&current, published.revision)?;
         Ok(AdvancedBase {
             local_id: published.local_id.clone(),
             revision: current.revision,

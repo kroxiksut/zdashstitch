@@ -97,6 +97,8 @@ export interface DraftWidget {
   readonly editable: boolean;
   /** Server data: the host the widget shows, when it is one known host. */
   readonly host_name?: string;
+  readonly unbound_sources?: number;
+  readonly blueprint_id?: string;
 }
 
 export interface DraftPage {
